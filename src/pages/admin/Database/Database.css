@@ -1,0 +1,127 @@
+/* DATABASE MANAGEMENT STYLES - MINIMALIST WHITE INDUSTRIAL */
+
+.admin-database-page {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+}
+
+/* Glass Panels for Stats */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.8);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    border-radius: 0;
+}
+
+.glass-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* BACKUP MANAGEMENT */
+.backup-management,
+.auto-backup-config {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin-top: 2rem;
+}
+
+.backup-section h3 {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-5) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.backup-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.backup-option-card {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 0px;
+  padding: var(--spacing-6);
+  text-align: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 25px -10px rgba(0,0,0,0.1) !important;
+}
+
+.backup-option-card:hover {
+  border-color: var(--black);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px -10px rgba(0,0,0,0.2) !important;
+}
+
+.backup-option-card h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-2) 0;
+}
+
+.backup-option-card p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0 0 var(--spacing-4) 0;
+}
+
+/* Data Flow Animation (NoSQL) - Trenito Effect */
+@keyframes flow-trenito {
+    0% { left: 0%; opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { left: calc(100% - 35px); opacity: 0; }
+}
+
+.data-flow-pulse {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Dropdown Industrial Enhancements */
+.dropdown__item--sql { color: #2980b9; }
+.dropdown__item--json { color: #f39c12; }
+.dropdown__item--excel { color: #27ae60; }
+.dropdown__item--pdf { color: #e74c3c; }
+
+/* TABLE CUSTOMIZATION - DATABASE VAULTS */
+.sql-vault-scoped-table thead,
+.sql-vault-scoped-table thead tr,
+.nosql-vault-scoped-table thead,
+.nosql-vault-scoped-table thead tr {
+    background-color: #111111 !important;
+}
+
+.sql-vault-scoped-table thead th,
+.nosql-vault-scoped-table thead th {
+    background-color: #111111 !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #000000 !important;
+    font-weight: 900 !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    padding: 0.75rem 0.75rem !important;
+}
+
+/* Ensuring icons inside header are also white */
+.sql-vault-scoped-table thead th svg,
+.nosql-vault-scoped-table thead th svg {
+    color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+    .database-mgmt__stats-banner { flex-direction: column; }
+    .backup-options { grid-template-columns: 1fr; }
+}

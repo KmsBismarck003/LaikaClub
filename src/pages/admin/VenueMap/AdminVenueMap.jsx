@@ -1,118 +1,195 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import VenueMapSVG from '../../../components/VenueMapSVG';
-import { Badge, Button, AnimatedCounter, Icon } from '../../../components';
+import { Badge, Button, Icon } from '../../../components';
 import Skeleton from '../../../components/Skeleton';
+import { venueAPI } from '../../../services/api';
+import { useNotification } from '../../../context/NotificationContext';
 import './AdminVenueMap.css';
 
-const INITIAL_ZONES = [
-    { id: 'vip', name: 'PLATINO VIP', type: 'seating', price: '$2,500', rows: 4, count: 60, points: [ {x: 160, y: 140}, {x: 640, y: 140}, {x: 680, y: 250}, {x: 120, y: 250} ] },
-    { id: 'platino', name: 'ZONA PLATINO', type: 'seating', price: '$1,500', rows: 5, count: 100, points: [ {x: 110, y: 260}, {x: 690, y: 260}, {x: 730, y: 370}, {x: 70, y: 370} ] },
-    { id: 'plataIzq', name: 'ZONA PLATA IZQ', type: 'seating', price: '$800', rows: 7, count: 35, points: [ {x: 35, y: 140}, {x: 100, y: 140}, {x: 55, y: 370}, {x: -25, y: 370} ] },
-    { id: 'plataDer', name: 'ZONA PLATA DER', type: 'seating', price: '$800', rows: 7, count: 35, points: [ {x: 700, y: 140}, {x: 765, y: 140}, {x: 825, y: 370}, {x: 745, y: 370} ] },
-    { id: 'bronce', name: 'GENERAL BRONCE', type: 'seating', price: '$400', rows: 6, count: 150, points: [ {x: 70, y: 380}, {x: 730, y: 380}, {x: 785, y: 510}, {x: 15, y: 510} ] },
-    { id: 'escenario', name: 'ESCENARIO', type: 'stage', points: [ {x: 150, y: 10}, {x: 650, y: 10}, {x: 680, y: 120}, {x: 120, y: 120} ] }
-];
-
-const STADIUM_ZONES = [
-    { id: 'norte', name: 'GRADA NORTE', type: 'seating', price: '$600', rows: 8, count: 200, points: [ {x: 150, y: 110}, {x: 650, y: 110}, {x: 700, y: 50}, {x: 100, y: 50} ] },
-    { id: 'sur', name: 'GRADA SUR', type: 'seating', price: '$600', rows: 8, count: 200, points: [ {x: 100, y: 450}, {x: 700, y: 450}, {x: 650, y: 390}, {x: 150, y: 390} ] },
-    { id: 'oriente', name: 'GRADA ORIENTE', type: 'seating', price: '$1,200', rows: 10, count: 120, points: [ {x: 680, y: 120}, {x: 780, y: 80}, {x: 780, y: 420}, {x: 680, y: 380} ] },
-    { id: 'poniente', name: 'GRADA PONIENTE', type: 'seating', price: '$1,200', rows: 10, count: 120, points: [ {x: 20, y: 80}, {x: 120, y: 120}, {x: 120, y: 380}, {x: 20, y: 420} ] },
-    { id: 'cancha', name: 'CANCHA / FIELD', type: 'corridor', points: [ {x: 160, y: 140}, {x: 640, y: 140}, {x: 640, y: 360}, {x: 160, y: 360} ] },
-    { id: 'escenario', name: 'ESCENARIO', type: 'stage', points: [ {x: 150, y: 10}, {x: 650, y: 10}, {x: 680, y: 120}, {x: 120, y: 120} ] }
-];
-
-// --- PRESET EXCLUSIVO PARA SUMMER EDITION (COMPLEJO) ---
-const SUMMER_EDITION_PRESET = [
-    { id: 'stage-main', name: 'STAGE', type: 'stage', points: [ {x: 600, y: 200}, {x: 750, y: 200}, {x: 750, y: 400}, {x: 600, y: 400} ] },
-    { id: 'stage-runway', name: 'RUNWAY', type: 'stage', points: [ {x: 430, y: 280}, {x: 600, y: 280}, {x: 600, y: 320}, {x: 430, y: 320} ] },
-    { id: 'stage-thrust', name: 'THRUST', type: 'stage', points: [ {x: 360, y: 240}, {x: 430, y: 240}, {x: 430, y: 360}, {x: 360, y: 360} ] },
-    { id: 'ga-blue', name: 'GENERAL ADMISSION', type: 'corridor', points: [ {x: 60, y: 170}, {x: 340, y: 170}, {x: 340, y: 430}, {x: 60, y: 430} ] },
-    { id: 'vip-red-top', name: 'VIP FRONT B', type: 'seating', price: '$2,500', rows: 6, count: 100, points: [ {x: 360, y: 140}, {x: 580, y: 140}, {x: 580, y: 230}, {x: 440, y: 230} ] },
-    { id: 'vip-red-bottom', name: 'VIP FRONT B', type: 'seating', price: '$2,500', rows: 6, count: 100, points: [ {x: 360, y: 370}, {x: 580, y: 370}, {x: 580, y: 460}, {x: 440, y: 460} ] },
-    { id: 'box-top-left', name: 'BOX 1', type: 'seating', price: '$1,500', rows: 2, count: 10, points: [ {x: 200, y: 90}, {x: 350, y: 90}, {x: 350, y: 130}, {x: 200, y: 130} ] },
-    { id: 'box-top-right', name: 'BOX 2', type: 'seating', price: '$1,500', rows: 2, count: 10, points: [ {x: 370, y: 90}, {x: 520, y: 90}, {x: 520, y: 130}, {x: 370, y: 130} ] },
-    { id: 'box-bottom-left', name: 'BOX 3', type: 'seating', price: '$1,500', rows: 2, count: 10, points: [ {x: 200, y: 470}, {x: 350, y: 470}, {x: 350, y: 510}, {x: 200, y: 510} ] },
-    { id: 'box-bottom-right', name: 'BOX 4', type: 'seating', price: '$1,500', rows: 2, count: 10, points: [ {x: 370, y: 470}, {x: 520, y: 470}, {x: 520, y: 510}, {x: 370, y: 510} ] },
-    { id: 'tier-inner-blue', name: 'TIER INNER BLUE', type: 'seating', price: '$1,200', rows: 10, count: 200, points: [ {x: 10, y: 120}, {x: 180, y: 80}, {x: 180, y: 520}, {x: 10, y: 480} ] },
-    { id: 'tier-middle-red', name: 'TIER MIDDLE RED', type: 'seating', price: '$800', rows: 12, count: 300, points: [ {x: 190, y: 20}, {x: 550, y: 20}, {x: 550, y: 70}, {x: 190, y: 70} ] },
-    { id: 'tier-outer-yellow', name: 'TIER OUTER YELLOW', type: 'seating', price: '$400', rows: 15, count: 500, points: [ {x: 570, y: 20}, {x: 780, y: 20}, {x: 780, y: 180}, {x: 570, y: 100} ] },
-    { id: 'tier-outer-yellow-2', name: 'TIER OUTER YELLOW 2', type: 'seating', price: '$400', rows: 15, count: 500, points: [ {x: 570, y: 500}, {x: 780, y: 420}, {x: 780, y: 580}, {x: 570, y: 580} ] }
-];
-
-const THEATER_PRESET = [
-    { id: 'stage', name: 'ESCENARIO PRAL', type: 'stage', points: [ {x: 250, y: 400}, {x: 550, y: 400}, {x: 550, y: 550}, {x: 250, y: 550} ] },
-    { id: 'platea', name: 'PLATEA A', type: 'seating', price: '$1,200', rows: 8, count: 80, points: [ {x: 200, y: 250}, {x: 600, y: 250}, {x: 650, y: 380}, {x: 150, y: 380} ] },
-    { id: 'mezzanine', name: 'MEZZANINE', type: 'seating', price: '$800', rows: 6, count: 120, points: [ {x: 100, y: 50}, {x: 700, y: 50}, {x: 750, y: 230}, {x: 50, y: 230} ] }
-];
-
-const CLUB_PRESET = [
-    { id: 'dj-booth', name: 'DJ BOOTH', type: 'stage', points: [ {x: 350, y: 30}, {x: 450, y: 30}, {x: 450, y: 150}, {x: 350, y: 150} ] },
-    { id: 'dancefloor', name: 'DANCE FLOOR', type: 'corridor', points: [ {x: 250, y: 200}, {x: 550, y: 200}, {x: 550, y: 500}, {x: 250, y: 500} ] },
-    { id: 'vip-lounge-1', name: 'VIP LOUNGE LEFT', type: 'seating', price: '$3,000', rows: 4, count: 20, points: [ {x: 50, y: 150}, {x: 230, y: 150}, {x: 230, y: 550}, {x: 50, y: 550} ] },
-    { id: 'vip-lounge-2', name: 'VIP LOUNGE RIGHT', type: 'seating', price: '$3,000', rows: 4, count: 20, points: [ {x: 570, y: 150}, {x: 750, y: 150}, {x: 750, y: 550}, {x: 570, y: 550} ] }
-];
-
-const AUDITORIUM_PRESET = [
-    { id: 'podium', name: 'PODIUM / MODERADOR', type: 'stage', points: [ {x: 300, y: 50}, {x: 500, y: 50}, {x: 520, y: 150}, {x: 280, y: 150} ] },
-    { id: 'front-seating', name: 'ZONA MAGNA', type: 'seating', price: '$500', rows: 10, count: 150, points: [ {x: 150, y: 170}, {x: 650, y: 170}, {x: 700, y: 350}, {x: 100, y: 350} ] },
-    { id: 'back-seating', name: 'ZONA GENERAL', type: 'seating', price: '$300', rows: 12, count: 200, points: [ {x: 50, y: 370}, {x: 750, y: 370}, {x: 780, y: 550}, {x: 20, y: 550} ] }
-];
-
-const BOXING_PRESET = [
-    { id: 'ring', name: 'THE RING (MAIN)', type: 'stage', points: [ {x: 320, y: 220}, {x: 480, y: 220}, {x: 480, y: 380}, {x: 320, y: 380} ] },
-    { id: 'ringside-n', name: 'RINGSIDE NORTH', type: 'seating', price: '$5,000', rows: 3, count: 30, points: [ {x: 300, y: 100}, {x: 500, y: 100}, {x: 500, y: 200}, {x: 300, y: 200} ] },
-    { id: 'ringside-s', name: 'RINGSIDE SOUTH', type: 'seating', price: '$5,000', rows: 3, count: 30, points: [ {x: 300, y: 400}, {x: 500, y: 400}, {x: 500, y: 500}, {x: 300, y: 500} ] },
-    { id: 'ringside-e', name: 'RINGSIDE EAST', type: 'seating', price: '$5,000', rows: 3, count: 30, points: [ {x: 520, y: 220}, {x: 650, y: 220}, {x: 650, y: 380}, {x: 520, y: 380} ] },
-    { id: 'ringside-w', name: 'RINGSIDE WEST', type: 'seating', price: '$5,000', rows: 3, count: 30, points: [ {x: 150, y: 220}, {x: 280, y: 220}, {x: 280, y: 380}, {x: 150, y: 380} ] }
-];
-
-const AMPHITHEATER_PRESET = [
-    { id: 'lawn', name: 'LAWN (GENERAL)', type: 'corridor', points: [ {x: 20, y: 20}, {x: 780, y: 20}, {x: 750, y: 130}, {x: 50, y: 130} ] },
-    { id: 'terrace', name: 'TERRACE B', type: 'seating', price: '$600', rows: 8, count: 200, points: [ {x: 100, y: 150}, {x: 700, y: 150}, {x: 750, y: 330}, {x: 50, y: 330} ] },
-    { id: 'orchestra', name: 'ORCHESTRA A', type: 'seating', price: '$900', rows: 5, count: 100, points: [ {x: 200, y: 350}, {x: 600, y: 350}, {x: 650, y: 480}, {x: 150, y: 480} ] },
-    { id: 'stage', name: 'STAGE OPEN AIR', type: 'stage', points: [ {x: 300, y: 500}, {x: 500, y: 500}, {x: 550, y: 580}, {x: 250, y: 580} ] }
-];
-
-const VENUE_TEMPLATES = [
-    { id: 'arena', name: 'CONCERT ARENA', icon: 'music', preset: INITIAL_ZONES },
-    { id: 'stadium', name: 'OLYMPIC STADIUM', icon: 'layout', preset: STADIUM_ZONES },
-    { id: 'festival', name: 'SUMMER FESTIVAL', icon: 'sun', preset: SUMMER_EDITION_PRESET },
-    { id: 'theater', name: 'INTIMATE THEATER', icon: 'theater', preset: THEATER_PRESET },
-    { id: 'club', name: 'CLUB / LOUNGE', icon: 'zap', preset: CLUB_PRESET },
-    { id: 'auditorium', name: 'AUDITORIUM EXPO', icon: 'users', preset: AUDITORIUM_PRESET },
-    { id: 'boxing', name: 'BOXING / MMA RING', icon: 'shield', preset: BOXING_PRESET },
-    { id: 'amphitheater', name: 'AMPHITHEATER', icon: 'image', preset: AMPHITHEATER_PRESET }
-];
-
 const AdminVenueMap = () => {
+    const { venueId, roomId } = useParams();
+    const navigate = useNavigate();
+    const { success, error: showError } = useNotification();
     const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 900);
-        return () => clearTimeout(timer);
-    }, []);
+    const [saving, setSaving] = useState(false);
 
     const [selectedSeats, setSelectedSeats] = useState([]);
-    const [selectedEventId, setSelectedEventId] = useState('1');
-    const [isEditMode, setIsEditMode] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(true);
 
-    // Estado para la geometría de las zonas (Permite manipulación tipo Canva) con persistencia
-    const [zones, setZones] = useState(() => {
-        const saved = localStorage.getItem('venue_zones_edited');
-        return saved ? JSON.parse(saved) : INITIAL_ZONES;
-    });
+    const [zones, setZones] = useState([]);
+    const [selectedZoneId, setSelectedZoneId] = useState(null);
+    const [mapView, setMapView] = useState({ zoom: 1, pan: { x: 0, y: 0 } });
+    const [seatTypes, setSeatTypes] = useState([]);
+    const [seatGenConfig, setSeatGenConfig] = useState({ rows: 5, cols: 10, startRow: 'A', startNum: 1 });
+    const [isDrawingMode, setIsDrawingMode] = useState(false);
+    const [quickGenData, setQuickGenData] = useState(null);
+    const [totalCapacity, setTotalCapacity] = useState(0);
+    const [roomInfo, setRoomInfo] = useState({ name: 'Sala' });
+    const [history, setHistory] = useState([]);
+    const [future, setFuture] = useState([]);
+    const [clipboard, setClipboard] = useState(null);
+
+    const fetchMap = useCallback(async () => {
+        setLoading(true);
+        try {
+            // Fetch the room details for the title (optional, could be passed or fetched)
+            // For now just assume we have the room map
+            const [typesResponse, response] = await Promise.all([
+                venueAPI.getSeatTypes(),
+                venueAPI.getRoomMap(roomId)
+            ]);
+            setSeatTypes(typesResponse || []);
+            
+            if (response) {
+                setRoomInfo(response);
+                setTotalCapacity(response.total_capacity || response.capacity || 0);
+            }
+
+            if (response && response.zones && response.zones.length > 0) {
+                const mappedZones = response.zones.map(z => ({
+                    backend_id: z.id,
+                    id: z.frontend_id,
+                    name: z.name,
+                    count: z.capacity,
+                    type: z.geometry_json?.type || 'seating',
+                    points: z.geometry_json?.points || [],
+                    textPos: z.geometry_json?.textPos,
+                    textAngle: z.geometry_json?.textAngle,
+                    curveAmounts: z.geometry_json?.curveAmounts,
+                    tier: z.tier,
+                    color: z.color_hex,
+                    price: `$${z.base_price}`,
+                    blocks: z.blocks?.map(b => ({
+                        backend_id: b.id,
+                        id: b.frontend_id,
+                        name: b.name,
+                        layout_json: b.layout_json,
+                        seats: b.seats?.map(s => ({
+                            backend_id: s.id,
+                            id: s.frontend_id,
+                            row_label: s.row_label,
+                            seat_number: s.seat_number,
+                            x_pos: s.x_pos,
+                            y_pos: s.y_pos,
+                            is_active: s.is_active,
+                            seat_type_id: s.seat_type_id || (typesResponse?.[0]?.id || 1)
+                        })) || []
+                    })) || []
+                }));
+                setZones(mappedZones);
+                if (response.layout_metadata) {
+                    setMapView({
+                        zoom: response.layout_metadata.zoom || 1,
+                        pan: response.layout_metadata.pan || { x: 0, y: 0 }
+                    });
+                }
+            } else {
+                // Empty state or default initialization
+                setZones([]);
+            }
+        } catch (err) {
+            console.error(err);
+            if (err.response?.status !== 404) {
+                showError('Error al cargar el mapa');
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, [roomId, showError]);
 
     useEffect(() => {
-        localStorage.setItem('venue_zones_edited', JSON.stringify(zones));
+        if (roomId) {
+            fetchMap();
+        }
+    }, [roomId, fetchMap]);
+
+    const addToHistory = useCallback((currentZones) => {
+        setHistory(prev => [...prev.slice(-19), JSON.parse(JSON.stringify(zones))]);
+        setFuture([]);
     }, [zones]);
 
-    const [selectedZoneId, setSelectedZoneId] = useState(null);
-    
-    // Función para aumentar/disminuir precio
+    const undo = useCallback(() => {
+        if (history.length === 0) return;
+        const previous = history[history.length - 1];
+        setFuture(prev => [JSON.parse(JSON.stringify(zones)), ...prev]);
+        setHistory(prev => prev.slice(0, -1));
+        setZones(previous);
+    }, [history, zones]);
+
+    const redo = useCallback(() => {
+        if (future.length === 0) return;
+        const next = future[0];
+        setHistory(prev => [...prev, JSON.parse(JSON.stringify(zones))]);
+        setFuture(prev => prev.slice(1));
+        setZones(next);
+    }, [future, zones]);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                redo();
+            } else if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                if (selectedZoneId) {
+                    const zone = zones.find(z => z.id === selectedZoneId);
+                    if (zone) setClipboard(JSON.parse(JSON.stringify(zone)));
+                }
+            } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+                if (clipboard) {
+                    addToHistory(zones);
+                    const newId = `zone-${Date.now()}`;
+                    const newZone = {
+                        ...JSON.parse(JSON.stringify(clipboard)),
+                        id: newId,
+                        backend_id: null,
+                        points: clipboard.points.map(p => ({ x: p.x + 20, y: p.y + 20 })),
+                        name: `${clipboard.name} COPIA`
+                    };
+                    setZones(prev => [...prev, newZone]);
+                    setSelectedZoneId(newId);
+                }
+            } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedSeats.length > 0 && isEditMode) {
+                    addToHistory(zones);
+                    setZones(prev => prev.map(z => {
+                        const newBlocks = z.blocks?.map(b => {
+                            const remainingSeats = b.seats.filter(s => !selectedSeats.includes(s.id));
+                            // Recorrer asientos: re-asignar seat_number para que sean continuos por fila
+                            const rowGroups = {};
+                            remainingSeats.forEach(s => {
+                                if (!rowGroups[s.row_label]) rowGroups[s.row_label] = [];
+                                rowGroups[s.row_label].push(s);
+                            });
+
+                            Object.keys(rowGroups).forEach(row => {
+                                // Ordenar por posición original (grid_u o x_pos)
+                                rowGroups[row].sort((a, b) => (a.grid_u || a.x_pos) - (b.grid_u || b.x_pos));
+                                rowGroups[row].forEach((s, idx) => {
+                                    s.seat_number = (idx + 1).toString();
+                                });
+                            });
+
+                            return { ...b, seats: remainingSeats };
+                        }) || [];
+                        return { ...z, blocks: newBlocks };
+                    }));
+                    setSelectedSeats([]);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [undo, redo, selectedSeats, isEditMode, zones, addToHistory]);
+
     const handleAdjustPrice = (zoneId, delta) => {
         setZones(prevZones => prevZones.map(z => {
             if (z.id === zoneId) {
-                const currentVal = parseFloat(z.price?.replace('$', '').replace(',', '') || 0);
+                const currentVal = parseFloat(String(z.price || '').replace('$', '').replace(',', '') || 0);
                 const newVal = Math.max(0, currentVal + delta);
                 return { ...z, price: `$${newVal.toLocaleString('en-US')}` };
             }
@@ -120,115 +197,80 @@ const AdminVenueMap = () => {
         }));
     };
 
-    const restoreOriginal = () => {
-        if (window.confirm('¿Estás seguro de que quieres restaurar el mapa original? Se perderán todos los cambios.')) {
-            localStorage.removeItem('venue_zones_edited');
-            setZones(INITIAL_ZONES);
-            setSelectedZoneId(null);
-            resetView();
+    const saveChanges = async () => {
+        setSaving(true);
+        try {
+            // Flatten the nested structure for the backend
+            const flatZones = [];
+            const flatBlocks = [];
+            const flatSeats = [];
+
+            zones.forEach(z => {
+                const zoneId = z.backend_id || (typeof z.id === 'number' ? z.id : null);
+                flatZones.push({
+                    id: zoneId,
+                    name: z.name,
+                    color_hex: z.color || '#cccccc',
+                    geometry_json: {
+                        type: z.type,
+                        points: z.points,
+                        textPos: z.textPos,
+                        textAngle: z.textAngle,
+                        curveAmounts: z.curveAmounts
+                    }
+                });
+
+                if (z.blocks) {
+                    z.blocks.forEach(b => {
+                        const blockId = b.backend_id || (typeof b.id === 'number' ? b.id : null);
+                        flatBlocks.push({
+                            id: blockId,
+                            name: b.name || 'Bloque',
+                            x_position: 0, // Backend expects these, though we might not use them if we use layout_json
+                            y_position: 0,
+                            rotation: 0,
+                            config: b.layout_json || {}
+                        });
+
+                        if (b.seats) {
+                            b.seats.forEach(s => {
+                                flatSeats.push({
+                                    id: s.backend_id || (typeof s.id === 'number' ? s.id : null),
+                                    block_id: blockId,
+                                    zone_id: zoneId,
+                                    seat_type_id: s.seat_type_id || 1,
+                                    seat_label: `${s.row_label || ''}${s.seat_number || ''}`,
+                                    x_position: s.x_pos || 0,
+                                    y_position: s.y_pos || 0,
+                                    status: s.is_active === false ? 'maintenance' : 'active'
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+
+            const payload = {
+                layout_mode: 'map',
+                layout_metadata: {
+                    pan: mapView.pan,
+                    zoom: mapView.zoom
+                },
+                zones: flatZones,
+                blocks: flatBlocks,
+                seats: flatSeats
+            };
+
+            await venueAPI.saveRoomMap(roomId, payload);
+            success('¡Mapa guardado exitosamente en la base de datos!');
+            // Re-fetch to sync IDs and ensure state is fresh
+            await fetchMap();
+        } catch (err) {
+            console.error(err);
+            showError('Error al guardar el mapa: ' + err.message);
+        } finally {
+            setSaving(false);
         }
-    };
-
-    const loadStadiumPreset = () => {
-        if (window.confirm('¿Quieres cargar el diseño de ESTADIO? Esto borrará el diseño actual.')) {
-            setZones(STADIUM_ZONES);
-            setSelectedZoneId(null);
-            resetView();
-        }
-    };
-
-    const [availableEvents, setAvailableEvents] = useState([]);
-
-    const [isCreatingEvent, setIsCreatingEvent] = useState(false);
-    const [newEventData, setNewEventData] = useState({ name: '', price: '1000', templateId: 'arena' });
-
-    // --- NUEVA LÓGICA DE PERSISTENCIA (LOCALSTORAGE REAL) ---
-    useEffect(() => {
-        const savedEvents = localStorage.getItem('laika_custom_events');
-        if (savedEvents) {
-            setAvailableEvents(JSON.parse(savedEvents));
-        }
-    }, []);
-
-    const saveChanges = () => {
-        const storageKey = `laika_map_zones_event_${selectedEventId}`;
-        localStorage.setItem(storageKey, JSON.stringify(zones));
-        // También guardamos la lista de eventos por si se añadió uno nuevo
-        localStorage.setItem('laika_custom_events', JSON.stringify(availableEvents));
-        alert('¡CAMBIOS GUARDADOS REALMENTE! 💾✨ El diseño se mantendrá incluso si recargas la página.');
-    };
-
-    const handleCreateEvent = () => {
-        if (!newEventData.name) return alert('Por favor ingresa un nombre para el evento');
-        
-        const newId = `event-${Date.now()}`;
-        const selectedTemplate = VENUE_TEMPLATES.find(t => t.id === newEventData.templateId);
-        
-        // Ajustar precios en el preset basado en el precio base ingresado
-        const finalizedPreset = selectedTemplate.preset.map(z => ({
-            ...z,
-            price: z.type === 'seating' ? `$${newEventData.price}` : z.price
-        }));
-
-        const newEvent = {
-            id: newId,
-            name: newEventData.name.toUpperCase(),
-            total: 10000,
-            sold: 0,
-            revenue: 0,
-            available: 10000,
-            isCustom: true
-        };
-
-        const updatedEvents = [...availableEvents, newEvent];
-        setAvailableEvents(updatedEvents);
-        localStorage.setItem('laika_custom_events', JSON.stringify(updatedEvents));
-        localStorage.setItem(`laika_map_zones_event_${newId}`, JSON.stringify(finalizedPreset));
-
-        setSelectedEventId(newId);
-        setIsCreatingEvent(false);
-        setNewEventData({ name: '', price: '1000', templateId: 'arena' });
-        alert(`¡Evento "${newEventData.name.toUpperCase()}" creado con éxito usando la plantilla ${selectedTemplate.name}!`);
-    };
-
-    useEffect(() => {
-        const storageKey = `laika_map_zones_event_${selectedEventId}`;
-        const savedZones = localStorage.getItem(storageKey);
-        if (savedZones) {
-            try {
-                setZones(JSON.parse(savedZones));
-            } catch (e) {
-                console.error("Error al cargar zonas guardadas", e);
-                setZones(INITIAL_ZONES);
-            }
-        } else {
-            // Si no hay nada guardado para este evento, cargamos el preset inicial
-            if (selectedEventId === '2') {
-                setZones(SUMMER_EDITION_PRESET);
-            } else if (selectedEventId === '3' || selectedEventId === '4') {
-                setZones(STADIUM_ZONES);
-            } else {
-                setZones(INITIAL_ZONES);
-            }
-        }
-    }, [selectedEventId]);
-    // -------------------------------------------------------
-
-    const duplicateZone = () => {
-        if (!selectedZoneId) return;
-        const zoneToClone = zones.find(z => z.id === selectedZoneId);
-        if (!zoneToClone) return;
-
-        const newId = `${zoneToClone.id}_copy_${Date.now()}`;
-        const newZone = {
-            ...zoneToClone,
-            id: newId,
-            name: `${zoneToClone.name} (Copia)`,
-            points: zoneToClone.points.map(p => ({ x: p.x + 20, y: p.y + 20 })) // Offset
-        };
-
-        setZones([...zones, newZone]);
-        setSelectedZoneId(newId);
     };
 
     const removeZone = () => {
@@ -236,522 +278,471 @@ const AdminVenueMap = () => {
         const zoneToDelete = zones.find(z => z.id === selectedZoneId);
         if (!zoneToDelete) return;
 
-        if (window.confirm(`¿Estás seguro de que quieres eliminar la zona "${zoneToDelete.name.toUpperCase()}"? No se puede deshacer.`)) {
+        if (window.confirm(`¿Estás seguro de que quieres eliminar la zona "${zoneToDelete.name.toUpperCase()}"? Se eliminarán todos sus bloques y asientos.`)) {
             setZones(zones.filter(z => z.id !== selectedZoneId));
             setSelectedZoneId(null);
         }
     };
 
-    // Estado para zoom y navegación del mapa
-    const [mapView, setMapView] = useState({ zoom: 1, pan: { x: 0, y: 0 } });
-
-    const handleZoom = (delta) => {
-        setMapView(prev => ({
-            ...prev,
-            zoom: Math.min(Math.max(prev.zoom + delta, 0.5), 3)
-        }));
-    };
-
-    const handlePan = (dx, dy) => {
-        setMapView(prev => ({
-            ...prev,
-            pan: { x: prev.pan.x + dx, y: prev.pan.y + dy }
-        }));
-    };
-
+    const handleZoom = (delta) => setMapView(prev => ({ ...prev, zoom: Math.min(Math.max(prev.zoom + delta, 0.5), 3) }));
+    const handlePan = (dx, dy) => setMapView(prev => ({ ...prev, pan: { x: prev.pan.x + dx, y: prev.pan.y + dy } }));
     const resetView = () => setMapView({ zoom: 1, pan: { x: 0, y: 0 } });
+    const handleZoomIn = () => handleZoom(0.1);
+    const handleZoomOut = () => handleZoom(-0.1);
 
-    const addZone = (type) => {
+    const addZone = (type, rect = null) => {
+        addToHistory(zones);
         const id = `zone-${Date.now()}`;
+        const points = rect ? [
+            { x: rect.x, y: rect.y },
+            { x: rect.x + rect.width, y: rect.y },
+            { x: rect.x + rect.width, y: rect.y + rect.height },
+            { x: rect.x, y: rect.y + rect.height }
+        ] : [ {x: 350, y: 200}, {x: 450, y: 200}, {x: 450, y: 300}, {x: 350, y: 300} ];
+
         const newZone = {
             id,
             name: `NUEVA ZONA ${type.toUpperCase()}`,
             type,
-            points: [ {x: 350, y: 200}, {x: 450, y: 200}, {x: 450, y: 300}, {x: 350, y: 300} ],
+            points,
             price: type === 'seating' ? '$500' : 'N/A',
-            rows: type === 'seating' ? 5 : 0,
-            count: type === 'seating' ? 50 : 0
+            count: 0,
+            blocks: []
         };
         setZones([...zones, newZone]);
         setSelectedZoneId(id);
+        setIsDrawingMode(false);
+        return id;
     };
 
-    const handleZoomIn = () => handleZoom(0.1);
-    const handleZoomOut = () => handleZoom(-0.1);
+    const handleDrawZone = (rect) => {
+        setQuickGenData({ rect, rows: 5, cols: 10, type: 'seating' });
+    };
+
+    const confirmQuickGen = () => {
+        if (!quickGenData) return;
+        const { rect, rows, cols, type } = quickGenData;
+        
+        if (type === 'seating') {
+            const currentCount = zones.reduce((sum, z) => sum + (z.blocks?.reduce((bSum, b) => bSum + (b.seats?.length || 0), 0) || 0), 0);
+            if (totalCapacity > 0 && currentCount + (rows * cols) > totalCapacity) {
+                showError(`¡Límite excedido! Solo quedan ${totalCapacity - currentCount} asientos disponibles.`);
+                setQuickGenData(null);
+                setIsDrawingMode(false);
+                return;
+            }
+        }
+
+        addToHistory(zones);
+        const zoneId = addZone(type, rect);
+        
+        // Generar asientos inmediatamente solo si es tipo seating
+        if (type === 'seating') {
+            setTimeout(() => {
+                generateSeatsForZone(zoneId, rows, cols);
+                setQuickGenData(null);
+            }, 50);
+        } else {
+            setQuickGenData(null);
+        }
+    };
 
     const updateZoneGeometry = (zoneId, newPoints, textPos, textAngle, curveAmounts) => {
         if (!isEditMode) return;
-        setZones(zones.map(z => z.id === zoneId ? { 
-            ...z, 
-            points: newPoints,
-            textPos: textPos !== undefined ? textPos : z.textPos,
-            textAngle: textAngle !== undefined ? textAngle : z.textAngle,
-            curveAmounts: curveAmounts !== undefined ? curveAmounts : z.curveAmounts
-        } : z));
+        setZones(prev => prev.map(z => {
+            if (z.id !== zoneId) return z;
+            
+            // Si la zona tiene bloques con asientos elásticos (grid_u/grid_v), los recalculamos
+            const updatedBlocks = z.blocks?.map(b => ({
+                ...b,
+                seats: b.seats.map(s => {
+                    if (s.grid_u === undefined || s.grid_v === undefined) return s;
+                    
+                    const u = s.grid_u;
+                    const v = s.grid_v;
+                    const p1 = newPoints[0];
+                    const p2 = newPoints[1];
+                    const p3 = newPoints[2];
+                    const p4 = newPoints[3] || newPoints[0]; // Fallback por si no hay 4 puntos
+
+                    const x = (1 - u) * (1 - v) * p1.x + u * (1 - v) * p2.x + u * v * p3.x + (1 - u) * v * p4.x;
+                    const y = (1 - u) * (1 - v) * p1.y + u * (1 - v) * p2.y + u * v * p3.y + (1 - u) * v * p4.y;
+                    
+                    return { ...s, x_pos: x, y_pos: y };
+                })
+            })) || [];
+
+            return { 
+                ...z, 
+                points: newPoints,
+                blocks: updatedBlocks,
+                textPos: textPos !== undefined ? textPos : z.textPos,
+                textAngle: textAngle !== undefined ? textAngle : z.textAngle,
+                curveAmounts: curveAmounts !== undefined ? curveAmounts : z.curveAmounts
+            };
+        }));
     };
-
-    const currentEvent = availableEvents.find(e => e.id === selectedEventId) || availableEvents[0];
-
-    // Estado para las estadísticas dinámicas
-    const [stats, setStats] = useState(currentEvent);
-
-    useEffect(() => {
-        setStats(currentEvent);
-        setSelectedSeats([]);
-        // Al cambiar de evento, NO reseteamos las zonas aquí, 
-        // ya lo hace el useEffect de persistencia arriba.
-    }, [selectedEventId]);
 
     const adjustPosition = (dx, dy) => {
         if (!selectedZoneId) return;
         const zone = zones.find(z => z.id === selectedZoneId);
         if (!zone) return;
-        
         const newPoints = zone.points.map(p => ({ x: p.x + dx, y: p.y + dy }));
         updateZoneGeometry(selectedZoneId, newPoints);
     };
 
-    // Simulación de actualizaciones en vivo (Eliminada a petición del usuario)
-    useEffect(() => {
-        // No realizar acciones de simulación ficticia
-    }, [selectedEventId]);
+    // Función mejorada para generar asientos con configuración
+    const generateSeatsForZone = (targetId = null, customRows = null, customCols = null) => {
+        const zoneId = targetId || selectedZoneId;
+        if (!zoneId) return;
 
-    // EFECTO DE RESCATE: Asegurar que el Escenario esté presente en el estado actual
-    useEffect(() => {
-        setZones(prev => {
-            const hasEscenario = prev.some(z => z.id === 'escenario');
-            if (!hasEscenario) {
-                const stageZone = INITIAL_ZONES.find(z => z.id === 'escenario');
-                return [...prev, stageZone];
+        setZones(prev => prev.map(z => {
+            if (z.id !== zoneId) return z;
+            if (z.type !== 'seating') return z;
+
+            const { rows: configRows, cols: configCols, startRow, startNum } = seatGenConfig;
+            const rows = customRows || configRows;
+            const cols = customCols || configCols;
+            
+            const newSeats = [];
+            const rowStartCharCode = (startRow || 'A').charCodeAt(0);
+
+            for (let r = 0; r < rows; r++) {
+                const rowLabel = String.fromCharCode(rowStartCharCode + r);
+                const v = (r + 0.5) / rows; // Posición vertical relativa
+
+                for (let c = 0; c < cols; c++) {
+                    const u = (c + 0.5) / cols; // Posición horizontal relativa
+                    const seatNum = startNum + c;
+                    
+                    // Calculamos posición usando interpolación bilineal basada en los 4 puntos de la zona
+                    const p1 = z.points[0];
+                    const p2 = z.points[1];
+                    const p3 = z.points[2];
+                    const p4 = z.points[3];
+
+                    const x = (1 - u) * (1 - v) * p1.x + u * (1 - v) * p2.x + u * v * p3.x + (1 - u) * v * p4.x;
+                    const y = (1 - u) * (1 - v) * p1.y + u * (1 - v) * p2.y + u * v * p3.y + (1 - u) * v * p4.y;
+
+                    newSeats.push({
+                        id: `seat-${z.id}-${r}-${c}-${Date.now()}`,
+                        row_label: rowLabel,
+                        seat_number: seatNum.toString(),
+                        x_pos: x,
+                        y_pos: y,
+                        grid_u: u, // Guardamos la posición relativa para que sea elástica
+                        grid_v: v,
+                        is_active: true,
+                        seat_type_id: seatTypes[0]?.id || 1
+                    });
+                }
             }
-            return prev;
-        });
-    }, []);
 
-    const counterDuration = 1591; // 3% más lento que 1545ms
+            const newBlock = {
+                id: `block-${z.id}-${Date.now()}`,
+                name: 'Bloque Principal',
+                seats: newSeats
+            };
+
+            return { ...z, blocks: [newBlock], count: newSeats.length };
+        }));
+    };
 
     return (
         <div className="admin-venue-map-page">
-            {/* Banner del Concierto */}
-            <div className="event-hero-banner">
-                {loading ? <Skeleton style={{ height: '100%', width: '100%', minHeight: '160px' }} animate /> : <img src="/assets/events/banner_bad_bunny.png" alt="Event Banner" className="banner-img" />}
-                <div className="banner-overlay">
-                    <div className="banner-content">
-                        {loading ? <Skeleton width="100px" height="18px" /> : <Badge variant="primary" className="mb-2">EVENTO ACTIVO</Badge>}
-                        <h2 className="banner-title">{loading ? <Skeleton width="220px" height="28px" style={{ marginTop: '8px' }} /> : (currentEvent?.name || 'SIN EVENTO SELECCIONADO')}</h2>
-                        <p className="banner-subtitle">{loading ? <Skeleton width="340px" height="14px" style={{ marginTop: '4px' }} /> : 'Monitoreo de Taquilla en Tiempo Real • Estadio Laika'}</p>
-                    </div>
-                </div>
-            </div>
-
             <header className="admin-page-header">
                 <div className="header-left">
-                    <div className="event-selector-box">
-                        {loading ? <Skeleton width="140px" height="34px" /> : (
-                            <select 
-                                value={selectedEventId} 
-                                onChange={(e) => setSelectedEventId(e.target.value)}
-                                className="dynamic-event-selector"
-                            >
-                                {availableEvents.length > 0 ? (
-                                    availableEvents.map(event => (
-                                        <option key={event.id} value={event.id}>{event.name}</option>
-                                    ))
-                                ) : (
-                                    <option value="1">CONCIERTO BASE</option>
-                                )}
-                            </select>
-                        )}
-                        {!loading && (
-                            <button 
-                                className="create-event-btn-mini" 
-                                onClick={() => setIsCreatingEvent(true)}
-                                title="Crear Nuevo Evento"
-                            >
-                                <Icon name="plus" size={16} />
-                            </button>
-                        )}
-                    </div>
-                    <h1>{loading ? <Skeleton width="200px" height="28px" /> : 'Panel de Control de Mapa'}</h1>
+                    <Button variant="ghost" size="small" onClick={() => navigate('/admin/venues')} style={{ color: 'rgba(255,255,255,0.5)' }}>
+                        <Icon name="arrow-left" size={14} /> VOLVER
+                    </Button>
+                    <h1>{roomInfo.name} <span style={{ opacity: 0.3, fontWeight: 400 }}>| Editor de Mapa</span></h1>
                 </div>
+
+                <div className="header-center">
+                    <div className="editor-tabs-premium">
+                        <button className={isEditMode ? 'active' : ''} onClick={() => setIsEditMode(true)}>Diseño de Mapa</button>
+                        <button className={!isEditMode ? 'active' : ''} onClick={() => setIsEditMode(false)}>Asignar Tickets</button>
+                    </div>
+                </div>
+
                 <div className="header-actions">
-                    {loading ? <Skeleton width="150px" height="32px" /> : (
-                        <>
-                            {isEditMode && (
-                                <Button 
-                                    variant="primary" 
-                                    size="small" 
-                                    onClick={saveChanges}
-                                    className="save-changes-btn-premium"
-                                >
-                                    <Icon name="save" size={14} /> <span>GUARDAR CAMBIOS</span>
-                                </Button>
-                            )}
-                            {isEditMode && (
-                                <div className="edit-actions-group">
-                                    <div className="add-zone-dropdown premium">
-                                        <Button variant="primary" size="small" className="btn-add-main">
-                                            <Icon name="plus" size={14} /> <span>AÑADIR...</span>
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
-                            <Button 
-                                variant={isEditMode ? 'primary' : 'outline'} 
-                                size="small" 
-                                onClick={() => {
-                                    setIsEditMode(!isEditMode);
-                                    if (isEditMode) setSelectedZoneId(null);
-                                }}
-                                className="edit-mode-btn"
-                            >
-                                <Icon name={isEditMode ? 'check' : 'edit'} size={14} />
-                                <span>{isEditMode ? 'GUARDAR MAPA' : 'EDITAR DIBUJO'}</span>
-                            </Button>
-                            <Badge variant="success">LIVE: UPDATING EVERY 15S</Badge>
-                        </>
-                    )}
+                    <Button variant="ghost" size="small" onClick={resetView} title="Resetear Vista">
+                        <Icon name="maximize" size={14} />
+                    </Button>
+                    <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', margin: '0 10px' }} />
+                    <Button variant="primary" size="small" onClick={saveChanges} disabled={saving} className="save-changes-btn-premium">
+                        <Icon name="save" size={14} /> <span>{saving ? 'GUARDANDO...' : 'GUARDAR'}</span>
+                    </Button>
                 </div>
             </header>
 
-            <div className="sales-stats-grid premium">
-                {[...Array(4)].map((_, i) => (
-                    <div key={i} className="stat-card-premium">
-                        <div className="stat-icon-box">
-                            {loading ? <Skeleton width="16px" height="16px" /> : <Icon name={['users', 'ticket', 'activity', 'dollar-sign'][i]} size={20} />}
-                        </div>
-                        <div className="stat-content">
-                            <span className="stat-label">
-                                {loading ? <Skeleton width="60px" height="10px" /> : ['TOTAL ASIENTOS', 'VENDIDOS', 'DISPONIBLES', 'INGRESOS EST.'][i]}
-                            </span>
-                            <span className="stat-value">
-                                {loading ? <Skeleton width="40px" height="20px" style={{ marginTop: '4px' }} /> : (
-                                    <AnimatedCounter 
-                                        value={i === 0 ? (stats?.total || 0) : i === 1 ? (stats?.sold || 0) : i === 2 ? (stats?.available || 0) : (stats?.revenue || 0)} 
-                                        duration={counterDuration} 
-                                    />
-                                )}
-                            </span>
-                        </div>
-                    </div>
-                ))}
-            </div>
 
-            <div className="admin-map-container-main">
+            <div className="admin-map-container-main" style={{ height: 'calc(100vh - 120px)' }}>
                 <div className="admin-map-main-layout">
                     <div className="zone-management-sidebar premium">
                         <div className="sidebar-header">
-                            <h3>GESTIÓN DE ZONAS</h3>
-                            <Badge variant="outline" size="small">{zones.length} TOTAL</Badge>
+                            <h3>ELEMENTOS DEL MAPA</h3>
+                            <Badge variant="outline" size="small">{zones.length} OBJETOS</Badge>
                         </div>
-                        <div className="zones-list">
-                            {loading ? (
-                                [...Array(5)].map((_, i) => (
-                                    <div key={i} className="zone-item-premium" style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', padding: '12px 16px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
-                                            <Skeleton width="18px" height="18px" borderRadius="4px" />
-                                            <Skeleton width="130px" height="14px" />
-                                            <Skeleton width="45px" height="14px" style={{ marginLeft: 'auto' }} />
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                zones.map(zone => (
-                                    <div 
-                                        key={zone.id} 
-                                        className={`zone-item-premium ${selectedZoneId === zone.id ? 'active' : ''}`}
-                                        onClick={() => setSelectedZoneId(zone.id)}
-                                    >
-                                    <div className="zone-info">
-                                        <div className="zone-type-icon-box">
-                                            {zone.type === 'seating' ? <Icon name="armchair" size={14} /> : 
-                                             zone.type === 'corridor' ? <Icon name="move" size={14} /> : 
-                                             zone.type === 'wc' ? <Icon name="info" size={14} /> : <Icon name="door-open" size={14} />}
-                                        </div>
-                                        <input 
-                                            className="zone-name-input"
-                                            value={zone.name}
-                                            readOnly={!isEditMode}
-                                            onChange={(e) => {
-                                                const newZones = zones.map(z => 
-                                                    z.id === zone.id ? { ...z, name: e.target.value } : z
-                                                );
-                                                setZones(newZones);
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
-                                        {zone.type === 'seating' && (
-                                            <div className="zone-price-edit-box" style={{ display: 'flex', alignItems: 'center', gap: '2px', padding: '2px 4px' }}>
-                                                 {isEditMode && (
-                                                     <button 
-                                                         onClick={(e) => { e.stopPropagation(); handleAdjustPrice(zone.id, -100); }}
-                                                         style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', color: '#666' }}
-                                                         title="Restar 100"
-                                                     >
-                                                         <Icon name="minus" size={10} />
-                                                     </button>
-                                                 )}
-                                                 <Icon name="dollar-sign" size={10} />
-                                                 <input 
-                                                     className="zone-price-input"
-                                                     value={zone.price?.replace('$', '')}
-                                                     readOnly={!isEditMode}
-                                                     onChange={(e) => {
-                                                         const newZones = zones.map(z => 
-                                                             z.id === zone.id ? { ...z, price: `$${e.target.value}` } : z
-                                                         );
-                                                         setZones(newZones);
-                                                     }}
-                                                     onClick={(e) => e.stopPropagation()}
-                                                     style={{ width: '40px', padding: '0 2px' }}
-                                                 />
-                                                 {isEditMode && (
-                                                     <button 
-                                                         onClick={(e) => { e.stopPropagation(); handleAdjustPrice(zone.id, 100); }}
-                                                         style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', color: '#666' }}
-                                                         title="Sumar 100"
-                                                     >
-                                                         <Icon name="plus" size={10} />
-                                                     </button>
-                                                 )}
-                                             </div>
-                                        )}
-                                    </div>
-                                    {isEditMode && (
-                                        <button 
-                                            className="ghost-delete-btn"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelectedZoneId(zone.id);
-                                                removeZone();
-                                            }}
-                                            title="Eliminar Zona"
-                                        >
-                                            <Icon name="trash-2" size={12} />
-                                        </button>
-                                    )}
-                                </div>
-                            ))
-                            )}
+                        
+                        <div className="editor-help-panel" style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <p style={{ marginBottom: '8px', color: '#eab308', fontWeight: 800 }}>⚙️ EDITOR DE SALA:</p>
+                            <p>Usa la herramienta <strong>Pantalla</strong> para orientar la sala. Luego añade <strong>Filas</strong> y usa el control de curvatura para dar forma.</p>
                         </div>
-                        {isEditMode && selectedZoneId && (() => {
-                            const zoneObj = zones.find(z => z.id === selectedZoneId);
-                            if (!zoneObj) return null;
-                            return (
-                                <div className="fine-tuning-panel" style={{ marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
-                                    <span className="fine-tuning-label">AJUSTE POSICIÓN PRECISA (PX)</span>
-                                    <div className="fine-tuning-controls">
-                                        <Button variant="outline" size="small" onClick={() => adjustPosition(-1, 0)} className="fine-tune-btn">
-                                            <Icon name="chevron-left" size={14} />
-                                        </Button>
-                                        <Button variant="outline" size="small" onClick={() => adjustPosition(1, 0)} className="fine-tune-btn">
-                                            <Icon name="chevron-right" size={14} />
-                                        </Button>
-                                    </div>
-                                    {isEditMode && (
-                                        <button 
-                                            className="ghost-delete-btn"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelectedZoneId(zoneObj.id);
-                                                removeZone();
-                                            }}
-                                            title="Eliminar Zona"
-                                            style={{ marginTop: '10px', width: '100%', display: 'flex', justifyContent: 'center', backgroundColor: 'transparent', border: '1px solid rgba(255,0,0,0.3)', color: '#ff4444', padding: '6px', cursor: 'pointer', borderRadius: '4px' }}
-                                        >
-                                            <Icon name="trash-2" size={14} style={{ marginRight: '6px' }}/> ELIMINAR ZONA ABSOLUTO
-                                        </button>
-                                    )}
+
+                        <div className="zones-list-mini">
+                            {zones.map(z => (
+                                <div key={z.id} className={`zone-mini-item ${selectedZoneId === z.id ? 'active' : ''}`} onClick={() => setSelectedZoneId(z.id)}>
+                                    <Icon name={z.type === 'seating' ? 'armchair' : z.type === 'screen' ? 'monitor' : 'box'} size={12} />
+                                    <span>{z.name}</span>
                                 </div>
-                            );
-                        })()}
-                        <div className="sidebar-footer">
-                            <p>{isEditMode ? 'Haz clic en una zona para editar sus puntos' : 'Vista de inventario de zonas'}</p>
+                            ))}
                         </div>
                     </div>
-                    <div className="admin-map-wrapper">
-                        {/* Nuevo Control de Zoom: Pastilla Blanca Premium */}
+                    <div className="admin-map-wrapper" style={{ background: '#050505', borderRadius: '8px', position: 'relative' }}>
+                        {isEditMode && (
+                            <div className="construction-toolbar-premium">
+                                <button 
+                                    className={isDrawingMode ? 'active' : ''} 
+                                    onClick={() => { setIsDrawingMode(!isDrawingMode); setSelectedZoneId(null); }} 
+                                    title="Dibujar Nueva Zona (Click y Arrastre)"
+                                >
+                                    <Icon name="edit" size={18} />
+                                    <span>Dibujar</span>
+                                </button>
+                                <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+                                <button onClick={() => addZone('seating')} title="Añadir Fila Estándar">
+                                    <Icon name="armchair" size={18} />
+                                    <span>Fila</span>
+                                </button>
+                                <button onClick={() => addZone('table')} title="Añadir Mesa Circular">
+                                    <Icon name="circle" size={18} />
+                                    <span>Mesa</span>
+                                </button>
+                                <button onClick={() => addZone('screen')} title="Añadir Pantalla">
+                                    <Icon name="monitor" size={18} />
+                                    <span>Pantalla</span>
+                                </button>
+                                <button onClick={() => addZone('stage')} title="Añadir Escenario">
+                                    <Icon name="box" size={18} />
+                                    <span>Escenario</span>
+                                </button>
+                            </div>
+                        )}
                         <div className="premium-zoom-pill">
-                            <button className="zoom-pill-btn plus" onClick={handleZoomIn}>
-                                <Icon name="plus" size={16} />
-                            </button>
+                            <button className="zoom-pill-btn plus" onClick={handleZoomIn}><Icon name="plus" size={16} /></button>
                             <div className="zoom-pill-divider" />
                             <div className="zoom-pill-value">{Math.round(mapView.zoom * 100)}%</div>
                             <div className="zoom-pill-divider" />
-                            <button className="zoom-pill-btn minus active" onClick={handleZoomOut}>
-                                <Icon name="minus" size={16} />
-                            </button>
+                            <button className="zoom-pill-btn minus active" onClick={handleZoomOut}><Icon name="minus" size={16} /></button>
                         </div>
-
-                        {/* Controles de Navegación Premium - Joystick mas discreto con flechas negras */}
                         <div className="minimal-pan-joystick persistent premium-joystick compact">
                             <div className="joystick-wrapper">
-                                <button className="joystick-btn up" onClick={() => handlePan(0, -50)} title="Arriba">
-                                    <Icon name="chevronUp" size={16} />
-                                </button>
+                                <button className="joystick-btn up" onClick={() => handlePan(0, -50)}><Icon name="chevronUp" size={16} /></button>
                                 <div className="joystick-middle-row">
-                                    <button className="joystick-btn left" onClick={() => handlePan(-50, 0)} title="Izquierda">
-                                        <Icon name="chevronLeft" size={16} />
-                                    </button>
-                                    <button className="joystick-btn center" onClick={resetView} title="Re-centrar Mapa">
-                                        <Icon name="maximize" size={14} />
-                                    </button>
-                                    <button className="joystick-btn right" onClick={() => handlePan(50, 0)} title="Derecha">
-                                        <Icon name="chevronRight" size={16} />
-                                    </button>
+                                    <button className="joystick-btn left" onClick={() => handlePan(-50, 0)}><Icon name="chevronLeft" size={16} /></button>
+                                    <button className="joystick-btn center" onClick={resetView}><Icon name="maximize" size={14} /></button>
+                                    <button className="joystick-btn right" onClick={() => handlePan(50, 0)}><Icon name="chevronRight" size={16} /></button>
                                 </div>
-                                <button className="joystick-btn down" onClick={() => handlePan(0, 50)} title="Abajo">
-                                    <Icon name="chevronDown" size={16} />
-                                </button>
+                                <button className="joystick-btn down" onClick={() => handlePan(0, 50)}><Icon name="chevronDown" size={16} /></button>
                             </div>
                         </div>
 
                         {loading ? (
-                            <div style={{ width: '100%', height: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Skeleton style={{ width: '100%', height: '100%', borderRadius: '12px' }} animate />
                             </div>
                         ) : (
-                            <VenueMapSVG 
-                                selectedSeats={selectedSeats}
-                                onSeatToggle={(id) => setSelectedSeats(prev => 
-                                    prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
-                                )}
-                                isEditMode={isEditMode}
-                                zones={zones}
-                                onUpdateGeometry={updateZoneGeometry}
-                                onZoneColorChange={(zoneId, color) => {
-                                    setZones(zones.map(z => z.id === zoneId ? { ...z, color: color, tier: null } : z));
-                                }}
-                                selectedZoneId={selectedZoneId}
-                                onZoneSelect={setSelectedZoneId}
-                                mapView={mapView}
-                            />
-                        )}
-                    </div>
-                </div>
-                
-                <div className="admin-map-legend">
-                    <h3>LEYENDA</h3>
-                    <div className="legend-item">
-                        <span className="dot dot-occupied"></span>
-                        <span>Vendido (Ocupado)</span>
-                    </div>
-                    <div className="legend-item">
-                        <span className="dot dot-available"></span>
-                        <span>Disponible</span>
-                    </div>
-                    <div className="legend-item">
-                        <span className="dot dot-selected"></span>
-                        <span>Selección Admin</span>
-                    </div>
-                    {isEditMode && (
-                        <div className="legend-item edit-hint">
-                            <span className="dot dot-edit"></span>
-                            <span>Mueve los puntos rojos para inclinar</span>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* MODAL DE CREACIÓN DE EVENTO Y GALERÍA DE PLANTILLAS */}
-            {isCreatingEvent && (
-                <div className="new-event-modal-overlay">
-                    <div className="new-event-modal-content">
-                        <div className="modal-header-premium">
-                            <Icon name="layout" size={24} />
-                            <div>
-                                <h2>CREAR NUEVO EVENTO</h2>
-                                <p>Configura tu recinto en segundos con nuestras plantillas pro.</p>
-                            </div>
-                            <button className="close-modal-btn" onClick={() => setIsCreatingEvent(false)}>
-                                <Icon name="x" size={20} />
-                            </button>
-                        </div>
-
-                        <div className="modal-body-layout">
-                            <div className="form-section">
-                                <h3 className="section-title">DATOS DEL EVENTO</h3>
-                                <div className="input-group-premium">
-                                    <label>NOMBRE DEL EVENTO</label>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Ej: LAIKA DANCE NIGHT 2026" 
-                                        value={newEventData.name}
-                                        onChange={(e) => setNewEventData({...newEventData, name: e.target.value})}
+                            <>
+                                    <div className="capacity-monitor-premium" onClick={() => {
+                                        if (totalCapacity === 0) {
+                                            const val = prompt('Ingresa la capacidad total de la sala:', '100');
+                                            if (val) setTotalCapacity(parseInt(val));
+                                        }
+                                    }} style={{ cursor: totalCapacity === 0 ? 'pointer' : 'default' }}>
+                                        <div className="capacity-info">
+                                            <span className="label">CAPACIDAD TOTAL</span>
+                                            <span className="value">
+                                                {zones.reduce((sum, z) => sum + (z.blocks?.reduce((bSum, b) => bSum + (b.seats?.length || 0), 0) || 0), 0)} / {totalCapacity || '---'}
+                                            </span>
+                                        </div>
+                                        <div className="capacity-bar-bg">
+                                            <div className="capacity-bar-fill" style={{ width: `${Math.min(100, (zones.reduce((sum, z) => sum + (z.blocks?.reduce((bSum, b) => bSum + (b.seats?.length || 0), 0) || 0), 0) / (totalCapacity || 1)) * 100)}%` }} />
+                                        </div>
+                                        {totalCapacity === 0 && <div style={{ fontSize: '9px', opacity: 0.5, marginTop: '4px' }}>Click para configurar</div>}
+                                    </div>
+                                    <VenueMapSVG 
+                                        selectedSeats={selectedSeats}
+                                        onSeatToggle={(id) => setSelectedSeats(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id])}
+                                        isEditMode={isEditMode}
+                                        zones={zones}
+                                        setZones={setZones}
+                                        onUpdateGeometry={updateZoneGeometry}
+                                        onZoneColorChange={(zoneId, color) => {
+                                            setZones(zones.map(z => z.id === zoneId ? { ...z, color: color, tier: null } : z));
+                                        }}
+                                        selectedZoneId={selectedZoneId}
+                                        onZoneSelect={setSelectedZoneId}
+                                        mapView={mapView}
+                                        seatTypes={seatTypes}
+                                        isDrawing={isDrawingMode}
+                                        onDrawZone={handleDrawZone}
                                     />
-                                </div>
-                                <div className="input-row">
-                                    <div className="input-group-premium">
-                                        <label>PRECIO BASE BOLETO</label>
-                                        <div className="price-input-wrapper">
-                                            <span>$</span>
-                                            <input 
-                                                type="number" 
-                                                value={newEventData.price}
-                                                onChange={(e) => setNewEventData({...newEventData, price: e.target.value})}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="input-group-premium">
-                                        <label>BANNER (SIMULADO)</label>
-                                        <select disabled>
-                                            <option>Banner Estándar Laika</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div className="template-gallery-section">
-                                <h3 className="section-title">ELIGE TU BOCETO DE MAPA (8 DISPONIBLES)</h3>
-                                <div className="templates-grid">
-                                    {VENUE_TEMPLATES.map(template => (
-                                        <div 
-                                            key={template.id} 
-                                            className={`template-card ${newEventData.templateId === template.id ? 'active' : ''}`}
-                                            onClick={() => setNewEventData({...newEventData, templateId: template.id})}
-                                        >
-                                            <div className="template-icon">
-                                                <Icon name={template.icon} size={24} />
+                                    {quickGenData && (
+                                        <div className="quick-gen-dialog" style={{ 
+                                            left: `${quickGenData.rect.x * mapView.zoom + mapView.pan.x}px`, 
+                                            top: `${(quickGenData.rect.y + quickGenData.rect.height) * mapView.zoom + mapView.pan.y + 20}px` 
+                                        }}>
+                                            <h4><Icon name="plus-circle" size={16} /> NUEVO COMPONENTE</h4>
+                                            <div className="form-group">
+                                                <label>Tipo:</label>
+                                                <select 
+                                                    value={quickGenData.type} 
+                                                    onChange={(e) => setQuickGenData({ ...quickGenData, type: e.target.value })}
+                                                >
+                                                    <option value="seating">Zona de Asientos</option>
+                                                    <option value="screen">Pantalla / Proyector</option>
+                                                    <option value="stage">Escenario / Tarima</option>
+                                                </select>
                                             </div>
-                                            <span className="template-name">{template.name}</span>
-                                            {newEventData.templateId === template.id && (
-                                                <div className="selected-badge"><Icon name="check" size={12} /></div>
+
+                                            {quickGenData.type === 'seating' && (
+                                                <>
+                                                    <div className="form-group">
+                                                        <label>Filas:</label>
+                                                        <input 
+                                                            type="number" 
+                                                            value={quickGenData.rows} 
+                                                            onChange={(e) => setQuickGenData({ ...quickGenData, rows: parseInt(e.target.value) || 1 })}
+                                                        />
+                                                    </div>
+                                                    <div className="form-group">
+                                                        <label>Asientos:</label>
+                                                        <input 
+                                                            type="number" 
+                                                            value={quickGenData.cols} 
+                                                            onChange={(e) => setQuickGenData({ ...quickGenData, cols: parseInt(e.target.value) || 1 })}
+                                                        />
+                                                    </div>
+                                                </>
                                             )}
+
+                                            <div className="dialog-actions">
+                                                <Button size="small" variant="ghost" onClick={() => { setQuickGenData(null); setIsDrawingMode(false); }}>Cancelar</Button>
+                                                <Button size="small" variant="primary" onClick={confirmQuickGen}>Generar</Button>
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+                                    )}
 
-                        <div className="modal-footer-premium">
-                            <Button variant="outline" onClick={() => setIsCreatingEvent(false)}>CANCELAR</Button>
-                            <Button variant="primary" onClick={handleCreateEvent} className="create-final-btn">
-                                <Icon name="check" size={16} /> <span>LANZAR EVENTO Y MAPA</span>
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Vista Previa de Usuario (Siempre estática, pero usa la geometría editada) */}
-            <div className="user-preview-section">
-                <div className="preview-header">
-                    <h3>VISTA PREVIA DEL USUARIO</h3>
-                    <p>Así es como se visualiza en la pantalla de detalles del evento</p>
-                </div>
-                <div className="preview-content-box">
-                    <div className="mock-user-view">
-                        <div className="mock-map-header">
-                            <Icon name="map" size={14} /> <span>SELECCIONA TUS ASIENTOS</span>
-                        </div>
-                        <div className="compact-map-preview">
-                            <VenueMapSVG 
-                                selectedSeats={selectedSeats} 
-                                onSeatToggle={() => {}} 
-                                zones={zones}
-                                isEditMode={false}
-                            />
-                        </div>
+                                    {isEditMode && selectedZoneId && (
+                                        <div className="properties-panel-premium">
+                                            <h4><Icon name="settings" size={16} /> Propiedades</h4>
+                                            {(() => {
+                                                const zone = zones.find(z => z.id === selectedZoneId);
+                                                if (!zone) return null;
+                                                return (
+                                                    <div className="properties-content">
+                                                        <div className="input-group-premium">
+                                                            <label>Nombre de Zona</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={zone.name} 
+                                                                onChange={(e) => setZones(zones.map(z => z.id === zone.id ? { ...z, name: e.target.value } : z))}
+                                                            />
+                                                        </div>
+                                                        {zone.type === 'seating' && (
+                                                            <>
+                                                                <div className="input-group-premium">
+                                                                    <label>Precio Base</label>
+                                                                    <div className="price-input-wrapper">
+                                                                        <input 
+                                                                            type="number" 
+                                                                            value={zone.price?.replace('$', '').replace(',', '')} 
+                                                                            onChange={(e) => setZones(zones.map(z => z.id === zone.id ? { ...z, price: `$${e.target.value}` } : z))}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', margin: '15px 0', paddingTop: '15px' }}>
+                                                                    <label style={{ fontSize: '10px', color: '#eab308', fontWeight: 900, textTransform: 'uppercase' }}>Generar Asientos</label>
+                                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' }}>
+                                                                        <div className="input-group-premium">
+                                                                            <label>Filas</label>
+                                                                            <input type="number" value={seatGenConfig.rows} onChange={e => setSeatGenConfig({...seatGenConfig, rows: parseInt(e.target.value) || 0})} />
+                                                                        </div>
+                                                                        <div className="input-group-premium">
+                                                                            <label>Cols</label>
+                                                                            <input type="number" value={seatGenConfig.cols} onChange={e => setSeatGenConfig({...seatGenConfig, cols: parseInt(e.target.value) || 0})} />
+                                                                        </div>
+                                                                    </div>
+                                                                    <Button variant="primary" size="small" onClick={generateSeatsForZone} style={{ width: '100%', marginTop: '10px' }}>
+                                                                        REGENERAR GRID
+                                                                    </Button>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                        <Button variant="danger" size="small" onClick={removeZone} style={{ width: '100%', marginTop: '20px', opacity: 0.7 }}>
+                                                            Eliminar Objeto
+                                                        </Button>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                    )}
+                                {selectedSeats.length > 0 && isEditMode && (
+                                    <div className="seat-bulk-actions" style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(20,20,20,0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 20px', borderRadius: '12px', display: 'flex', gap: '15px', alignItems: 'center', zIndex: 1000, boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
+                                        <span style={{ color: '#fff', fontWeight: 'bold' }}>{selectedSeats.length} Asientos</span>
+                                        <select 
+                                            style={{ backgroundColor: '#000', color: '#fff', border: '1px solid #333', padding: '6px 12px', borderRadius: '6px', outline: 'none' }}
+                                            onChange={(e) => {
+                                                const typeId = parseInt(e.target.value);
+                                                if (isNaN(typeId)) return;
+                                                setZones(prev => prev.map(z => ({
+                                                    ...z,
+                                                    blocks: z.blocks?.map(b => ({
+                                                        ...b,
+                                                        seats: b.seats.map(s => selectedSeats.includes(s.id) ? { ...s, seat_type_id: typeId } : s)
+                                                    })) || []
+                                                })));
+                                            }}
+                                            defaultValue=""
+                                        >
+                                            <option value="" disabled>Asignar Tipo...</option>
+                                            {seatTypes.map(st => (
+                                                <option key={st.id} value={st.id}>{st.name}</option>
+                                            ))}
+                                        </select>
+                                        <Button variant="outline" size="small" onClick={() => {
+                                            setZones(prev => prev.map(z => ({
+                                                ...z,
+                                                blocks: z.blocks?.map(b => {
+                                                    const hasSelected = b.seats.some(s => selectedSeats.includes(s.id));
+                                                    if (!hasSelected) return b;
+                                                    return {
+                                                        ...b,
+                                                        seats: b.seats.map(s => {
+                                                            if (!selectedSeats.includes(s.id)) return s;
+                                                            return { ...s, is_active: !s.is_active };
+                                                        })
+                                                    };
+                                                }) || []
+                                            })));
+                                        }}>Activar/Desactivar</Button>
+                                        <Button variant="danger" size="small" onClick={() => {
+                                            setZones(prev => prev.map(z => ({
+                                                ...z,
+                                                blocks: z.blocks?.map(b => ({
+                                                    ...b,
+                                                    seats: b.seats.filter(s => !selectedSeats.includes(s.id))
+                                                })) || []
+                                            })));
+                                            setSelectedSeats([]);
+                                        }}>Eliminar</Button>
+                                        <Button variant="outline" size="small" onClick={() => setSelectedSeats([])}>Deseleccionar</Button>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

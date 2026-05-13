@@ -1,0 +1,133 @@
+/* ══════════════════════════════════════════════════════════════
+   EVENT DETAIL — Layout & Core shell
+   Base chasis de la página de evento y sistema de fondos.
+   ══════════════════════════════════════════════════════════════ */
+
+.event-detail-page {
+  min-height: 100vh;
+  position: relative;
+  padding: 2rem 0 4rem;
+  background-color: var(--bg-primary);
+}
+
+/* ── FULL-SCREEN FIXED BACKGROUND SYSTEM ── */
+.page-bg-fixed-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.page-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  filter: blur(40px) brightness(var(--event-bg-brightness, 0.8));
+  transform: scale(1.1);
+}
+
+.page-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--event-bg-overlay);
+}
+
+.event-detail-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ── BACK BUTTON ── */
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 99px;
+  padding: 0.45rem 1.1rem;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #aaa;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(-4px);
+}
+
+/* ── UNIFIED GRID SYSTEM ── */
+.layout-unified-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  grid-template-areas: 
+    "hero purchase"
+    "map purchase"
+    "location purchase"
+    "description purchase"
+    "rules purchase"
+    "merch purchase";
+  gap: 2rem;
+  align-items: start;
+}
+
+.grid-section-hero { grid-area: hero; }
+.grid-section-map { grid-area: map; min-width: 0; }
+.grid-section-purchase { 
+  grid-area: purchase; 
+  position: sticky;
+  top: 20px; /* Reducido de 100px para subir el panel */
+  z-index: 10;
+}
+.grid-section-location { grid-area: location; }
+.grid-section-description { grid-area: description; }
+.grid-section-rules { grid-area: rules; }
+.grid-section-merch { grid-area: merch; }
+
+/* RESPONSIVE REORDERING */
+@media (max-width: 1024px) {
+  .layout-unified-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "hero"
+      "map"
+      "purchase"
+      "location"
+      "description"
+      "rules"
+      "merch";
+    gap: 1.5rem;
+  }
+
+  .grid-section-purchase {
+    position: relative;
+    top: 0;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .event-detail-container {
+    padding: 0 1rem;
+  }
+  
+  .layout-unified-grid {
+    gap: 1.25rem;
+  }
+}

@@ -71,7 +71,7 @@ const Login = () => {
     if (!emailToCheck || !/\S+@\S+\.\S+/.test(emailToCheck)) return
     try {
       const API = process.env.REACT_APP_API_URL || 'http://localhost:8000'
-      const res = await fetch(`${API}/api/auth/check-lockout?email=${encodeURIComponent(emailToCheck)}`)
+      const res = await fetch(`${API}/auth/check-lockout?email=${encodeURIComponent(emailToCheck)}`)
       if (!res.ok) return
       const data = await res.json()
       if (data.locked && data.retry_after > 0) {

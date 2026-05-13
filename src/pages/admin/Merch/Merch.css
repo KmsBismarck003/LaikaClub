@@ -1,0 +1,293 @@
+.merch-admin-container {
+  padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.merch-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.merch-header h1 {
+  font-size: 2.2rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.merch-header p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Filtros */
+.merch-filters {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  padding: 0.6rem 1.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 13px; /* Industrial rounded */
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--text-primary);
+}
+
+.filter-chip.active {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+/* Grid de Productos */
+.merch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.merch-item-card {
+  background: rgba(255, 255, 255, 0.02) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color) !important;
+  border-radius: 13px !important;
+  transition: transform 0.2s ease, border-color 0.2s ease !important;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.merch-item-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary) !important;
+}
+
+.merch-card-img {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  background: rgba(255,255,255,0.03);
+}
+
+.merch-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.status-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border-radius: 13px !important;
+  font-size: 0.6rem !important;
+}
+
+.merch-card-info {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.item-type {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.merch-card-info h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.price-stock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.price {
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+.stock {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 600;
+}
+
+/* Variantes */
+.item-variants {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.colors-preview {
+  display: flex;
+  gap: 5px;
+}
+
+.color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.sizes-preview {
+  display: flex;
+  gap: 5px;
+}
+
+.size-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #aaa;
+}
+
+/* Acciones */
+.merch-card-actions {
+  padding: 1rem 1.5rem;
+  background: rgba(255,255,255,0.01);
+  display: flex;
+  gap: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+}
+
+/* Estilos de Modal */
+.merch-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merch-editor-modal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 13px;
+  width: 500px;
+  max-width: 95vw;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #888;
+  letter-spacing: 1px;
+}
+
+.form-group input, .form-group select {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-color);
+  padding: 0.8rem;
+  border-radius: 13px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

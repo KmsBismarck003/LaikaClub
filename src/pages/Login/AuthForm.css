@@ -1,0 +1,131 @@
+/* ══════════════════════════════════════════════════════════════
+   AUTH — Form & Content
+   La tarjeta de login, campos de entrada y acciones de usuario.
+   ══════════════════════════════════════════════════════════════ */
+
+.login-card,
+.register-card {
+  padding: 2rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: transparent;
+}
+
+.login-header,
+.register-header {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.login-title,
+.register-title {
+  font-size: 2.25rem;
+  font-weight: 950;
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+}
+
+.login-subtitle,
+.register-subtitle {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.login-form,
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* Efecto Gris Perla cuando el campo tiene contenido */
+.login-form .input.input--has-content,
+.register-form .input.input--has-content,
+.login-form .input.input--has-content:focus,
+.register-form .input.input--has-content:focus,
+.login-form .input:-webkit-autofill,
+.register-form .input:-webkit-autofill {
+  background-color: #e8e8ed !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  -webkit-box-shadow: 0 0 0 100px #e8e8ed inset !important;
+  transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .login-form .input.input--has-content,
+[data-theme='dark'] .register-form .input.input--has-content,
+[data-theme='dark'] .login-form .input.input--has-content:focus,
+[data-theme='dark'] .register-form .input.input--has-content:focus,
+[data-theme='dark'] .login-form .input:-webkit-autofill,
+[data-theme='dark'] .register-form .input:-webkit-autofill {
+  background-color: #1e1e24 !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  -webkit-box-shadow: 0 0 0 100px #1e1e24 inset !important;
+}
+
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: var(--spacing-4) 0;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+}
+
+.forgot-password {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.forgot-password:hover {
+  color: var(--text-primary);
+}
+
+.login-footer,
+.register-footer {
+  margin-top: 1rem;
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.register-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: var(--font-size-sm);
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsividad Form */
+@media (max-width: 640px) {
+  .login-card,
+  .register-card { padding: 2rem; }
+  .login-title,
+  .register-title { font-size: 2rem; }
+  .login-options { flex-direction: column; gap: var(--spacing-4); align-items: flex-start; }
+}

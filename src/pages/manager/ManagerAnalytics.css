@@ -1,0 +1,209 @@
+.analytics-dashboard {
+    padding: 2rem;
+    background: #000;
+    min-height: 100vh;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+.analytics-header {
+    margin-bottom: 3rem;
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1.5rem;
+}
+
+.analytics-header h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    margin: 0;
+}
+
+.analytics-header p {
+    color: #666;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    margin-top: 0.5rem;
+}
+
+/* KPI CARDS */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.kpi-card {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.kpi-card:hover {
+    border-color: #333;
+    background: #111;
+}
+
+.kpi-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.kpi-value {
+    font-size: 1.75rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.kpi-subtext {
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.kpi-icon {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    opacity: 0.05;
+    font-size: 5rem;
+    transform: rotate(-15deg);
+}
+
+/* CHARTS GRID */
+.charts-main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-box {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 2rem;
+}
+
+.chart-box h3 {
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.chart-box h3::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: var(--primary-color);
+}
+
+/* FUNNEL STYLES */
+.funnel-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.funnel-step {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.funnel-bar-wrapper {
+    flex: 1;
+    height: 40px;
+    background: #111;
+    position: relative;
+    border: 1px solid #222;
+}
+
+.funnel-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #222, var(--primary-color));
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.funnel-label {
+    width: 120px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #666;
+}
+
+.funnel-count {
+    font-size: 0.9rem;
+    font-weight: 900;
+    width: 60px;
+    text-align: right;
+}
+
+/* MERCH ROI TABLE */
+.merch-roi-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.merch-roi-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #151515;
+}
+
+.merch-roi-info h4 {
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.merch-roi-info p {
+    font-size: 0.65rem;
+    color: #444;
+    margin: 0.25rem 0 0;
+    text-transform: uppercase;
+}
+
+.merch-roi-stats {
+    text-align: right;
+}
+
+.roi-revenue {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: var(--primary-color);
+}
+
+.roi-units {
+    font-size: 0.6rem;
+    color: #555;
+    font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+    .charts-main-grid {
+        grid-template-columns: 1fr;
+    }
+}

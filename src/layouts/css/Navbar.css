@@ -1,0 +1,778 @@
+/* ============================================
+   NAVBAR - LAIKA CLUB
+   Modularized Styles
+   ============================================ */
+
+.main-navbar {
+  position: relative !important;
+  background: var(--bg-navbar, rgba(0, 0, 0, 0.85)) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10000;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.main-navbar-scrolled {
+  background: var(--bg-navbar, rgba(0, 0, 0, 0.95)) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  backdrop-filter: blur(15px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme='dark'] .main-navbar {
+  background: var(--bg-navbar, #000000) !important;
+}
+
+.main-navbar-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 100% !important;
+  width: 100% !important;
+  height: auto;
+  margin: 0 !important;
+  padding: 0.4rem 0 !important;
+}
+
+.navbar-top-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: 0 1rem;
+}
+
+/* BRAND */
+.main-navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.main-navbar-brand:hover {
+  opacity: 0.8;
+}
+
+.main-navbar-brand-text {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+
+/* NAVIGATION */
+.main-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 50px !important; /* Pill style for navigation chips */
+  cursor: pointer;
+  transition: all 0.3s ease; /* Softer transition */
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  white-space: nowrap;
+}
+
+.main-nav-link:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-0.5px); /* Much more subtle */
+}
+
+.desktop-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 1.1rem !important; /* Espacio reducido para mayor cohesión */
+}
+
+.brand-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.main-navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-left: 1rem;
+}
+
+/* AUTH BUTTONS & ACTIONS PILLS */
+.navbar-auth-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  padding: 8px 18px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 50px !important; /* Full pill shape */
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  white-space: nowrap !important;
+}
+
+.navbar-auth-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-0.5px); /* Much more subtle */
+}
+
+.navbar-auth-btn span {
+  font-size: 0.85rem;
+}
+
+.navbar-auth-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 0.75rem; /* Increased margin */
+}
+
+.navbar-utility-separator {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 0.85rem; /* Margen reducido para acercar el carrito a las acciones */
+}
+
+/* ── ELASTIC NAVBAR RESPONSIVENESS (RESTORED VERSION) ── */
+@media (max-width: 1440px) {
+  .brand-nav-group { gap: 0.8rem; }
+  .main-navbar-nav { gap: 0.8rem; }
+  .desktop-actions { gap: 1rem !important; }
+  .navbar-auth-btn { padding: 6px 12px !important; font-size: 0.8rem !important; }
+}
+
+@media (max-width: 1366px) {
+  .main-navbar-brand img { height: 28px !important; }
+  .main-nav-link { 
+    font-size: 0.68rem; /* Slightly larger than before but compact */
+    padding: 4px 10px; 
+    letter-spacing: 0.01rem;
+  }
+  .brand-nav-group { gap: 0.5rem; }
+  .main-navbar-nav { gap: 0.5rem; }
+  .navbar-auth-btn { padding: 5px 10px !important; }
+  .navbar-auth-btn span { font-size: 0.75rem; }
+  .navbar-utility-separator { margin: 0 0.75rem; }
+  .tm-search-block { max-width: 92%; }
+}
+
+@media (max-width: 1250px) {
+  .main-nav-link { 
+    font-size: 0.6rem;
+    padding: 3px 8px;
+    letter-spacing: 0;
+  }
+  .brand-nav-group { gap: 4px; }
+  .main-navbar-nav { gap: 4px; }
+  .desktop-actions { gap: 0.5rem !important; }
+  .navbar-auth-btn { padding: 4px 8px !important; border-radius: 8px !important; }
+  .navbar-auth-btn span { font-size: 0.7rem; }
+  .navbar-auth-btn svg { width: 14px; height: 14px; }
+  .navbar-utility-separator { margin: 0 0.4rem; height: 16px; }
+  .navbar-cart-btn-main { width: 32px; height: 32px; border-radius: 8px; }
+  .navbar-cart-btn-main svg { width: 16px; height: 16px; }
+  .search-section { padding: 0 0.3rem; } 
+  .search-submit-btn { padding: 0 0.5rem; font-size: 0.6rem; height: 30px; }
+  .tm-search-block { 
+    max-width: 95% !important; 
+    height: 34px;
+    flex-shrink: 1;
+  }
+}
+
+/* SEARCH */
+.navbar-search-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0 1rem 0;
+}
+
+.tm-search-block {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  height: 38px;
+  padding: 0 0.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.search-section {
+  display: flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  height: 100%;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  position: relative; /* Added for suggestion placement */
+}
+
+.section-icon { color: #444; flex-shrink: 0; }
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.section-content .label {
+  font-size: 0.55rem;
+  font-weight: 900;
+  color: #555;
+  letter-spacing: 0.04rem;
+  line-height: 1;
+  margin-bottom: 2px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  opacity: 1;
+}
+
+/* Estado de Búsqueda Activa: Retira etiquetas y limpia el espacio */
+.tm-search-block.is-active .label {
+  opacity: 0;
+  height: 0;
+  margin-bottom: 0;
+  transform: translateY(-5px);
+  pointer-events: none;
+}
+
+.tm-search-block.is-active .section-content {
+  justify-content: center; /* Centrar el input verticalmente al retirar etiqueta */
+}
+
+.section-content .value,
+.search-section input {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: none;
+  border: none;
+  width: 100%;
+  outline: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.tm-search-block.is-active .search-section input {
+  font-size: 0.85rem; /* Crece un poco al retirar la etiqueta */
+}
+
+/* Ocultar placeholder al enfocar para máxima limpieza */
+.search-section input:focus::placeholder {
+  color: transparent;
+}
+
+.value-dropdown {
+  width: 100%;
+}
+
+.value-dropdown .dropdown__menu {
+  top: calc(100% + 14px);
+  left: -20px;
+  min-width: 240px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+}
+
+.value-dropdown .dropdown__item {
+  color: #222 !important; /* Forzar texto oscuro para visibilidad en fondo blanco */
+  font-weight: 700;
+}
+
+.value-dropdown .dropdown__item:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #000 !important;
+}
+
+.search-divider {
+  width: 1px;
+  height: 32px;
+  background: #e1e1e1;
+  flex-shrink: 0;
+}
+
+.search-submit-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  height: 32px;
+  padding: 0 1rem;
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.search-submit-btn:hover { background: #222; }
+
+/* SEARCH SUGGESTIONS */
+.navbar-search-suggestions {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: -15px;
+  right: -15px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 11000;
+  overflow: hidden;
+  padding: 0.5rem 0;
+}
+
+.suggestions-header {
+  padding: 0.8rem 1.2rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #999;
+  letter-spacing: 0.1rem;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background: #f8f8f8;
+}
+
+.suggestion-image {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.suggestion-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.suggestion-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.suggestion-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion-venue {
+  font-size: 0.7rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion-date {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #555;
+  text-transform: uppercase;
+  background: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #e1e1e1;
+}
+
+/* ── LAIKA SHOP NAVBAR BUTTON (MARKETPLACE) ── */
+.laika-shop-pill-btn {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(90deg, #ff3c00 0%, #ff5e00 100%);
+  border: none;
+  border-radius: 50px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 15px rgba(255, 60, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.laika-shop-pill-btn .btn-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.laika-shop-pill-btn .btn-content span {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.05rem;
+  text-transform: uppercase;
+}
+
+.laika-shop-pill-btn .choice-badge {
+  background: #ffffff;
+  color: #ff3c00;
+  font-size: 0.6rem !important;
+  font-weight: 950 !important;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.laika-shop-pill-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 60, 0, 0.6);
+  background: linear-gradient(90deg, #ff5e00 0%, #ff3c00 100%);
+  filter: brightness(1.1);
+}
+
+.laika-shop-pill-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes navbarBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Responsividad para el botón del Shop */
+@media (max-width: 1366px) {
+  .laika-shop-pill-btn {
+    padding: 3px 10px;
+    margin-left: 0.5rem;
+  }
+  .laika-shop-pill-btn .btn-content span:not(.choice-badge) {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .laika-shop-pill-btn {
+    display: none; /* Se manejará en el menú móvil si es necesario */
+  }
+}
+
+/* ── INTEGRATED SHOP HEADER (SINGLE ROW) ── */
+.shop-mode-row {
+  height: 80px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 2rem !important;
+  gap: 1.5rem !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  position: relative !important; /* Ensure absolute centering works if needed */
+}
+
+.shop-mode-row .brand-nav-group {
+  flex: 0 1 300px !important; /* Fixed base size to balance with actions */
+  display: flex !important;
+  justify-content: flex-start !important;
+}
+
+.shop-mode-row .shop-integrated-search {
+  flex: 1 !important;
+  display: flex !important;
+  justify-content: center !important;
+  max-width: 700px !important;
+  margin: 0 auto !important; /* Force center */
+}
+
+.shop-mode-row .desktop-actions {
+  flex: 0 1 300px !important; /* Balanced with brand-nav-group */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 1.25rem !important;
+}
+
+.shop-integrated-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.shop-logo-v2 h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #000;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.shop-logo-v2 h1 span {
+  background: #000;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.shop-logo-v2 p {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #666;
+  margin: 4px 0 0 0;
+  letter-spacing: 0.05rem;
+  text-transform: uppercase;
+}
+
+.shop-integrated-search {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.shop-integrated-search .central-search-engine {
+  display: flex;
+  align-items: center;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 13px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 650px;
+  height: 48px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.shop-integrated-search .central-search-engine:focus-within {
+  border-color: #555;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.05);
+}
+
+.search-category-dropdown {
+  background: #ffffff !important; /* Fondo blanco pedido */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 1.2rem;
+  border-right: 1px solid #333;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.search-category-dropdown span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #666 !important; /* Texto gris oscuro para contraste en blanco */
+}
+
+.search-input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 10px;
+}
+
+.search-input-wrapper input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #999;
+}
+
+.shop-integrated-search .search-submit-btn {
+  background: #ffffff !important; /* Botón blanco industrial */
+  color: #000000 !important;
+  border: none;
+  height: 40px;
+  margin: 4px;
+  padding: 0 1.5rem;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shop-integrated-search .search-submit-btn:hover {
+  background: #f0f0f0 !important;
+  transform: translateX(2px);
+}
+
+.shop-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.navbar-action-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #000;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  position: relative;
+}
+
+.navbar-action-icon-btn:hover {
+  transform: scale(1.1);
+}
+
+.shop-basket-global .cart-badge-main {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #000;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 900;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(25%, -25%);
+}
+
+/* Redesigned Search Row Hide Logic */
+[data-theme='dark'] .shop-integrated-search .central-search-engine {
+  background: #111;
+  border-color: #333;
+}
+
+[data-theme='dark'] .search-category-dropdown {
+  background: #1a1a1a;
+  border-color: #333;
+}
+
+[data-theme='dark'] .search-category-dropdown span,
+[data-theme='dark'] .search-input-wrapper input,
+[data-theme='dark'] .navbar-action-icon-btn {
+  color: #fff;
+}
+
+[data-theme='dark'] .shop-logo-v2 h1 {
+  color: #fff;
+}
+
+[data-theme='dark'] .shop-logo-v2 h1 span {
+  background: #fff;
+  color: #000;
+}
+
+/* SHOP HEADER THEMES - DARK INDUSTRIAL (Restored to Black) */
+.shop-header-theme {
+  background: #000000 !important;
+  border-bottom: 1px solid #1a1a1a !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+}
+
+.shop-header-theme .main-navbar-container {
+  padding: 0 !important;
+}
+
+/* Ensure branding and icons are white on black */
+.shop-header-theme .navbar-action-icon-btn {
+  color: #ffffff !important;
+}
+
+.shop-header-theme .shop-integrated-search .central-search-engine {
+  background: #111111 !important;
+  border: 1px solid #333333 !important;
+}
+
+.shop-header-theme .shop-integrated-search input {
+  color: #fff !important;
+}
+
+.shop-header-theme .shop-integrated-search .search-category-dropdown {
+  color: #ccc !important;
+  border-right: 1px solid #333 !important;
+}
+
+.shop-header-theme .shop-integrated-search .search-submit-btn {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Auth components contrast in shop mode */
+.shop-header-theme .navbar-auth-btn {
+  color: #ffffff !important;
+  border-color: rgba(255,255,255,0.2) !important;
+  background: rgba(255,255,255,0.05) !important;
+}
+
+.shop-header-theme .navbar-auth-divider {
+  background: rgba(255,255,255,0.2) !important;
+}
+
+.shop-header-theme .navbar-utility-separator {
+  background: rgba(255,255,255,0.1) !important;
+}
+
+[data-theme='dark'] .shop-header-theme {
+  background: #000000 !important;
+  border-bottom: 1px solid #333 !important;
+}

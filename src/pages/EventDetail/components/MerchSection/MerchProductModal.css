@@ -1,0 +1,261 @@
+/* ══════════════════════════════════════════════════════════════
+   MERCH PRODUCT MODAL — Industrial Amazon-Style Layout
+   Garantiza que las imágenes no rompan el flujo y los controles sean visibles.
+   ══════════════════════════════════════════════════════════════ */
+
+.merch-modal-glass {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  height: 550px;
+  max-height: 85vh;
+  background: rgba(15, 15, 15, 0.75); /* Softened and more transparent */
+  -webkit-backdrop-filter: blur(30px); /* Increased blur */
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.15); /* More luminous border */
+  border-radius: 40px; /* More rounded */
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+  animation: modalScaleEntrance 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+@keyframes modalScaleEntrance {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── COL 1: Vertical Thumbnails ── */
+.merch-v-thumbs {
+  width: 90px;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+}
+
+.merch-v-thumb {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #000;
+  opacity: 0.6;
+}
+
+.merch-v-thumb:hover { opacity: 1; border-color: rgba(255, 255, 255, 0.3); }
+.merch-v-thumb.active { opacity: 1; border-color: #fff; transform: scale(1.05); }
+
+.merch-v-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.merch-stage {
+  flex: 1;
+  background: radial-gradient(circle at center, rgba(30,30,30,0.4) 0%, transparent 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+  cursor: none; /* Hide real cursor to use the lens as 'cursor' */
+}
+
+.merch-magnifier-lens {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.4);
+  z-index: 500;
+  background-color: #000;
+}
+
+.merch-zoom-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+}
+
+/* ── COL 3: Control Deck ── */
+.merch-control-deck {
+  width: 380px; /* Slightly narrower */
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.5rem; /* Ultra-reduced from 1.5rem 2rem */
+  background: rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+}
+
+.merch-info-header { margin-bottom: 0.25rem; } /* Slotted from 0.5rem */
+
+.merch-info-header h2 {
+  font-size: 1.1rem; /* Smaller title */
+  margin-bottom: 0.25rem;
+}
+
+.amazon-price-tag {
+  display: inline-flex;
+  align-items: flex-start;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  transform: scale(0.9); /* Slightly smaller price */
+  transform-origin: left center;
+}
+
+.price-currency { font-size: 0.8rem; margin-top: 2px; font-weight: 500; }
+.price-integer { font-size: 2rem; font-weight: 950; line-height: 1; }
+.price-decimal { font-size: 0.85rem; margin-top: 2px; font-weight: 700; margin-left: 1px; }
+
+/* ── Selection Grid ── */
+.size-grid-technical {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.35rem; /* Slotted from 0.5rem */
+  margin-top: 0.25rem;
+}
+
+.size-grid-title {
+  font-size: 0.6rem; /* Smaller label */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 0.25rem;
+}
+
+.size-box-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.35rem; /* Ultra-reduced from 0.5rem */
+  border-radius: 12px; /* More standard for small boxes */
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.size-box-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+.size-box-btn.active { background: #fff; color: #000; border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+
+.size-label { font-size: 0.8rem; font-weight: 900; }
+.size-price { font-size: 0.6rem; opacity: 0.6; margin-top: 2px; }
+
+/* ── Static & Accordion Panels ── */
+.merch-slim-accordion, .static-panel {
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  margin-bottom: 0.3rem !important;
+  background: transparent !important;
+  overflow: hidden;
+}
+
+.static-panel-header {
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.static-title {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.static-panel-content {
+  padding: 0.5rem 0.8rem;
+}
+
+/* Targeting internal Accordion component padding if possible */
+.merch-slim-accordion [class*="header"] {
+  background: transparent !important;
+  padding: 0.4rem 0.8rem !important;
+  min-height: auto !important;
+}
+
+.merch-slim-accordion [class*="content"] {
+  background: transparent !important; /* Remove the black block */
+  padding: 0.5rem 0.8rem !important;
+}
+
+.badge-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.55rem; /* Ultra-small text */
+  font-weight: 700;
+  color: #888;
+  margin: 1px 0;
+}
+
+/* ── Actions Box ── */
+.merch-actions-box {
+  margin-top: 0.5rem; /* Reduced from auto */
+  padding-top: 1rem; /* Reduced from 2rem */
+}
+
+.merch-btn-buy-premium {
+  width: 100%;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #000;
+  border: none;
+  padding: 0.85rem; /* Reduced from 1.25rem */
+  border-radius: 50px; /* Pill Shape */
+  font-size: 0.8rem; /* Reduced from 0.85rem */
+  font-weight: 950;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+  text-transform: uppercase;
+}
+
+.merch-btn-buy-premium:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(255, 215, 0, 0.5);
+  filter: brightness(1.1);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .merch-modal-glass {
+    flex-direction: column;
+    height: auto;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+  
+  .merch-v-thumbs {
+    width: 100%;
+    flex-direction: row;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  .merch-v-thumb { width: 60px; }
+  
+  .merch-control-deck { width: 100%; padding: 1.5rem; }
+  
+  .merch-stage { height: 350px; }
+}

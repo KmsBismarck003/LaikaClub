@@ -38,6 +38,8 @@ async def proxy_middleware(request: Request, call_next):
     elif path.startswith("/api/events"):
         target_url = f"{SERVICES['events']}{path.replace('/api/events', '')}"
         if "/public" in path: cacheable = True
+    elif path.startswith("/api/venues"):
+        target_url = f"{SERVICES['events']}{path.replace('/api/venues', '/venues')}"
     elif path.startswith("/api/manager"):
         target_url = f"{SERVICES['events']}{path.replace('/api/manager', '/manager')}"
     elif path.startswith("/api/tickets"):
@@ -54,9 +56,10 @@ async def proxy_middleware(request: Request, call_next):
         target_url = f"{SERVICES['admin']}{path.replace('/api', '')}"
     elif path == "/api/ads/public":
         try:
-            import pymysql, json
+            import pymysql, json, os
             from starlette.responses import JSONResponse
-            conn = pymysql.connect(host='127.0.0.1', user='root', password='', database='laika_club', cursorclass=pymysql.cursors.DictCursor)
+            db_name = os.getenv('MYSQL_DATABASE', 'laika_club')
+            conn = pymysql.connect(host='127.0.0.1', user='root', password='', database=db_name, cursorclass=pymysql.cursors.DictCursor)
             with conn.cursor() as cursor:
                 cursor.execute("SELECT id, title, image_url, link_url, position, active FROM ads WHERE active=1 ORDER BY id DESC")
                 rows = cursor.fetchall()

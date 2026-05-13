@@ -1,0 +1,165 @@
+/* ══════════════════════════════════════════════════════════════
+   PROFILE — Form & Card System
+   Sistemas de tarjetas de información, rejillas de campos e inputs.
+   ══════════════════════════════════════════════════════════════ */
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='light'] .profile-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.card-title-modular {
+  font-size: 0.65rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 3.5px;
+  color: var(--primary, #3b82f6);
+  margin: 0 0 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='light'] .card-title-modular {
+  border-bottom-color: rgba(0, 0, 0, 0.04);
+}
+
+/* FORM GRID */
+.profile-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row-modular {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .form-row-modular {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* FIELD COMPONENT */
+.pf-field-modular {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pf-label-modular {
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+}
+
+.pf-input-modular {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  color: #000;
+  font-size: 0.9rem;
+  font-weight: 600;
+  width: 100%;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.pf-input-modular:focus {
+  background: rgba(59, 130, 246, 0.07);
+  border-color: var(--primary, #3b82f6);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.pf-input-modular:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.pf-helper-modular {
+  font-size: 0.6rem;
+  color: #ef4444;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ACTIONS */
+.profile-form-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 2rem;
+}
+
+.btn-profile-primary {
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 0.8rem 2.5rem;
+  font-size: 0.7rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.08);
+}
+
+.btn-profile-primary:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.15);
+  background: #f1f5f9;
+}
+
+.btn-profile-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.8rem 2rem;
+  font-size: 0.7rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-profile-secondary:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.save-success-modular {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #22C55E;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: fadeIn 0.4s ease-out;
+}

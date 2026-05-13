@@ -1,0 +1,60 @@
+/* ============================================
+   HISTORY TAB STYLES - RESTORE AUDIT
+   ============================================ */
+
+.ra-history-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.ra-history-filters input,
+.ra-history-filters select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  background: var(--bg-input, rgba(255,255,255,0.05));
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.ra-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+}
+
+.ra-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ra-table th {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary, rgba(255,255,255,0.03));
+  border-bottom: 2px solid var(--border-color, rgba(255,255,255,0.08));
+  white-space: nowrap;
+}
+
+.ra-table td {
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.04));
+}
+
+.ra-table tr:hover td {
+  background: rgba(var(--primary-rgb, 99,102,241), 0.04);
+}
+
+.ra-table tr {
+  cursor: pointer;
+  transition: background 0.2s;
+}

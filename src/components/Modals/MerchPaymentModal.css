@@ -1,0 +1,185 @@
+.merch-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.merch-modal-card {
+    background: #000;
+    border: 1px solid #333;
+    padding: 3rem;
+    max-width: 480px;
+    width: 90%;
+    position: relative;
+    border-radius: 0;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+}
+
+.close-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    color: #666;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-btn:hover {
+    color: #fff;
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.header-icon {
+    width: 48px;
+    height: 48px;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+    font-size: 1.75rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.modal-header p {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #666;
+}
+
+.payment-summary {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    font-weight: 800;
+}
+
+.price-tag {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.price-tag small {
+    font-size: 0.65rem;
+    color: #555;
+    margin-left: 0.5rem;
+}
+
+.payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon svg {
+    position: absolute;
+    left: 1rem;
+    color: #444;
+}
+
+.payment-form input {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    color: #fff;
+    padding: 1rem 1rem 1rem 3rem;
+    width: 100%;
+    font-weight: 700;
+    transition: all 0.3s;
+}
+
+.form-row input {
+    padding-left: 1rem;
+}
+
+.payment-form input:focus {
+    border-color: #555;
+    background: #111;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.secure-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.65rem;
+    color: #444;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+/* STATES */
+.processing-state, .success-state {
+    text-align: center;
+    padding: 4rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.success-circle {
+    width: 80px;
+    height: 80px;
+    background: #fff;
+    border-radius: 50%;
+    color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    animation: scale-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scale-up {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+h3 {
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 1.5rem;
+}

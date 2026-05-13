@@ -1,0 +1,222 @@
+/* ══════════════════════════════════════════════════════════════
+   MERCH PRODUCT CARD — EventDetail Component
+   Estilos propios e independientes del card de mercancía
+   ══════════════════════════════════════════════════════════════ */
+
+.merch-product-card {
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.merch-product-card.sold-out-visual {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.merch-product-card:hover:not(.sold-out-visual) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Photo container ── */
+.merch-card-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #0a0a0a;
+  overflow: hidden;
+  position: relative;
+  border-radius: 12px;
+}
+
+.merch-card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.merch-product-card:hover .merch-card-photo img {
+  opacity: 1;
+}
+
+/* ── Badges ── */
+.merch-sold-out-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  background: #ff0000;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 950;
+  padding: 4px 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: 2px solid #fff;
+  z-index: 5;
+}
+
+.merch-new-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #22c55e;
+  color: #000;
+  font-size: 0.4rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ── Favorite button ── */
+.merch-favorite-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  z-index: 10;
+  transition: background 0.2s;
+}
+
+.merch-favorite-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* ── Color swatches ── */
+.merch-card-swatches {
+  display: flex;
+  gap: 3px;
+  justify-content: flex-start;
+  margin-top: 2px;
+  padding-left: 2px;
+}
+
+.merch-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid #444;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.merch-swatch.active {
+  border-color: #fff;
+}
+
+/* ── Info section ── */
+.merch-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+  text-align: left;
+  padding-left: 2px;
+  margin-bottom: 0.4rem;
+}
+
+.merch-card-info h4 {
+  font-size: 0.48rem;
+  color: #fff;
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.merch-card-info span {
+  font-size: 0.5rem;
+  color: #fff;
+  font-weight: 900;
+}
+
+/* ── Add to cart button ── */
+.merch-add-btn {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.42rem;
+  font-weight: 900;
+  padding: 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: auto;
+  border-radius: 50px;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.merch-add-btn:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.merch-add-btn.disabled {
+  background: rgba(255, 255, 255, 0.02);
+  color: #555;
+  cursor: not-allowed;
+}
+
+/* ── LIGHT MODE OVERRIDES (Industrial Premium) ── */
+[data-theme='light'] .merch-product-card {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+[data-theme='light'] .merch-product-card h4,
+[data-theme='light'] .merch-product-card span:not(.merch-sold-out-badge):not(.merch-new-badge) {
+  color: #000000 !important;
+}
+
+[data-theme='light'] .merch-card-photo {
+  background: #f5f5f5 !important;
+}
+
+[data-theme='light'] .merch-add-btn {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: none !important;
+  opacity: 1 !important;
+}
+
+[data-theme='light'] .merch-add-btn:hover:not(.disabled) {
+  background: #333333 !important;
+}
+
+[data-theme='light'] .merch-favorite-btn {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+[data-theme='light'] .merch-favorite-btn svg {
+  color: #000 !important;
+}

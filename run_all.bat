@@ -9,7 +9,7 @@ echo.
 
 :: 1. Iniciar Microservicios de Python
 echo [*] Lanzando Microservicios...
-start cmd /k "title Microservicios && echo Iniciando Microservicios... && cd /d %~dp0 && python run_microservices.py"
+start cmd /k "title Microservicios && echo Iniciando Microservicios... && cd /d %~dp0 && call C:\Users\redja\miniconda3\Scripts\activate.bat laika && python run_microservices.py"
 
 :: 2. Iniciar Frontend
 echo [*] Lanzando Frontend (npm start)...
@@ -19,4 +19,3 @@ echo.
 echo ========================================
 echo [OK] Ventanas de servidores lanzadas.
 echo Puedes cerrar esta ventana principal.
-echo ========================================

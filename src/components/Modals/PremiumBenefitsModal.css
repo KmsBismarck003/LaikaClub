@@ -1,0 +1,191 @@
+/* 💎 PREMIUM BENEFITS MODAL - CRYSTAL CLEAR 💎 */
+
+.premium-modal-content {
+    background: #fff;
+    padding: 2.5rem;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    color: #111;
+}
+
+.pm-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+
+.pm-rocket-icon {
+    margin-bottom: 1rem;
+    color: #000;
+}
+
+.pm-header h2 {
+    font-size: 2.2rem;
+    font-weight: 950;
+    letter-spacing: -1.5px;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.pm-header p {
+    font-size: 1.1rem;
+    color: #888;
+    font-weight: 500;
+}
+
+.pm-plans-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+    margin-bottom: 3.5rem;
+}
+
+.pm-plan-card {
+    position: relative;
+    border: 2px solid #eee;
+    padding: 3rem 2rem;
+    border-radius: 1px;
+    background: #fff;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.pm-plan-card:hover {
+    border-color: #000;
+    box-shadow: 15px 15px 0px rgba(0,0,0,0.05);
+}
+
+.pm-plan-card.recommended {
+    border-color: #000;
+    border-width: 4px;
+    box-shadow: 20px 20px 0px rgba(46, 204, 113, 0.1);
+}
+
+.pm-plan-badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    color: #2ecc71;
+    padding: 5px 15px;
+    font-size: 0.65rem;
+    font-weight: 950;
+    letter-spacing: 1.5px;
+    border: 2px solid #2ecc71;
+}
+
+.pm-plan-header h3 {
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.pm-price {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.pm-currency {
+    font-size: 1.5rem;
+    font-weight: 700;
+    vertical-align: top;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.pm-amount {
+    font-size: 4rem;
+    font-weight: 950;
+    letter-spacing: -3px;
+    line-height: 1;
+}
+
+.pm-period {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #888;
+}
+
+.pm-plan-desc {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 2.5rem;
+    font-weight: 500;
+    min-height: 48px;
+}
+
+.pm-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2.5rem 0;
+    flex-grow: 1;
+}
+
+.pm-features-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.f-icon {
+    color: #2ecc71;
+}
+
+.pm-plan-btn {
+    width: 100%;
+    height: 60px !important;
+    font-size: 1rem !important;
+    font-weight: 950 !important;
+    letter-spacing: 1px;
+    border-radius: 0 !important;
+    text-transform: uppercase;
+}
+
+.pm-footer {
+    border-top: 2px solid #f0f0f0;
+    padding-top: 2.5rem;
+    text-align: center;
+}
+
+.pm-trust-badges {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+}
+
+.t-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 850;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* DARK MODE ADAPTATION */
+.dark-theme .premium-modal-content {
+    background: #000;
+    color: #fff;
+}
+
+.dark-theme .pm-plan-card {
+    background: #000;
+    border-color: #222;
+}
+
+.dark-theme .pm-header h2 { color: #fff; }
+.dark-theme .pm-header p { color: #555; }
+.dark-theme .pm-plan-desc { color: #888; }
+.dark-theme .pm-features-list li { border-color: #111; color: #eee; }
+.dark-theme .pm-amount { color: #fff; }
+.dark-theme .pm-price .pm-amount { color: #fff; }
+.dark-theme .t-badge { color: #555; }

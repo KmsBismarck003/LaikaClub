@@ -7,6 +7,7 @@ import EventForm from './EventForm';
 import TicketOverview from './TicketOverview';
 import RevenuePanel from './RevenuePanel';
 import CancelEventModal from './CancelEventModal';
+import LiveMapViewer from './LiveMapViewer';
 import '../../styles/manager.css';
 
 const EventDetail = () => {
@@ -218,7 +219,17 @@ const EventDetail = () => {
                 )}
 
                 {activeTab === 'tickets' && (
-                    <TicketOverview eventId={id} />
+                    event.use_seating_map && event.room_id ? (
+                        <div className="live-map-viewer-container">
+                            <h3 className="text-lg font-semibold mb-4">Mapa de Asientos en Vivo</h3>
+                            <LiveMapViewer eventId={id} roomId={event.room_id} />
+                            <div className="mt-8">
+                                <TicketOverview eventId={id} />
+                            </div>
+                        </div>
+                    ) : (
+                        <TicketOverview eventId={id} />
+                    )
                 )}
 
                 {activeTab === 'revenue' && (

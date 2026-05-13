@@ -1,0 +1,89 @@
+/* ============================================
+   DETAIL VIEW & BANNERS - RESTORE AUDIT
+   ============================================ */
+
+.ra-detail-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ra-detail-section {
+  background: var(--bg-card, rgba(255,255,255,0.03));
+  border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.ra-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.ra-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ra-detail-item .label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.ra-detail-item .value {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* BANNERS */
+.ra-confirmed-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.ra-confirmed-banner .text {
+  font-weight: 600;
+  color: var(--success, #22c55e);
+  font-size: 0.92rem;
+}
+
+.ra-pending-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(234,179,8,0.1);
+  border: 1px solid rgba(234,179,8,0.25);
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.ra-pending-banner .text {
+  font-weight: 600;
+  color: #eab308;
+  font-size: 0.92rem;
+}
+
+/* EMPTY STATE */
+.ra-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-secondary);
+}
+
+.ra-empty .icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}

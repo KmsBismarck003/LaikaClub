@@ -26,5 +26,14 @@ export const venueAPI = {
     getById: id => apiClient.get(`/venues/${id}`),
     create: venueData => apiClient.post('/venues', venueData),
     update: (id, updates) => apiClient.put(`/venues/${id}`, updates),
-    delete: id => apiClient.delete(`/venues/${id}`)
+    delete: id => apiClient.delete(`/venues/${id}`),
+    getRooms: venueId => apiClient.get(`/venues/${venueId}/rooms`),
+    createRoom: (venueId, roomData) => apiClient.post(`/venues/${venueId}/rooms`, roomData),
+    updateRoom: (venueId, roomId, updates) => apiClient.put(`/venues/${venueId}/rooms/${roomId}`, updates),
+    getRoomMap: roomId => apiClient.get(`/venues/rooms/${roomId}/map`),
+    saveRoomMap: (roomId, mapData) => apiClient.post(`/venues/rooms/${roomId}/map`, mapData),
+    getSeatTypes: () => apiClient.get('/venues/seat-types'),
+    getCountries: () => apiClient.get('/venues/locations/countries'),
+    getStates: countryId => apiClient.get(`/venues/locations/states/${countryId}`),
+    getMunicipalities: stateId => apiClient.get(`/venues/locations/municipalities/${stateId}`)
 }

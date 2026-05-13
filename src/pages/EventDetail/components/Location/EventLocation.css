@@ -1,0 +1,107 @@
+.location-section-glass {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Rim light interno */
+  padding: 1.5rem;
+  border-radius: 20px;
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem; /* Espacio extra hacia abajo */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.location-header {
+  margin-bottom: 1.2rem;
+}
+
+.section-label-premium {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.location-venue-detail {
+  opacity: 0.5;
+  font-size: 0.65rem;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 0.5rem;
+  margin-left: 26px; /* Alineado con el texto del título (icono width 16 + gap 10) */
+}
+
+.map-wrapper-premium {
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.map-iframe-industrial {
+  filter: invert(90%) hue-rotate(180deg) brightness(0.9) contrast(1.2);
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.gps-button-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn-gps-industrial {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 32px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 40px; /* Cápsula total */
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-gps-industrial:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  color: #fff;
+}
+
+.btn-gps-industrial:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .location-section-glass {
+    padding: 1rem;
+  }
+  
+  .map-wrapper-premium {
+    height: 220px;
+  }
+  
+  .btn-gps-industrial {
+    width: 100%;
+    justify-content: center;
+  }
+}

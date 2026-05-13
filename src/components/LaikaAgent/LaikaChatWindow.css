@@ -1,0 +1,204 @@
+/* ══════════════════════════════════════════════════════════════
+   LAIKA AGENT — Chat Window (Main Shell)
+   El panel de cristal, el encabezado y el sistema de redimensionado.
+   ══════════════════════════════════════════════════════════════ */
+
+.laika-agent-panel {
+    width: 360px;
+    max-width: calc(100vw - 2rem);
+    height: 520px;
+    max-height: calc(100vh - 40px);
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+    margin-bottom: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    -webkit-backdrop-filter: blur(30px) saturate(1.8) !important;
+    backdrop-filter: blur(30px) saturate(1.8) !important;
+    position: relative;
+    color: white;
+    transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    pointer-events: auto !important;
+}
+
+.laika-agent-panel.is-admin {
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+}
+
+.laika-agent-panel.resizing {
+    transition: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.laika-resize-handle {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 20px;
+    height: 20px;
+    cursor: nwse-resize;
+    z-index: 10002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.3);
+    transition: color 0.2s;
+}
+
+.laika-resize-handle:hover {
+    color: var(--laika-accent, var(--primary));
+}
+
+.laika-agent-header {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-shrink: 0;
+    position: relative;
+    min-height: 60px;
+}
+
+.laika-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--laika-accent, var(--primary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    font-weight: 900;
+    font-size: 1rem;
+    overflow: hidden;
+}
+
+.laika-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+}
+
+.laika-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.laika-title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    color: #FFFFFF;
+    line-height: 1.2;
+}
+
+.laika-status {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-online { color: #10b981; }
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    animation: pulse-status 2s infinite;
+}
+
+.laika-agent-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: transparent;
+}
+
+.laika-chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.laika-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* Tooltips */
+.laika-action-btn {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.laika-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.laika-action-btn.close-btn:hover {
+    background: rgba(255, 50, 50, 0.2);
+    border-color: rgba(255, 50, 50, 0.4);
+}
+
+.laika-action-btn[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: -40px; /* Moved tooltip to top to avoid overlap */
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 10003;
+}
+
+.laika-action-btn[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0px);
+}

@@ -1,0 +1,392 @@
+/* ══════════════════════════════════════════════════════════════
+   DISCOVERY SECTION — Home Page Component
+   Vistos recientemente, Lo más buscado, Banners de categorías y Ciudades.
+   ══════════════════════════════════════════════════════════════ */
+
+.discovery-container {
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  width: 100%;
+}
+
+.discovery-section {
+  width: 100%;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+.header-line {
+  flex: 1;
+  height: 2px;
+  background: #18181b;
+  opacity: 1;
+}
+
+[data-theme='dark'] .header-line {
+  background: #ffffff;
+  opacity: 0.1;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #18181b;
+  white-space: nowrap;
+  order: -1; 
+}
+
+[data-theme='dark'] .section-title {
+  color: #fff;
+}
+
+/* 1. Recently Viewed Pills */
+.recent-pills {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+  flex-wrap: wrap;
+}
+
+.recent-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+[data-theme='dark'] .recent-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.recent-pill img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 2. Most Searched Mini Cards */
+.most-searched-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .most-searched-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.mini-event-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff !important; /* Fondo blanco para ocultar subpíxeles contra la página */
+  border: none !important;
+  outline: 1.5px solid rgba(255, 255, 255, 0.4) !important; /* Rim light forzado interno */
+  outline-offset: -1.5px !important;
+  -webkit-mask-image: -webkit-radial-gradient(white, black); /* Hack para suavizado perfecto */
+  transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.mini-event-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mini-card-image {
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+
+.mini-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mini-card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35% !important;
+  padding: 0.5rem 0.85rem !important;
+  z-index: 10;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 0.1rem !important;
+  background: rgba(0, 0, 0, 0.45) !important; /* Cristal Negro Premium */
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.mini-card-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  z-index: 2;
+}
+
+.mini-venue {
+  font-size: 0.4rem !important;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.mini-name {
+  font-size: 0.68rem !important;
+  font-weight: 950;
+  color: #fff;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: 0.1em !important; /* Espaciado extra para legibilidad */
+}
+
+/* 3. Category Banners — Pure Glass System */
+.category-banners {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .category-banners { grid-template-columns: 1fr; }
+}
+
+.category-banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  aspect-ratio: 16 / 10;
+  background: #000;
+  overflow: hidden;
+  border-radius: 20px;
+  cursor: pointer;
+  background: #fff !important; /* Fondo blanco para ocultar subpíxeles */
+  border: none !important;
+  outline: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  outline-offset: -1.5px !important;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.category-banner:hover {
+  transform: translateY(-4px) scale(1.005); /* Reducido al 50% */
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.category-banner img {
+  grid-column: 1;
+  grid-row: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.banner-overlay {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  height: 35% !important;
+  padding: 0.8rem 1.25rem !important;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  background: rgba(0, 0, 0, 0.4) !important; /* Cristal Negro Premium */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  position: relative;
+}
+
+.banner-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  z-index: 2;
+}
+
+.category-banner:hover .banner-overlay {
+  background: rgba(0, 0, 0, 0.65) !important; /* Negro más profundo al hover */
+}
+
+.banner-subtitle {
+  font-size: 0.45rem !important;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+.banner-title {
+  font-size: 0.75rem !important; 
+  font-weight: 950;
+  color: #fff;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: 0.1em !important; /* Espaciado extra para legibilidad */
+}
+
+.banner-link {
+  display: none !important;
+}
+
+/* 4. Cities Grid */
+.cities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .cities-grid { grid-template-columns: 1fr; }
+}
+
+.city-card {
+  position: relative;
+  aspect-ratio: 21 / 9; /* Más compactas y panorámicas */
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff !important; /* Fondo blanco para ocultar subpíxeles */
+  transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+  cursor: pointer;
+  border: none !important;
+  outline: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  outline-offset: -1.5px !important;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
+
+.city-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.city-card:hover {
+  transform: translateY(-4px) scale(1.01); /* Reducido al 50% */
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.city-card:hover img {
+  transform: scale(1.1);
+}
+
+.city-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35% !important;
+  padding: 0.8rem 1.25rem !important;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  background: rgba(0, 0, 0, 0.45) !important; /* Cristal Negro Premium */
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.city-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  z-index: 2;
+}
+
+.city-card:hover .city-overlay {
+  background: rgba(0, 0, 0, 0.65) !important; /* Negro más profundo al hover */
+}
+
+.city-name-tag {
+  font-size: 0.8rem !important;
+  font-weight: 950;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.1em !important; /* Espaciado extra para legibilidad */
+  line-height: 1;
+}
+
+.discovery-divider {
+  border: none;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.05);
+  margin: 0;
+}
+
+[data-theme='dark'] .discovery-divider {
+  background: rgba(255, 255, 255, 0.05);
+}

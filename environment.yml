@@ -1,0 +1,14 @@
+name: laika
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - nodejs=20
+  - pip
+  - pkg-config
+  - gcc
+  - openjdk
+  - mariadb-connector-c
+  - pip:
+    - -r requirements.txt

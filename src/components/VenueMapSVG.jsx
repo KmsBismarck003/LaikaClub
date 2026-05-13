@@ -17,7 +17,11 @@ const VenueMapSVG = memo(({
   activeScannerZoneId = null,
   activeScannerSeatId = null,
   showCrownTransition = false,
-  onRouletteComplete
+  onRouletteComplete,
+  seatTypes = [],
+  setZones,
+  isDrawing = false,
+  onDrawZone
 }) => {
   const [hoveredSeat, setHoveredSeat] = useState(null);
   const [persistentSeatInfo, setPersistentSeatInfo] = useState(null);
@@ -27,8 +31,11 @@ const VenueMapSVG = memo(({
   const [draggingText, setDraggingText] = useState(null);
   const [rotatingText, setRotatingText] = useState(null);
   const [draggingCurve, setDraggingCurve] = useState(null);
+  const [draggingSeatInfo, setDraggingSeatInfo] = useState(null);
+  const [drawingRect, setDrawingRect] = useState(null);
   const [alignmentGuides, setAlignmentGuides] = useState({ x: [], y: [] });
-  const [editSubMode, setEditSubMode] = useState('move'); // 'points', 'curves', 'text', 'move'
+  const [editSubMode, setEditSubMode] = useState('move'); // 'points', 'curves', 'text', 'move', 'seats', 'resize'
+  const [resizingZone, setResizingZone] = useState(null);
   const [initialZoneState, setInitialZoneState] = useState(null);
   const [toolbarPos, setToolbarPos] = useState({ x: null, y: null });
   const [draggingToolbar, setDraggingToolbar] = useState(false);
@@ -69,6 +76,27 @@ const VenueMapSVG = memo(({
     if (onZoneSelect) onZoneSelect(zoneId);
   };
 
+  const handleMouseDownResize = (zoneId, corner) => (e) => {
+    if (!isEditMode) return;
+    e.stopPropagation();
+    const pos = getMousePos(e);
+    const zone = zones.find(z => z.id === zoneId);
+    if (!zone) return;
+
+    const minX = Math.min(...zone.points.map(p => p.x));
+    const maxX = Math.max(...zone.points.map(p => p.x));
+    const minY = Math.min(...zone.points.map(p => p.y));
+    const maxY = Math.max(...zone.points.map(p => p.y));
+
+    setResizingZone({
+        zoneId,
+        corner,
+        startMousePos: pos,
+        originalPoints: [...zone.points.map(p => ({ ...p }))],
+        bounds: { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY }
+    });
+  };
+
   const handleMouseDownRotate = (zoneId) => (e) => {
     if (!isEditMode) return;
     e.stopPropagation();
@@ -76,14 +104,15 @@ const VenueMapSVG = memo(({
     const zone = zones.find(z => z.id === zoneId);
     if (!zone) return;
 
-    const centerX = zone.points.reduce((sum, p) => sum + p.x, 0) / 4;
-    const centerY = zone.points.reduce((sum, p) => sum + p.y, 0) / 4;
+    const centerX = zone.points.reduce((sum, p) => sum + p.x, 0) / zone.points.length;
+    const centerY = zone.points.reduce((sum, p) => sum + p.y, 0) / zone.points.length;
 
     setRotatingZone({
       zoneId,
       center: { x: centerX, y: centerY },
       startAngle: Math.atan2(pos.y - centerY, pos.x - centerX),
-      originalPoints: [...zone.points.map(p => ({ ...p }))]
+      originalPoints: [...zone.points.map(p => ({ ...p }))],
+      currentAngle: 0
     });
   };
 
@@ -109,8 +138,8 @@ const VenueMapSVG = memo(({
     const zone = zones.find(z => z.id === zoneId);
     if (!zone) return;
 
-    const centerX = zone.points.reduce((sum, p) => sum + p.x, 0) / 4;
-    const centerY = zone.points.reduce((sum, p) => sum + p.y, 0) / 4;
+    const centerX = zone.points.reduce((sum, p) => sum + p.x, 0) / zone.points.length;
+    const centerY = zone.points.reduce((sum, p) => sum + p.y, 0) / zone.points.length;
     const tX = centerX + (zone.textPos?.x || 0);
     const tY = centerY + (zone.textPos?.y || 0);
 
@@ -159,8 +188,14 @@ const VenueMapSVG = memo(({
   };
 
   const handleMouseMove = (e) => {
-    if (!isEditMode) return;
     const pos = getMousePos(e);
+
+    if (drawingRect) {
+      setDrawingRect(prev => ({ ...prev, end: pos }));
+      return;
+    }
+
+    if (!isEditMode) return;
 
     if (draggingToolbar) {
       const rect = e.currentTarget.getBoundingClientRect();
@@ -170,6 +205,27 @@ const VenueMapSVG = memo(({
       });
       return;
     }
+    if (draggingSeatInfo) {
+      setDraggingSeatInfo(prev => ({ ...prev, currentMousePos: pos }));
+      return;
+    }
+
+    if (editSubMode === 'eraser' && (e.buttons === 1)) {
+        // Borrar asientos bajo el cursor
+        const radius = 15;
+        setZones(prev => prev.map(z => ({
+            ...z,
+            blocks: z.blocks?.map(b => ({
+                ...b,
+                seats: b.seats.filter(s => {
+                    const d = Math.sqrt((s.x_pos - pos.x)**2 + (s.y_pos - pos.y)**2);
+                    return d > radius;
+                })
+            })) || []
+        })));
+        return;
+    }
+
     if (draggingPoint) {
       const guides = { x: [], y: [] };
       const snapThreshold = 5;
@@ -217,6 +273,33 @@ const VenueMapSVG = memo(({
       return;
     }
 
+    if (resizingZone) {
+        const zone = zones.find(z => z.id === resizingZone.zoneId);
+        if (zone) {
+            const { bounds, corner, startMousePos, originalPoints } = resizingZone;
+            const deltaX = pos.x - startMousePos.x;
+            const deltaY = pos.y - startMousePos.y;
+
+            let scaleX = 1;
+            let scaleY = 1;
+            let anchorX = bounds.minX;
+            let anchorY = bounds.minY;
+
+            if (corner === 'br') { anchorX = bounds.minX; anchorY = bounds.minY; scaleX = (bounds.width + deltaX) / bounds.width; scaleY = (bounds.height + deltaY) / bounds.height; }
+            if (corner === 'tr') { anchorX = bounds.minX; anchorY = bounds.maxY; scaleX = (bounds.width + deltaX) / bounds.width; scaleY = (bounds.height - deltaY) / bounds.height; }
+            if (corner === 'bl') { anchorX = bounds.maxX; anchorY = bounds.minY; scaleX = (bounds.width - deltaX) / bounds.width; scaleY = (bounds.height + deltaY) / bounds.height; }
+            if (corner === 'tl') { anchorX = bounds.maxX; anchorY = bounds.maxY; scaleX = (bounds.width - deltaX) / bounds.width; scaleY = (bounds.height - deltaY) / bounds.height; }
+
+            const newPoints = originalPoints.map(p => ({
+                x: anchorX + (p.x - anchorX) * scaleX,
+                y: anchorY + (p.y - anchorY) * scaleY
+            }));
+
+            if (onUpdateGeometry) onUpdateGeometry(resizingZone.zoneId, newPoints);
+        }
+        return;
+    }
+
     if (rotatingZone) {
       const currentMouseAngle = Math.atan2(pos.y - rotatingZone.center.y, pos.x - rotatingZone.center.x);
       let angleDelta = currentMouseAngle - rotatingZone.startAngle;
@@ -235,7 +318,10 @@ const VenueMapSVG = memo(({
         };
       });
 
-      if (onUpdateGeometry) onUpdateGeometry(rotatingZone.zoneId, finalPoints);
+      if (onUpdateGeometry) {
+          onUpdateGeometry(rotatingZone.zoneId, finalPoints);
+          setRotatingZone(prev => ({ ...prev, currentAngle: angleDelta }));
+      }
       return;
     }
 
@@ -297,9 +383,9 @@ const VenueMapSVG = memo(({
       const zone = zones.find(z => z.id === draggingCurve.zoneId);
       
       if (zone && onUpdateGeometry) {
-        const curves = [...(zone.curveAmounts || [0, 0, 0, 0])];
+        const curves = [...(zone.curveAmounts || Array(zone.points.length).fill(0))];
         const p1 = zone.points[draggingCurve.index];
-        const p2 = zone.points[(draggingCurve.index + 1) % 4];
+        const p2 = zone.points[(draggingCurve.index + 1) % zone.points.length];
         
         const dx = p2.x - p1.x;
         const dy = p2.y - p1.y;
@@ -339,12 +425,49 @@ const VenueMapSVG = memo(({
   };
 
   const handleMouseUp = () => {
+    if (drawingRect && onDrawZone) {
+      const { start, end } = drawingRect;
+      const x = Math.min(start.x, end.x);
+      const y = Math.min(start.y, end.y);
+      const width = Math.abs(start.x - end.x);
+      const height = Math.abs(start.y - end.y);
+      if (width > 10 && height > 10) {
+        onDrawZone({ x, y, width, height });
+      }
+      setDrawingRect(null);
+    }
+    if (draggingSeatInfo && draggingSeatInfo.currentMousePos && setZones) {
+        const deltaX = draggingSeatInfo.currentMousePos.x - draggingSeatInfo.startMousePos.x;
+        const deltaY = draggingSeatInfo.currentMousePos.y - draggingSeatInfo.startMousePos.y;
+        if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
+            setZones(prev => prev.map(z => {
+                if (z.id !== draggingSeatInfo.zoneId) return z;
+                return {
+                    ...z,
+                    blocks: z.blocks.map(b => {
+                        if (b.id !== draggingSeatInfo.blockId) return b;
+                        return {
+                            ...b,
+                            seats: b.seats.map(s => {
+                                if (s.id !== draggingSeatInfo.seatId) return s;
+                                // Al moverlo manualmente, eliminamos el grid_u/v para que sea una posición fija/personalizada
+                                const { grid_u, grid_v, ...rest } = s;
+                                return { ...rest, x_pos: s.x_pos + deltaX, y_pos: s.y_pos + deltaY };
+                            })
+                        };
+                    })
+                };
+            }));
+        }
+    }
     setDraggingPoint(null);
     setDraggingZone(null);
     setRotatingZone(null);
+    setResizingZone(null);
     setDraggingText(null);
     setRotatingText(null);
     setDraggingCurve(null);
+    setDraggingSeatInfo(null);
     setDraggingToolbar(false);
     setAlignmentGuides({ x: [], y: [] });
   };
@@ -373,76 +496,111 @@ const VenueMapSVG = memo(({
   };
 
 
-  const renderSeat = (seatId, x, y, status, zone, isBusy) => {
+    const renderSeat = (seat, status, zone, isBusy, blockId = null) => {
+    const { id: seatId, x_pos: x, y_pos: y, seat_type_id, is_active, row_label, seat_number } = seat;
     const isSelected = selectedSeats.includes(seatId);
     const isHovered = hoveredSeat?.id === seatId;
     const isScanning = activeScannerSeatId === seatId;
     const isWinner = winnerSeatId === seatId && !isScanning;
+    const isPreview = status === 'preview';
     
-    // Seat colors: OCCUPIED -> RED, SELECTED -> GOLD, AVAILABLE -> WHITE
-    let baseColor = '#ffffff';
-    if (status === 'occupied') baseColor = '#ef4444';
-    if (isSelected) baseColor = '#eab308';
+    const isDraggingThisSeat = draggingSeatInfo && draggingSeatInfo.seatId === seatId;
+    const offsetX = isDraggingThisSeat && draggingSeatInfo.currentMousePos ? draggingSeatInfo.currentMousePos.x - draggingSeatInfo.startMousePos.x : 0;
+    const offsetY = isDraggingThisSeat && draggingSeatInfo.currentMousePos ? draggingSeatInfo.currentMousePos.y - draggingSeatInfo.startMousePos.y : 0;
+    const finalX = x + offsetX;
+    const finalY = y + offsetY;
     
-    // THEMED SCANNING COLORS
-    const getZoneColor = (z) => {
-        const name = (z.name || '').toUpperCase();
-        if (z.price >= 2500 || name.includes('PLATIN')) return '#E5E7EB'; // Platino (Gris muy claro/blanco brillante)
-        if (z.price >= 1500 || name.includes('ORO') || name.includes('GOLD')) return '#EAB308'; // Oro
-        if (z.price >= 500 || name.includes('PLATA') || name.includes('SILVER')) return '#94A3B8'; // Plata
-        return '#CD7F32'; // Bronce/Default
-    };
-
-    if (isScanning || isWinner) {
-        baseColor = getZoneColor(zone);
+    // Seat colors
+    let baseColor = is_active !== false ? '#333' : 'rgba(255,255,255,0.05)';
+    let strokeColor = 'rgba(255,255,255,0.1)';
+    
+    if (isPreview) {
+        baseColor = 'rgba(255,255,255,0.08)';
+        strokeColor = 'rgba(255,255,255,0.03)';
+    } else if (is_active !== false && seat_type_id && seatTypes.length > 0) {
+        const sType = seatTypes.find(st => st.id === seat_type_id);
+        if (sType && sType.color_hex) {
+            baseColor = sType.color_hex;
+        }
+    }
+    
+    if (status === 'occupied') {
+        baseColor = '#ef4444';
+        strokeColor = '#7f1d1d';
+    }
+    if (isSelected) {
+        baseColor = '#eab308';
+        strokeColor = '#fff';
     }
 
-    const scale = isHovered || isScanning || isWinner ? 6.5 : 4.5;
+    const scale = isHovered || isScanning || isWinner ? 1.2 : 1;
+    const showLabels = mapView.zoom > 1.5 && !isPreview;
     
     return (
       <g 
         key={seatId} 
-        transform={`translate(${x}, ${y}) scale(${scale})`}
-        onMouseEnter={() => !rouletteActive && setHoveredSeat({ id: seatId, x, y, zoneName: zone.name, price: zone.price, status: status === 'occupied' ? 'VENDIDO' : 'DISPONIBLE' })}
+        transform={`translate(${finalX}, ${finalY}) scale(${scale})`}
+        onMouseEnter={() => !rouletteActive && !isPreview && setHoveredSeat({ 
+            id: seatId, 
+            x: finalX, 
+            y: finalY, 
+            zoneName: zone.name, 
+            price: zone.price, 
+            status: status === 'occupied' ? 'VENDIDO' : 'DISPONIBLE',
+            label: `${row_label}${seat_number}`
+        })}
         onMouseLeave={() => setHoveredSeat(null)} 
+        onMouseDown={(e) => {
+            if (isEditMode && editSubMode === 'seats' && blockId && !isPreview) {
+                e.stopPropagation();
+                setDraggingSeatInfo({ seatId, blockId, zoneId: zone.id, startMousePos: getMousePos(e) });
+            }
+        }}
         onClick={() => {
-          if (!rouletteActive && onSeatToggle) {
+          if (!rouletteActive && onSeatToggle && !isPreview) {
             onSeatToggle(seatId);
-            const info = { id: seatId, x, y, zoneName: zone.name, price: zone.price, status: status === 'occupied' ? 'VENDIDO' : 'DISPONIBLE' };
-            setPersistentSeatInfo(selectedSeats.includes(seatId) ? null : info);
           }
         }}
-        style={{ cursor: rouletteActive ? 'default' : 'pointer', transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}
+        style={{ 
+            cursor: rouletteActive ? 'default' : (isEditMode && editSubMode === 'seats' && !isPreview ? 'move' : (isPreview ? 'default' : 'pointer')), 
+            transition: isDraggingThisSeat ? 'none' : 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            opacity: isPreview ? 0.3 : 1
+        }}
       >
-        {/* Button base / ring */}
-        <circle 
-          r="1.2" 
-          fill="rgba(0,0,0,0.4)" 
-          stroke="rgba(255,255,255,0.1)" 
-          strokeWidth="0.1" 
-        />
+        {/* Seat Shadow */}
+        {!isPreview && <rect x="-6" y="-6" width="12" height="12" rx="3" fill="rgba(0,0,0,0.5)" />}
         
-        {/* Main seat dot (The "Button") */}
-        <circle 
-          r="0.8" 
+        {/* Seat Backrest */}
+        <rect 
+          x="-5" y="-5" width="10" height="8" rx="2" 
           fill={baseColor} 
-          stroke={isSelected || isHovered || isScanning || isWinner ? '#fff' : 'rgba(0,0,0,0.2)'} 
-          strokeWidth={isScanning || isWinner ? 0.3 : 0.15} 
-          style={{ 
-            filter: (isScanning || isWinner || isSelected || isHovered) ? `drop-shadow(0 0 4px ${baseColor})` : 'none',
-            transition: 'all 0.2s ease'
-          }} 
+          stroke={strokeColor}
+          strokeWidth="0.5"
+          opacity={is_active !== false ? 1 : 0.3}
         />
         
-        {/* Subtle inner highlight for 3D effect */}
-        {!isBusy && (
-          <circle 
-            r="0.3" 
-            cx="-0.2" 
-            cy="-0.2" 
-            fill="rgba(255,255,255,0.4)" 
-            style={{ pointerEvents: 'none' }}
-          />
+        {/* Seat Cushion */}
+        <rect 
+          x="-5" y="-1" width="10" height="6" rx="2" 
+          fill={baseColor} 
+          stroke={strokeColor}
+          strokeWidth="0.5"
+          opacity={is_active !== false ? 1 : 0.3}
+          style={{ filter: (!isPreview && (isScanning || isWinner || isSelected || isHovered)) ? 'url(#premium-glow)' : 'none' }}
+        />
+
+        {/* Armrests */}
+        <rect x="-6" y="-1" width="2" height="5" rx="1" fill="rgba(255,255,255,0.1)" />
+        <rect x="4" y="-1" width="2" height="5" rx="1" fill="rgba(255,255,255,0.1)" />
+        
+        {showLabels && is_active !== false && (
+          <text 
+            y="2.5"
+            textAnchor="middle" 
+            style={{ fontSize: '3.5px', fontWeight: 'bold', fill: isSelected ? '#000' : '#fff', pointerEvents: 'none', userSelect: 'none', opacity: 0.8 }}
+          >
+            {row_label}{seat_number}
+          </text>
         )}
       </g>
     );
@@ -469,12 +627,14 @@ const VenueMapSVG = memo(({
               padding: '4px', display: 'flex', gap: '4px', zIndex: 999,
               boxShadow: '0 10px 30px rgba(0,0,0,0.6)'
           }}>
-              {[
-                { id: 'move', label: 'Mover', icon: <Move size={13} strokeWidth={2.5} />, color: '#fff' },
-                { id: 'points', label: 'Puntos', icon: <Crosshair size={13} strokeWidth={2.5} />, color: '#ce2c2c' },
-                { id: 'curves', label: 'Curvas', icon: <CornerUpRight size={13} strokeWidth={2.5} />, color: '#8b5cf6' },
-                { id: 'text', label: 'Texto', icon: <Type size={13} strokeWidth={2.5} />, color: '#0ea5e9' }
-              ].map(b => (
+                {[
+                  { id: 'move', label: 'Mover Zona', icon: <Move size={13} strokeWidth={2.5} />, color: '#fff' },
+                  { id: 'points', label: 'Puntos', icon: <Crosshair size={13} strokeWidth={2.5} />, color: '#ce2c2c' },
+                  { id: 'curves', label: 'Curvas', icon: <CornerUpRight size={13} strokeWidth={2.5} />, color: '#8b5cf6' },
+                  { id: 'text', label: 'Texto', icon: <Type size={13} strokeWidth={2.5} />, color: '#0ea5e9' },
+                  { id: 'seats', label: 'Asientos', icon: <div style={{ fontSize: '10px', fontWeight: 'bold' }}>A</div>, color: '#eab308' },
+                  { id: 'eraser', label: 'Borrador (Pasillos)', icon: <div style={{ fontSize: '10px', fontWeight: 'bold' }}>E</div>, color: '#f43f5e' }
+                ].map(b => (
                  <button 
                    key={b.id}
                    title={b.label}
@@ -548,20 +708,73 @@ const VenueMapSVG = memo(({
       <svg ref={svgRef} viewBox="0 0 800 600" className="venue-map-svg" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} style={{ width: '100%', height: '100%', overflow: 'visible' }}>
         <g transform={`translate(${mapView.pan.x}, ${mapView.pan.y}) scale(${mapView.zoom})`} style={{ transition: (draggingPoint || draggingZone || rotatingZone) ? 'none' : 'transform 0.3s' }}>
           <defs>
+            <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.8" fill="rgba(255,255,255,0.07)" />
+            </pattern>
             <linearGradient id="stageGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#e0e0e0', stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: '#999', stopOpacity: 1 }} />
+              <stop offset="0%" style={{ stopColor: '#2a2a2a', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#1a1a1a', stopOpacity: 1 }} />
             </linearGradient>
+            <filter id="premium-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <linearGradient id="screenBeam" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="rgba(255, 255, 255, 0.4)" />
+              <stop offset="50%" stopColor="rgba(255, 255, 255, 0.1)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
+            </linearGradient>
+            <filter id="beamBlur">
+              <feGaussianBlur stdDeviation="15" />
+            </filter>
           </defs>
 
-          {zones.map(zone => {
+           {/* Dotted Grid Background */}
+           <rect 
+             width="2000" height="2000" x="-1000" y="-1000" 
+             fill="url(#gridPattern)" 
+             pointerEvents={isDrawing ? 'all' : 'none'} 
+             onMouseDown={(e) => {
+               if (isDrawing) {
+                 const pos = getMousePos(e);
+                 setDrawingRect({ start: pos, end: pos });
+               } else if (editSubMode === 'eraser') {
+                 const pos = getMousePos(e);
+                 const radius = 15;
+                 setZones(prev => prev.map(z => ({
+                    ...z,
+                    blocks: z.blocks?.map(b => ({
+                        ...b,
+                        seats: b.seats.filter(s => {
+                            const d = Math.sqrt((s.x_pos - pos.x)**2 + (s.y_pos - pos.y)**2);
+                            return d > radius;
+                        })
+                    })) || []
+                 })));
+               }
+             }}
+           />
+
+           {drawingRect && (
+             <rect 
+                x={Math.min(drawingRect.start.x, drawingRect.end.x)}
+                y={Math.min(drawingRect.start.y, drawingRect.end.y)}
+                width={Math.abs(drawingRect.start.x - drawingRect.end.x)}
+                height={Math.abs(drawingRect.start.y - drawingRect.end.y)}
+                className="selection-rect"
+             />
+           )}
+
+          {zones.map((zone, zIdx) => {
             if (!zone.points || !Array.isArray(zone.points) || zone.points.length === 0) return null;
             
             const isSelected = selectedZoneId === zone.id;
-            const isStage = zone.type === 'stage';
+            const isStage = zone.type === 'stage' || zone.type === 'screen';
+            const isScreen = zone.type === 'screen';
             const isScanningSeat = activeScannerSeatId?.split('-')[0] === zone.id;
             const isScanningZone = activeScannerZoneId === zone.id;
             const isScanning = isScanningSeat || isScanningZone;
+
             const getControlPoint = (p1, p2, amount) => {
                 const midX = (p1.x + p2.x) / 2;
                 const midY = (p1.y + p2.y) / 2;
@@ -587,32 +800,29 @@ const VenueMapSVG = memo(({
             const centerY = zone.points.reduce((sum, p) => sum + p.y, 0) / zone.points.length;
             const topY = Math.min(...zone.points.map(p => p.y));
 
-            // THEMED COLORS FOR SCANNER
-            const getThemedColor = (z) => {
-                if (z.color) return z.color;
-                if (z.tier === 'platino') return '#ffffff';
-                if (z.tier === 'oro') return '#EAB308';
-                if (z.tier === 'plata') return '#94A3B8';
-                if (z.tier === 'bronce') return '#B45309';
-
-                const name = (z.name || '').toUpperCase();
-                if (z.price >= 2500 || name.includes('PLATIN')) return '#ffffff'; // Platino
-                if (z.price >= 1500 || name.includes('ORO') || name.includes('GOLD')) return '#EAB308'; // Oro
-                if (z.price >= 500 || name.includes('PLATA') || name.includes('SILVER')) return '#94A3B8'; // Plata
-                return '#CD7F32'; // Bronce
-            };
-
-            const themedColor = getThemedColor(zone);
-            const hasCustomColor = !!(zone.tier || zone.color);
+            const p1 = zone.points[0];
+            const p2 = zone.points[1];
+            const p3 = zone.points[2] || p1;
+            const p4 = zone.points[3] || p1;
 
             return (
-              <g key={zone.id}>
+              <g key={zone.id || `zone-${zIdx}`}>
+                {/* Projector Beam for Screen */}
+                {zone.type === 'screen' && (
+                    <path 
+                        d={`M ${p1.x},${p1.y} L ${p2.x},${p2.y} L ${p2.x + (p2.x-p3.x)*2},${p2.y + (p2.y-p3.y)*2} L ${p1.x + (p1.x-p4.x)*2},${p1.y + (p1.y-p4.y)*2} Z`}
+                        fill="url(#screenBeam)"
+                        pointerEvents="none"
+                        style={{ mixBlendMode: 'screen', opacity: 0.6, filter: 'url(#beamBlur)' }}
+                    />
+                )}
+                
                 <path d={pathData}
-                  fill={isStage ? 'url(#stageGradient)' : (zone.type === 'seating' ? (isSelected ? (hasCustomColor ? `${themedColor}40` : 'rgba(255, 255, 255, 0.1)') : (isScanning ? `${themedColor}66` : (hasCustomColor ? `${themedColor}33` : 'rgba(40, 40, 40, 0.9)'))) : 'rgba(30, 30, 30, 0.8)')}
-                  stroke={isSelected ? (hasCustomColor ? themedColor : '#ffffff') : (isScanning ? themedColor : (isStage ? '#666' : (hasCustomColor ? themedColor : 'rgba(255, 255, 255, 0.2)')))}
-                  strokeWidth={isSelected ? 3 : (isScanning || hasCustomColor ? 2 : (isStage ? 2 : 1))}
+                  fill={isScreen ? '#111' : (isStage ? 'url(#stageGradient)' : (zone.type === 'seating' ? (isSelected ? (zone.color ? `${zone.color}40` : 'rgba(255, 255, 255, 0.1)') : (isScanning ? `${zone.color || '#eab308'}66` : (zone.color ? `${zone.color}33` : 'rgba(40, 40, 40, 0.9)'))) : 'rgba(30, 30, 30, 0.8)'))}
+                  stroke={isSelected ? (zone.color || '#eab308') : (isScanning ? (zone.color || '#eab308') : (isStage ? '#333' : (zone.color || 'rgba(255, 255, 255, 0.1)')))}
+                  strokeWidth={isSelected ? 3 : 1.5}
                   className={isSelected ? 'marching-ants' : ''}
-                  onMouseDown={isEditMode && editSubMode === 'move' ? handleMouseDownZone(zone.id) : undefined}
+                  onMouseDown={!isDrawing ? (isEditMode && editSubMode === 'move' ? handleMouseDownZone(zone.id) : (isEditMode ? handlePathClick(zone.id) : undefined)) : undefined}
                   onClick={(e) => {
                     if (isEditMode) {
                       if (onZoneSelect) onZoneSelect(zone.id);
@@ -623,24 +833,36 @@ const VenueMapSVG = memo(({
                   style={{ 
                     cursor: zone.type === 'seating' ? (isEditMode ? 'crosshair' : 'pointer') : 'default', 
                     transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    filter: (isSelected || isScanning) ? `drop-shadow(0 0 25px ${isScanning ? themedColor : 'rgba(255,255,255,0.3)'})` : 'none'
+                    filter: (isSelected || isScanning) ? `drop-shadow(0 0 25px ${isScanning ? (zone.color || '#eab308') : 'rgba(255,255,255,0.3)'})` : 'none'
                   }} />
 
-                {isStage && (
+                {isScreen && (
+                    <g transform={`translate(${centerX}, ${centerY}) rotate(${Math.atan2(zone.points[1].y - zone.points[0].y, zone.points[1].x - zone.points[0].x) * 180 / Math.PI})`}>
+                        <path 
+                            d={`M -150 -5 Q 0 -25 150 -5 L 150 5 Q 0 -15 -150 5 Z`} 
+                            fill="#fff" 
+                            opacity="0.8"
+                            style={{ filter: 'drop-shadow(0 0 15px #fff)' }}
+                        />
+                        <text y="40" textAnchor="middle" fill="#fff" style={{ fontSize: '10px', fontWeight: 900, opacity: 0.5, letterSpacing: '0.5em' }}>PANTALLA</text>
+                    </g>
+                )}
+
+                {(isStage && !isScreen) && (
                   <text 
                     x={centerX + (zone.textPos?.x || 0)} 
                     y={centerY + (zone.textPos?.y || 0)} 
                     textAnchor="middle" 
                     alignmentBaseline="middle" 
-                    fill="#000" 
+                    fill="#fff" 
                     transform={`rotate(${zone.textAngle !== undefined ? zone.textAngle : -90}, ${centerX + (zone.textPos?.x || 0)}, ${centerY + (zone.textPos?.y || 0)})`}
                     onMouseDown={isEditMode && editSubMode === 'text' ? handleMouseDownText(zone.id) : undefined}
                     style={{ 
-                      fontSize: '22px', 
+                      fontSize: '18px', 
                       fontWeight: 900, 
                       textTransform: 'uppercase', 
-                      letterSpacing: '0.5em', 
-                      opacity: 0.5, 
+                      letterSpacing: '0.4em', 
+                      opacity: 0.3, 
                       pointerEvents: isEditMode && editSubMode === 'text' ? 'auto' : 'none',
                       cursor: isEditMode && editSubMode === 'text' ? 'move' : 'default'
                     }}
@@ -672,7 +894,7 @@ const VenueMapSVG = memo(({
                   </text>
                 )}
 
-                {zone.type === 'seating' && (isSelected || isScanning) && (
+                {zone.type === 'seating' && (isSelected || isScanning || isEditMode) && (
                   <g>
                     <defs>
                       <clipPath id={`mask-${zone.id}`}>
@@ -681,51 +903,88 @@ const VenueMapSVG = memo(({
                     </defs>
                     <g clipPath={`url(#mask-${zone.id})`} onMouseDown={isEditMode && editSubMode === 'move' ? handleMouseDownZone(zone.id) : undefined} style={{ cursor: isEditMode && editSubMode === 'move' ? 'move' : 'default' }}>
                     {(() => {
-                        const minX = Math.min(...zone.points.map(p => p.x));
-                        const maxX = Math.max(...zone.points.map(p => p.x));
-                        const minY = Math.min(...zone.points.map(p => p.y));
-                        const maxY = Math.max(...zone.points.map(p => p.y));
-
-                      const width = Math.max(maxX - minX, 1);
-                      const height = Math.max(maxY - minY, 1);
-
-                      const totalSeats = zone.count || 100;
-                      const aspect = width / height;
-                      // Añadimos densidad para que cubra esquinas
-                      const rows = Math.max(Math.floor(Math.sqrt(totalSeats / aspect) * 1.3), 1);
-                      const cols = Math.ceil((totalSeats / rows) * 1.3);
-                      
-                      return Array.from({ length: rows }).map((_, row) => 
-                        Array.from({ length: cols }).map((_, col) => {
-                          const seatId = `${zone.id}-${row}-${col}`;
-                          const isBusy = busySeats.includes(seatId);
-                          
-                          const x = minX + (col + 0.5) * (width / cols);
-                          const y = minY + (row + 0.5) * (height / rows);
-                          
-                          return renderSeat(seatId, x, y, isBusy ? 'occupied' : 'available', zone, isBusy);
-                        })
-                      ).flat();
+                        if (zone.blocks && zone.blocks.length > 0) {
+                            return zone.blocks.map(block => {
+                                return block.seats.map(seat => {
+                                    const isBusy = busySeats.includes(seat.id);
+                                    // Use a lower opacity or simplified style if NOT selected/scanning
+                                    const styleType = isBusy ? 'occupied' : (isSelected || isScanning ? 'available' : 'preview');
+                                    return renderSeat(seat, styleType, zone, isBusy, block.id);
+                                });
+                            }).flat();
+                        }
+                        return null;
                     })()}
                     </g>
                   </g>
                 )}
 
-                {isEditMode && isSelected && editSubMode === 'points' && (
+                {isEditMode && isSelected && (editSubMode === 'points' || editSubMode === 'move') && (
                   <g>
-                    {zone.points.map((p, idx) => (
+                    {/* Bounding Box for Resize */}
+                    {(() => {
+                        const minX = Math.min(...zone.points.map(p => p.x));
+                        const maxX = Math.max(...zone.points.map(p => p.x));
+                        const minY = Math.min(...zone.points.map(p => p.y));
+                        const maxY = Math.max(...zone.points.map(p => p.y));
+                        return (
+                            <g>
+                                <rect x={minX - 5} y={minY - 5} width={maxX - minX + 10} height={maxY - minY + 10} fill="none" stroke="#0ea5e9" strokeWidth="1" strokeDasharray="5,5" opacity="0.5" />
+                                {/* Resize Handles */}
+                                {[
+                                    { x: minX - 5, y: minY - 5, id: 'tl' },
+                                    { x: maxX + 5, y: minY - 5, id: 'tr' },
+                                    { x: minX - 5, y: maxY + 5, id: 'bl' },
+                                    { x: maxX + 5, y: maxY + 5, id: 'br' }
+                                ].map(h => (
+                                    <circle 
+                                        key={h.id} cx={h.x} cy={h.y} r={isSelected ? 6 : 4} 
+                                        fill="#fff" stroke="#0ea5e9" strokeWidth={2}
+                                        onMouseDown={handleMouseDownResize(zone.id, h.id)} 
+                                        style={{ cursor: h.id === 'tl' || h.id === 'br' ? 'nwse-resize' : 'nesw-resize', filter: 'drop-shadow(0 0 5px rgba(14, 165, 233, 0.5))' }}
+                                    />
+                                ))}
+                            </g>
+                        );
+                    })()}
+
+                    {editSubMode === 'points' && zone.points.map((p, idx) => (
                       <circle 
                         key={`${zone.id}-p-${idx}`} 
-                        cx={p.x} cy={p.y} r={5} 
-                        fill="#ff0000" stroke="#fff" strokeWidth={1} 
+                        cx={p.x} cy={p.y} r={6} 
+                        fill="#0ea5e9" stroke="#fff" strokeWidth={2} 
                         onMouseDown={handleMouseDownPoint(zone.id, idx)} 
-                        style={{ cursor: 'nwse-resize', transition: 'all 0.15s ease-out' }} 
-                        onMouseEnter={(e) => e.target.setAttribute('r', '8')}
-                        onMouseLeave={(e) => e.target.setAttribute('r', '5')}
+                        style={{ cursor: 'nwse-resize', transition: 'all 0.15s ease-out', filter: 'drop-shadow(0 0 5px rgba(14, 165, 233, 0.5))' }} 
+                        onMouseEnter={(e) => { e.target.setAttribute('r', '9'); e.target.style.filter = 'drop-shadow(0 0 12px rgba(14, 165, 233, 0.9))'; }}
+                        onMouseLeave={(e) => { e.target.setAttribute('r', '6'); e.target.style.filter = 'drop-shadow(0 0 5px rgba(14, 165, 233, 0.5))'; }}
                       />
                     ))}
-                    <line x1={centerX} y1={topY} x2={centerX} y2={topY - 30} stroke="#ff0000" strokeWidth={2} />
-                    <circle cx={centerX} cy={topY - 35} r={10} fill="#ff0000" stroke="#fff" strokeWidth={2} onMouseDown={handleMouseDownRotate(zone.id)} style={{ cursor: 'alias', filter: 'drop-shadow(0 0 10px rgba(255, 0, 0, 0.9))' }} />
+                    
+                    {/* Rotation Handle - Now more visible */}
+                    <line x1={centerX} y1={topY} x2={centerX} y2={topY - 30} stroke="#0ea5e9" strokeWidth={1.5} strokeDasharray="4,2" />
+                    <g transform={`translate(${centerX}, ${topY - 35})`} onMouseDown={handleMouseDownRotate(zone.id)} style={{ cursor: 'alias' }}>
+                        <circle r={12} fill="#0ea5e9" stroke="#fff" strokeWidth={2} style={{ filter: 'drop-shadow(0 0 10px rgba(14, 165, 233, 0.8))' }} />
+                        <path d="M -4 -2 A 4 4 0 1 1 4 2 M 2 -2 L 5 -2 L 5 1" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" transform="scale(1.2)" />
+                    </g>
+
+                    {rotatingZone && rotatingZone.zoneId === zone.id && (
+                        <g pointerEvents="none">
+                            <circle cx={rotatingZone.center.x} cy={rotatingZone.center.y} r={Math.sqrt((topY - 35 - rotatingZone.center.y)**2)} fill="none" stroke="#eab308" strokeWidth="1" strokeDasharray="10,10" opacity="0.3" />
+                            <text x={rotatingZone.center.x} y={rotatingZone.center.y - 15} fill="#eab308" textAnchor="middle" style={{ fontSize: '12px', fontWeight: 'bold' }}>{Math.round((rotatingZone.currentAngle || 0) * 180 / Math.PI)}°</text>
+                        </g>
+                    )}
+                    <line x1={centerX} y1={topY} x2={centerX} y2={topY - 30} stroke="#0ea5e9" strokeWidth={1.5} strokeDasharray="4,2" />
+                    <g transform={`translate(${centerX}, ${topY - 35})`} onMouseDown={handleMouseDownRotate(zone.id)} style={{ cursor: 'alias' }}>
+                        <circle r={12} fill="#0ea5e9" stroke="#fff" strokeWidth={2} style={{ filter: 'drop-shadow(0 0 10px rgba(14, 165, 233, 0.8))' }} />
+                        <path d="M -4 -2 A 4 4 0 1 1 4 2 M 2 -2 L 5 -2 L 5 1" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" transform="scale(1.2)" />
+                    </g>
+
+                    {rotatingZone && rotatingZone.zoneId === zone.id && (
+                        <g pointerEvents="none">
+                            <circle cx={rotatingZone.center.x} cy={rotatingZone.center.y} r={Math.sqrt((topY - 35 - rotatingZone.center.y)**2)} fill="none" stroke="#eab308" strokeWidth="1" strokeDasharray="10,10" opacity="0.3" />
+                            <text x={rotatingZone.center.x} y={rotatingZone.center.y - 15} fill="#eab308" textAnchor="middle" style={{ fontSize: '12px', fontWeight: 'bold' }}>{Math.round((rotatingZone.currentAngle || 0) * 180 / Math.PI)}°</text>
+                        </g>
+                    )}
                   </g>
                 )}
 
@@ -764,12 +1023,12 @@ const VenueMapSVG = memo(({
                         return (
                           <g key={`edge-ctrl-${edgeIdx}`}>
                             <circle 
-                              cx={c.x} cy={c.y} r={5} 
-                              fill="#8b5cf6" stroke="#fff" strokeWidth={1} 
+                              cx={c.x} cy={c.y} r={6} 
+                              fill="#8b5cf6" stroke="#fff" strokeWidth="2" 
                               onMouseDown={handleMouseDownCurve(zone.id, edgeIdx)} 
-                              style={{ cursor: 'pointer', transition: 'all 0.1s ease-out' }} 
+                              style={{ cursor: 'grab', transition: 'all 0.2s ease-out' }} 
                               onMouseEnter={(e) => e.target.setAttribute('r', '8')}
-                              onMouseLeave={(e) => e.target.setAttribute('r', '5')}
+                              onMouseLeave={(e) => e.target.setAttribute('r', '6')}
                               title="Arrastra para Curvar Borde"
                             />
                             {/* BOTON DIVIDIR (+) */}
@@ -791,8 +1050,8 @@ const VenueMapSVG = memo(({
             );
           })}
           
-          {alignmentGuides.x.map((x, i) => <line key={`gx-${i}`} x1={x} y1="-2000" x2={x} y2="2000" stroke="#ff0000" strokeWidth="1" strokeDasharray="3,2" style={{ opacity: 0.9 }} />)}
-          {alignmentGuides.y.map((y, i) => <line key={`gy-${i}`} x1="-2000" y1={y} x2="2000" y2={y} stroke="#ff0000" strokeWidth="1" strokeDasharray="3,2" style={{ opacity: 0.9 }} />)}
+          {alignmentGuides.x.map((x, i) => <line key={`gx-${i}`} x1={x} y1="-2000" x2={x} y2="2000" stroke="#eab308" strokeWidth="0.5" strokeDasharray="5,3" style={{ opacity: 0.6 }} />)}
+          {alignmentGuides.y.map((y, i) => <line key={`gy-${i}`} x1="-2000" y1={y} x2="2000" y2={y} stroke="#eab308" strokeWidth="0.5" strokeDasharray="5,3" style={{ opacity: 0.6 }} />)}
 
           {(() => {
             let displaySeat = hoveredSeat || (selectedSeats.length > 0 ? persistentSeatInfo : null);
@@ -808,10 +1067,10 @@ const VenueMapSVG = memo(({
                 
                 if (zone) {
                   const totalSeats = zone.count || 100;
-                  const width1 = Math.sqrt(Math.pow(zone.points[1].x - zone.points[0].x, 2) + Math.pow(zone.points[1].y - zone.points[0].y, 2));
-                  const width2 = Math.sqrt(Math.pow(zone.points[2].x - zone.points[3].x, 2) + Math.pow(zone.points[2].y - zone.points[3].y, 2));
-                  const height1 = Math.sqrt(Math.pow(zone.points[3].x - zone.points[0].x, 2) + Math.pow(zone.points[3].y - zone.points[0].y, 2));
-                  const height2 = Math.sqrt(Math.pow(zone.points[2].x - zone.points[1].x, 2) + Math.pow(zone.points[2].y - zone.points[1].y, 2));
+                  const width1 = Math.sqrt(Math.pow((zone.points[1]?.x || 0) - (zone.points[0]?.x || 0), 2) + Math.pow((zone.points[1]?.y || 0) - (zone.points[0]?.y || 0), 2));
+                  const width2 = Math.sqrt(Math.pow((zone.points[2]?.x || 0) - (zone.points[3]?.x || 0), 2) + Math.pow((zone.points[2]?.y || 0) - (zone.points[3]?.y || 0), 2));
+                  const height1 = Math.sqrt(Math.pow((zone.points[3]?.x || 0) - (zone.points[0]?.x || 0), 2) + Math.pow((zone.points[3]?.y || 0) - (zone.points[0]?.y || 0), 2));
+                  const height2 = Math.sqrt(Math.pow((zone.points[2]?.x || 0) - (zone.points[1]?.x || 0), 2) + Math.pow((zone.points[2]?.y || 0) - (zone.points[1]?.y || 0), 2));
                   const avgWidth = (width1 + width2) / 2;
                   const avgHeight = (height1 + height2) / 2;
                   const aspect = avgWidth / avgHeight;
@@ -820,7 +1079,14 @@ const VenueMapSVG = memo(({
                   const u = (col + 0.5) / cols;
                   const v = (row + 0.5) / rows;
                   const staggeredU = row % 2 === 0 ? u : Math.min(u + (0.3 / cols), 0.98);
-                  const pos = getBilinearPos(zone.points, staggeredU, v);
+                  
+                  const zcX = zone.points.reduce((sum, p) => sum + p.x, 0) / zone.points.length;
+                  const zcY = zone.points.reduce((sum, p) => sum + p.y, 0) / zone.points.length;
+                  
+                  // Bilinear position only works well with 4 points
+                  const pos = zone.points.length === 4 
+                    ? getBilinearPos(zone.points, staggeredU, v)
+                    : { x: zcX, y: zcY };
                   
                   displaySeat = { x: pos.x, y: pos.y, id: winnerSeatId, zoneName: zone.name };
                   isWinnerCrown = true;
@@ -859,8 +1125,8 @@ const VenueMapSVG = memo(({
             return (
               <g transform={`translate(${displaySeat.x}, ${displaySeat.y - 30})`}>
                 <rect x="-100" y="-75" width="200" height={displaySeat.status === 'VENDIDO' ? 100 : 70} rx="12" fill="rgba(20, 20, 20, 0.95)" stroke="rgba(255,255,255,0.1)" strokeWidth="1" style={{ filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.8))' }} />
-                <text y="-55" textAnchor="middle" fill="#fff" style={{ fontSize: '11px', fontWeight: 950 }}>{displaySeat.zoneName}</text>
-                <text y="-35" textAnchor="middle" fill="#fff" style={{ fontSize: '13px', fontWeight: 950 }}>ASIENTO {displaySeat.id.split('-').slice(-2).join('-')}</text>
+                <text y="-55" textAnchor="middle" fill="#fff" style={{ fontSize: '11px', fontWeight: 950, letterSpacing: '0.1em' }}>{displaySeat.zoneName}</text>
+                <text y="-35" textAnchor="middle" fill="#fff" style={{ fontSize: '13px', fontWeight: 950 }}>ASIENTO {displaySeat.label || displaySeat.id.split('-').slice(-2).join('-')}</text>
                 <text y="-14" textAnchor="middle" fill={displaySeat.status === 'VENDIDO' ? '#ff4d4d' : '#10b981'} style={{ fontSize: '12px', fontWeight: 'bold' }}>{displaySeat.price || '$0'} • {displaySeat.status}</text>
                 
                 {displaySeat.status === 'VENDIDO' && (

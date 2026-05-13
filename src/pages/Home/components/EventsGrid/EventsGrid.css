@@ -1,0 +1,191 @@
+/* ══════════════════════════════════════════════════════════════
+   EVENTS GRID — Home Page Component (Modular)
+   Cuadrícula de eventos y Estilo de Tarjetas (Ticketmaster Style)
+   ══════════════════════════════════════════════════════════════ */
+
+.events-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 3rem;
+  border-bottom: none !important;
+  padding-bottom: 0;
+}
+
+.events-title {
+  font-size: 1.1rem;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  color: #000;
+  text-transform: uppercase;
+}
+
+[data-theme='dark'] .events-title {
+  color: #fff;
+}
+
+.events-count {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #666;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* TICKETMASTER: 2 wide columns */
+  justify-content: flex-start;
+  gap: 0.75rem; 
+  margin: 0 0 2rem;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .events-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.event-card-wrapper {
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+  width: 100%;
+  position: relative;
+}
+
+.event-card-wrapper:hover {
+  transform: translateY(-5px) scale(1.01); /* Reducido al 50% */
+  z-index: 10;
+}
+
+/* Event Primary Card (Glass Style) */
+.event-primary-card {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important; 
+  position: relative; 
+  border-radius: 16px !important;
+  background: #fff !important; /* Fondo blanco para ocultar subpíxeles contra la página */
+  transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+  border: none !important;
+  outline: 1.5px solid rgba(255, 255, 255, 0.4) !important; /* Rim light forzado interno */
+  outline-offset: -1.5px !important;
+  -webkit-mask-image: -webkit-radial-gradient(white, black); /* Hack para suavizado perfecto */
+}
+
+[data-theme='dark'] .event-primary-card {
+  border: none !important;
+  background: #fff !important;
+  outline: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+  outline-offset: -1.5px !important;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
+
+.event-card-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9; 
+  overflow: hidden;
+  z-index: 1;
+  background: #eee;
+}
+
+.event-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.event-card-container:hover .event-card-image img,
+.event-card-wrapper:hover .event-card-image img {
+  transform: scale(1.07); /* Reducido al 50% */
+}
+
+.event-card-content {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 35% !important;
+  padding: 0.75rem 1.5rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 0.2rem !important;
+  z-index: 100 !important;
+  background: rgba(0, 0, 0, 0.45) !important; /* Cristal Negro Premium */
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05) !important;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.event-card-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+  z-index: 2;
+}
+
+.event-card-wrapper:hover .event-card-content {
+  background: rgba(0, 0, 0, 0.65) !important; /* Negro más profundo al hover */
+}
+
+.event-card-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #fff !important;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.1em !important; /* Separar letras para legibilidad */
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.event-card-venue {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.event-card-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.date-separator {
+  opacity: 0.4;
+}
+
+.events-pagination {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0;
+}

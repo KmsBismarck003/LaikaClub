@@ -1,0 +1,36 @@
+/* ══════════════════════════════════════════════════════════════
+   PROFILE — Layout & Core structure
+   Chasis principal del perfil de usuario y estados de carga.
+   ══════════════════════════════════════════════════════════════ */
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+/* Skeletons para carga inicial */
+.profile-skeleton-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-skeleton-item {
+  height: 90px;
+  border-radius: 16px;
+  background: var(--bg-tertiary);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+[data-theme='dark'] .profile-skeleton-item {
+  background: #111111;
+}

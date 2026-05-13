@@ -1,0 +1,571 @@
+/* MerchandiseManager.css - Premium White Industrial Theme (Backup Style) */
+
+.merch-industrial-container {   
+    padding: 2rem 3rem;
+    background: #fbfbfb; /* Fondo base blanco limpio */
+    min-height: 100vh;
+    width: 100%;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    color: #000;
+}
+
+/* --- CLONE TOP STATS (FROM BACKUP STYLE) --- */
+.status-grid-merch {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  background: #fbfbfb;
+  border-bottom: 2.5px solid #eee;
+  margin: -1.5rem -1.5rem 2rem; /* Expandir al borde del modal */
+}
+
+.status-item-mini {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-item-mini small {
+  font-size: 0.6rem;
+  font-weight: 850;
+  color: #888;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.status-item-mini .val {
+    font-weight: 900;
+    font-size: 1.1rem;
+    margin-top: 4px;
+}
+
+/* --- SPLIT SCREEN LAYOUT --- */
+.editor-grid-premium {
+    display: grid !important;
+    grid-template-columns: 450px 1fr !important;
+    gap: 0 !important; /* Bordes pegados para limpieza */
+    min-height: 75vh;
+}
+
+.e-form-col-clean {
+    padding: 2rem;
+    background: #fff;
+    border-right: 2px solid #eee;
+    overflow-y: auto;
+    max-height: 75vh;
+}
+
+.e-preview-col-light {
+    padding: 2.5rem;
+    background: #f5f5f5; /* Gris suave para que el monitor resalte */
+    background-image: radial-gradient(#ddd 1.5px, transparent 1.5px);
+    background-size: 30px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- INDUSTRIAL SETTINGS PANE (CLEAN) --- */
+.industrial-settings-pane {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.settings-row:last-child { border-bottom: none; }
+
+.settings-label {
+  width: 140px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #555;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.settings-control { flex: 1; display: flex; gap: 8px; }
+
+/* SEGMENTED CONTROL (PILLS) */
+.segmented-control {
+  display: flex;
+  background: #f0f0f0;
+  padding: 4px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.segmented-control button {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #666;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.segmented-control button.active {
+  background: #fff;
+  color: #000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* INPUTS MODERNO */
+.industrial-input, .industrial-select {
+  border: 1px solid #ddd !important;
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  font-weight: 800 !important;
+  background: #fff !important;
+  color: #000 !important;
+  outline: none !important;
+  width: 100%;
+}
+
+.industrial-input:focus { border-color: #000 !important; box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
+
+/* --- VARIANTE MATRIX TABLE (CLEAN) --- */
+.variants-matrix-technical {
+    width: 100%;
+    margin-top: 1rem;
+    border-collapse: collapse;
+}
+
+.variants-matrix-technical thead th {
+    text-align: left;
+    font-size: 0.6rem;
+    color: #999;
+    padding: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.vt-row-technical {
+    border-top: 1px solid #f2f2f2;
+}
+
+.vt-row-technical td {
+    padding: 12px 8px;
+}
+
+.vt-remove-btn {
+    all: unset;
+    cursor: pointer;
+    color: #ef4444;
+    padding: 6px;
+    border-radius: 4px;
+    display: flex;
+    transition: background 0.2s;
+}
+
+.vt-remove-btn:hover { background: #fee2e2; }
+
+/* FOOTER FIXED */
+.merch-editor-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 1.5rem 2rem;
+    background: #fff;
+    border-top: 2px solid #eee;
+    width: 100%;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+/* --- LIVE MONITOR WRAPPER PULIDO --- */
+.glass-monitor-wrapper {
+    transform: scale(0.85);
+    transform-origin: center center;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.1); /* Sombra suave */
+}
+
+.live-preview-badge {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    background: #fff;
+    color: #000;
+    padding: 6px 14px;
+    font-size: 0.65rem;
+    font-weight: 950;
+    border-radius: 30px;
+    border: 2px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* --- ESTILOS DE LA TABLA PRINCIPAL (RESTAURADOS) --- */
+.merch-industrial-container thead th {
+    background: #000 !important;
+    color: #fff !important;
+    font-size: 0.65rem !important;
+    font-weight: 950 !important;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 15px !important;
+    border: none !important;
+}
+
+.table-img-container {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #eee;
+    border: 1px solid #eee;
+}
+
+.table-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.p-main-name {
+    font-size: 0.9rem;
+    color: #000;
+}
+
+.p-variants-count {
+    font-size: 0.6rem;
+    font-weight: 850;
+    color: #888;
+    letter-spacing: 0.5px;
+}
+
+.row-actions-premium {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* --- UTILIDADES DE PÁGINA (MAIN VIEW) --- */
+.page-header-technical h1 {
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+.industrial-glass {
+    background: #fff !important;
+    border: 1px solid #eee !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.04) !important;
+    overflow: hidden; /* Crucial para las esquinas redondeadas en la tabla */
+    animation: fadeIn 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* BOTÓN ELIMINAR (TRASH) */
+.trash-btn-merch {
+    all: unset;
+    cursor: pointer;
+    background: #fee2e2;
+    color: #ef4444;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border: 1px solid #fecaca;
+}
+
+.trash-btn-merch:hover {
+    background: #ef4444;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+
+/* --- SELECTOR DE EVENTOS HORIZONTAL (ESTILO HOME) --- */
+.event-picker-horizontal {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 5px 20px;
+    scrollbar-width: none; /* Firefox */
+}
+
+.event-picker-horizontal::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.event-mini-card {
+    min-width: 130px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.event-mini-card:hover {
+    transform: translateY(-4px);
+    border-color: #000;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.event-mini-card.active {
+    background: #000;
+    border-color: #000;
+}
+
+.event-mini-card.active span {
+    color: #fff;
+}
+
+.mini-card-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.event-mini-card.active .mini-card-img {
+    border-color: #fff;
+}
+
+.mini-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.global-vault-img {
+    background: #000;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.event-mini-card.active .global-vault-img {
+    background: #fff;
+    color: #000;
+}
+
+.event-mini-card span {
+    font-size: 0.55rem;
+    font-weight: 950;
+    color: #666;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* --- BANNER DE EVENTO INDUSTRIAL (ESTILO ESCENARIO) --- */
+.event-banner-industrial {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000 center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+    transition: all 0.5s ease;
+}
+
+.event-banner-industrial.empty-banner {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+    border: 2px dashed #333;
+}
+
+.event-banner-industrial.active-banner {
+    background-image: var(--banner-bg);
+}
+
+.banner-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    z-index: 1;
+}
+
+.banner-content {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+}
+
+.banner-title {
+    font-size: 2.2rem;
+    font-weight: 950;
+    margin: 5px 0;
+    letter-spacing: -1px;
+    line-height: 1;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.banner-subtitle {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.banner-date {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 1px;
+}
+
+.banner-stats-mini {
+    position: absolute;
+    right: 40px;
+    z-index: 2;
+    display: flex;
+    gap: 30px;
+}
+
+.b-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.b-stat small {
+    font-size: 0.5rem;
+    font-weight: 950;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 2px;
+}
+
+.b-stat span {
+    font-size: 1.5rem;
+    font-weight: 950;
+    color: #fff;
+    line-height: 1;
+}
+
+.neon-button-green {
+    background: #000 !important;
+    color: #fff !important;
+    font-weight: 950 !important;
+    letter-spacing: 1px;
+    padding: 10px 25px !important;
+    border-radius: 50px !important;
+    text-transform: uppercase;
+    font-size: 0.7rem !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: none !important;
+    transition: all 0.2s !important;
+}
+
+.neon-button-green:hover {
+    background: #000 !important;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2), 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* --- ESTILOS DE MONETIZACIÓN (LOCKED & UPGRADE) --- */
+.event-mini-card.locked {
+    opacity: 0.6;
+    filter: grayscale(0.8);
+    cursor: help;
+    background: #f8f8f8;
+    border-style: dashed;
+}
+
+.event-mini-card.locked:hover {
+    transform: none;
+    border-color: #ccc;
+    box-shadow: none;
+}
+
+.lock-overlay-mini {
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border-radius: 50%;
+}
+
+.upgrade-pill-technical {
+    background: #fff;
+    border: 1px solid #fbbf24;
+    color: #b45309;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 0.55rem;
+    font-weight: 950;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 10px rgba(251, 191, 36, 0.15);
+}
+
+.upgrade-pill-technical:hover {
+    background: #fffbeb;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(251, 191, 36, 0.25);
+}
+
+.upgrade-pill-technical span {
+    font-size: 0.55rem;
+}
+
+.page-transition {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- ANIMACIONES DE PULSO --- */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 1; }
+}

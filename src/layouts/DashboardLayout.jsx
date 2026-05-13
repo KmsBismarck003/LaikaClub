@@ -35,7 +35,6 @@ const DashboardLayout = () => {
       label: 'CENTRO DE CONTROL',
       items: [
         { id: 'dashboard', path: '/admin', icon: 'dashboard', label: 'Dashboard General', permission: 'admin.view' },
-        { id: 'monitoring_rt', path: '/admin/monitoring', icon: 'chart', label: 'Monitoreo Realtime', permission: 'monitoring.view' },
         { id: 'big_data', path: '/admin/big-data', icon: 'database', label: 'Análisis Big Data', permission: 'admin.view' },
         { id: 'logs', path: '/admin/logs', icon: 'fileText', label: 'Logs del Sistema', permission: 'logs.view' }
       ]
@@ -47,8 +46,7 @@ const DashboardLayout = () => {
         { id: 'events', path: '/admin/events', icon: 'calendar', label: 'Eventos', permission: 'events.view' },
         { id: 'sales', path: '/admin/sales', icon: 'dollarSign', label: 'Ventas y Reportes', permission: 'sales.view' },
         { id: 'venues', path: '/admin/venues', icon: 'map', label: 'Recintos', permission: 'venues.view' },
-        { id: 'venue_map', path: '/admin/venue-map', icon: 'map', label: 'Mapa de Ventas', permission: 'admin.view' },
-        { id: 'ticket_builder', path: '/admin/ticket-builder', icon: 'fileText', label: 'Constructor Boletos', permission: 'admin.view' }
+        { id: 'venue_map', path: '/admin/venue-map', icon: 'map', label: 'Mapa de Ventas', permission: 'admin.view' }
       ]
     },
     {
@@ -57,7 +55,6 @@ const DashboardLayout = () => {
       items: [
         { id: 'ads', path: '/admin/ads', icon: 'image', label: 'Publicidad & Ads', permission: 'cms.view' },
         { id: 'emails', path: '/admin/emails', icon: 'mail', label: 'Email Marketing', permission: 'admin.view' },
-        { id: 'cms', path: '/admin/cms', icon: 'fileText', label: 'Contenidos CMS', permission: 'cms.view' },
         { id: 'ticker', path: '/admin/ticker', icon: 'sparkles', label: 'Cinta de Noticias', permission: 'cms.view' }
       ]
     },

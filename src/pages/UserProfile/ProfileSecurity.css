@@ -1,0 +1,65 @@
+/* ══════════════════════════════════════════════════════════════
+   PROFILE — Security & Critical Zones
+   Estilos para alertas de seguridad, protección de cuenta y borrado.
+   ══════════════════════════════════════════════════════════════ */
+
+.profile-security-card {
+  background: rgba(239, 68, 68, 0.04);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='light'] .profile-security-card {
+  background: rgba(239, 68, 68, 0.02);
+  border-color: rgba(239, 68, 68, 0.08);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.05);
+}
+
+.security-tag-modular {
+  font-size: 0.65rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: #ef4444;
+  margin: 0 0 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.security-desc-modular {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 2rem;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+.btn-security-alert {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  padding: 0.8rem 1.8rem;
+  font-size: 0.65rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-security-alert:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+}
+
+.btn-security-alert:active {
+  transform: translateY(0);
+}

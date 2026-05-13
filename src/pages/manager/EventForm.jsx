@@ -3,6 +3,7 @@ import Button from '../../components/Button';
 import Input from '../../components/Input';
 import api, { venueAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
 import EventCardPreview from './EventCardPreview';
 
 const formatTime = (time) => {
@@ -20,9 +21,13 @@ const formatTime = (time) => {
 
 const EventForm = ({ event = null, onSuccess }) => {
     const { success, error, warning } = useNotification();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [venues, setVenues] = useState([]);
+    const [rooms, setRooms] = useState([]);
+
+    const hasAdvancedPackage = user?.role === 'admin' || user?.package === 'Avanzado' || user?.package_name === 'Avanzado' || (user?.manager_package && user.manager_package.name === 'Avanzado');
 
     // Form state defaults
     const [formData, setFormData] = useState({
@@ -38,7 +43,9 @@ const EventForm = ({ event = null, onSuccess }) => {
         price: 0,
         image_url: '',
         map_url: '',
-        seat_map_url: ''
+        seat_map_url: '',
+        room_id: '',
+        use_seating_map: false
     });
 
     const [functions, setFunctions] = useState([]);
@@ -69,10 +76,16 @@ const EventForm = ({ event = null, onSuccess }) => {
                 location: event.location || '',
                 venue: event.venue || '',
                 venue_id: event.venue_id || '', // If backend sends it
+                room_id: event.room_id || '',
+                use_seating_map: !!event.use_seating_map,
                 total_tickets: event.total_tickets || 100,
                 price: event.price || 0,
                 image_url: event.image_url || ''
             });
+
+            if (event.venue_id) {
+                loadRooms(event.venue_id);
+            }
 
             if (event.functions && Array.isArray(event.functions)) {
                 setFunctions(event.functions.map(f => ({
@@ -85,11 +98,21 @@ const EventForm = ({ event = null, onSuccess }) => {
     }, [event]);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: type === 'checkbox' ? checked : value
         }));
+    };
+
+    const loadRooms = async (venueId) => {
+        try {
+            const data = await venueAPI.getRooms(venueId);
+            setRooms(data);
+        } catch (err) {
+            console.error("Error loading rooms", err);
+            setRooms([]);
+        }
     };
 
     const handleVenueChange = (e) => {
@@ -100,13 +123,16 @@ const EventForm = ({ event = null, onSuccess }) => {
             setFormData(prev => ({
                 ...prev,
                 venue_id: venueId,
+                room_id: '',
                 venue: selected.name,
                 location: selected.city
             }));
+            loadRooms(venueId);
             // Update new function venue default as well
             setNewFunction(prev => ({ ...prev, venue_id: venueId }));
         } else {
-            setFormData(prev => ({ ...prev, venue_id: '', venue: '', location: '' }));
+            setFormData(prev => ({ ...prev, venue_id: '', room_id: '', venue: '', location: '' }));
+            setRooms([]);
         }
     };
 
@@ -176,6 +202,12 @@ const EventForm = ({ event = null, onSuccess }) => {
             if (payload.venue_id) payload.venue_id = parseInt(payload.venue_id);
             if (payload.price) payload.price = parseFloat(payload.price);
             if (payload.total_tickets) payload.total_tickets = parseInt(payload.total_tickets);
+            if (payload.room_id) payload.room_id = parseInt(payload.room_id);
+            
+            // Si no tiene el paquete avanzado, forzar uso de mapa a false
+            if (!hasAdvancedPackage) {
+                payload.use_seating_map = false;
+            }
 
             let result;
             if (event) {
@@ -233,6 +265,43 @@ const EventForm = ({ event = null, onSuccess }) => {
                                 ))}
                             </select>
                         </div>
+
+                        {formData.venue_id && rooms.length > 0 && (
+                            <div className="form-group mb-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sala del Recinto</label>
+                                    <select
+                                        name="room_id"
+                                        value={formData.room_id}
+                                        onChange={handleChange}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    >
+                                        <option value="">-- Sin Sala Específica --</option>
+                                        {rooms.map(r => (
+                                            <option key={r.id} value={r.id}>{r.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: hasAdvancedPackage ? 'pointer' : 'not-allowed', opacity: hasAdvancedPackage ? 1 : 0.6 }}>
+                                        <input
+                                            type="checkbox"
+                                            name="use_seating_map"
+                                            checked={formData.use_seating_map}
+                                            onChange={handleChange}
+                                            disabled={!hasAdvancedPackage || !formData.room_id}
+                                            style={{ width: '18px', height: '18px' }}
+                                        />
+                                        <span className="text-sm font-medium">Usar Mapa de Asientos Interactivo</span>
+                                    </label>
+                                    {!hasAdvancedPackage && (
+                                        <span style={{ fontSize: '10px', marginLeft: '8px', background: '#fef3c7', color: '#d97706', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                                            REQUIERE PLAN AVANZADO
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="form-row grid grid-cols-2 gap-4 mb-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                             <div className="form-group">

@@ -1,0 +1,104 @@
+/* ══════════════════════════════════════════════════════════════
+   AUTH — Layout & Structure
+   El chasis de la página de autenticación y la ilustración lateral.
+   ══════════════════════════════════════════════════════════════ */
+
+.login-page,
+.register-page {
+  min-height: calc(100vh - var(--navbar-height, 72px));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  padding: 2rem;
+  position: relative;
+}
+
+.login-container,
+.register-container {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  max-width: 880px;
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme='dark'] .login-container,
+[data-theme='dark'] .register-container {
+  background: var(--bg-secondary);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+}
+
+.login-container::before,
+.register-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #000000;
+  opacity: 1;
+}
+
+[data-theme='dark'] .login-container::before,
+[data-theme='dark'] .register-container::before {
+  background: var(--primary, #22c55e);
+}
+
+/* Ilustración lateral */
+.login-illustration,
+.register-illustration {
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: var(--text-primary);
+  position: relative;
+  border-left: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+[data-theme='dark'] .login-illustration,
+[data-theme='dark'] .register-illustration {
+  background: #111111;
+  border-color: #222222;
+}
+
+.illustration-content {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.illustration-content h2 {
+  font-size: 2.25rem;
+  font-weight: 900;
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.illustration-content p {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin: 0 auto;
+  line-height: var(--line-height-relaxed);
+  font-weight: 400;
+  max-width: 400px;
+}
+
+@media (max-width: 968px) {
+  .login-container,
+  .register-container { grid-template-columns: 1fr; }
+  .login-illustration,
+  .register-illustration { display: none; }
+}

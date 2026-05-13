@@ -1,0 +1,294 @@
+/* ══════════════════════════════════════════════════════════════
+   LUCKY SEAT MODAL — EventDetail Component
+   Estilos propios: modal de probabilidades, pago de ruleta
+   y modal de ganador.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Probability Modal ── */
+.prob-modal-glass {
+  padding: 0 !important;
+  max-width: 460px !important; /* COMPACT SCALE */
+  overflow: visible !important;
+}
+
+.data-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.data-sheet-header h3 {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.data-sheet-content { display: flex; flex-direction: column; gap: 1rem; }
+
+.prob-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 0.7rem;
+}
+
+.prob-row .label { 
+  font-size: 0.65rem; 
+  color: rgba(255,255,255,0.4); 
+  min-width: 160px; 
+  letter-spacing: 2px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.prob-row .value { 
+  font-size: 0.9rem; 
+  font-weight: 950; 
+  color: #fff; 
+  min-width: 60px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.prob-bar {
+  flex: 1;
+  height: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.prob-bar .fill {
+  height: 100%;
+  border-radius: 20px;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px currentColor;
+}
+
+.prob-row.vip .prob-bar .fill { 
+  background: linear-gradient(90deg, #FFFFFF, #E5E4E2);
+  color: #FFFFFF;
+}
+
+.prob-row.gold .prob-bar .fill { 
+  background: linear-gradient(90deg, #FFD700, #EAB308);
+  color: #EAB308;
+}
+
+.prob-row.general .prob-bar .fill { 
+  background: linear-gradient(90deg, #CD7F32, #B45309);
+  color: #CD7F32;
+}
+
+.data-sheet-footer {
+  margin-top: 1rem;
+  padding: 1rem 1.8rem;
+  background: rgba(0,0,0,0.2);
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.data-sheet-footer p {
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1.5px;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+/* ── Roulette Payment Loading ── */
+.payment-loading-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1.5rem;
+}
+
+/* ── Winner Modal ── */
+.winner-announce-modal { position: relative; overflow: hidden; }
+
+.winner-sparkles {
+  position: absolute;
+  top: 0;
+  width: 200px;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.winner-sparkles.left { left: 0; background: radial-gradient(circle at 0% 50%, #EAB30833 0%, transparent 70%); }
+.winner-sparkles.right { right: 0; background: radial-gradient(circle at 100% 50%, #EAB30833 0%, transparent 70%); }
+
+.winner-horizontal-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+.layout-col { display: flex; flex-direction: column; gap: 1rem; }
+
+.status-label {
+  font-size: 0.55rem;
+  letter-spacing: 3px;
+  color: #EAB308;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.congrats-text { margin: 0; line-height: 1; color: #fff; }
+
+.winner-subtext {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  color: rgba(255,255,255,0.6);
+}
+
+/* ── Specific Compaction for Roulette ── */
+.kg-roulette-info-col .karol-g-event-card {
+  height: 140px;
+  margin-bottom: 0.8rem;
+}
+
+.kg-roulette-info-col .karol-g-price-card .total {
+  font-size: 1.4rem !important;
+  letter-spacing: -0.5px;
+}
+
+.kg-roulette-info-col .karol-g-price-card .subtotal {
+  font-size: 0.6rem;
+  opacity: 0.5;
+}
+
+/* ── Golden Ticket Card ── */
+.golden-ticket-card {
+  width: 220px;
+  border-radius: 20px;
+  border: 2px solid #EAB308;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1.5rem 1rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: ticket-float 3s ease-in-out infinite;
+}
+
+@keyframes ticket-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.ticket-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-transform: uppercase;
+  color: #EAB308;
+}
+
+.seat-circle-large {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid #EAB308;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+/* ── DINAMIC GLASS SYSTEM (Theme overrides for LuckySeat) ─────────────── */
+
+[data-theme='light'] .karol-g-glass-panel {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-theme='light'] .karol-g-modal-header {
+  background: #f8f8f8 !important;
+  border-bottom: 2px solid #000000 !important;
+}
+
+[data-theme='light'] .data-sheet-header h3,
+[data-theme='light'] .prob-row .value,
+[data-theme='light'] .congrats-text,
+[data-theme='light'] .karol-g-modal-header h3,
+[data-theme='light'] .total,
+[data-theme='light'] .purchase-method-label {
+  color: #000 !important;
+}
+
+[data-theme='light'] .prob-row .label,
+[data-theme='light'] .data-sheet-footer p,
+[data-theme='light'] .winner-subtext,
+[data-theme='light'] .tiny-label,
+[data-theme='light'] .subtotal,
+[data-theme='light'] .purchase-form-title {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme='light'] .prob-bar {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme='light'] .data-sheet-footer {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme='light'] .karol-g-input-field {
+  background: #ffffff !important;
+  color: #000 !important;
+  border: 2px solid #000 !important;
+}
+
+[data-theme='light'] .karol-g-method-selector.active {
+  background: rgba(0,0,0,0.03) !important;
+  border-color: #000 !important;
+}
+
+[data-theme='light'] .karol-g-pay-btn {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+[data-theme='light'] .karol-g-close-btn { 
+  background: #000000 !important;
+  color: #ffffff !important; 
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* ── SUCCESS SYNC ── */
+.success-view.success-glow {
+  filter: none !important;
+}
+
+[data-theme='light'] .success-title-industrial {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+
+[data-theme='light'] .success-divider-line {
+  background: #000 !important;
+}

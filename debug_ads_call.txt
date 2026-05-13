@@ -1,0 +1,2 @@
+Total ads sin filtro: 0
+Total ads con active=1: 0

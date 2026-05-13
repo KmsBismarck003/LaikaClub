@@ -28,6 +28,8 @@ class EventCreate(BaseModel):
     location: str
     venue: Optional[str] = None
     venue_id: Optional[int] = None
+    room_id: Optional[int] = None
+    use_seating_map: Optional[bool] = False
     category: str
     price: float
     total_tickets: int
@@ -77,6 +79,8 @@ class EventUpdate(BaseModel):
     grid_span_y: Optional[int] = 1
     grid_page: Optional[int] = None
     venue_id: Optional[int] = None
+    room_id: Optional[int] = None
+    use_seating_map: Optional[bool] = None
     functions: Optional[List[FunctionCreate]] = None
     sections: Optional[List[EventTicketSectionUpdate]] = None
     rules: Optional[List[EventRuleUpdate]] = None

@@ -16,6 +16,14 @@ const ProtectedRoute = ({ children, allowedRoles = null }) => {
   // Ref para evitar doble notificación en re-rendersStrictMode
   const notificationRef = useRef(false)
 
+  // 0. Notification Logic (Always called in same order)
+  React.useEffect(() => {
+    if (user && allowedRoles && !hasRole(allowedRoles) && !notificationRef.current) {
+      warning('No tienes permisos para acceder a esta sección.')
+      notificationRef.current = true
+    }
+  }, [user, allowedRoles, hasRole, warning])
+
   // 1. Loading State (Instant UI Transition)
   if (loading) {
     return <LoadingScreen />;
@@ -45,10 +53,6 @@ const ProtectedRoute = ({ children, allowedRoles = null }) => {
 
   // 4. Role Mismatch
   if (allowedRoles && !hasRole(allowedRoles)) {
-    if (!notificationRef.current) {
-      warning('No tienes permisos para acceder a esta sección.')
-      notificationRef.current = true
-    }
     // Smart Redirect
     const redirectPath = getDefaultRouteByRole(user.role)
     return <Navigate to={redirectPath} replace />

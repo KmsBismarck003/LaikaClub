@@ -4,6 +4,7 @@ import { useNotification } from '../../../context/NotificationContext'
 import { venueAPI } from '../../../services/api'
 import { useSkeletonContext } from '../../../context/SkeletonContext'
 import VenueFormModal from '../../../components/VenueFormModal'
+import VenueRoomsModal from './VenueRoomsModal'
 import './admin.css' // Reuse admin styles
 
 const Venues = () => {
@@ -12,6 +13,7 @@ const Venues = () => {
   const [loading, setLoading] = useState(true)
   const { showSkeleton } = useSkeletonContext()
   const [showModal, setShowModal] = useState(false)
+  const [showRoomsModal, setShowRoomsModal] = useState(false)
   const [selectedVenue, setSelectedVenue] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -76,14 +78,31 @@ const Venues = () => {
     setShowModal(true)
   }
 
+  const openRoomsModal = (venue) => {
+    setSelectedVenue(venue)
+    setShowRoomsModal(true)
+  }
+
   const filteredVenues = venues.filter(v =>
     v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.city.toLowerCase().includes(searchTerm.toLowerCase())
+    (v.municipality_name && v.municipality_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (v.city && v.city.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   const columns = [
     { key: 'name', header: 'Nombre' },
-    { key: 'city', header: 'Ciudad' },
+    { 
+      key: 'location', 
+      header: 'Ubicación', 
+      render: (_, row) => (
+        <div style={{ fontSize: '0.85rem' }}>
+          <div style={{ fontWeight: 'bold' }}>{row.municipality_name || row.city || '—'}</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+            {row.state_name ? `${row.state_name}, ` : ''}{row.country_name || ''}
+          </div>
+        </div>
+      )
+    },
     { key: 'address', header: 'Dirección' },
     { key: 'capacity', header: 'Capacidad', render: (val) => val ? val.toLocaleString() : '—' },
     {
@@ -96,6 +115,9 @@ const Venues = () => {
       header: 'Acciones',
       render: (_, row) => (
         <div style={{ display: 'flex', gap: '8px' }}>
+          <Button size="small" variant="info" onClick={(e) => { e.stopPropagation(); openRoomsModal(row) }}>
+            <Icon name="layers" size={12} className="mr-1" /> SALAS
+          </Button>
           <Button size="small" variant="warning" onClick={(e) => { e.stopPropagation(); openEditModal(row) }}>
             <Icon name="edit" size={12} className="mr-1" /> EDITAR
           </Button>
@@ -106,7 +128,6 @@ const Venues = () => {
       )
     }
   ]
-
 
   return (
     <div className="admin-page">
@@ -136,7 +157,7 @@ const Venues = () => {
         {showSkeleton ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr style={{ background: 'var(--bg-secondary)', borderBottom: '2px solid var(--border-color)' }}>
-              {['NOMBRE', 'CIUDAD', 'DIRECCIÓN', 'CAPACIDAD', 'ESTADO', 'ACCIONES'].map(h => <th key={h} style={{ padding: '14px 16px', textAlign: 'left', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{h}</th>)}
+              {['NOMBRE', 'UBICACIÓN', 'DIRECCIÓN', 'CAPACIDAD', 'ESTADO', 'ACCIONES'].map(h => <th key={h} style={{ padding: '14px 16px', textAlign: 'left', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{h}</th>)}
             </tr></thead>
             <tbody>{Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} columns={6} />)}</tbody>
           </table>
@@ -158,6 +179,12 @@ const Venues = () => {
         onClose={() => setShowModal(false)}
         venue={selectedVenue}
         onSubmit={selectedVenue ? handleUpdate : handleCreate}
+      />
+
+      <VenueRoomsModal
+        isOpen={showRoomsModal}
+        onClose={() => setShowRoomsModal(false)}
+        venue={selectedVenue}
       />
 
       <ConfirmationModal

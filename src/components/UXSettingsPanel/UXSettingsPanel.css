@@ -1,0 +1,185 @@
+/**
+ * @file UXSettingsPanel.css
+ * @description Estilos del panel de configuración UX.
+ * Usa las variables de la arquitectura — sin valores hardcoded.
+ */
+
+.ux-panel {
+  background: var(--surface-2, #1a1a2e);
+  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.25rem;
+  min-width: 260px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.ux-panel--compact {
+  padding: 0.5rem;
+  min-width: auto;
+  border-radius: var(--radius-md, 8px);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* ─── Header ── */
+
+.ux-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.08));
+}
+
+.ux-panel__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #ffffff);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.ux-panel__close {
+  background: none;
+  border: none;
+  color: var(--text-muted, rgba(255,255,255,0.5));
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: color calc(0.2s * var(--transition-duration-factor, 1)) ease;
+}
+
+.ux-panel__close:hover {
+  color: var(--text-primary, #ffffff);
+}
+
+/* ─── Section ── */
+
+.ux-panel__section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.ux-panel__label {
+  font-size: 0.8rem;
+  color: var(--text-secondary, rgba(255,255,255,0.7));
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.ux-panel__hint {
+  font-size: 0.7rem;
+  color: var(--text-muted, rgba(255,255,255,0.4));
+  width: 100%;
+  margin-top: -0.5rem;
+}
+
+/* ─── Toggle ── */
+
+.ux-toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color calc(0.25s * var(--transition-duration-factor, 1)) ease;
+  flex-shrink: 0;
+}
+
+.ux-toggle--on  { background: var(--accent, #6c63ff); }
+.ux-toggle--off { background: var(--surface-3, rgba(255,255,255,0.15)); }
+
+.ux-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ux-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left calc(0.25s * var(--transition-duration-factor, 1)) var(--ease-bounce, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+.ux-toggle--on  .ux-toggle__thumb { left: 21px; }
+.ux-toggle--off .ux-toggle__thumb { left: 3px; }
+
+/* ─── Density ── */
+
+.ux-density-group {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.ux-density-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  background: transparent;
+  color: var(--text-secondary, rgba(255,255,255,0.6));
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition:
+    background-color calc(0.2s * var(--transition-duration-factor, 1)) ease,
+    border-color     calc(0.2s * var(--transition-duration-factor, 1)) ease,
+    color            calc(0.2s * var(--transition-duration-factor, 1)) ease;
+}
+
+.ux-density-btn:hover {
+  background: var(--surface-3, rgba(255,255,255,0.08));
+  color: var(--text-primary, #ffffff);
+}
+
+.ux-density-btn--active {
+  background: var(--accent-subtle, rgba(108,99,255,0.2));
+  border-color: var(--accent, #6c63ff);
+  color: var(--accent, #6c63ff);
+}
+
+.ux-density-btn__icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.ux-density-btn__label {
+  font-size: 0.65rem;
+  white-space: nowrap;
+}
+
+/* ─── Footer ── */
+
+.ux-panel__footer {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color, rgba(255,255,255,0.08));
+}
+
+.ux-panel__reset {
+  background: none;
+  border: none;
+  color: var(--text-muted, rgba(255,255,255,0.4));
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: color calc(0.2s * var(--transition-duration-factor, 1)) ease;
+}
+
+.ux-panel__reset:hover {
+  color: var(--text-secondary, rgba(255,255,255,0.7));
+}

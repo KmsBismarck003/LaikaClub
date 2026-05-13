@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtual environments
+venv/
+.venv/
+backend/venv/
+
+# Environment variables
+.env
+.env.*
+
+# Database and local data
+backups/
+diagnosticos/
+*.sql
+*.sql.json
+laika_club_transfer.zip
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

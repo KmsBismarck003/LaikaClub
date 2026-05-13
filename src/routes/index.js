@@ -49,10 +49,8 @@ const Users = lazy(() => import('../pages/admin/Users/Users'))
 const Events = lazy(() => import('../pages/admin/Events/Events'))
 const Config = lazy(() => import('../pages/admin/Config/Config'))
 const Database = lazy(() => import('../pages/admin/Database/Database'))
-const Monitoring = lazy(() => import('../pages/admin/Monitoring/Monitoring'))
 const Logs = lazy(() => import('../pages/admin/Logs/Logs'))
 const Ads = lazy(() => import('../pages/admin/Ads/Ads'))
-const CMS = lazy(() => import('../pages/admin/CMS/CMS'))
 const SalesReports = lazy(() => import('../pages/admin/SalesReports/SalesReports'))
 const RestoreAudit = lazy(() => import('../pages/admin/RestoreAudit/RestoreAudit'))
 const AuthAudit = lazy(() => import('../pages/admin/AuthAudit/AuthAudit'))
@@ -64,7 +62,6 @@ const AdminVenueMap = lazy(() => import('../pages/admin/VenueMap/AdminVenueMap')
 const BigDataAnalytics = lazy(() => import('../pages/admin/BigDataAnalytics'))
 const WelcomePortal = lazy(() => import('../pages/admin/Dashboard/WelcomePortal'))
 const LuckySeatConfig = lazy(() => import('../pages/admin/Config/LuckySeatConfig'))
-const TicketBuilder = lazy(() => import('../pages/admin/TicketBuilder/TicketBuilder'))
 
 // Módulo Manager
 const ManagerStatsPage = lazy(() => import('../pages/manager/ManagerStatsPage'))
@@ -251,13 +248,6 @@ export const adminRoutes = [
     title: 'Configuración del Sistema'
   },
   {
-    path: '/admin/ticket-builder',
-    element: TicketBuilder,
-    layout: 'dashboard',
-    allowedRoles: ['admin'],
-    title: 'Constructor de Boletos'
-  },
-  {
     path: '/admin/config/lucky-seat',
     element: LuckySeatConfig,
     layout: 'dashboard',
@@ -270,13 +260,6 @@ export const adminRoutes = [
     layout: 'dashboard',
     allowedRoles: ['admin'],
     title: 'Gestión de Base de Datos'
-  },
-  {
-    path: '/admin/monitoring',
-    element: Monitoring,
-    layout: 'dashboard',
-    allowedRoles: ['admin'],
-    title: 'Monitoreo del Sistema'
   },
   {
     path: '/admin/logs', // Added route
@@ -298,13 +281,6 @@ export const adminRoutes = [
     layout: 'dashboard',
     allowedRoles: ['admin', 'gestor'],
     title: 'Gestión de Publicidad'
-  },
-  {
-    path: '/admin/cms',
-    element: CMS,
-    layout: 'dashboard',
-    allowedRoles: ['admin'],
-    title: 'Gestor de Contenidos'
   },
   {
     path: '/admin/sales',
@@ -349,7 +325,14 @@ export const adminRoutes = [
     element: AdminVenueMap,
     layout: 'dashboard',
     allowedRoles: ['admin', 'gestor'],
-    title: 'Mapa de Ventas'
+    title: 'Mapa de Ventas (Demo)'
+  },
+  {
+    path: '/admin/venues/:venueId/rooms/:roomId/map',
+    element: AdminVenueMap,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'gestor'],
+    title: 'Constructor de Mapas'
   },
   {
     path: '/admin/big-data',

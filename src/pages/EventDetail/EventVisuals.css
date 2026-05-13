@@ -1,0 +1,58 @@
+/* ══════════════════════════════════════════════════════════════
+   EVENT DETAIL — Visual Overrides & Component System
+   Sistema de color global, paneles de cristal y resets específicos.
+   ══════════════════════════════════════════════════════════════ */
+
+/* FORCE WHITE TEXT SYSTEM (Elite Dark Requirement) */
+.event-detail-page *:not(button):not(.karol-g-modal-overlay *):not(.karol-g-glass-panel *):not(.buy-btn-premium):not(.buy-btn-premium *):not(.function-chip.active):not(.badge-primary):not(.badge--primary):not(.ticket-badge):not(.badge):not(.badge *):not(.laika-modal-overlay *):not(.winner-announce-overlay *) {
+  color: var(--event-text-primary, #fff) !important;
+}
+
+.event-detail-page .meta-inline.location,
+.event-detail-page .event-description h2,
+.event-detail-page .function-selector-compact h3,
+.event-detail-page .total-label,
+.event-detail-page .ticket-tab:not(.active) {
+  color: var(--event-text-primary) !important;
+  opacity: 0.65;
+}
+
+/* GENERIC GLASS PANEL (Standard across event sections) */
+.glass-panel-modular {
+  background: var(--glass-bg, rgba(8, 8, 8, 0.88)) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  backdrop-filter: blur(24px) !important;
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.07)) !important;
+  border-radius: 13px !important;
+  padding: 1.25rem !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  margin-bottom: 1rem;
+  overflow: hidden !important;
+}
+
+.event-meta-header {
+  composes: glass-panel-modular;
+}
+
+/* LEFT/RIGHT COLUMNS */
+.event-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.event-right-column {
+  position: sticky;
+  top: 1rem;
+  z-index: 100;
+  height: fit-content;
+}
+
+/* ADDITIONAL OVERRIDES */
+.event-detail-page .badge,
+.event-detail-page .badge--primary,
+.event-detail-page .badge--default,
+.event-detail-page .badge-primary {
+  color: #000000 !important;
+  background: #ffffff !important;
+}

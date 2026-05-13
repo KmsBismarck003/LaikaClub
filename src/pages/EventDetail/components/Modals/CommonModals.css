@@ -1,0 +1,431 @@
+/* ══════════════════════════════════════════════════════════════
+   COMMON MODALS INFRASTRUCTURE — EventDetail
+   Este archivo contiene la "plataforma" de los modales de Karol G:
+   Overlay, Glass Panel base, animaciones y headers comunes.
+   ══════════════════════════════════════════════════════════════ */
+
+.karol-g-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem !important;
+  animation: kg-fade-in 0.3s ease-out;
+}
+
+@keyframes kg-fade-in {
+  from { opacity: 0; -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); }
+  to { opacity: 1; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+}
+
+.karol-g-glass-panel {
+  border-radius: 36px;
+  width: 90%;
+  max-width: 920px !important;
+  max-height: 85vh !important;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 1);
+  animation: kg-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes kg-slide-up {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.karol-g-modal-header {
+  padding: 0.8rem 1.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.karol-g-modal-header h3 {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #fff;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.karol-g-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+  outline: none;
+  font-weight: 900;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.karol-g-close-btn:hover {
+  background: #111;
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: rotate(90deg) scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.karol-g-close-btn:active {
+  transform: scale(0.9);
+}
+
+.karol-g-modal-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.karol-g-modal-close:hover {
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+.karol-g-secure-footer {
+  padding: 0.8rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.karol-g-secure-footer span {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── DINAMIC GLASS SYSTEM (Theme overrides) ─────────────── */
+
+[data-theme='dark'] .karol-g-glass-panel,
+[data-theme='dark'] .karol-g-modal-header {
+  background: rgba(0, 0, 0, 0.92) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  backdrop-filter: blur(6px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  box-shadow: 0 50px 150px rgba(0, 0, 0, 0.8) !important;
+}
+
+[data-theme='light'] .karol-g-glass-panel,
+[data-theme='light'] .karol-g-modal-header {
+  background: rgba(255, 255, 255, 0.98) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
+  backdrop-filter: blur(20px) saturate(200%) !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+  color: #000 !important;
+}
+
+[data-theme='light'] .karol-g-modal-header h3 { color: #000 !important; }
+[data-theme='light'] .karol-g-modal-close { color: rgba(0, 0, 0, 0.4) !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   NUEVAS ANIMACIONES — INDUSTRIAL PREMIUM
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes breathe-glow {
+  0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.1), inset 0 0 5px rgba(255, 255, 255, 0.05); }
+  50% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.1); }
+  100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.1), inset 0 0 5px rgba(255, 255, 255, 0.05); }
+}
+
+.industrial-glow-frame {
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  animation: breathe-glow 3s infinite ease-in-out !important;
+  background: rgba(0, 0, 0, 0.95) !important;
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(300%); opacity: 0; }
+}
+
+.scan-line-effect {
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #fff, transparent);
+  animation: scan-line 2.5s infinite linear;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.success-checkmark-animated {
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+  animation: check-pop 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+}
+
+@keyframes check-pop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── PREMIUM TICKET REVEAL ── */
+
+.congrats-text-premium {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -2px;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+  animation: white-flare 1.5s ease-out;
+}
+
+@keyframes white-flare {
+  0% { text-shadow: 0 0 100px #fff; opacity: 0; transform: scale(1.1); }
+  100% { text-shadow: 0 0 30px rgba(255, 255, 255, 0.4); opacity: 1; transform: scale(1); }
+}
+
+.industrial-ticket-card {
+  background: linear-gradient(135deg, rgba(20,20,20,0.95) 0%, rgba(0,0,0,1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  transition: all 0.5s ease;
+}
+
+.industrial-ticket-card:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-5px);
+}
+
+.ticket-inner-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.tiny-label {
+  font-size: 0.55rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1.5px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.cvv-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cvv-toggle-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.cvv-toggle-btn:hover {
+  color: #fff;
+}
+
+.premium-reveal-container {
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.congrats-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.congrats-text-premium {
+  font-size: 3.5rem;
+  font-weight: 950;
+  font-style: italic;
+  color: #fff;
+  letter-spacing: -2px;
+  margin: 0;
+  text-transform: uppercase;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+.congrats-subtitle-premium {
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 0.7rem;
+  margin-top: 0.5rem;
+}
+
+.ticket-header-reveal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
+}
+
+.laika-badge-reveal {
+  padding: 4px 8px;
+  background: #fff;
+  color: #000;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.ticket-serial-reveal {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 10px;
+  font-family: monospace;
+}
+
+.ticket-main-info-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.event-title-reveal {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  margin: 0;
+}
+
+.ticket-details-grid-reveal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.detail-reveal-value {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.ticket-footer-reveal {
+  margin-top: 2rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.2);
+  padding-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.qr-box-reveal {
+  width: 96px;
+  height: 96px;
+  background: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+
+.qr-image-reveal {
+  width: 100%;
+  height: 100%;
+  filter: grayscale(1) invert(1);
+}
+
+.price-value-reveal {
+  font-size: 1.25rem;
+  font-family: monospace;
+  color: #fff;
+}
+
+.reveal-actions-group {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.reveal-btn-main {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.reveal-btn-main:hover {
+  background: #fff;
+  color: #000;
+}
+
+.reveal-btn-secondary {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #fff;
+  color: #000;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+  transition: opacity 0.2s;
+}
+
+.reveal-btn-secondary:hover {
+  opacity: 0.9;
+}
+
+.reveal-btn-label {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+}
+
+.reveal-footer-legal {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.reveal-footer-legal p {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.2);
+  font-style: italic;
+  letter-spacing: 2px;
+}

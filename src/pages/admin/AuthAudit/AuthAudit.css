@@ -1,0 +1,173 @@
+/* AuthAudit.css - Industrial Access Audit */
+
+.admin-section {
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.audit-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.audit-title-group h1 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    color: #000;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.audit-status-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #666;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* FILTERS GRID */
+.audit-filters-card {
+    display: grid;
+    grid-template-columns: 1fr 160px 200px;
+    gap: 0.75rem;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.audit-input, .audit-select {
+    height: 38px;
+    padding: 0 0.75rem;
+    border: 1.5px solid #e5e7eb;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.audit-input:focus, .audit-select:focus {
+    border-color: #000;
+}
+
+.audit-select {
+    cursor: pointer;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* TABLE STYLES */
+.audit-table-container {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.audit-table-wrapper {
+    overflow-x: auto;
+}
+
+.audit-tech-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.audit-tech-table th {
+    background: #f9fafb;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 800;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: #4b5563;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.audit-tech-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+.audit-tech-table tr:hover td {
+    background: #fdfdfd;
+}
+
+/* PAGINATION */
+.audit-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+    background: #fafafa;
+}
+
+.page-info {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #374151;
+    letter-spacing: 0.02em;
+}
+
+/* USER IDENTITY */
+.audit-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.audit-avatar {
+    width: 32px;
+    height: 32px;
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.85rem;
+}
+
+.audit-user-info span {
+    display: block;
+}
+
+.audit-u-name { font-weight: 700; color: #000; font-size: 0.85rem; }
+.audit-u-email { font-size: 0.75rem; color: #6b7280; }
+
+/* DEVICE INFO */
+.audit-device-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.device-text { line-height: 1.2; }
+.device-os { font-weight: 700; color: #000; display: block; }
+.device-browser { font-size: 0.7rem; color: #6b7280; text-transform: uppercase; }
+
+/* ATTEMPTS */
+.audit-badge-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid #000;
+    font-weight: 900;
+    font-size: 0.75rem;
+}
