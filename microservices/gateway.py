@@ -61,7 +61,7 @@ async def proxy_middleware(request: Request, call_next):
             db_name = os.getenv('MYSQL_DATABASE', 'laika_club')
             conn = pymysql.connect(host='127.0.0.1', user='root', password='', database=db_name, cursorclass=pymysql.cursors.DictCursor)
             with conn.cursor() as cursor:
-                cursor.execute("SELECT id, title, image_url, link_url, position, active FROM ads WHERE active=1 ORDER BY id DESC")
+                cursor.execute("SELECT id, title, image_url, link_url, position, active, event_id FROM ads WHERE active=1 ORDER BY id DESC")
                 rows = cursor.fetchall()
             conn.close()
             print(f"[GATEWAY HOTPATCH DEBUG] Fetched {len(rows)} rows from MySQL")
@@ -79,6 +79,10 @@ async def proxy_middleware(request: Request, call_next):
         target_url = f"{SERVICES['admin']}{path.replace('/api', '')}"
     elif path.startswith("/api/admin/uploads"):
         target_url = f"{SERVICES['admin']}{path.replace('/api/admin', '')}"
+    elif path.startswith("/api/uploads"):
+        target_url = f"{SERVICES['admin']}{path.replace('/api', '')}"
+    elif path.startswith("/uploads"):
+        target_url = f"{SERVICES['admin']}{path}"
     elif path.startswith("/api/admin/users"):
         target_url = f"{SERVICES['auth']}{path.replace('/api', '')}"
     elif path.startswith("/api/users"):

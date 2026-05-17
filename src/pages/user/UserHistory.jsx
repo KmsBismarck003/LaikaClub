@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { ticketAPI } from '../../services/api'
 import { useNavigate } from 'react-router-dom'
-import Icon from '../../components/Icons'
+import Icon from '../../components/Icons/Icons'
 import { PermissionWall } from '../../components'
 
 const FALLBACK_IMGS = [

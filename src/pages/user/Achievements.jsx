@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { achievementsAPI } from '../../services/api'
-import Icon from '../../components/Icons'
+import Icon from '../../components/Icons/Icons'
 import { PermissionWall } from '../../components'
 import { useAuth } from '../../context/AuthContext'
 import './Achievements.css'

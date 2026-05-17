@@ -1,5 +1,5 @@
 import React from 'react';
-import Icon from '../Icons';
+import Icon from '../Icons/Icons';
 import './Notifications.css';
 
 const NotificationDetailModal = ({ notification, onClose }) => {

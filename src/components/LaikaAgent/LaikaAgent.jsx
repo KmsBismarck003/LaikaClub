@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { statsAPI, monitoringAPI, databaseAPI, userAPI, eventAPI, ticketAPI, adsAPI, configAPI } from '../../services/api';
-import Icon from '../Icons';
+import Icon from '../Icons/Icons';
 import './LaikaAgent.css';
 
 const LaikaAgent = () => {

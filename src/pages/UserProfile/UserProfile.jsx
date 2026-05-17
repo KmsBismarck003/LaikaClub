@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import api from '../../services/api'
 import { useNotification } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
-import Icon from '../../components/Icons'
+import Icon from '../../components/Icons/Icons'
 import '../admin/AdminDashboard.css'
 
 const API_HOST = process.env.REACT_APP_API_HOST || 'http://localhost:8000'

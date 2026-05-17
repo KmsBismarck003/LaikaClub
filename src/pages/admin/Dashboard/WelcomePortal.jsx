@@ -25,7 +25,7 @@ const WelcomePortal = () => {
         navigate('/login');
     };
 
-    const menuItems = [
+    const adminItems = [
         {
             id: 'users',
             label: 'CONTROL DE ACCESOS',
@@ -116,6 +116,99 @@ const WelcomePortal = () => {
         }
     ];
 
+    const gestorItems = [
+        {
+            id: 'g_events',
+            label: 'MIS EVENTOS',
+            title: 'DASHBOARD',
+            icon: 'calendar',
+            path: '/events/manage',
+            description: 'Monitor principal de tus eventos y funciones'
+        },
+        {
+            id: 'g_create',
+            label: 'NUEVA PRODUCCIÓN',
+            title: 'CREAR EVENTO',
+            icon: 'plus',
+            path: '/events/create',
+            description: 'Lanza un nuevo evento en tus recintos asignados'
+        },
+        {
+            id: 'g_stats',
+            label: 'RENDIMIENTO',
+            title: 'ANALÍTICAS',
+            icon: 'chart',
+            path: '/manager/analytics',
+            description: 'Métricas de ventas y comportamiento de audiencia'
+        },
+        {
+            id: 'g_attendees',
+            label: 'LOGÍSTICA',
+            title: 'ASISTENTES',
+            icon: 'users',
+            path: '/manager/attendees',
+            description: 'Control de censo y validación de accesos'
+        },
+        {
+            id: 'g_ads',
+            label: 'ALCANCE COMERCIAL',
+            title: 'PUBLICIDAD',
+            icon: 'megaphone',
+            path: '/manager/ads',
+            description: 'Gestiona los anuncios para tus eventos'
+        },
+        {
+            id: 'g_map',
+            label: 'ESTRUCTURA',
+            title: 'DISEÑO SALA',
+            icon: 'map',
+            path: '/events/manage',
+            description: 'Configura zonas y precios en el mapa de asientos'
+        }
+    ];
+
+    const staffItems = [
+        {
+            id: 's_dashboard',
+            label: 'ESTADO OPERATIVO',
+            title: 'PANEL CONTROL',
+            icon: 'monitor',
+            path: '/staff/dashboard',
+            description: 'Monitor central de operaciones y flujo de asistentes'
+        },
+        {
+            id: 's_terminal',
+            label: 'VERIFICACIÓN',
+            title: 'TERMINAL',
+            icon: 'ticket',
+            path: '/staff',
+            description: 'Validación de boletos y control de accesos realtime'
+        },
+        {
+            id: 's_events',
+            label: 'ASIGNACIÓN',
+            title: 'MIS EVENTOS',
+            icon: 'calendar',
+            path: '/staff/events',
+            description: 'Lista de eventos asignados para tu turno'
+        },
+        {
+            id: 's_history',
+            label: 'TRAZABILIDAD',
+            title: 'HISTORIAL',
+            icon: 'history',
+            path: '/staff/history',
+            description: 'Registro de validaciones e incidencias recientes'
+        }
+    ];
+
+    const menuItems = user?.role === 'admin' 
+        ? adminItems 
+        : (user?.role === 'gestor' 
+            ? gestorItems 
+            : (user?.role === 'operador' ? staffItems : []));
+    const defaultPath = user?.role === 'admin' ? '/admin' : (user?.role === 'gestor' ? '/events/manage' : '/staff/dashboard');
+
     if (isEntering) {
         return <LoadingScreen label="INICIANDO PORTAL" status="CARGANDO ENTRENAMIENTO DE DATOS..." />;
     }
@@ -162,8 +255,8 @@ const WelcomePortal = () => {
                 </div>
 
                 <footer className="portal-footer-actions">
-                    <button className="portal-standard-dash-btn" onClick={() => navigate('/admin')}>
-                        SALTAR AL DASHBOARD GENERAL <Icon name="arrowRight" size={14} />
+                    <button className="portal-standard-dash-btn" onClick={() => navigate(defaultPath)}>
+                        SALTAR AL PANEL DE CONTROL <Icon name="arrowRight" size={14} />
                     </button>
                 </footer>
             </div>

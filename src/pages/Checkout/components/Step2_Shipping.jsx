@@ -1,5 +1,5 @@
 import React from 'react';
-import Icon from '../../../components/Icons';
+import Icon from '../../../components/Icons/Icons';
 
 const Step2_Shipping = ({ 
     formData, 

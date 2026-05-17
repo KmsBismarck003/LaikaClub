@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
-import Icon from '../Icons';
+import Icon from '../Icons/Icons';
 import CartContent from './CartContent';
 
 /* ── Centered 2-column Cart Modal ───────────────────────────── */

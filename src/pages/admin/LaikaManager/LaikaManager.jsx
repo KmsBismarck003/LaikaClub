@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Card, Button, Alert, SkeletonRow } from '../../../components'
 import Skeleton from '../../../components/Skeleton'
 import { useSkeletonContext } from '../../../context/SkeletonContext'
-import Icon from '../../../components/Icons'
+import Icon from '../../../components/Icons/Icons'
 import './admin.css'
 
 const LaikaManager = () => {

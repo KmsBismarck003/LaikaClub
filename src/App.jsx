@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import ScrollToTop from './components/ScrollToTop'
+import ScrollToTop from './components/ScrollToTop/ScrollToTop'
 import {
   AuthProvider,
   useAuth,
@@ -34,13 +34,13 @@ import {
   Maintenance,
   Checkout
 } from './pages'
-import { adminRoutes, publicRoutes } from './routes'
-import ProtectedRoute from './components/ProtectedRoute'
-import NotificationContainer from './components/NotificationContainer'
-import DatabaseMonitor from './components/DatabaseMonitor'
-import SessionManager from './components/SessionManager'
-import MaintenanceGuard from './components/MaintenanceGuard'
-import ErrorBoundary from './components/ErrorBoundary'
+import { adminRoutes, publicRoutes, managerRoutes, staffRoutes } from './routes'
+import ProtectedRoute from './components/Guards/ProtectedRoute'
+import NotificationContainer from './components/Notifications/NotificationContainer/NotificationContainer'
+import DatabaseMonitor from './components/Admin/DatabaseMonitor/DatabaseMonitor'
+import SessionManager from './components/Guards/SessionManager'
+import MaintenanceGuard from './components/Guards/MaintenanceGuard'
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import { CartModal } from './components/Cart'
 import { LoadingScreen } from './components'
 // Estilos globales movidos a index.js para control de precedencia
@@ -99,7 +99,6 @@ function AppContent() {
                   <Route path='dashboard' element={<UserDashboard />} />
                   <Route path='tickets' element={<UserWallet />} />
                   <Route path='history' element={<UserHistory />} />
-                  <Route path='history' element={<UserHistory />} />
                   <Route path='profile' element={<UserProfile />} />
                   <Route path='achievements' element={<Achievements />} />
                   <Route path='refunds' element={<RefundTracker />} />
@@ -122,7 +121,39 @@ function AppContent() {
                     const Component = route.element
                     return (
                       <Route
-                        key={index}
+                        key={`admin-${index}`}
+                        path={route.path}
+                        element={
+                          <ProtectedRoute allowedRoles={route.allowedRoles}>
+                            <Component />
+                          </ProtectedRoute>
+                        }
+                      />
+                    )
+                  })}
+
+                  {/* Rutas de Manager Dinámicas */}
+                  {managerRoutes.map((route, index) => {
+                    const Component = route.element
+                    return (
+                      <Route
+                        key={`manager-${index}`}
+                        path={route.path}
+                        element={
+                          <ProtectedRoute allowedRoles={route.allowedRoles}>
+                            <Component />
+                          </ProtectedRoute>
+                        }
+                      />
+                    )
+                  })}
+
+                  {/* Rutas de Staff Dinámicas */}
+                  {staffRoutes.map((route, index) => {
+                    const Component = route.element
+                    return (
+                      <Route
+                        key={`staff-${index}`}
                         path={route.path}
                         element={
                           <ProtectedRoute allowedRoles={route.allowedRoles}>
@@ -145,50 +176,7 @@ function AppContent() {
                     }
                   />
 
-                  {/* Gestor */}
-                  <Route
-                    path='/events/manage'
-                    element={
-                      <ProtectedRoute allowedRoles={['gestor', 'admin']}>
-                        <EventManagerDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* Gestor Avanzado */}
-                  <Route path='/manager/analytics' element={
-                    <ProtectedRoute allowedRoles={['gestor', 'admin']}>
-                      <ManagerAnalytics />
-                    </ProtectedRoute>
-                  } />
-                  <Route path='/manager/transactions' element={
-                    <ProtectedRoute allowedRoles={['gestor', 'admin']}>
-                      <ManagerTransactions />
-                    </ProtectedRoute>
-                  } />
-                  <Route path='/manager/attendees' element={
-                    <ProtectedRoute allowedRoles={['gestor', 'admin']}>
-                      <ManagerAttendees />
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Operador */}
-                  <Route
-                    path='/staff'
-                    element={
-                      <ProtectedRoute allowedRoles={['operador', 'admin']}>
-                        <StaffDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/staff/incidents'
-                    element={
-                      <ProtectedRoute allowedRoles={['operador', 'admin']}>
-                        <StaffIncidents />
-                      </ProtectedRoute>
-                    }
-                  />
+                  {/* Las rutas de Gestor y Staff ahora se cargan dinámicamente arriba */}
                 </Route>
 
                 {/* Welcome Portal - Standalone */}

@@ -3,7 +3,7 @@ import { Plus, Crown, ShoppingBag, Lock } from 'lucide-react';
 import { Button, Skeleton, ConfirmationModal } from '../../components';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import PremiumGuard from '../../components/PremiumGuard';
+import PremiumGuard from '../../components/Guards/PremiumGuard/PremiumGuard';
 import './MerchandiseManager.css';
 
 // CUSTOM HOOKS (Modular Logic)

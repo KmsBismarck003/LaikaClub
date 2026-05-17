@@ -10,10 +10,10 @@
   background: rgba(0, 0, 0, 0.94); /* Very deep dark overlay */
   backdrop-filter: none !important; /* NO BLUR EFFECT */
   display: flex;
-  align-items: flex-start; /* Switch to flex-start and use padding-top */
+  align-items: center; /* Centrado vertical */
   justify-content: center;
   z-index: var(--z-modal-backdrop);
-  padding: 15vh 1rem var(--spacing-4); /* Lowered from 8vh */
+  padding: 2rem 1rem; /* Padding uniforme */
   animation: fadeIn 0.3s ease;
 }
 

@@ -776,7 +776,7 @@ const BigDataVisualizer = () => {
                 </div>
             )}
 
-            <style jsx>{`
+            <style>{`
                 .btn-primary { background: linear-gradient(135deg, #000000, #000000); color: white; border: none; padding: 0.7rem 1.4rem; border-radius: 12px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; display: flex; alignItems: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
                 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3); }
                 .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 0.7rem; border-radius: 12px; font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: 0.2s; width: 100%; display: flex; justify-content: center; gap: 6px; }

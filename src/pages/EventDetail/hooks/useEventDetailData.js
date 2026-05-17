@@ -1,48 +1,93 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { INITIAL_ZONES, STADIUM_ZONES, SUMMER_EDITION_PRESET } from '../constants/mockData';
+import { cleanPrice } from '../utils/helpers';
 
 /**
- * useEventDetailData — Hook para gestionar la carga de datos del evento y metadatos.
+ * useEventDetailData — Hook para gestionar la carga de datos del evento, mapas dinámicos y sincronización de zonas.
  */
-export function useEventDetailData(id, showError, navigate) {
+export function useEventDetailData(id, api, venueAPI, errorNotification, navigate) {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busySeats, setBusySeats] = useState([]);
+  const [zones, setZones] = useState(INITIAL_ZONES);
+  const [dynamicMap, setDynamicMap] = useState(null);
+  const [seatTypes, setSeatTypes] = useState([]);
 
-  const fetchEventDetail = useCallback(async (api, background = false) => {
-    if (!background) setLoading(true);
+  const fetchEventDetail = useCallback(async () => {
+    setLoading(true);
     try {
-      const [response, busy] = await Promise.all([
-        api.event.getById(id),
-        api.ticket.getBusySeats(id).catch(() => [])
-      ]);
+      const response = await api.event.getById(id);
       setEvent(response);
-      setBusySeats(busy || []);
-      return response;
-    } catch (error) {
-      if (!background) {
-        showError("Evento no encontrado o no disponible");
-        navigate("/");
+      
+      // Si el evento tiene un recinto con mapa, cargamos las zonas
+      if (response.venue?.zones) {
+          setZones(response.venue.zones);
+      } else if (response.venue_type === 'stadium') {
+          setZones(STADIUM_ZONES);
+      } else if (response.venue_type === 'summer') {
+          setZones(SUMMER_EDITION_PRESET);
       }
+
+      // Cargar asientos ocupados
+      try {
+        const seatsRes = await api.ticket.getBusySeats(id);
+        setBusySeats(seatsRes || []);
+      } catch (e) {
+        console.warn("Failed to fetch busy seats, using empty array");
+        setBusySeats([]);
+      }
+      
+    } catch (err) {
+      errorNotification("No se pudo cargar el detalle del evento.");
+      console.error(err);
+      // navigate('/');
     } finally {
-      if (!background) setLoading(false);
+      setLoading(false);
     }
-  }, [id, showError, navigate]);
+  }, [id, api, errorNotification, navigate]);
 
-  // Recently Viewed Logic
-  useEffect(() => {
-    if (event) {
-      const recentlyViewed = JSON.parse(localStorage.getItem("recently_viewed") || "[]");
-      const newItem = {
-        id: event.id,
-        name: event.name,
-        image: event.image_url || event.image,
-        venue: event.venue || event.location,
-      };
-      const updated = [newItem, ...recentlyViewed.filter((item) => item.id !== event.id)].slice(0, 5);
-      localStorage.setItem("recently_viewed", JSON.stringify(updated));
-      window.dispatchEvent(new Event("recentlyViewedUpdated"));
+  const loadDynamicMap = useCallback(async (selectedFunction) => {
+    if (!selectedFunction?.room_id) return;
+    try {
+      const mapData = await venueAPI.getRoomMap(selectedFunction.room_id);
+      setDynamicMap(mapData);
+      if (mapData.seatTypes) setSeatTypes(mapData.seatTypes);
+    } catch (e) {
+      console.warn("No dynamic map found for this room", e);
+      setDynamicMap(null);
     }
-  }, [event]);
+  }, [venueAPI]);
 
-  return { event, setEvent, loading, setLoading, busySeats, fetchEventDetail };
+  const getSynchronizedZones = useCallback((sortedSections) => {
+    if (!sortedSections || sortedSections.length === 0) return zones;
+    
+    return zones.map(z => {
+      const matched = sortedSections.find(s => 
+        s.name.toLowerCase() === z.name.toLowerCase() || 
+        s.id === z.id
+      );
+      if (matched) {
+        return {
+          ...z,
+          price: matched.price,
+          available: matched.available,
+          total: matched.total,
+          originalSection: matched
+        };
+      }
+      return z;
+    });
+  }, [zones]);
+
+  return {
+    event,
+    loading,
+    busySeats,
+    fetchEventDetail,
+    zones,
+    dynamicMap,
+    seatTypes,
+    loadDynamicMap,
+    getSynchronizedZones
+  };
 }

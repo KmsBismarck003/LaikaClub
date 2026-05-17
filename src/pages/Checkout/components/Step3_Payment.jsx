@@ -1,5 +1,5 @@
 import React from 'react';
-import Icon from '../../../components/Icons';
+import Icon from '../../../components/Icons/Icons';
 import { useCart } from '../../../context/CartContext';
 
 const Step3_Payment = ({ 

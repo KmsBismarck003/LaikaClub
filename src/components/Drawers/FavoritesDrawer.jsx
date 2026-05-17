@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useCart } from '../../context/CartContext';
-import Icon from '../Icons';
+import Icon from '../Icons/Icons';
 import './Drawers.css';
 
 const FavoritesDrawer = () => {

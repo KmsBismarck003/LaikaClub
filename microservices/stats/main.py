@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from . import controller, database
+from . import controller, database, security
 
 app = FastAPI(title="Laika Stats Service", version="1.0.0")
 
@@ -32,6 +32,17 @@ async def system_status():
 @app.get("/metrics")
 async def system_metrics():
     return await controller.get_system_metrics()
+
+@app.get("/manager/dashboard")
+async def manager_dashboard(
+    db: Session = Depends(database.get_db),
+    current_user: dict = Depends(security.get_current_user)
+):
+    return await controller.get_manager_dashboard(db, current_user['id'])
+    
+@app.get("/logs")
+async def get_system_logs(limit: int = 50, level: str = None):
+    return await controller.get_logs(limit, level)
 
 if __name__ == "__main__":
     import uvicorn

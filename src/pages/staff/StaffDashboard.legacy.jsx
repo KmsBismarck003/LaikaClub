@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { Card, Button, Input, Alert, Badge, SkeletonStatCard, SkeletonRow } from '../components'
+import { Card, Button, Input, Alert, Badge, SkeletonStatCard, SkeletonRow } from '../../components'
 import { useEffect } from 'react'
-import api from '../services/api' // ← IMPORTAR API
-import { useNotification } from '../context/NotificationContext'
+import api from '../../services/api' // ← IMPORTAR API
+import { useNotification } from '../../context/NotificationContext'
 import './StaffDashboard.css'
 
 const StaffDashboard = () => {

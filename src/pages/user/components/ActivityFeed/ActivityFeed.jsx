@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Icon from '../../../../components/Icons';
+import Icon from '../../../../components/Icons/Icons';
 import { SectionLabel, FALLBACK_IMAGES } from '../NextEventHero/NextEventHero';
 
 const ActivityFeed = ({ myTickets }) => {

@@ -36,7 +36,7 @@
   position: relative;
   z-index: 1;
   max-width: 1300px;
-  margin-left: 8% !important; /* Reduced from 12% to be closer to the left but balanced */
+  margin: 0 auto !important;
   padding: 0 2rem;
 }
 
@@ -84,8 +84,8 @@
 /* ── DUAL COLUMN ─────────────────────────────────────────────── */
 .layout-dual-column {
   display: grid;
-  grid-template-columns: 1fr 380px; /* Slightly narrower sidebar */
-  gap: 2rem; /* Reduced gap */
+  grid-template-columns: 1fr 400px; /* Generous sidebar */
+  gap: 2.5rem; /* Clean spacious gap */
   align-items: start;
   height: auto;
   position: relative;
@@ -98,28 +98,29 @@
 .ticket-selection-panel,
 .function-selector-compact,
 .purchase-sticky-bottom {
-  background: rgba(8, 8, 8, 0.88) !important;
-  backdrop-filter: blur(24px) !important;
-  -webkit-backdrop-filter: blur(24px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.07) !important;
-  border-radius: 13px !important;
-  padding: 1.25rem !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
-  margin-bottom: 1rem;
+  background: rgba(8, 8, 8, 0.78) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  padding: 1.5rem !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
 }
 
 /* ── LEFT COLUMN ─────────────────────────────────────────────── */
 .event-left-column {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 1.5rem; /* Spacious flow */
 }
 
 /* Event title */
 .event-meta-header h1 {
-  font-size: 2rem;
+  font-size: 2.4rem;
   font-weight: 950;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.6rem;
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: -0.02em;
@@ -127,10 +128,10 @@
 }
 
 .meta-inline {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #fff;
   font-weight: 600;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.3rem;
 }
 
 .meta-inline.location {
@@ -139,26 +140,33 @@
 
 /* Map container */
 .map-container {
-  background: rgba(16, 16, 16, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.07) !important;
-  border-radius: 13px !important;
+  background: rgba(16, 16, 16, 0.78) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
   overflow: hidden !important;
   position: relative;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
 
 /* Seat Map Interactive Wrapper */
 .seat-map-wrapper {
   width: 100%;
-  height: 400px;
-  background: rgba(5, 5, 5, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  height: 580px; /* Spacious, gorgeous map! */
+  background: radial-gradient(circle at center, rgba(16, 24, 48, 0.45) 0%, rgba(5, 5, 5, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   position: relative;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: grab;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9);
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.95);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.seat-map-wrapper:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.95), 0 0 20px rgba(59, 130, 246, 0.1);
 }
 
 .seat-map-wrapper.dragging {
@@ -217,11 +225,161 @@
 }
 
 
-
-.map-controls button:hover {
+.map-controls button:hover,
+.control-btn-premium:hover {
   background: #fff;
   color: #000;
   border-color: #fff;
+}
+
+/* ── CONTROL BUTTONS PREMIUM ─────────────────────────────────────── */
+.control-btn-premium {
+  width: 36px;
+  height: 36px;
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* ── ZOOM INDICATOR PILL ─────────────────────────────────────────── */
+.zoom-indicator-pill {
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.zoom-indicator-pill.visible {
+  opacity: 1;
+}
+
+/* ── VENUE MAP CONTAINER WRAPPER ─────────────────────────────────── */
+.venue-map-container-wrapper {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+/* ── SEAT HOVER TOOLTIP ──────────────────────────────────────────── */
+.seat-hover-tooltip {
+  background: rgba(5, 5, 5, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 8px 14px;
+  min-width: 120px;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  animation: tooltipFadeIn 0.15s ease;
+}
+
+.seat-hover-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 6px;
+  background: rgba(5, 5, 5, 0.95);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translate(-50%, -100%) translateY(-4px); }
+  to   { opacity: 1; transform: translate(-50%, -100%) translateY(0); }
+}
+
+.tooltip-zone {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+
+.tooltip-seat {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.tooltip-status {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 2px;
+}
+
+.tooltip-status.status-disponible { background: rgba(209,213,219,0.2); color: #D1D5DB; }
+.tooltip-status.status-seleccionado { background: rgba(59,130,246,0.25); color: #60a5fa; }
+.tooltip-status.status-ocupado { background: rgba(127,29,29,0.4); color: #fca5a5; }
+.tooltip-status.status-reservado { background: rgba(146,64,14,0.4); color: #fcd34d; }
+
+.tooltip-price {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #10b981;
+}
+
+/* ── VENUE MAP HINTS ─────────────────────────────────────────────── */
+.venue-map-hint {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  font-style: italic;
+}
+
+.venue-map-selection-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid rgba(59,130,246,0.2);
+  background: rgba(59,130,246,0.05);
+  font-size: 0.75rem;
+  color: #60a5fa;
+  font-weight: 700;
+}
+
+.selection-count-badge {
+  background: #3B82F6;
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 900;
+  flex-shrink: 0;
 }
 
 /* Google Mini Map */
@@ -546,6 +704,22 @@
   text-transform: uppercase;
   font-size: 0.8rem;
   letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.selected-seats-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 200px;
+}
+
+.seats-hint {
+  font-size: 0.68rem;
+  color: #888;
+  font-style: italic;
+  font-weight: 500;
 }
 
 .laika-select {

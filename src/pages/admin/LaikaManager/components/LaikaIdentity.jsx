@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from '../../../../components';
-import Icon from '../../../../components/Icons';
+import Icon from '../../../../components/Icons/Icons';
 
 const LaikaIdentity = ({ isEnabled, laikaAvatar, handleToggleLaika, handleAvatarChange }) => {
     return (

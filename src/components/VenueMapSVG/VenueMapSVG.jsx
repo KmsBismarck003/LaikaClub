@@ -1,291 +1,262 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
-import { useMapGeometry } from './hooks/useMapGeometry';
-import { useMapInteraction } from './hooks/useMapInteraction';
+import React, { memo, useRef, useState, useCallback, useEffect } from 'react';
 
-// Components
-import MapToolbar from './components/MapToolbar';
-import MapZone from './components/MapZone';
-import { Icon } from '..'; 
+const SEAT_R = 9;
 
-const VenueMapSVG = memo(({ 
-    selectedSeats = [], 
-    onSeatToggle,
-    isEditMode = false,
-    zones = [],
-    onUpdateGeometry,
-    selectedZoneId,
-    onZoneSelect,
-    mapView = { zoom: 1.15, pan: { x: 0, y: 0 } },
-    onZoneColorChange,
-    busySeats = [],
-    rouletteActive = false,
-    winnerSeatId = null,
-    activeScannerZoneId = null,
-    activeScannerSeatId = null,
-    onRouletteComplete,
-    setHoveredSeat,
-    isAdminView = false // Nueva prop
-}) => {
-    const svgRef = useRef(null);
-    const [persistentSeatInfo, setPersistentSeatInfo] = useState(null);
-    const [initialZoneState, setInitialZoneState] = useState(null);
-    const [processingAction, setProcessingAction] = useState(null); // 'refunding' | 'resending'
-    const [actionStatus, setActionStatus] = useState(null); // 'success'
+const SEAT_COLORS = {
+  normal:     { base: '#2a2a2a', stroke: '#555',    hover: '#3f3f46', busy: '#450a0a', busyStroke: '#7f1d1d' },
+  vip:        { base: '#1a1a2e', stroke: '#9333ea', hover: '#2e1065', busy: '#450a0a', busyStroke: '#7f1d1d' },
+  accessible: { base: '#0f2027', stroke: '#06b6d4', hover: '#164e63', busy: '#450a0a', busyStroke: '#7f1d1d' },
+};
 
-    // Hooks
-    const { getMousePos, distToSegment, getPathData } = useMapGeometry(svgRef);
-    
-    const {
-        draggingToolbar,
-        alignmentGuides,
-        toolbarPos,
-        editSubMode,
-        setEditSubMode,
-        setDraggingToolbar,
-        handleMouseDownPoint,
-        handleMouseDownZone,
-        handleMouseDownRotate,
-        handleMouseDownText,
-        handleMouseDownTextRotate,
-        handleMouseDownCurve,
-        handleSplitEdge,
-        handleMouseMove,
-        handleMouseUp,
-        handlePathClick
-    } = useMapInteraction(isEditMode, zones, onUpdateGeometry, onZoneSelect, getMousePos, distToSegment);
+const TYPE_ICON = { vip: '★', accessible: '♿' };
+const ELEM_LABELS = { stage: '🎸 ESCENARIO', screen: '🖥 PANTALLA', aisle: 'PASILLO', ga: 'GENERAL' };
 
-    // Initial State Backup for Undo
-    useEffect(() => {
-        if (selectedZoneId && zones.length > 0) {
-            const z = zones.find(x => x.id === selectedZoneId);
-            if (z && (!initialZoneState || initialZoneState.id !== selectedZoneId)) {
-                setInitialZoneState(JSON.parse(JSON.stringify(z)));
-            }
-        } else if (!selectedZoneId) {
-            setInitialZoneState(null);
-        }
-    }, [selectedZoneId, zones, initialZoneState]);
+function SeatDot({ seat, isBusy, isSelected, isWinner, onToggle }) {
+  const [hovered, setHovered] = useState(false);
+  const colors = SEAT_COLORS[seat.type] || SEAT_COLORS.normal;
 
-    // Lógica de Acciones del HUD
-    const handleAdminAction = (action) => {
-        setProcessingAction(action);
-        setActionStatus(null);
-        
-        // Simulación de delay de API
-        setTimeout(() => {
-            setProcessingAction(null);
-            setActionStatus('success');
-            
-            // Limpiar mensaje de éxito tras 3 segundos
-            setTimeout(() => setActionStatus(null), 3000);
-        }, 1500);
-    };
+  let fill = colors.base;
+  let stroke = colors.stroke;
+  let strokeW = 1;
 
-    // Cerrar HUD reseteando estados
-    const closeHUD = () => {
-        setPersistentSeatInfo(null);
-        setProcessingAction(null);
-        setActionStatus(null);
-    };
+  if (isBusy)      { fill = colors.busy; stroke = colors.busyStroke; }
+  if (isSelected)  { fill = '#eab308'; stroke = '#fbbf24'; strokeW = 2; }
+  if (isWinner)    { fill = '#22c55e'; stroke = '#4ade80'; strokeW = 2; }
+  if (hovered && !isBusy && !isSelected) { fill = colors.hover; }
 
-    return (
-        <div 
-            className="venue-map-svg-container" 
-            onMouseMove={handleMouseMove} 
-            onMouseUp={handleMouseUp} 
-            onMouseLeave={handleMouseUp} 
-            style={{ 
-                width: '100%', height: '100%', 
-                cursor: draggingToolbar ? 'grabbing' : 'default', 
-                position: 'relative', background: 'transparent' 
-            }}
+  return (
+    <g>
+      <circle
+        cx={seat.x} cy={seat.y} r={SEAT_R}
+        fill={fill} stroke={stroke} strokeWidth={strokeW}
+        style={{ cursor: isBusy ? 'not-allowed' : 'pointer', transition: 'fill 0.12s' }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={() => !isBusy && onToggle && onToggle(seat)}
+      />
+      {seat.type && seat.type !== 'normal' && (
+        <text x={seat.x} y={seat.y + 3.5} textAnchor="middle" fontSize={6}
+          fill={isSelected ? '#000' : stroke}
+          style={{ pointerEvents: 'none', userSelect: 'none' }}
         >
-            {isEditMode && selectedZoneId && (
-                <MapToolbar 
-                    toolbarPos={toolbarPos}
-                    setDraggingToolbar={setDraggingToolbar}
-                    editSubMode={editSubMode}
-                    setEditSubMode={setEditSubMode}
-                    selectedZoneId={selectedZoneId}
-                    zones={zones}
-                    onZoneColorChange={onZoneColorChange}
-                    initialZoneState={initialZoneState}
-                    onUpdateGeometry={onUpdateGeometry}
-                    onZoneSelect={onZoneSelect}
-                />
-            )}
+          <tspan>{TYPE_ICON[seat.type] || ''}</tspan>
+        </text>
+      )}
+      {/* Seat number label below */}
+      {hovered && (
+        <text x={seat.x} y={seat.y + SEAT_R + 9} textAnchor="middle"
+          fontSize={7} fill="rgba(255,255,255,0.6)"
+          style={{ pointerEvents: 'none', userSelect: 'none' }}
+        >
+          <tspan>{seat.rowLabel}{seat.number}</tspan>
+        </text>
+      )}
+    </g>
+  );
+}
 
-            <style>{`
-                @keyframes marchingAnts { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }
-                .marching-ants { stroke-dasharray: 6, 4; stroke-linecap: round; }
-            `}</style>
+/**
+ * VenueMapSVG — Generic viewer/selector for the seat map.
+ * Used both in EventDetail (purchase flow) and admin live view.
+ *
+ * Props:
+ *   mapData      — the layout_json.components array saved by AdminVenueMap
+ *   busySeats    — array of seat frontend_ids that are occupied
+ *   selectedSeats — array of seat ids selected by user
+ *   onSeatToggle — (seat) => void
+ *   readOnly     — boolean, disables interaction
+ *   height       — container height string, default '100%'
+ */
+const VenueMapSVG = memo(({
+  mapData = [],
+  busySeats = [],
+  selectedSeats = [],
+  onSeatToggle,
+  readOnly = false,
+  height = '100%',
+}) => {
+  const svgRef = useRef(null);
+  const [viewBox, setViewBox] = useState({ x: 0, y: 0, zoom: 1 });
+  const [isPanning, setIsPanning] = useState(false);
+  const panStart = useRef(null);
 
-            <svg 
-                ref={svgRef} 
-                viewBox="0 0 800 600" 
-                className="venue-map-svg" 
-                style={{ width: '100%', height: '100%', overflow: 'visible' }}
-                onClick={(e) => {
-                    // Solo deseleccionar si el clic es directamente en el fondo del SVG
-                    if (e.target === svgRef.current || e.target.tagName === 'svg') {
-                        onZoneSelect(null);
-                    }
-                }}
-            >
-                <g transform={`translate(${mapView.pan.x}, ${mapView.pan.y}) scale(${mapView.zoom})`} style={{ transition: 'transform 0.3s' }}>
-                    <defs>
-                        <linearGradient id="stageGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style={{ stopColor: '#e0e0e0', stopOpacity: 1 }} />
-                            <stop offset="100%" style={{ stopColor: '#999', stopOpacity: 1 }} />
-                        </linearGradient>
-                    </defs>
+  // Auto-fit on mount
+  useEffect(() => {
+    if (!mapData.length || !svgRef.current) return;
+    const allX = [], allY = [];
+    mapData.forEach(c => {
+      if (c.type === 'seats') {
+        c.blocks?.forEach(b => b.seats.forEach(s => { allX.push(s.x); allY.push(s.y); }));
+      } else {
+        allX.push(c.x, c.x + c.width);
+        allY.push(c.y, c.y + c.height);
+      }
+    });
+    if (!allX.length) return;
+    const minX = Math.min(...allX) - 40;
+    const minY = Math.min(...allY) - 40;
+    const maxX = Math.max(...allX) + 40;
+    const maxY = Math.max(...allY) + 40;
+    const mapW = maxX - minX;
+    const mapH = maxY - minY;
+    const rect = svgRef.current.getBoundingClientRect();
+    const zoom = Math.min(rect.width / mapW, rect.height / mapH, 2);
+    setViewBox({ x: minX - (rect.width / zoom - mapW) / 2, y: minY - (rect.height / zoom - mapH) / 2, zoom });
+  }, [mapData]);
 
-                    {zones.map(zone => (
-                        <MapZone 
-                            key={zone.id}
-                            zone={zone}
-                            isSelected={selectedZoneId === zone.id}
-                            isEditMode={isEditMode}
-                            isAdminView={isAdminView} // PASAR PROP
-                            editSubMode={editSubMode}
-                            activeScannerZoneId={activeScannerZoneId}
-                            activeScannerSeatId={activeScannerSeatId}
-                            busySeats={busySeats}
-                            selectedSeats={selectedSeats}
-                            rouletteActive={rouletteActive}
-                            winnerSeatId={winnerSeatId}
-                            getPathData={getPathData}
-                            handleMouseDownZone={handleMouseDownZone}
-                            handleMouseDownText={handleMouseDownText}
-                            handleMouseDownPoint={handleMouseDownPoint}
-                            handleMouseDownRotate={handleMouseDownRotate}
-                            handleMouseDownTextRotate={handleMouseDownTextRotate}
-                            handleMouseDownCurve={handleMouseDownCurve}
-                            handleSplitEdge={handleSplitEdge}
-                            onZoneSelect={onZoneSelect}
-                            onSeatToggle={onSeatToggle}
-                            setHoveredSeat={setHoveredSeat}
-                            setPersistentSeatInfo={setPersistentSeatInfo}
-                        />
-                    ))}
+  const svgToCanvas = (clientX, clientY) => {
+    const rect = svgRef.current?.getBoundingClientRect();
+    if (!rect) return { x: 0, y: 0 };
+    return {
+      x: (clientX - rect.left) / viewBox.zoom + viewBox.x,
+      y: (clientY - rect.top)  / viewBox.zoom + viewBox.y,
+    };
+  };
 
-                    {alignmentGuides.x.map((x, i) => <line key={`gx-${i}`} x1={x} y1="-2000" x2={x} y2="2000" stroke="#ff0000" strokeWidth="1" strokeDasharray="3,2" style={{ opacity: 0.9 }} />)}
-                    {alignmentGuides.y.map((y, i) => <line key={`gy-${i}`} x1="-2000" y1={y} x2="2000" y2={y} stroke="#ff0000" strokeWidth="1" strokeDasharray="3,2" style={{ opacity: 0.9 }} />)}
-                </g>
-            </svg>
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.12 : 0.12;
+    const { x: cx, y: cy } = svgToCanvas(e.clientX, e.clientY);
+    setViewBox(prev => {
+      const newZoom = Math.max(0.3, Math.min(5, prev.zoom + delta));
+      const scale = newZoom / prev.zoom;
+      return { zoom: newZoom, x: cx - (cx - prev.x) * scale, y: cy - (cy - prev.y) * scale };
+    });
+  }, [viewBox]);
 
-            {/* HUD DE INTELIGENCIA ADMIN (Persistent Info) */}
-            {isAdminView && persistentSeatInfo && (
-                <div 
-                    className="admin-intel-hud"
-                    style={{
-                        position: 'absolute',
-                        top: '20px',
-                        right: '20px',
-                        width: '280px',
-                        background: 'rgba(5, 5, 5, 0.95)',
-                        backdropFilter: 'blur(4px)',
-                        WebkitBackdropFilter: 'blur(4px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        color: '#fff',
-                        zIndex: 1000,
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                        animation: 'fadeInSlide 0.3s ease-out'
-                    }}
-                >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ 
-                                width: '10px', height: '10px', borderRadius: '50%', 
-                                background: persistentSeatInfo.status === 'VENDIDO' ? '#F31260' : '#FFA500' 
-                            }} />
-                            <span style={{ fontSize: '10px', fontWeight: 'bold', color: 'rgba(255,255,255,0.6)', letterSpacing: '1px' }}>
-                                {persistentSeatInfo.status}
-                            </span>
-                        </div>
-                        <button 
-                            onClick={closeHUD}
-                            style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', opacity: 0.5 }}
-                        >
-                            <Icon name="x" size={14} />
-                        </button>
-                    </div>
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [handleWheel]);
 
-                    <h3 style={{ fontSize: '18px', fontWeight: '900', margin: '0 0 4px 0', textTransform: 'uppercase', color: '#fff' }}>
-                        {persistentSeatInfo.id}
-                    </h3>
-                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', margin: '0 0 16px 0' }}>
-                        {persistentSeatInfo.zoneName} • {persistentSeatInfo.price}
-                    </p>
+  const handleMouseDown = (e) => {
+    if (e.button !== 0) return;
+    setIsPanning(true);
+    panStart.current = { mx: e.clientX, my: e.clientY, vx: viewBox.x, vy: viewBox.y };
+  };
 
-                    <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '12px' }}>
-                        <div style={{ marginBottom: '8px' }}>
-                            <label style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', display: 'block' }}>Comprador</label>
-                            <span style={{ fontSize: '13px', fontWeight: '800', color: '#fff' }}>{persistentSeatInfo.user || 'Ulises Garcia'}</span>
-                        </div>
-                        <div style={{ marginBottom: '8px' }}>
-                            <label style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', display: 'block' }}>Email</label>
-                            <span style={{ fontSize: '12px', color: '#0ea5e9' }}>{persistentSeatInfo.email || 'ulises@laika.club'}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <div>
-                                <label style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', display: 'block' }}>Método</label>
-                                <span style={{ fontSize: '11px' }}>{persistentSeatInfo.paidWith || 'VISA **** 4242'}</span>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                                <label style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', display: 'block' }}>Fecha</label>
-                                <span style={{ fontSize: '11px', color: '#fff' }}>{persistentSeatInfo.date || '05/04 14:20'}</span>
-                            </div>
-                        </div>
-                    </div>
+  const handleMouseMove = (e) => {
+    if (!isPanning || !panStart.current) return;
+    const startX = panStart.current.vx;
+    const startY = panStart.current.vy;
+    const dx = (e.clientX - panStart.current.mx) / viewBox.zoom;
+    const dy = (e.clientY - panStart.current.my) / viewBox.zoom;
+    setViewBox(prev => ({ ...prev, x: startX - dx, y: startY - dy }));
+  };
 
-                    <div style={{ marginTop: '16px', display: 'flex', gap: '8px', position: 'relative' }}>
-                        {actionStatus === 'success' ? (
-                            <div style={{ 
-                                width: '100%', padding: '8px', borderRadius: '6px', 
-                                background: '#17C964', color: '#000', fontSize: '10px', 
-                                fontWeight: '950', textAlign: 'center', animation: 'fadeInSlide 0.3s' 
-                            }}>
-                                <Icon name="check" size={12} style={{ marginRight: '6px' }} />
-                                ACCIÓN COMPLETADA CON ÉXITO
-                            </div>
-                        ) : (
-                            <>
-                                <button 
-                                    disabled={processingAction === 'refunding'}
-                                    onClick={() => handleAdminAction('refunding')}
-                                    style={{ 
-                                        flex: 1, padding: '8px', borderRadius: '6px', 
-                                        border: '1px solid rgba(255,255,255,0.1)', 
-                                        background: 'transparent', color: '#fff', fontSize: '10px', 
-                                        cursor: processingAction ? 'not-allowed' : 'pointer',
-                                        opacity: processingAction === 'refunding' ? 0.5 : 1
-                                    }}
-                                >
-                                    {processingAction === 'refunding' ? 'PROCESANDO...' : 'REEMBOLSAR'}
-                                </button>
-                                <button 
-                                    disabled={processingAction === 'resending'}
-                                    onClick={() => handleAdminAction('resending')}
-                                    style={{ 
-                                        flex: 1, padding: '8px', borderRadius: '6px', border: 'none', 
-                                        background: '#fff', color: '#000', fontSize: '10px', 
-                                        fontWeight: 'bold', 
-                                        cursor: processingAction ? 'not-allowed' : 'pointer',
-                                        opacity: processingAction === 'resending' ? 0.5 : 1
-                                    }}
-                                >
-                                    {processingAction === 'resending' ? 'ENVIANDO...' : 'RE-ENVIAR'}
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
-        </div>
+  const handleMouseUp = () => { 
+    setIsPanning(false); 
+    panStart.current = null; 
+  };
+
+  const busySet = new Set(busySeats);
+  const selectedSet = new Set(selectedSeats);
+
+  if (!mapData.length) {
+    return (
+      <div style={{ width: '100%', height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>
+        Sin mapa configurado
+      </div>
     );
+  }
+
+  return (
+    <div style={{ width: '100%', height, position: 'relative', background: '#080808', borderRadius: '8px', overflow: 'hidden' }}>
+      <svg
+        ref={svgRef}
+        style={{ width: '100%', height: '100%', cursor: isPanning ? 'grabbing' : 'grab', display: 'block' }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
+        <defs>
+          <style>{`@keyframes marchingAnts{from{stroke-dashoffset:8}to{stroke-dashoffset:0}}`}</style>
+        </defs>
+        <g transform={`scale(${viewBox.zoom}) translate(${-viewBox.x}, ${-viewBox.y})`}>
+          {mapData.map(comp => {
+            const cx = comp.x + (comp.width || 0) / 2;
+            const cy = comp.y + (comp.height || 0) / 2;
+
+            if (comp.type === 'seats') {
+              return (
+                <g key={comp.id} transform={`rotate(${comp.rotation || 0}, ${cx}, ${cy})`}>
+                  {comp.blocks?.map(block => (
+                    <g key={block.id}>
+                      {/* Row label */}
+                      {block.seats[0] && (
+                        <text
+                          x={block.seats[0].x - 16} y={block.seats[0].y + 4}
+                          fontSize={8} fill="rgba(255,255,255,0.25)"
+                          fontWeight={700} textAnchor="middle" fontFamily="monospace"
+                          style={{ userSelect: 'none', pointerEvents: 'none' }}
+                        >
+                          <tspan>{block.rowLabel}</tspan>
+                        </text>
+                      )}
+                      {block.seats.map(seat => (
+                        <SeatDot
+                          key={seat.id}
+                          seat={seat}
+                          isBusy={busySet.has(seat.id)}
+                          isSelected={selectedSet.has(seat.id)}
+                          isWinner={false}
+                          onToggle={readOnly ? null : onSeatToggle}
+                        />
+                      ))}
+                    </g>
+                  ))}
+                </g>
+              );
+            }
+
+            // Non-seat element
+            return (
+              <g key={comp.id} transform={`rotate(${comp.rotation || 0}, ${cx}, ${cy})`}>
+                <rect
+                  x={comp.x} y={comp.y} width={comp.width || 120} height={comp.height || 40}
+                  rx={6} fill={comp.color || '#334155'} stroke="rgba(255,255,255,0.08)" strokeWidth={1}
+                />
+                <text
+                  x={cx} y={cy + 4}
+                  textAnchor="middle" fontSize={10} fontWeight={800}
+                  fill="rgba(255,255,255,0.6)" fontFamily="Inter,sans-serif"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                >
+                  <tspan>{ELEM_LABELS[comp.type] || comp.name}</tspan>
+                </text>
+              </g>
+            );
+          })}
+        </g>
+      </svg>
+
+      {/* Legend */}
+      <div style={{
+        position: 'absolute', bottom: 10, right: 10,
+        display: 'flex', gap: 10, padding: '6px 10px',
+        background: 'rgba(0,0,0,0.7)', borderRadius: 8,
+        backdropFilter: 'blur(8px)', fontSize: '0.65rem',
+      }}>
+        {[
+          { color: '#2a2a2a', stroke: '#555',    label: 'Disponible' },
+          { color: '#eab308', stroke: '#fbbf24', label: 'Seleccionado' },
+          { color: '#450a0a', stroke: '#7f1d1d', label: 'Ocupado' },
+          { color: '#1a1a2e', stroke: '#9333ea', label: 'VIP' },
+          { color: '#0f2027', stroke: '#06b6d4', label: '♿' },
+        ].map(({ color, stroke, label }) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'rgba(255,255,255,0.5)' }}>
+            <svg width={12} height={12}>
+              <circle cx={6} cy={6} r={5} fill={color} stroke={stroke} strokeWidth={1} />
+            </svg>
+            {label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 });
 
 export default VenueMapSVG;

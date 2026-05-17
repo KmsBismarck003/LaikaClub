@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { ticketAPI, eventAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
-import Icon from '../../components/Icons';
+import Icon from '../../components/Icons/Icons';
 
 /* ── Fallback concert images for events without photo ───────── */
 const FALLBACK_IMAGES = [

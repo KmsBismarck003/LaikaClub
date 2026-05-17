@@ -1,9 +1,9 @@
 import React from 'react';
-import UserPermissionsModal from '../../../../components/UserPermissionsModal';
-import UserFormModal from '../../../../components/UserFormModal';
-import UserEditModal from '../../../../components/UserEditModal';
-import UserPreviewModal from '../../../../components/UserPreviewModal';
-import ConfirmationModal from '../../../../components/ConfirmationModal';
+import UserPermissionsModal from '../../../../components/Modals/UserPermissionsModal/UserPermissionsModal';
+import UserFormModal from '../../../../components/Modals/UserFormModal';
+import UserEditModal from '../../../../components/Modals/UserEditModal';
+import UserPreviewModal from '../../../../components/Modals/UserPreviewModal/UserPreviewModal';
+import ConfirmationModal from '../../../../components/Modals/ConfirmationModal';
 
 const UsersModals = ({ 
     modals, 

@@ -22,7 +22,10 @@ export const managerAPI = {
 }
 
 export const venueAPI = {
-    getAll: (status = 'active') => apiClient.get('/venues', { status_filter: status }),
+    getAll: (params = {}) => {
+        const queryParams = typeof params === 'string' ? { status_filter: params } : params
+        return apiClient.get('/venues', queryParams)
+    },
     getById: id => apiClient.get(`/venues/${id}`),
     create: venueData => apiClient.post('/venues', venueData),
     update: (id, updates) => apiClient.put(`/venues/${id}`, updates),

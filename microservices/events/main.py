@@ -1,5 +1,8 @@
-from fastapi import FastAPI, Depends, Query
+import os, shutil, uuid
+from pathlib import Path
+from fastapi import FastAPI, Depends, Query, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import Optional
 from .database import get_db
@@ -17,6 +20,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
+EVENTS_UPLOAD_DIR = UPLOAD_DIR / "events"
+EVENTS_UPLOAD_DIR.mkdir(exist_ok=True)
+
+# Servir archivos estáticos
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 @app.get("/health")
 def health():
     return {"status": "alive", "service": "event-service"}
@@ -32,20 +43,27 @@ def list_events(
 @app.get("/all")
 def list_all_events(
     limit: int = 100,
+    country_id: Optional[int] = Query(None),
+    state_id: Optional[int] = Query(None),
+    municipality_id: Optional[int] = Query(None),
+    venue_id: Optional[int] = Query(None),
     db: Session = Depends(get_db)
 ):
-    # En un microservicio real, esto requeriría rol admin
-    return controller.get_all_events(db, limit=limit)
+    return controller.get_all_events(
+        db, limit=limit, country_id=country_id, 
+        state_id=state_id, municipality_id=municipality_id, 
+        venue_id=venue_id
+    )
 
 @app.get("/my-events")
 @app.get("/manager/events")
 def list_my_events(
     limit: int = 100,
     db: Session = Depends(get_db),
-    # current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user)
 ):
-    # Por ahora usamos user_id=1 para simplificar, en producción usar current_user['id']
-    return controller.get_user_events(db, user_id=1, limit=limit)
+    return controller.get_user_events(db, user_id=current_user['id'], limit=limit)
+
 
 # --- VENUES & MAP BUILDER ROUTES ---
 
@@ -68,9 +86,16 @@ def get_municipalities(state_id: int, db: Session = Depends(get_db)):
 @app.get("/venues")
 def get_venues(
     status_filter: Optional[str] = Query(None),
+    country_id: Optional[int] = Query(None),
+    state_id: Optional[int] = Query(None),
+    municipality_id: Optional[int] = Query(None),
+    manager_id: Optional[int] = Query(None),
     db: Session = Depends(get_db)
 ):
-    return venues_controller.get_venues(db, status_filter)
+    return venues_controller.get_venues(
+        db, status_filter, country_id, 
+        state_id, municipality_id, manager_id
+    )
 
 @app.post("/venues")
 def create_venue(
@@ -130,18 +155,37 @@ def save_venue_room_map(
 
 from . import schemas
 
+@app.patch("/manager/events/{event_id}/publish")
+@app.patch("/{event_id}/publish")
+def publish_event(event_id: int, db: Session = Depends(get_db)):
+    return controller.publish_event(db, event_id)
+
+@app.patch("/manager/events/{event_id}/unpublish")
+@app.patch("/{event_id}/unpublish")
+def unpublish_event(event_id: int, db: Session = Depends(get_db)):
+    return controller.unpublish_event(db, event_id)
+
+@app.get("/manager/events/{event_id}/tickets")
+def get_event_tickets(event_id: int, db: Session = Depends(get_db)):
+    return controller.get_event_tickets_analytics(db, event_id)
+
+@app.get("/manager/events/{event_id}/revenue")
+def get_event_revenue(event_id: int, db: Session = Depends(get_db)):
+    return controller.get_event_revenue_analytics(db, event_id)
+
 @app.get("/{event_id}")
 @app.get("/manager/events/{event_id}")
 def get_event(event_id: int, db: Session = Depends(get_db)):
     return controller.get_event_by_id(db, event_id)
 
 @app.post("/")
+@app.post("/manager/events")
 def create_event(
     event_data: schemas.EventCreate, 
     db: Session = Depends(get_db),
-    # user_id: int = Depends(get_current_user) # Comentado para simplificar la creación por ahora
+    current_user: dict = Depends(get_current_user)
 ):
-    return controller.create_event(db, event_data, user_id=1) 
+    return controller.create_event(db, event_data, user_id=current_user['id']) 
 
 @app.put("/{event_id}")
 def update_event(
@@ -150,6 +194,30 @@ def update_event(
     db: Session = Depends(get_db)
 ):
     return controller.update_event(db, event_id, event_data)
+
+
+
+
+@app.post("/manager/events/upload-image")
+async def upload_event_image(file: UploadFile = File(...)):
+    """Sube una imagen para eventos y retorna su URL"""
+    try:
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in [".jpg", ".jpeg", ".png", ".webp", ".gif"]:
+            raise HTTPException(400, "Formato de imagen no permitido")
+            
+        filename = f"{uuid.uuid4().hex}{ext}"
+        filepath = EVENTS_UPLOAD_DIR / filename
+        
+        with open(filepath, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        # IMPORTANTE: El gateway mapea /api/events -> /
+        # Pero aquí queremos retornar la URL que el frontend pueda cargar
+        # Como el gateway sirve /api/events/uploads, la URL debería ser esa
+        return {"url": f"/api/events/uploads/events/{filename}", "message": "Imagen subida correctamente"}
+    except Exception as e:
+        raise HTTPException(500, f"Error al subir imagen: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

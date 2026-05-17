@@ -5,7 +5,7 @@ import { useCart } from '../../context/CartContext';
 import NotificationBell from '../../components/Notifications/NotificationBell';
 import NotificationDetailModal from '../../components/Notifications/NotificationDetailModal';
 import LaikaAgent from '../../components/LaikaAgent/LaikaAgent';
-import Icon from '../../components/Icons';
+import Icon from '../../components/Icons/Icons';
 import CartModal from '../../components/Cart/CartModal';
 import { useNotification } from '../../context/NotificationContext';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import Icon from '../Icons';
+import Icon from '../Icons/Icons';
 
 const PaymentVoucher = ({ cart, finalTotal, onDone }) => {
     const referenceCode = `LK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;

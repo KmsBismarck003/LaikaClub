@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import Icon from '../../components/Icons'
+import Icon from '../../components/Icons/Icons'
 import api from '../../services/api'
 import { useNotification } from '../../context/NotificationContext'
 

@@ -1,14 +1,12 @@
 import React from 'react';
-import { Badge, Icon } from "../../../../components";
+import { Badge, Button, Icon } from "../../../../components";
 
 export default function TicketSelectionPanel({
   user,
-  hasFunctions,
   event,
+  hasFunctions,
   selectedFunction,
   setSelectedFunction,
-  activeTab,
-  setActiveTab,
   sortedSections,
   selectedSection,
   setSelectedSection,
@@ -17,214 +15,147 @@ export default function TicketSelectionPanel({
   selectedSeats,
   cleanPrice,
   handleAddToCart,
-  handleRealAddToCart,
-  isRouletteActive,
   handleLuckySeat,
+  isRouletteActive,
   setShowProbModal
 }) {
   return (
-    <div className="ticket-selection-panel event-purchase-card-glass">
-      {/* Banner informativo suave para admins (opcional, no bloquea) */}
-      {(user?.role === "admin" || user?.role === "gestor") && (
-        <div className="admin-status-banner-soft" style={{ 
-          padding: '0.5rem 0.75rem', 
-          marginBottom: '0.75rem',
-          borderRadius: '12px',
-          fontSize: '0.7rem',
-          background: 'rgba(255, 255, 255, 0.05)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          color: 'rgba(255, 255, 255, 0.6)',
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          <Icon name="shield" size={12} style={{ marginRight: '6px' }} />
-          Admin Mode: Testing Active
-        </div>
-      )}
-      {/* Function Selector (if needed) */}
-      {hasFunctions && (
-        <div className="function-selector-compact">
-          <h3 className="section-label-premium">FECHAS DISPONIBLES:</h3>
-          <div className="function-chips">
-            {event.functions.map((fn) => (
-              <button
-                key={fn.id}
-                onClick={() => setSelectedFunction(fn)}
-                className={`function-chip ${selectedFunction?.id === fn.id ? "active" : ""}`}
-              >
-                {new Date(fn.date).toLocaleDateString("es-MX", {
-                  day: "numeric",
-                  month: "short",
-                })}{" "}
-                • {String(fn.time).substring(0, 5)}
-              </button>
-            ))}
+    <div className="ticket-selection-panel">
+      <div className="panel-body">
+        {/* Function Selection */}
+        {hasFunctions && (
+          <div className="function-selector-compact">
+            <h3>Selecciona la fecha</h3>
+            <div className="function-chips">
+              {event.functions.map(f => (
+                <div 
+                  key={f.id} 
+                  className={`function-chip ${selectedFunction?.id === f.id ? 'active' : ''}`}
+                  onClick={() => setSelectedFunction(f)}
+                >
+                  {f.date} - {f.time}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="ticket-filters">
-        <div className="ticket-tabs">
-          <button
-            className={`ticket-tab ${activeTab === "lowest" ? "active" : ""}`}
-            onClick={() => setActiveTab("lowest")}
-          >
-            Precio más bajo
-          </button>
-          <button
-            className={`ticket-tab ${activeTab === "best" ? "active" : ""}`}
-            onClick={() => setActiveTab("best")}
-          >
-            Mejores asientos
-          </button>
-        </div>
-        <div className="ticket-results-count">
-          <span>Opciones Disponibles</span>
-          <Badge variant="primary">
-            Quedan {event.available_tickets}
-          </Badge>
-        </div>
-      </div>
-
-      <div className="ticket-options-list" key={activeTab}>
-        {sortedSections.map((tier, idx) => (
-          <div
-            key={tier.id || idx}
-            className={`ticket-option-row selectable ${selectedSection?.id === tier.id || (tier.isGeneral && !selectedSection) ? "selected" : ""}`}
-            onClick={() => setSelectedSection(tier)}
-          >
-            <div
-              className="ticket-minimap"
-              style={
-                tier.isGeneral
-                  ? {}
-                  : { backgroundColor: tier.color_hex || "#e4e4e7" }
-              }
+        {/* Sections List */}
+        <div className="ticket-options-list" style={{ maxHeight: '400px' }}>
+          {sortedSections.map(section => (
+            <div 
+              key={section.id} 
+              className={`ticket-option-row ${selectedSection?.id === section.id ? 'selected' : ''}`}
+              onClick={() => setSelectedSection(section)}
             >
-              {tier.isGeneral ? "GRAL" : `Z${idx + 1}`}
-            </div>
-            <div className="ticket-info">
-              <div className="ticket-section-title">
-                {tier.name}
-                {tier.badge_text && (
-                  <Badge
-                    className={`ticket-badge ${tier.badge_text.toLowerCase().includes("vip") ? "vip" : ""}`}
-                  >
-                    {tier.badge_text}
-                  </Badge>
-                )}
-                
-                {/* INDICADOR DE ASIENTO SELECCIONADO */}
-                {selectedSeats.length > 0 && selectedSeats.some(s => String(s).split('-')[0] === String(tier.id)) && (
-                  <div className="selected-seat-indicator animate-in fade-in slide-in-from-left-2">
-                    <Icon name="check" size={10} className="mr-1" style={{ marginRight: '4px' }} />
-                    {selectedSeats.find(s => String(s).split('-')[0] === String(tier.id)).split('-')[1]}
-                  </div>
-                )}
+              <div className="ticket-minimap">
+                {section.name.substring(0, 1)}
               </div>
-              <div className="ticket-type-desc">
-                Disp: {tier.available} • <span className="ticket-price-val">${Number(tier.price).toLocaleString("es-MX")}</span>
+              <div className="ticket-info">
+                <div className="ticket-section-title">
+                  {section.name}
+                  {section.type === 'seating' && <Badge variant="premium" size="sm">ASIGNADO</Badge>}
+                </div>
+                <div className="ticket-type-desc">
+                  <span className="dot-indicator"></span>
+                  {section.type === 'seating' ? 'Selección en mapa' : 'Entrada General'}
+                </div>
+                <div className="ticket-price-val">
+                  ${cleanPrice(section.price)} <span className="each">c/u</span>
+                </div>
               </div>
+              <div className={`mock-radio ${selectedSection?.id === section.id ? 'checked' : ''}`}></div>
             </div>
-            <div className="ticket-action">
-              <div
-                className={`mock-radio ${selectedSection?.id === tier.id || (tier.isGeneral && !selectedSection) ? "checked" : ""}`}
-              ></div>
+          ))}
+        </div>
+
+        {selectedSection && (
+          <div className="purchase-sticky-bottom">
+            {selectedSection.type === 'seating' ? (
+              <div className="quantity-selector-compact">
+                <label>Asientos seleccionados</label>
+                <div className="selected-seats-chips">
+                  {selectedSeats.length > 0 ? (
+                    selectedSeats.map(s => {
+                      // Mostrar etiqueta legible: "A-1", "B-3", etc.
+                      const parts = s.split('-');
+                      const label = parts.length >= 3
+                        ? `${parts[parts.length - 2]}${parts[parts.length - 1]}`
+                        : parts.pop();
+                      return (
+                        <Badge key={s} variant="primary" size="sm">{label}</Badge>
+                      );
+                    })
+                  ) : (
+                    <span className="seats-hint">Selecciona asientos en el mapa ↑</span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="quantity-selector-compact">
+                <label>Cantidad</label>
+                <select
+                  className="laika-select"
+                  value={quantity}
+                  onChange={(e) => setQuantity(parseInt(e.target.value))}
+                >
+                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Total */}
+            <div className="total-preview">
+              <span className="total-label">Total estimado</span>
+              <span className="total-amount">
+                ${((selectedSection?.type === 'seating' ? selectedSeats.length : quantity) *
+                  cleanPrice(selectedSection?.price || event.price)).toFixed(2)}
+              </span>
             </div>
           </div>
-        ))}
+        )}
       </div>
 
-      <div className="purchase-sticky-bottom">
-        <div className="purchase-controls-master">
-          <div className="quantity-pill-technical">
-            <button 
-              className="qty-btn-glass"
-              onClick={() => setQuantity(q => Math.max(1, q - 1))} 
-              disabled={selectedSeats.length > 0}
-            >−</button>
-            <span className="qty-val-technical">{quantity}</span>
-            <button 
-              className="qty-btn-glass"
-              onClick={() => setQuantity(q => Math.min(10, q + 1))} 
-              disabled={selectedSeats.length > 0}
-            >+</button>
+      <div style={{ padding: '1.25rem' }}>
+        {/* Lucky Seat Section */}
+        {event.has_lucky_seat && (
+          <div style={{ marginBottom: '1rem', padding: '1rem', background: 'rgba(234, 179, 8, 0.05)', borderRadius: '12px', border: '1px solid rgba(234, 179, 8, 0.2)' }}>
+            <div style={{ marginBottom: '0.75rem' }}>
+              <h4 style={{ color: '#EAB308', margin: 0, fontSize: '0.9rem', fontWeight: 900, textTransform: 'uppercase' }}>¡Gana un ascenso!</h4>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', margin: '4px 0 0' }}>Prueba suerte por un asiento premium por solo $40</p>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                className="back-button" 
+                style={{ margin: 0, flex: 1, justifyContent: 'center' }}
+                onClick={() => setShowProbModal(true)}
+              >
+                Ver Probs.
+              </button>
+              <button 
+                className="lucky-btn-premium-gold" 
+                style={{ flex: 2, height: '40px', fontSize: '0.8rem' }}
+                onClick={handleLuckySeat}
+                disabled={isRouletteActive}
+              >
+                <Icon name="zap" size={16} style={{ marginRight: '8px' }} />
+                {isRouletteActive ? 'Girando...' : 'Jugar Ruleta'}
+              </button>
+            </div>
           </div>
+        )}
 
-          <div className="total-technical-hud">
-            <label>
-              {selectedSeats.length > 0 
-                ? `ASIENTO ${selectedSeats[0].split('-')[1]} • TOTAL` 
-                : 'TOTAL ESTIMADO'
-              }
-            </label>
-            <span>
-              $
-              {(
-                (selectedSection
-                  ? cleanPrice(selectedSection.price)
-                  : cleanPrice(event.price || 0)) *
-                (selectedSeats.length > 0
-                  ? selectedSeats.length
-                  : quantity)
-              ).toLocaleString("es-MX", { minimumFractionDigits: 2 })}
-            </span>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-          <button
-            className="btn-purchase-glass-capsule"
-            onClick={handleAddToCart}
-            disabled={(event && event.available_tickets === 0) || (!selectedSection && selectedSeats.length === 0)}
-            style={{ flex: 1 }}
-          >
-            COMPRA DIRECTA
-          </button>
-          
-          <button
-            className="btn-purchase-glass-capsule"
-            onClick={handleRealAddToCart}
-            disabled={(event && event.available_tickets === 0) || (!selectedSection && selectedSeats.length === 0)}
-            style={{ flex: 1, background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)' }}
-          >
-            <Icon name="shoppingCart" size={14} style={{ marginRight: '6px' }} />
-            AÑADIR A CARRITO
-          </button>
-        </div>
-
-        <div className="lucky-action-container" style={{ display: 'flex', gap: '8px' }}>
-          <button
-            className={`btn-lucky-glass-capsule ${isRouletteActive ? "active" : ""}`}
-            onClick={handleLuckySeat}
-            disabled={event.available_tickets === 0 || isRouletteActive}
-          >
-              <Icon name="sparkles" size={14} style={{ marginRight: '8px' }} />
-            {isRouletteActive ? "[ SCANNING... ]" : "LUCKY SEAT [ $400 ]"}
-            {isRouletteActive && <span className="scan-line"></span>}
-          </button>
-          <button
-            className="prob-info-btn"
-            onClick={() => setShowProbModal(true)}
-            style={{ 
-              width: '48px', 
-              height: '48px', 
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#fff',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              fontWeight: 900,
-              fontSize: '1rem',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            ?
-          </button>
-        </div>
+        {/* Add to Cart */}
+        <button 
+          className="buy-btn-premium"
+          onClick={handleAddToCart}
+          disabled={!selectedSection && selectedSeats.length === 0}
+        >
+          <Icon name="shopping-cart" size={20} style={{ marginRight: '10px' }} />
+          {selectedSeats.length > 0 ? `Comprar ${selectedSeats.length} Asientos` : 'Añadir al Carrito'}
+        </button>
       </div>
     </div>
   );

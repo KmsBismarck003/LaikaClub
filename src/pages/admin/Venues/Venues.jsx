@@ -3,7 +3,7 @@ import { Card, Button, Badge, Table, Input, Icon, SkeletonRow, ConfirmationModal
 import { useNotification } from '../../../context/NotificationContext'
 import { venueAPI } from '../../../services/api'
 import { useSkeletonContext } from '../../../context/SkeletonContext'
-import VenueFormModal from '../../../components/VenueFormModal'
+import VenueFormModal from '../../../components/Modals/VenueFormModal'
 import VenueRoomsModal from './VenueRoomsModal'
 import './admin.css' // Reuse admin styles
 
@@ -104,6 +104,21 @@ const Venues = () => {
       )
     },
     { key: 'address', header: 'Dirección' },
+    { 
+      key: 'manager', 
+      header: 'Responsable', 
+      render: (_, row) => (
+        <div style={{ fontSize: '0.85rem' }}>
+          {row.manager_first_name ? (
+            <Badge variant="info" rounded>
+              <Icon name="user" size={10} className="mr-1" /> {row.manager_first_name} {row.manager_last_name}
+            </Badge>
+          ) : (
+            <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Sin asignar</span>
+          )}
+        </div>
+      )
+    },
     { key: 'capacity', header: 'Capacidad', render: (val) => val ? val.toLocaleString() : '—' },
     {
       key: 'status',

@@ -1,3 +1,0 @@
-Total ads sin filtro: 30
-Total ads con active=1: 30
-Ejemplo primer ad sin filtro: {'id': 39, 'title': 'Festival Jazz & Wine', 'image_url': 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200', 'link_url': '/events/2', 'position': 'main', 'active': 1, 'created_at': datetime.datetime(2026, 2, 22, 13, 57, 50)}

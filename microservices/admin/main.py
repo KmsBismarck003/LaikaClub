@@ -31,24 +31,81 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── MySQL Connection ──────────────────────────────────────────────────────────
+# ── MySQL Connection with Real-Time Fallback ──────────────────────────────────────────────────
 MYSQL_URL = (
     f"mysql+pymysql://{os.getenv('MYSQL_USER','root')}:{os.getenv('MYSQL_PASSWORD','')}"
     f"@{os.getenv('MYSQL_HOST','localhost')}:3306/{os.getenv('MYSQL_DATABASE','laika_club')}"
 )
+DB_PATH = "microservices/events/events.db"
 
-# Forzar conexión a MySQL para evitar caer en SQLite vacío
-engine = create_engine(MYSQL_URL, pool_pre_ping=True)
-print("[ADMIN SERVICE] Conexión MySQL configurada.")
+def init_admin_sqlite_tables(engine_obj):
+    """Asegura que las tablas específicas de admin existan en SQLite si se usa fallback."""
+    if engine_obj.name == 'sqlite':
+        with engine_obj.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS backup_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    backup_id TEXT NOT NULL,
+                    type TEXT,
+                    status TEXT,
+                    scheduled_at TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    completed_at TIMESTAMP,
+                    size_mb REAL,
+                    error_message TEXT
+                )
+            """))
+            conn.commit()
+
+try:
+    engine = create_engine(MYSQL_URL, pool_pre_ping=True, connect_args={'connect_timeout': 2})
+    engine.connect()
+    print("[ADMIN SERVICE] Conexión MySQL establecida.")
+except Exception:
+    print("[ADMIN SERVICE] MySQL no disponible. Usando SQLite de respaldo...")
+    SQLALCHEMY_DATABASE_URL = f"sqlite:///./{DB_PATH}"
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+    init_admin_sqlite_tables(engine)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
-    db = SessionLocal()
+    from sqlalchemy import text
+    global engine, SessionLocal
+    
+    # 1. Intentar validar si la sesión actual responde
+    try:
+        db = SessionLocal()
+        db.execute(text("SELECT 1"))
+    except Exception as e:
+        print(f"[ADMIN SERVICE - SELF HEALING] Conexión activa fallida: {e}. Activando autorecuperación...")
+        try:
+            db.close()
+        except:
+            pass
+            
+        # 2. Si el engine actual es MySQL, hacer fallback en tiempo real a SQLite
+        if "sqlite" not in str(engine.url):
+            try:
+                print("[ADMIN SERVICE - SELF HEALING] Cambiando base de datos a SQLite en caliente...")
+                SQLALCHEMY_DATABASE_URL = f"sqlite:///./{DB_PATH}"
+                engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+                init_admin_sqlite_tables(engine)
+                SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+                db = SessionLocal()
+            except Exception as e2:
+                print(f"[ADMIN SERVICE - SELF HEALING] Falló autorecuperación en caliente: {e2}")
+                raise e
+        else:
+            raise e
+
     try:
         yield db
     finally:
-        db.close()
+        try:
+            db.close()
+        except:
+            pass
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -587,6 +644,7 @@ class AdCreate(BaseModel):
     link_url: Optional[str] = None
     position: str = "main"
     active: bool = True
+    event_id: Optional[int] = None
 
 class AdUpdate(BaseModel):
     title: Optional[str] = None
@@ -594,6 +652,7 @@ class AdUpdate(BaseModel):
     link_url: Optional[str] = None
     position: Optional[str] = None
     active: Optional[bool] = None
+    event_id: Optional[int] = None
 
 def _row_to_ad(row):
     d = dict(row._mapping)
@@ -636,19 +695,19 @@ def get_all_ads(db: Session = Depends(get_db)):
 @app.post("/ads")
 def create_ad(ad: AdCreate, db: Session = Depends(get_db)):
     db.execute(text("""
-        INSERT INTO ads (title, image_url, link_url, position, active)
-        VALUES (:t, :i, :l, :p, :a)
-    """), {"t": ad.title, "i": ad.image_url, "l": ad.link_url, "p": ad.position, "a": int(ad.active)})
+        INSERT INTO ads (title, image_url, link_url, position, active, event_id)
+        VALUES (:t, :i, :l, :p, :a, :ev)
+    """), {"t": ad.title, "i": ad.image_url, "l": ad.link_url, "p": ad.position, "a": int(ad.active), "ev": ad.event_id})
     db.commit()
     row = db.execute(text("SELECT * FROM ads ORDER BY id DESC LIMIT 1")).fetchone()
     return _row_to_ad(row)
 
 @app.put("/ads/{ad_id}")
 def update_ad(ad_id: int, ad: AdUpdate, db: Session = Depends(get_db)):
-    data = {k: v for k, v in ad.dict().items() if v is not None}
+    data = ad.dict(exclude_unset=True)
     if not data:
         raise HTTPException(400, "No hay datos para actualizar")
-    if 'active' in data:
+    if 'active' in data and data['active'] is not None:
         data['active'] = int(data['active'])
     sets = ", ".join(f"`{k}`=:{k}" for k in data)
     data['id'] = ad_id
@@ -752,10 +811,16 @@ def get_ticker_config(db: Session = Depends(get_db)):
 @app.post("/config/ticker")
 def update_ticker_config(config: dict, db: Session = Depends(get_db)):
     print(f"[ADMIN] POST /config/ticker: {config}")
-    db.execute(text("""
-        INSERT INTO system_config (`key`, `value`) VALUES ('news_ticker_config', :v)
-        ON DUPLICATE KEY UPDATE `value`=:v
-    """), {"v": json.dumps(config)})
+    if db.bind.dialect.name == "sqlite":
+        db.execute(text("""
+            INSERT INTO system_config (`key`, `value`) VALUES ('news_ticker_config', :v)
+            ON CONFLICT(`key`) DO UPDATE SET `value`=:v
+        """), {"v": json.dumps(config)})
+    else:
+        db.execute(text("""
+            INSERT INTO system_config (`key`, `value`) VALUES ('news_ticker_config', :v)
+            ON DUPLICATE KEY UPDATE `value`=:v
+        """), {"v": json.dumps(config)})
     db.commit()
     return {"success": True}
 
@@ -763,10 +828,16 @@ def update_ticker_config(config: dict, db: Session = Depends(get_db)):
 def update_config_param(key: str, payload: dict, db: Session = Depends(get_db)):
     print(f"[ADMIN] POST /config/{key}")
     value = str(payload.get("value", ""))
-    db.execute(text("""
-        INSERT INTO system_config (`key`, `value`) VALUES (:k, :v)
-        ON DUPLICATE KEY UPDATE `value`=:v
-    """), {"k": key, "v": value})
+    if db.bind.dialect.name == "sqlite":
+        db.execute(text("""
+            INSERT INTO system_config (`key`, `value`) VALUES (:k, :v)
+            ON CONFLICT(`key`) DO UPDATE SET `value`=:v
+        """), {"k": key, "v": value})
+    else:
+        db.execute(text("""
+            INSERT INTO system_config (`key`, `value`) VALUES (:k, :v)
+            ON DUPLICATE KEY UPDATE `value`=:v
+        """), {"k": key, "v": value})
     db.commit()
     return {"success": True}
 

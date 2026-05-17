@@ -1,138 +1,160 @@
 import React, { memo } from 'react';
 
+/**
+ * MapSeat — Representación visual SVG de un asiento individual.
+ * Estados: disponible (gris perla), seleccionado (blanco brillante),
+ * ocupado (rojo apagado), reservado (naranja apagado), ganador/scanner (animación especial).
+ */
 const MapSeat = memo(({ 
     seatId, 
     x, 
     y, 
-    status, 
+    status,        // 'available' | 'occupied' | 'reserved'
     zone, 
     isSelected, 
     isHovered, 
     isScanning, 
     isWinner,
-    isBusy,
+    isBusy,        // Calculado externamente con datos reales de busySeats
     rouletteActive,
     onSeatToggle,
     onHover,
     onLeave,
-    setPersistentSeatInfo
+    setPersistentSeatInfo,
+    seatLabel,     // Etiqueta del asiento (ej: "A-1")
 }) => {
     
-    // Seat colors: OCCUPIED -> RED, SELECTED -> GOLD, AVAILABLE -> WHITE, RESERVED -> ORANGE
-    const isTestOccupied = seatId.endsWith('0') || seatId.endsWith('3') || seatId.endsWith('5') || seatId.endsWith('8');
-    const isTestReserved = seatId.endsWith('1') || seatId.endsWith('7'); // NUEVA SIMULACIÓN: Apartados
-        // TODO EL MAPA EN GRIS PERLA INDUSTRIAL
-    let baseColor = "#E1E1E1"; // Gris Perla Técnico
+    // ── Estado visual del asiento ────────────────────────────────────
+    const isOccupied = status === 'occupied' || isBusy;
+    const isReserved = status === 'reserved';
+    const isAvailable = !isOccupied && !isReserved;
     
-    // Si está seleccionado, le damos un resalte sutil en blanco brillante
-    if (isSelected) baseColor = '#FFFFFF'; 
-    
-    // THEMED SCANNING COLORS (Solo para efectos de scanner/ganador)
-    const getZoneColor = (z) => {
-        return '#FFFFFF'; // Mantener neutral incluso en scan
-    };
+    // Colores según estado
+    let fillColor = '#D1D5DB';     // Disponible: gris perla neutral
+    let strokeColor = 'rgba(255,255,255,0.12)';
+    let opacity = 1;
 
-    if (isScanning || isWinner) {
-        baseColor = "#FFFFFF";
+    if (isOccupied) {
+        fillColor = '#4B1E1E';     // Ocupado: rojo oscuro apagado
+        strokeColor = '#7f1d1d';
+        opacity = 0.85;
+    } else if (isReserved) {
+        fillColor = '#3D2A0A';     // Reservado: naranja oscuro apagado
+        strokeColor = '#92400e';
+        opacity = 0.85;
+    } else if (isSelected) {
+        fillColor = '#3B82F6';     // Seleccionado: azul premium (similar a referencia)
+        strokeColor = '#60a5fa';
+        opacity = 1;
+    } else if (isScanning || isWinner) {
+        fillColor = '#FFFFFF';
+        strokeColor = '#fff';
+        opacity = 1;
     }
 
-    const scale = isHovered || isScanning || isWinner ? 8.5 : 6.0;
+    const scale = isHovered && isAvailable ? 8.5 : 6.0;
     
-    const handleSeatClick = () => {
+    // ── Handlers ─────────────────────────────────────────────────────
+    const handleClick = () => {
         if (rouletteActive) return;
 
-        // Mantenemos la lógica de persistencia pero el color visual es neutro
-        const isTestOccupied = seatId.endsWith('0') || seatId.endsWith('3') || seatId.endsWith('5') || seatId.endsWith('8');
-        const isTestReserved = seatId.endsWith('1') || seatId.endsWith('7');
-        const isActuallyBusy = status === 'occupied' || isTestOccupied || status === 'reserved' || isTestReserved;
-
-        if (isActuallyBusy && setPersistentSeatInfo) {
+        if ((isOccupied || isReserved) && setPersistentSeatInfo) {
             setPersistentSeatInfo({
-                id: seatId,
+                id: seatLabel || seatId,
                 zoneName: zone.name,
                 price: zone.price,
-                status: (status === 'occupied' || isTestOccupied) ? 'VENDIDO' : 'RESERVADO',
-                user: 'Ulises Garcia', 
-                email: 'ulises@laika.club',
-                paidWith: (status === 'occupied' || isTestOccupied) ? 'VISA **** 4242' : 'PENDIENTE',
-                date: '05/04 14:20'
+                status: isOccupied ? 'VENDIDO' : 'RESERVADO',
+                user: null,
+                email: null,
+                paidWith: isOccupied ? null : 'PENDIENTE',
+                date: null
             });
-        } else if (onSeatToggle) {
+        } else if (isAvailable && onSeatToggle) {
             onSeatToggle(seatId);
+        }
+    };
+
+    const handleMouseEnter = (e) => {
+        if (rouletteActive) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const finalStatus = isOccupied ? 'OCUPADO' : isReserved ? 'RESERVADO' : isSelected ? 'SELECCIONADO' : 'DISPONIBLE';
+        
+        onHover && onHover({ 
+            id: seatLabel || seatId, 
+            rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
+            zoneName: zone.name, 
+            price: zone.price, 
+            status: finalStatus
+        });
+
+        // Mostrar info en HUD admin solo para asientos no disponibles
+        if ((isOccupied || isReserved) && setPersistentSeatInfo) {
+            setPersistentSeatInfo({
+                id: seatLabel || seatId,
+                zoneName: zone.name,
+                price: zone.price,
+                status: finalStatus,
+                user: null,
+                email: null,
+                paidWith: isOccupied ? null : 'PENDIENTE',
+                date: null
+            });
         }
     };
 
     return (
         <g 
             transform={`translate(${x}, ${y}) scale(${scale})`}
-            onMouseEnter={(e) => {
-                if (rouletteActive) return;
-                const rect = e.currentTarget.getBoundingClientRect();
-                
-                const isTestOccupied = seatId.endsWith('0') || seatId.endsWith('3') || seatId.endsWith('5') || seatId.endsWith('8');
-                const isTestReserved = seatId.endsWith('1') || seatId.endsWith('7');
-                const isActuallyBusy = status === 'occupied' || isTestOccupied || status === 'reserved' || isTestReserved;
-
-                const finalStatusStr = (status === 'occupied' || isTestOccupied) ? 'VENDIDO' : 
-                                      (status === 'reserved' || isTestReserved) ? 'RESERVADO' : 'DISPONIBLE';
-
-                // HOVER SIMPLE (Tooltip)
-                onHover && onHover({ 
-                    id: seatId, 
-                    rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
-                    zoneName: zone.name, 
-                    price: zone.price, 
-                    status: finalStatusStr
-                });
-
-                // PERSISTENT HUD (Intel HUD) - SE ACTIVA AL PASAR EL CURSOR
-                if (isActuallyBusy && setPersistentSeatInfo) {
-                    setPersistentSeatInfo({
-                        id: seatId,
-                        zoneName: zone.name,
-                        price: zone.price,
-                        status: finalStatusStr,
-                        user: 'Ulises Garcia', 
-                        email: 'ulises@laika.club',
-                        paidWith: (status === 'occupied' || isTestOccupied) ? 'VISA **** 4242' : 'PENDIENTE',
-                        date: '05/04 14:20'
-                    });
-                }
-            }}
+            onMouseEnter={handleMouseEnter}
             onMouseLeave={() => onLeave && onLeave()} 
-            onClick={handleSeatClick}
+            onClick={handleClick}
             style={{ 
-                cursor: rouletteActive ? 'default' : 'pointer', 
-                transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                pointerEvents: 'all' // FOZAR DETECCIÓN
+                cursor: rouletteActive ? 'default' : (isAvailable ? 'pointer' : 'not-allowed'), 
+                transition: 'transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                pointerEvents: 'all'
             }}
         >
-            {/* Button base / ring (Now Square) */}
+            {/* Base / sombra */}
             <rect 
-                x="-1.1" y="-1.1" width="2.2" height="2.2" rx="0.5"
-                fill="rgba(0,0,0,0.6)" 
-                stroke="rgba(255,255,255,0.08)" 
-                strokeWidth="0.1" 
+                x="-1.1" y="-1.1" width="2.2" height="2.2" rx="0.45"
+                fill="rgba(0,0,0,0.5)" 
+                stroke="none"
             />
             
-            {/* Main seat dot (The "Button" - Now Square) */}
+            {/* Asiento principal */}
             <rect 
-                x="-0.75" y="-0.75" width="1.5" height="1.5" rx="0.4"
-                fill={baseColor} 
-                stroke={isSelected || isHovered || isScanning || isWinner ? '#fff' : 'rgba(0,0,0,0.2)'} 
-                strokeWidth={isScanning || isWinner ? 0.3 : 0.1} 
+                x="-0.75" y="-0.75" width="1.5" height="1.5" rx="0.35"
+                fill={fillColor} 
+                stroke={strokeColor}
+                strokeWidth={isSelected || isScanning || isWinner ? 0.25 : 0.08}
                 className="seat-rect"
                 style={{ 
-                    filter: (isScanning || isWinner || isSelected || isHovered) ? `drop-shadow(0 0 3px ${baseColor})` : 'none',
-                    transition: 'all 0.2s ease'
+                    filter: isSelected ? `drop-shadow(0 0 2px #3B82F6)` 
+                           : (isScanning || isWinner) ? `drop-shadow(0 0 3px #fff)` 
+                           : 'none',
+                    opacity,
+                    transition: 'all 0.15s ease'
                 }} 
             />
             
-            {/* Subtle inner highlight for technical effect */}
-            {!isBusy && (
+            {/* Brillo interior solo para disponibles */}
+            {isAvailable && !isSelected && (
                 <rect 
-                    x="-0.4" y="-0.4" width="0.4" height="0.4" rx="0.1"
-                    fill="rgba(255,255,255,0.3)" 
+                    x="-0.45" y="-0.55" width="0.4" height="0.25" rx="0.1"
+                    fill="rgba(255,255,255,0.25)" 
+                    style={{ pointerEvents: 'none' }}
+                />
+            )}
+
+            {/* Check mark para seleccionados */}
+            {isSelected && (
+                <path
+                    d="M-0.3 0 L-0.1 0.2 L0.3 -0.3"
+                    stroke="#fff"
+                    strokeWidth="0.3"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     style={{ pointerEvents: 'none' }}
                 />
             )}
@@ -140,4 +162,5 @@ const MapSeat = memo(({
     );
 });
 
+MapSeat.displayName = 'MapSeat';
 export default MapSeat;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Button, Skeleton, ConfirmationModal } from '../../../../components';
-import AutomaticBackupConfig from '../../../../components/AutomaticBackupConfig';
+import AutomaticBackupConfig from '../../../../components/Admin/AutomaticBackupConfig/AutomaticBackupConfig';
 
 const DatabaseModals = ({ 
     activeView,

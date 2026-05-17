@@ -3,7 +3,7 @@ import { useNotification } from '../../context/NotificationContext';
 import api from '../../services/api';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
-import ConfirmationModal from '../../components/ConfirmationModal';
+import ConfirmationModal from '../../components/Modals/ConfirmationModal';
 
 const RefundRequest = () => {
     const { showNotification } = useNotification();

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useNotification } from '../../context/NotificationContext'
-import Icon from '../Icons'
+import Icon from '../Icons/Icons'
 import './Notifications.css'
 
 const NotificationPanel = ({ isOpen, onClose, triggerRef }) => {

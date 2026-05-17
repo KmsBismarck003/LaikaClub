@@ -270,6 +270,9 @@
   overflow: hidden;
   transition: max-height 0.3s ease-out;
   padding-left: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px; /* Espaciado premium entre botones internos */
 }
 
 /* Sidebar Skeleton Effects removed global row overlay - now handles via inner elements */

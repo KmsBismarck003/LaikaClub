@@ -1,0 +1,74 @@
+/* SeatMapLegend.css — Leyenda del mapa de asientos */
+
+.seat-map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: default;
+}
+
+.legend-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.15);
+    flex-shrink: 0;
+}
+
+.legend-swatch--available {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.legend-swatch--selected {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #3B82F6;
+}
+
+.legend-swatch--occupied {
+    background: rgba(75, 30, 30, 0.8);
+    border-color: rgba(127, 29, 29, 0.6);
+}
+
+.legend-swatch--vip {
+    background: rgba(234, 179, 8, 0.2);
+    border-color: #EAB308;
+}
+
+.legend-swatch--wheelchair {
+    background: rgba(107, 114, 128, 0.3);
+    border-color: rgba(107, 114, 128, 0.5);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: block;
+}
+
+.legend-icon {
+    font-size: 12px;
+    line-height: 1;
+}
+
+.legend-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.65);
+    text-transform: capitalize;
+    white-space: nowrap;
+}

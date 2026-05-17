@@ -20,7 +20,7 @@ const BigDataAnalytics = () => {
         <BigDataVisualizer />
       </div>
 
-      <style jsx>{`
+      <style>{`
         .admin-big-data-page {
           padding: 1rem 0;
         }

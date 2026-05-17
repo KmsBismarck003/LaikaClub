@@ -46,7 +46,7 @@ const ManagerAnalytics = () => {
 
     // Simple Line Chart SVG
     const renderLineChart = (values, color) => {
-        const max = Math.max(...values);
+        const max = Math.max(...values) || 1;
         const width = 100;
         const height = 40;
         const points = values.map((v, i) => `${(i / (values.length - 1)) * width},${height - (v / max) * height}`).join(' ');

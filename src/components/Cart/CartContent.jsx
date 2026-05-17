@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useNotification } from '../../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
-import Icon from '../Icons';
+import Icon from '../Icons/Icons';
 import TicketPrinterOverlay from '../../pages/user/UserCart/TicketPrinterOverlay';
 import './Cart.css';
 

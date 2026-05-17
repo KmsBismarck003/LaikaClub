@@ -29,8 +29,20 @@ const EventList = () => {
 
     const hasPermission = (permissionKey) => {
         if (!user) return false;
-        if (user.role === 'admin') return true;
-        if (!user.permissions) return true;
+        const role = user.role?.toLowerCase();
+        if (role === 'admin') return true;
+        
+        // Si es gestor, permitir ciertas acciones por defecto si no hay objeto de permisos
+        const isManager = role === 'gestor' || role === 'manager';
+        if (!user.permissions) {
+            // Default permissions for managers if object is missing
+            if (isManager) {
+                const defaultManagerPerms = ['canViewDashboard', 'canCreateEvents', 'canEditEvents', 'canViewEventAnalytics'];
+                return defaultManagerPerms.includes(permissionKey);
+            }
+            return false;
+        }
+        
         return !!user.permissions[permissionKey];
     };
 

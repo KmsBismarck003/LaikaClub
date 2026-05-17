@@ -65,6 +65,7 @@ const LuckySeatConfig = lazy(() => import('../pages/admin/Config/LuckySeatConfig
 
 // Módulo Manager
 const ManagerStatsPage = lazy(() => import('../pages/manager/ManagerStatsPage'))
+const ManagerAds = lazy(() => import('../pages/manager/ManagerAds'))
 
 /**
  * Rutas públicas (sin autenticación requerida)
@@ -388,6 +389,20 @@ export const managerRoutes = [
     layout: 'dashboard',
     allowedRoles: ['gestor', 'admin'],
     title: 'Estadísticas'
+  },
+  {
+    path: '/manager/ads',
+    element: ManagerAds,
+    layout: 'dashboard',
+    allowedRoles: ['gestor', 'admin'],
+    title: 'Publicidad'
+  },
+  {
+    path: '/manager/venues/:venueId/rooms/:roomId/map',
+    element: AdminVenueMap,
+    layout: 'dashboard',
+    allowedRoles: ['gestor', 'admin'],
+    title: 'Diseño de Sala'
   }
 ]
 

@@ -15,7 +15,8 @@ const AdModalEditor = ({
   clicksData, 
   loadingClicks,
   success,
-  showError
+  showError,
+  eventsList = []
 }) => {
   return (
     <Modal
@@ -50,17 +51,76 @@ const AdModalEditor = ({
               </select>
             </div>
 
-            <div className="form-group mb-3">
-              <label className="input-label">Enlace de Redirección (Opcional)</label>
-              <Input
-                value={formData.link_url}
-                onChange={e => setFormData({ ...formData, link_url: e.target.value })}
-                placeholder="https://ejemplo.com/evento"
-              />
-              <p className="help-text" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                URL a la que se dirigirá al usuario al hacer clic.
-              </p>
+            {/* Dynamic Recommended Dimensions Banner */}
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.15)', padding: '10px 14px', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.2rem', marginTop: '0.5rem' }}>
+              <span style={{ fontSize: '1.1rem' }}>📏</span>
+              <div>
+                <strong>Medidas sugeridas:</strong> <span style={{ color: 'var(--accent-color)', fontWeight: 600 }}>{formData.position === 'main' ? '1098x342 px (Horizontal / Principal)' : '160x600 px (Vertical / Lateral)'}</span>
+              </div>
             </div>
+
+            {/* Link to Event Toggle */}
+            <div className="form-group mb-3">
+              <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  checked={formData.is_event_ad}
+                  onChange={e => {
+                    const checked = e.target.checked
+                    setFormData(prev => ({
+                      ...prev,
+                      is_event_ad: checked,
+                      event_id: checked && eventsList.length > 0 ? String(eventsList[0].id) : '',
+                      link_url: checked && eventsList.length > 0 ? `/event/${eventsList[0].id}` : ''
+                    }))
+                  }}
+                  style={{ width: '1.1rem', height: '1.1rem' }}
+                />
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Vincular este anuncio a un Evento</span>
+              </label>
+            </div>
+
+            {formData.is_event_ad ? (
+              <div className="form-group mb-3" style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <label className="input-label">Seleccionar Evento Existente</label>
+                <select
+                  className="input"
+                  style={{ padding: '8px 12px', fontSize: '0.85rem', width: '100%', marginBottom: '8px' }}
+                  value={formData.event_id}
+                  onChange={e => {
+                    const evId = e.target.value
+                    setFormData(prev => ({
+                      ...prev,
+                      event_id: evId,
+                      link_url: evId ? `/event/${evId}` : ''
+                    }))
+                  }}
+                  required
+                >
+                  <option value="">-- Elige un evento --</option>
+                  {eventsList.map(ev => (
+                    <option key={ev.id} value={ev.id}>{ev.name} ({ev.event_date || 'Sin fecha'})</option>
+                  ))}
+                </select>
+                {formData.link_url && (
+                  <p className="help-text" style={{ fontSize: '0.75rem', color: 'var(--accent-color)', fontWeight: 500 }}>
+                    🔗 Redirección automática: <span style={{ color: 'var(--text-secondary)' }}>{formData.link_url}</span>
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="form-group mb-3">
+                <label className="input-label">Enlace de Redirección (Opcional)</label>
+                <Input
+                  value={formData.link_url}
+                  onChange={e => setFormData({ ...formData, link_url: e.target.value })}
+                  placeholder="https://ejemplo.com/otro-sitio"
+                />
+                <p className="help-text" style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                  URL o link personalizado al que se dirigirá al hacer clic.
+                </p>
+              </div>
+            )}
 
             <div className="form-group mb-3">
               <label className="input-label">Subir Imagen</label>

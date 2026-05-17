@@ -14,7 +14,7 @@ class SeatingZoneBase(BaseModel):
     geometry_json: Optional[Dict[str, Any]] = None
 
 class SeatingZoneCreate(SeatingZoneBase):
-    id: Optional[int] = None # Puede ser nulo para nuevas
+    id: Optional[Any] = None # Puede ser nulo o string temporal para nuevas
 
 class SeatingZoneResponse(SeatingZoneBase):
     id: int
@@ -28,15 +28,15 @@ class SeatingBlockBase(BaseModel):
     config: Optional[Dict[str, Any]] = None
 
 class SeatingBlockCreate(SeatingBlockBase):
-    id: Optional[int] = None
+    id: Optional[Any] = None
 
 class SeatingBlockResponse(SeatingBlockBase):
     id: int
     room_id: int
 
 class RoomSeatBase(BaseModel):
-    block_id: Optional[int] = None
-    zone_id: Optional[int] = None
+    block_id: Optional[Any] = None
+    zone_id: Optional[Any] = None
     seat_type_id: int
     seat_label: str
     x_position: float
@@ -44,7 +44,7 @@ class RoomSeatBase(BaseModel):
     status: Optional[str] = 'active'
 
 class RoomSeatCreate(RoomSeatBase):
-    id: Optional[int] = None
+    id: Optional[Any] = None
 
 class RoomSeatResponse(RoomSeatBase):
     id: int
@@ -53,6 +53,7 @@ class RoomSeatResponse(RoomSeatBase):
 class MapBuilderPayload(BaseModel):
     layout_mode: Optional[str] = 'map'
     layout_metadata: Optional[Dict[str, Any]] = None
+    layout_json: Optional[Dict[str, Any]] = None
     zones: List[SeatingZoneCreate] = []
     blocks: List[SeatingBlockCreate] = []
     seats: List[RoomSeatCreate] = []
@@ -93,6 +94,7 @@ class VenueResponse(BaseModel):
     state_name: Optional[str] = None
     country_id: Optional[int] = None
     country_name: Optional[str] = None
+    assigned_manager_id: Optional[int] = None
 
 class VenueCreate(BaseModel):
     name: str
@@ -102,6 +104,7 @@ class VenueCreate(BaseModel):
     map_url: Optional[str] = None
     capacity: Optional[int] = None
     status: Optional[str] = 'active'
+    assigned_manager_id: Optional[int] = None
 
 class VenueUpdate(BaseModel):
     name: Optional[str] = None
@@ -111,3 +114,4 @@ class VenueUpdate(BaseModel):
     map_url: Optional[str] = None
     capacity: Optional[int] = None
     status: Optional[str] = None
+    assigned_manager_id: Optional[int] = None

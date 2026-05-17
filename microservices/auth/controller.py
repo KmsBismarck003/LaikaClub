@@ -461,11 +461,17 @@ def get_user_by_id(db: Session, user_id: int):
         "lastName": user_dict['last_name'],
         "email": user_dict['email'],
         "phone": user_dict.get('phone'),
-        "role": user_dict['role'],
+        "role": user_dict['role'] or 'usuario',
         "status": user_dict['status'],
         "avatarUrl": user_dict.get('avatar_url'),
         "createdAt": user_dict['created_at'],
-        "permissions": ["admin.view", "venues.view", "cms.view", "stats.view", "users.view", "events.view"]
+        "permissions": user_dict.get('permissions') if isinstance(user_dict.get('permissions'), dict) else {
+            "canViewDashboard": True,
+            "canCreateEvents": True,
+            "canEditEvents": True,
+            "canViewEventAnalytics": True,
+            "canManageVenues": True if user_dict['role'] in ['admin', 'gestor'] else False
+        }
     }
 
 def verify_token(db: Session, user_payload: dict):

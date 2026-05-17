@@ -130,7 +130,7 @@ for svc in services:
     # Redirigir salida a carpeta microservices_logs
     log_file = open(f"microservices_logs/{svc['name'].lower().replace(' ', '_')}.log", "w")
     proc = subprocess.Popen(
-        ["uvicorn", module_app, "--host", "0.0.0.0", "--port", str(svc['port']), "--reload"],
+        [sys.executable, "-m", "uvicorn", module_app, "--host", "0.0.0.0", "--port", str(svc['port']), "--reload"],
         stdout=log_file,
         stderr=log_file,
         bufsize=1,
@@ -157,6 +157,6 @@ try:
         time.sleep(10) # Checar cada 10 segundos
 except KeyboardInterrupt:
     print("\n[INFO] Deteniendo servicios...")
-    for proc in processes:
-        proc.terminate()
+    for proc_tuple in processes:
+        proc_tuple[0].terminate()
     print("[INFO] Sistema detenido.")

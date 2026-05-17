@@ -6,6 +6,7 @@ class FunctionCreate(BaseModel):
     date: date
     time: time
     venue_id: int
+    room_id: Optional[int] = None
 
 class EventTicketSectionCreate(BaseModel):
     name: str
@@ -44,6 +45,14 @@ class EventCreate(BaseModel):
     functions: Optional[List[FunctionCreate]] = None
     sections: Optional[List[EventTicketSectionCreate]] = None
     rules: Optional[List[EventRuleCreate]] = None
+    
+    # Permission and Management fields
+    ads_enabled: bool = False
+    max_ads: int = 5
+    merch_enabled: bool = False
+    metrics_enabled: bool = False
+    assigned_manager_id: Optional[int] = None
+    municipality_id: Optional[int] = None
 
 class EventTicketSectionUpdate(BaseModel):
     id: Optional[int] = None
@@ -84,3 +93,11 @@ class EventUpdate(BaseModel):
     functions: Optional[List[FunctionCreate]] = None
     sections: Optional[List[EventTicketSectionUpdate]] = None
     rules: Optional[List[EventRuleUpdate]] = None
+    
+    # Permission and Management fields
+    ads_enabled: Optional[bool] = None
+    max_ads: Optional[int] = None
+    merch_enabled: Optional[bool] = None
+    metrics_enabled: Optional[bool] = None
+    assigned_manager_id: Optional[int] = None
+    municipality_id: Optional[int] = None

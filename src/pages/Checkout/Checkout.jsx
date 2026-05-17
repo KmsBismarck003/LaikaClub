@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../context/NotificationContext';
 import { ticketAPI, paymentAPI } from '../../services/api';
-import Icon from '../../components/Icons';
+import Icon from '../../components/Icons/Icons';
 import './Checkout.css';
 
 const Checkout = () => {

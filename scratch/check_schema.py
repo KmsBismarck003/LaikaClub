@@ -1,13 +1,30 @@
-from sqlalchemy import create_engine, text
-import json
+import pymysql
+import os
+from dotenv import load_dotenv
 
-engine = create_engine('mysql+pymysql://root:@127.0.0.1:3306/laika_club3_v2')
-with engine.connect() as conn:
-    res = conn.execute(text('DESCRIBE seating_zones'))
-    print("SEATING_ZONES:", json.dumps([dict(row._mapping) for row in res.fetchall()], indent=2))
-    
-    res = conn.execute(text('DESCRIBE seating_blocks'))
-    print("SEATING_BLOCKS:", json.dumps([dict(row._mapping) for row in res.fetchall()], indent=2))
-    
-    res = conn.execute(text('DESCRIBE room_seats'))
-    print("ROOM_SEATS:", json.dumps([dict(row._mapping) for row in res.fetchall()], indent=2))
+load_dotenv()
+
+def check_schema():
+    try:
+        conn = pymysql.connect(
+            host=os.getenv('MYSQL_HOST', 'localhost'),
+            user=os.getenv('MYSQL_USER', 'root'),
+            password=os.getenv('MYSQL_PASSWORD', ''),
+            database=os.getenv('MYSQL_DATABASE', 'laika_club3_v2')
+        )
+        cur = conn.cursor()
+        
+        tables = ['seating_zones', 'seating_blocks', 'room_seats']
+        for table in tables:
+            print(f"\n--- Columns in {table} ---")
+            cur.execute(f"DESCRIBE {table}")
+            cols = cur.fetchall()
+            for c in cols:
+                print(f"  {c[0]} ({c[1]})")
+                
+        conn.close()
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    check_schema()

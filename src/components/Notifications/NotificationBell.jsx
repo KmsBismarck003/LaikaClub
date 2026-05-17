@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNotification } from '../../context/NotificationContext'
-import Icon from '../Icons'
+import Icon from '../Icons/Icons'
 import NotificationPanel from './NotificationPanel'
 import './Notifications.css'
 

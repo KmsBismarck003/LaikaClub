@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Icon from '../../../components/Icons';
+import Icon from '../../../components/Icons/Icons';
 
 const Step4_Success = ({ paymentMethod, lastReference }) => {
     const navigate = useNavigate();

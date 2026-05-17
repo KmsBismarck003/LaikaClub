@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Icon from '../Icons';
+import Icon from '../Icons/Icons';
 import './Input.css';
 
 const Input = ({
@@ -15,6 +15,7 @@ const Input = ({
   disabled = false,
   required = false,
   fullWidth = false,
+  textarea = false,
   className = '',
   ...props
 }) => {
@@ -41,23 +42,42 @@ const Input = ({
       <div className="input__container">
         {icon && <span className="input__icon">{icon}</span>}
 
-        <input
-          id={name}
-          name={name}
-          type={inputType}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          disabled={disabled}
-          required={required}
-          className={[
-            'input',
-            icon && 'input--with-icon',
-            type === 'password' && 'input--password',
-            value && 'input--has-content'
-          ].filter(Boolean).join(' ')}
-          {...props}
-        />
+        {textarea ? (
+          <textarea
+            id={name}
+            name={name}
+            value={value ?? ''}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            required={required}
+            className={[
+              'input',
+              'input--textarea',
+              icon && 'input--with-icon',
+              value && 'input--has-content'
+            ].filter(Boolean).join(' ')}
+            {...props}
+          />
+        ) : (
+          <input
+            id={name}
+            name={name}
+            type={inputType}
+            value={value ?? ''}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            required={required}
+            className={[
+              'input',
+              icon && 'input--with-icon',
+              type === 'password' && 'input--password',
+              value && 'input--has-content'
+            ].filter(Boolean).join(' ')}
+            {...props}
+          />
+        )}
 
         {type === 'password' && (
           <button

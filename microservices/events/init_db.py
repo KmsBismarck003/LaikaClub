@@ -61,6 +61,18 @@ def init_db():
         )
     """)
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS event_functions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_id INTEGER NOT NULL,
+            date TEXT NOT NULL,
+            time TEXT NOT NULL,
+            venue_id INTEGER NOT NULL,
+            room_id INTEGER,
+            FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+        )
+    """)
+
     # 4. Tabla de anuncios (Ads)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS ads (
@@ -70,6 +82,7 @@ def init_db():
             link_url TEXT,
             position TEXT DEFAULT 'main',
             active INTEGER DEFAULT 1,
+            event_id INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)

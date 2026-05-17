@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { Dropdown, Badge, SkeletonSidebarSection, SkeletonNavbar, SkeletonLaikaBtn, ConfirmationModal } from '../components'
-import Icon from '../components/Icons'
+import Icon from '../components/Icons/Icons'
 import NotificationBell from '../components/Notifications/NotificationBell'
 import NotificationDetailModal from '../components/Notifications/NotificationDetailModal'
 import { useNotification } from '../context/NotificationContext'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-import ThemeToggle from '../components/ThemeToggle'
+import ThemeToggle from '../components/ThemeToggle/ThemeToggle'
 import LaikaAgent from '../components/LaikaAgent/LaikaAgent'
 import { useSkeletonContext, SkeletonProvider } from '../context/SkeletonContext'
 import './DashboardLayout.css'
@@ -116,12 +116,12 @@ const DashboardLayout = () => {
             items: [
               { id: 'g_main_hub', path: '/events/manage', icon: 'dashboard', label: 'Monitor Gestor' },
               { id: 'g_create', path: '/events/create', icon: 'plus', label: 'Nuevo Evento' },
-              { id: 'g_events', path: '/events/manage', icon: 'calendar', label: 'Mis Eventos' },
-              { id: 'g_venue_map', path: '/admin/venue-map', icon: 'map', label: 'Diseño de Recinto' },
+              { id: 'g_events', path: '/events/manage?tab=list', icon: 'calendar', label: 'Mis Eventos' },
+              { id: 'g_venue_map', path: '/events/manage?tab=venues', icon: 'map', label: 'Diseño de Recinto' },
               { id: 'g_stats', path: '/manager/analytics', icon: 'chart', label: 'Analíticas Avanzadas' },
               { id: 'g_transactions', path: '/manager/transactions', icon: 'dollarSign', label: 'Auditoría Ventas' },
               { id: 'g_attendees', path: '/manager/attendees', icon: 'users', label: 'Gestor Asistentes' },
-              { id: 'g_ads', path: '/admin/ads', icon: 'image', label: 'Publicidad & Ads' }
+              { id: 'g_ads', path: '/manager/ads', icon: 'image', label: 'Publicidad & Ads' }
             ]
           }
         ],
@@ -170,7 +170,7 @@ const DashboardLayout = () => {
           { id: 'g_stats_s', path: '/manager/analytics', icon: 'chart', label: 'Analíticas Globales' },
           { id: 'g_transactions_s', path: '/manager/transactions', icon: 'dollarSign', label: 'Auditoría Transacciones' },
           { id: 'g_attendees_s', path: '/manager/attendees', icon: 'users', label: 'Censo Asistentes' },
-          { id: 'g_ads_s', path: '/admin/ads', icon: 'image', label: 'Publicidad & Ads' }
+          { id: 'g_ads_s', path: '/manager/ads', icon: 'image', label: 'Publicidad & Ads' }
         ]
       },
       {
@@ -308,7 +308,7 @@ const DashboardLayout = () => {
                     className={`sidebar-section-label ${section.isCollapsible ? 'clickable' : ''}`}
                     onClick={section.onToggle}
                   >
-                    {section.label}
+                    <span>{section.label}</span>
                     {section.isCollapsible && (
                       <Icon name={section.isExpanded ? 'chevronUp' : 'chevronDown'} size={14} className="ml-2" />
                     )}
@@ -319,7 +319,7 @@ const DashboardLayout = () => {
                   <div className="section-content-wrapper">
                     {section.items.map(item => (
                       <button
-                        key={item.path}
+                        key={item.id}
                         className={`sidebar-link ${isActive(item.path) ? 'active' : ''}`}
                         onClick={() => {
                           if (item.path === '#laika-agent') {

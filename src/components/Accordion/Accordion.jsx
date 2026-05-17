@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Icon from '../Icons';
+import Icon from '../Icons/Icons';
 import './Accordion.css';
 
 const Accordion = ({ title, icon, children, defaultOpen = false, className = '' }) => {

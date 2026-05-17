@@ -5,6 +5,19 @@ import './admin.css'
 import api from '../../../services/api'
 import PreviewMonitor from '../../../components/Admin/PreviewMonitor'
 
+const formatTime = (time) => {
+    if (!time) return '';
+    const str = String(time);
+    if (str.includes(':')) return str.substring(0, 5);
+    if (!isNaN(time)) {
+        const totalSec = parseInt(time, 10);
+        const h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
+        const m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
+        return `${h}:${m}`;
+    }
+    return '';
+};
+
 const EventForm = ({ event = null, onClose, onSave }) => {
     const [formData, setFormData] = useState({
         name: '',
@@ -31,6 +44,7 @@ const EventForm = ({ event = null, onClose, onSave }) => {
         if (event) {
             setFormData({
                 ...event,
+                event_time: event.event_time ? formatTime(event.event_time) : '',
                 sections: event.sections || [],
                 rules: event.rules || []
             })

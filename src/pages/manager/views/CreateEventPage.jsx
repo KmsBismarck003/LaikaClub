@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import { Card, Icon, Button } from '../../../components';
 import { useNavigate } from 'react-router-dom';
-import EventForm from '../../admin/Events/EventForm';
+import EventForm from '../EventForm';
 import { managerAPI } from '../../../services/managerService';
+import { useLocation } from 'react-router-dom';
 
 const CreateEventPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isFormOpen, setIsFormOpen] = useState(false);
+
+    // Si venimos con un venue_id, abrir el formulario inmediatamente
+    React.useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        if (params.get('venue_id')) {
+            setIsFormOpen(true);
+        }
+    }, [location.search]);
 
     const handleSave = () => {
         // Al guardar, redirigimos al monitor de eventos
@@ -42,7 +52,7 @@ const CreateEventPage = () => {
             {isFormOpen && (
                 <EventForm 
                     onClose={() => setIsFormOpen(false)}
-                    onSave={handleSave}
+                    onSuccess={handleSave}
                 />
             )}
         </div>

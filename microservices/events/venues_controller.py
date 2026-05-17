@@ -36,22 +36,41 @@ def get_seat_types(db: Session):
         import traceback; traceback.print_exc()
         raise HTTPException(status_code=500, detail="Error al obtener tipos de asiento")
 
-def get_venues(db: Session, status_filter: str = None):
+def get_venues(db: Session, status_filter: str = None, country_id: int = None, state_id: int = None, municipality_id: int = None, manager_id: int = None):
     try:
         query = """
             SELECT v.*, 
                    m.name as municipality_name,
                    s.id as state_id, s.name as state_name,
-                   c.id as country_id, c.name as country_name
+                   c.id as country_id, c.name as country_name,
+                   u.first_name as manager_first_name, u.last_name as manager_last_name
             FROM venues v 
             LEFT JOIN municipalities m ON v.municipality_id = m.id 
             LEFT JOIN states s ON m.state_id = s.id
             LEFT JOIN countries c ON s.country_id = c.id
+            LEFT JOIN users u ON v.assigned_manager_id = u.id
+            WHERE 1=1
         """
         params = {}
         if status_filter and status_filter != 'all':
-            query += " WHERE v.status = :status"
+            query += " AND v.status = :status"
             params["status"] = status_filter
+        
+        if country_id:
+            query += " AND c.id = :country_id"
+            params["country_id"] = country_id
+            
+        if state_id:
+            query += " AND s.id = :state_id"
+            params["state_id"] = state_id
+            
+        if municipality_id:
+            query += " AND v.municipality_id = :municipality_id"
+            params["municipality_id"] = municipality_id
+
+        if manager_id:
+            query += " AND v.assigned_manager_id = :manager_id"
+            params["manager_id"] = manager_id
         
         query += " ORDER BY v.name ASC"
         
@@ -64,8 +83,8 @@ def get_venues(db: Session, status_filter: str = None):
 def create_venue(db: Session, venue_data: schemas.VenueCreate):
     try:
         res = db.execute(text("""
-            INSERT INTO venues (name, city, address, map_url, capacity, status, municipality_id)
-            VALUES (:name, :city, :address, :map_url, :capacity, :status, :municipality_id)
+            INSERT INTO venues (name, city, address, map_url, capacity, status, municipality_id, assigned_manager_id)
+            VALUES (:name, :city, :address, :map_url, :capacity, :status, :municipality_id, :assigned_manager_id)
         """), {
             "name": venue_data.name,
             "city": venue_data.city,
@@ -73,7 +92,8 @@ def create_venue(db: Session, venue_data: schemas.VenueCreate):
             "map_url": venue_data.map_url,
             "capacity": venue_data.capacity,
             "status": venue_data.status,
-            "municipality_id": venue_data.municipality_id
+            "municipality_id": venue_data.municipality_id,
+            "assigned_manager_id": venue_data.assigned_manager_id
         })
         db.commit()
         new_id = res.lastrowid
@@ -134,7 +154,7 @@ def get_venue_rooms(db: Session, venue_id: int):
         for row in result.fetchall():
             room_dict = dict(row._mapping)
             # Add has_map flag for frontend
-            room_dict['has_map'] = room_dict.get('layout_mode') == 'map'
+            room_dict['has_map'] = room_dict.get('layout_mode') in ('map', 'grid')
             rooms.append(room_dict)
         return rooms
     except Exception as e:
@@ -229,6 +249,7 @@ def get_venue_room_map(db: Session, room_id: int):
                 "layout_mode": room_data['layout_mode'],
                 "layout_metadata": layout_metadata
             },
+            "layout_json": layout_metadata,
             "zones": [
                 {
                     **dict(z._mapping),
@@ -251,12 +272,19 @@ def get_venue_room_map(db: Session, room_id: int):
 def save_venue_room_map(db: Session, room_id: int, payload: schemas.MapBuilderPayload):
     try:
         # Verify Room
-        room = db.execute(text("SELECT id FROM venue_rooms WHERE id = :room_id"), {"room_id": room_id}).fetchone()
+        room = db.execute(text("SELECT id, capacity FROM venue_rooms WHERE id = :room_id"), {"room_id": room_id}).fetchone()
         if not room:
             raise HTTPException(status_code=404, detail="Sala no encontrada")
+            
+        room_capacity = room[1]
+        
+        # Verify Capacity
+        if len(payload.seats) > room_capacity:
+            raise HTTPException(status_code=400, detail=f"Límite excedido. El mapa tiene {len(payload.seats)} asientos pero la sala solo permite {room_capacity}.")
 
         # 1. Update Room Metadata
-        layout_meta_json = json.dumps(payload.layout_metadata) if payload.layout_metadata else None
+        layout_meta = payload.layout_json if payload.layout_json is not None else payload.layout_metadata
+        layout_meta_json = json.dumps(layout_meta) if layout_meta else None
         db.execute(text("""
             UPDATE venue_rooms 
             SET layout_mode = :layout_mode, layout_metadata = :layout_metadata 
@@ -279,7 +307,10 @@ def save_venue_room_map(db: Session, room_id: int, payload: schemas.MapBuilderPa
         # 2. Process Zones
         for zone in payload.zones:
             geometry_json = json.dumps(zone.geometry_json) if zone.geometry_json else None
-            if zone.id and zone.id > 0:
+            # Si el ID es un entero > 0, es una actualización de algo existente
+            is_existing = isinstance(zone.id, int) and zone.id > 0
+            
+            if is_existing:
                 # Update
                 db.execute(text("""
                     UPDATE seating_zones 
@@ -292,7 +323,7 @@ def save_venue_room_map(db: Session, room_id: int, payload: schemas.MapBuilderPa
                 keep_zone_ids.append(zone.id)
                 zone_id_map[zone.id] = zone.id
             else:
-                # Insert
+                # Insert (Nuevos o temporales con string)
                 res = db.execute(text("""
                     INSERT INTO seating_zones (room_id, name, color_hex, geometry_json) 
                     VALUES (:room_id, :name, :color_hex, :geometry_json)
@@ -301,13 +332,15 @@ def save_venue_room_map(db: Session, room_id: int, payload: schemas.MapBuilderPa
                 })
                 new_id = res.lastrowid
                 keep_zone_ids.append(new_id)
-                if zone.id is not None:
+                if zone.id:
                     zone_id_map[zone.id] = new_id
 
         # 3. Process Blocks
         for block in payload.blocks:
             config_json = json.dumps(block.config) if block.config else None
-            if block.id and block.id > 0:
+            is_existing = isinstance(block.id, int) and block.id > 0
+            
+            if is_existing:
                 # Update
                 db.execute(text("""
                     UPDATE seating_blocks 
@@ -331,7 +364,7 @@ def save_venue_room_map(db: Session, room_id: int, payload: schemas.MapBuilderPa
                 })
                 new_id = res.lastrowid
                 keep_block_ids.append(new_id)
-                if block.id is not None:
+                if block.id:
                     block_id_map[block.id] = new_id
 
         # 4. Process Seats
@@ -340,7 +373,9 @@ def save_venue_room_map(db: Session, room_id: int, payload: schemas.MapBuilderPa
             real_block_id = block_id_map.get(seat.block_id, seat.block_id) if seat.block_id is not None else None
             real_zone_id = zone_id_map.get(seat.zone_id, seat.zone_id) if seat.zone_id is not None else None
             
-            if seat.id and seat.id > 0:
+            is_existing = isinstance(seat.id, int) and seat.id > 0
+
+            if is_existing:
                 # Update
                 db.execute(text("""
                     UPDATE room_seats 

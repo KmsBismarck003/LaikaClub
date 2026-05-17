@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
-import Icon from '../Icons'
+import Icon from '../Icons/Icons'
 import Dropdown from '../Dropdown/Dropdown'
 import { getImageUrl } from '../../utils/imageUtils'
 import api from '../../services/api'
