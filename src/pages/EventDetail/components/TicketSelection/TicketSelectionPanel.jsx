@@ -1,5 +1,7 @@
 import React from 'react';
-import { Badge, Button, Icon } from "../../../../components";
+import { Badge, Icon } from "../../../../components";
+import { formatDate, formatTime } from "../../utils/helpers";
+import './TicketSelection.css';
 
 export default function TicketSelectionPanel({
   user,
@@ -15,148 +17,175 @@ export default function TicketSelectionPanel({
   selectedSeats,
   cleanPrice,
   handleAddToCart,
+  handleDirectBuy,
   handleLuckySeat,
   isRouletteActive,
   setShowProbModal
 }) {
+  const isSeating = selectedSection?.type === 'seating';
+  const seatCount = isSeating ? selectedSeats.length : quantity;
+  const unitPrice = cleanPrice(selectedSection?.price || event?.price || 0);
+  const total = (seatCount * unitPrice).toFixed(2);
+
   return (
     <div className="ticket-selection-panel">
-      <div className="panel-body">
-        {/* Function Selection */}
-        {hasFunctions && (
-          <div className="function-selector-compact">
-            <h3>Selecciona la fecha</h3>
-            <div className="function-chips">
-              {event.functions.map(f => (
-                <div 
-                  key={f.id} 
-                  className={`function-chip ${selectedFunction?.id === f.id ? 'active' : ''}`}
-                  onClick={() => setSelectedFunction(f)}
-                >
-                  {f.date} - {f.time}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Sections List */}
-        <div className="ticket-options-list" style={{ maxHeight: '400px' }}>
-          {sortedSections.map(section => (
-            <div 
-              key={section.id} 
-              className={`ticket-option-row ${selectedSection?.id === section.id ? 'selected' : ''}`}
-              onClick={() => setSelectedSection(section)}
-            >
-              <div className="ticket-minimap">
-                {section.name.substring(0, 1)}
+      {/* ── Selector de Fecha/Función ── */}
+      {hasFunctions && (
+        <div className="tsp-header">
+          <p className="tsp-section-label">Selecciona la fecha</p>
+          <div className="function-chips">
+            {event.functions.map(f => (
+              <div
+                key={f.id}
+                className={`function-chip ${selectedFunction?.id === f.id ? 'active' : ''}`}
+                onClick={() => setSelectedFunction(f)}
+              >
+                {formatDate(f.date)} — {formatTime(f.time)}
               </div>
-              <div className="ticket-info">
-                <div className="ticket-section-title">
-                  {section.name}
-                  {section.type === 'seating' && <Badge variant="premium" size="sm">ASIGNADO</Badge>}
-                </div>
-                <div className="ticket-type-desc">
-                  <span className="dot-indicator"></span>
-                  {section.type === 'seating' ? 'Selección en mapa' : 'Entrada General'}
-                </div>
-                <div className="ticket-price-val">
-                  ${cleanPrice(section.price)} <span className="each">c/u</span>
-                </div>
-              </div>
-              <div className={`mock-radio ${selectedSection?.id === section.id ? 'checked' : ''}`}></div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+      )}
 
-        {selectedSection && (
-          <div className="purchase-sticky-bottom">
-            {selectedSection.type === 'seating' ? (
-              <div className="quantity-selector-compact">
-                <label>Asientos seleccionados</label>
-                <div className="selected-seats-chips">
-                  {selectedSeats.length > 0 ? (
-                    selectedSeats.map(s => {
-                      // Mostrar etiqueta legible: "A-1", "B-3", etc.
-                      const parts = s.split('-');
-                      const label = parts.length >= 3
-                        ? `${parts[parts.length - 2]}${parts[parts.length - 1]}`
-                        : parts.pop();
-                      return (
-                        <Badge key={s} variant="primary" size="sm">{label}</Badge>
-                      );
-                    })
-                  ) : (
-                    <span className="seats-hint">Selecciona asientos en el mapa ↑</span>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="quantity-selector-compact">
-                <label>Cantidad</label>
-                <select
-                  className="laika-select"
-                  value={quantity}
-                  onChange={(e) => setQuantity(parseInt(e.target.value))}
-                >
-                  {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Total */}
-            <div className="total-preview">
-              <span className="total-label">Total estimado</span>
-              <span className="total-amount">
-                ${((selectedSection?.type === 'seating' ? selectedSeats.length : quantity) *
-                  cleanPrice(selectedSection?.price || event.price)).toFixed(2)}
-              </span>
+      {/* ── Lista de Secciones ── */}
+      <div className="tsp-sections-list">
+        {sortedSections.map(section => (
+          <div
+            key={section.id}
+            className={`ticket-option-row ${selectedSection?.id === section.id ? 'selected' : ''}`}
+            onClick={() => setSelectedSection(section)}
+          >
+            {/* Letra inicial de la zona */}
+            <div className="ticket-minimap">
+              {section.name?.substring(0, 1)?.toUpperCase()}
             </div>
+
+            {/* Info de la sección */}
+            <div className="ticket-info">
+              <div className="ticket-section-title">
+                {section.name}
+                {section.type === 'seating' && (
+                  <Badge variant="premium" size="sm">Asignado</Badge>
+                )}
+              </div>
+              <div className="ticket-type-desc">
+                <span className="dot-indicator" />
+                {section.type === 'seating' ? 'Selección en mapa' : 'Entrada General'}
+              </div>
+              <div className="ticket-price-val">
+                ${cleanPrice(section.price)} <span className="each">c/u</span>
+              </div>
+            </div>
+
+            {/* Radio visual */}
+            <div className={`mock-radio ${selectedSection?.id === section.id ? 'checked' : ''}`} />
           </div>
-        )}
+        ))}
       </div>
 
-      <div style={{ padding: '1.25rem' }}>
-        {/* Lucky Seat Section */}
-        {event.has_lucky_seat && (
-          <div style={{ marginBottom: '1rem', padding: '1rem', background: 'rgba(234, 179, 8, 0.05)', borderRadius: '12px', border: '1px solid rgba(234, 179, 8, 0.2)' }}>
-            <div style={{ marginBottom: '0.75rem' }}>
-              <h4 style={{ color: '#EAB308', margin: 0, fontSize: '0.9rem', fontWeight: 900, textTransform: 'uppercase' }}>¡Gana un ascenso!</h4>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem', margin: '4px 0 0' }}>Prueba suerte por un asiento premium por solo $40</p>
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button 
-                className="back-button" 
-                style={{ margin: 0, flex: 1, justifyContent: 'center' }}
-                onClick={() => setShowProbModal(true)}
-              >
-                Ver Probs.
-              </button>
-              <button 
-                className="lucky-btn-premium-gold" 
-                style={{ flex: 2, height: '40px', fontSize: '0.8rem' }}
-                onClick={handleLuckySeat}
-                disabled={isRouletteActive}
-              >
-                <Icon name="zap" size={16} style={{ marginRight: '8px' }} />
-                {isRouletteActive ? 'Girando...' : 'Jugar Ruleta'}
-              </button>
-            </div>
+      {/* ── Lucky Seat ── */}
+      {event.has_lucky_seat && (
+        <div className="tsp-lucky-block">
+          <h4 className="tsp-lucky-title">¡Gana un ascenso! ✨</h4>
+          <p className="tsp-lucky-desc">Prueba suerte por un asiento premium por solo $40</p>
+          <div className="tsp-lucky-actions">
+            <button
+              className="back-button prob-btn"
+              onClick={() => setShowProbModal(true)}
+            >
+              Ver probs
+            </button>
+            <button
+              className="lucky-btn-premium-gold"
+              onClick={handleLuckySeat}
+              disabled={isRouletteActive}
+            >
+              <Icon name="zap" size={15} />
+              {isRouletteActive ? 'Girando...' : 'Jugar Ruleta'}
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Add to Cart */}
-        <button 
-          className="buy-btn-premium"
-          onClick={handleAddToCart}
-          disabled={!selectedSection && selectedSeats.length === 0}
-        >
-          <Icon name="shopping-cart" size={20} style={{ marginRight: '10px' }} />
-          {selectedSeats.length > 0 ? `Comprar ${selectedSeats.length} Asientos` : 'Añadir al Carrito'}
-        </button>
-      </div>
+      {/* ── Bottom de Compra ── */}
+      {selectedSection && (
+        <div className="tsp-purchase-bottom">
+          {/* Asientos o Cantidad */}
+          {isSeating ? (
+            <div className="tsp-seats-row">
+              <span className="tsp-seats-label">Asientos</span>
+              <div className="selected-seats-chips">
+                {selectedSeats.length > 0 ? (
+                  selectedSeats.map(s => {
+                    const parts = s.split('-');
+                    const label = parts.length >= 3
+                      ? `${parts[parts.length - 2]}${parts[parts.length - 1]}`
+                      : parts.pop();
+                    return (
+                      <Badge key={s} variant="primary" size="sm">{label}</Badge>
+                    );
+                  })
+                ) : (
+                  <span className="seats-hint">Selecciona en el mapa ↑</span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="quantity-selector-compact">
+              <label>Cantidad</label>
+              <select
+                className="laika-select"
+                value={quantity}
+                onChange={e => setQuantity(parseInt(e.target.value))}
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Total */}
+          <div className="total-preview">
+            <span className="total-label">Total estimado</span>
+            <span className="total-amount">${total}</span>
+          </div>
+
+          {/* Botones de Acción: Carrito y Compra Directa */}
+          <div className="tsp-actions-row" style={{ display: 'flex', gap: '0.6rem' }}>
+            <button
+              className="buy-btn-premium"
+              style={{
+                flex: 1,
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                color: '#fff',
+                boxShadow: 'none'
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)'; }}
+              onMouseOut={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)'; }}
+              onClick={handleAddToCart}
+              disabled={isSeating ? selectedSeats.length === 0 : false}
+            >
+              <Icon name="shopping-cart" size={18} />
+              Añadir
+            </button>
+
+            <button
+              className="buy-btn-premium"
+              style={{ flex: 1.6 }}
+              onClick={handleDirectBuy}
+              disabled={isSeating ? selectedSeats.length === 0 : false}
+            >
+              <Icon name="credit-card" size={18} />
+              {isSeating && selectedSeats.length > 0
+                ? `Pagar ${selectedSeats.length} Asiento${selectedSeats.length > 1 ? 's' : ''}`
+                : 'Pagar Directo'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

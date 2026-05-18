@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useNotification } from './NotificationContext';
 import { useAuth } from './AuthContext';
 
@@ -12,8 +12,16 @@ export const useCart = () => {
 const SERVICE_FEE_PERCENT = 10;
 
 // Helper functions for user-scoped localStorage keys
-const getCartKey = (user) => user ? `cart_${user.id}` : 'cart_guest';
-const getCardsKey = (user) => user ? `savedCards_${user.id}` : 'savedCards_guest';
+const getCartKey = (user) => {
+    if (!user) return 'cart_guest';
+    const userId = user.id || user._id || user.email || 'unknown';
+    return `cart_${userId}`;
+};
+const getCardsKey = (user) => {
+    if (!user) return 'savedCards_guest';
+    const userId = user.id || user._id || user.email || 'unknown';
+    return `savedCards_${userId}`;
+};
 
 export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState([]);
@@ -21,6 +29,9 @@ export const CartProvider = ({ children }) => {
     const [savedCards, setSavedCards] = useState([]);
     const { success, info } = useNotification();
     const { user } = useAuth();
+
+    // Ref to prevent user cart overwriting during transition
+    const loadedUserRef = useRef(undefined);
 
     // Coupon state
     const [availableCoupons, setAvailableCoupons] = useState([]);
@@ -43,27 +54,67 @@ export const CartProvider = ({ children }) => {
         const storedCart = localStorage.getItem(cartKey);
         const storedCards = localStorage.getItem(cardsKey);
 
+        let parsedCart = [];
         if (storedCart) {
             try {
-                setCart(JSON.parse(storedCart));
+                parsedCart = JSON.parse(storedCart);
             } catch (e) {
                 console.error("Error cargando carrito", e);
-                setCart([]);
             }
-        } else {
-            setCart([]);
         }
 
+        // Si el usuario inicia sesión y hay artículos de invitado en localStorage, los transferimos/fusionamos
+        if (user) {
+            const guestCartStr = localStorage.getItem('cart_guest');
+            if (guestCartStr) {
+                try {
+                    const guestCart = JSON.parse(guestCartStr);
+                    if (Array.isArray(guestCart) && guestCart.length > 0) {
+                        const mergedCart = [...parsedCart];
+                        guestCart.forEach(guestItem => {
+                            const existingIndex = mergedCart.findIndex(item =>
+                                item.eventId === guestItem.eventId &&
+                                item.functionId === guestItem.functionId &&
+                                item.sectionId === guestItem.sectionId
+                            );
+                            if (existingIndex > -1) {
+                                mergedCart[existingIndex].quantity += guestItem.quantity;
+                                if (guestItem.seats) {
+                                    mergedCart[existingIndex].seats = [
+                                        ...(mergedCart[existingIndex].seats || []),
+                                        ...guestItem.seats
+                                    ];
+                                }
+                            } else {
+                                mergedCart.push(guestItem);
+                            }
+                        });
+                        parsedCart = mergedCart;
+                        // Guardar inmediatamente en localStorage bajo el usuario
+                        localStorage.setItem(cartKey, JSON.stringify(parsedCart));
+                        // Limpiar el carrito de invitado
+                        localStorage.setItem('cart_guest', JSON.stringify([]));
+                    }
+                } catch (err) {
+                    console.error("Error al fusionar carrito de invitado:", err);
+                }
+            }
+        }
+
+        let parsedCards = [];
         if (storedCards) {
             try {
-                setSavedCards(JSON.parse(storedCards));
+                parsedCards = JSON.parse(storedCards);
             } catch (e) {
                 console.error("Error cargando tarjetas guardadas", e);
-                setSavedCards([]);
             }
-        } else {
-            setSavedCards([]);
         }
+
+        setCart(parsedCart);
+        setSavedCards(parsedCards);
+
+        // Update the ref to the current user's ID
+        loadedUserRef.current = user ? (user.id || user._id || user.email || 'unknown') : 'guest';
 
         // Limpiar cupón al cambiar de usuario
         setAppliedCoupon(null);
@@ -72,6 +123,11 @@ export const CartProvider = ({ children }) => {
 
     // Guardar carrito en LocalStorage cuando cambia y recalcular total
     useEffect(() => {
+        const currentUserKey = user ? (user.id || user._id || user.email || 'unknown') : 'guest';
+        if (loadedUserRef.current !== currentUserKey) {
+            return;
+        }
+
         const cartKey = getCartKey(user);
         localStorage.setItem(cartKey, JSON.stringify(cart));
 
@@ -86,6 +142,11 @@ export const CartProvider = ({ children }) => {
 
     // Guardar tarjetas en LocalStorage cuando cambien
     useEffect(() => {
+        const currentUserKey = user ? (user.id || user._id || user.email || 'unknown') : 'guest';
+        if (loadedUserRef.current !== currentUserKey) {
+            return;
+        }
+
         const cardsKey = getCardsKey(user);
         localStorage.setItem(cardsKey, JSON.stringify(savedCards));
     }, [savedCards, user]);
@@ -150,7 +211,7 @@ export const CartProvider = ({ children }) => {
         }
     }, [appliedCoupon, total]);
 
-    const addToCart = (event, quantity = 1, functionData = null, sectionData = null) => {
+    const addToCart = (event, quantity = 1, functionData = null, sectionData = null, seats = []) => {
         setCart(prevCart => {
             const functionId = functionData ? functionData.id : null;
             const sectionId = sectionData ? sectionData.id : null;
@@ -163,13 +224,14 @@ export const CartProvider = ({ children }) => {
                 info(`Se actualizó la cantidad de boletos para ${event.name}`);
                 return prevCart.map(item =>
                     (item.eventId === event.id && item.functionId === functionId && item.sectionId === sectionId)
-                        ? { ...item, quantity: item.quantity + quantity }
+                        ? { ...item, quantity: item.quantity + quantity, seats: [...(item.seats || []), ...seats] }
                         : item
                 );
             } else {
                 success(`Boletos para ${event.name} agregados al carrito`);
                 return [...prevCart, {
                     eventId: event.id,
+                    type: event.id.toString().startsWith('merch_') ? 'merch' : 'ticket',
                     functionId: functionId,
                     sectionId: sectionId,
                     eventName: event.name,
@@ -179,12 +241,31 @@ export const CartProvider = ({ children }) => {
                     venueName: functionData ? functionData.venue_name : null, // Store venue for display
                     price: sectionData ? parseFloat(sectionData.price) : parseFloat(event.price),
                     quantity,
+                    seats: seats || [], // Store selected seats
                     image: event.image_url || event.image
                 }];
             }
         });
         // Clear coupon when cart changes
         removeCoupon();
+    };
+
+    const addMerchToCart = (product, variant, quantity = 1) => {
+        const sizeLabel = variant?.size ? ` | Talla ${variant.size}` : '';
+        const colorLabel = variant?.color ? ` | Color ${variant.color}` : '';
+        const label = `${sizeLabel}${colorLabel}`;
+
+        addToCart(
+            {
+                id: `merch_${product.id}`,
+                name: `${product.name}${label}`,
+                price: parseFloat(variant?.price || product.price || 0),
+                image: product.image_url || product.image
+            },
+            quantity,
+            null,
+            { id: 'MERCH', name: `MERCH: ${product.category || product.type || 'MERCANCÍA'}`, price: parseFloat(variant?.price || product.price || 0) }
+        );
     };
 
     const removeFromCart = (eventId, functionId = null, sectionId = null) => {
@@ -232,6 +313,7 @@ export const CartProvider = ({ children }) => {
             total,
             savedCards,
             addToCart,
+            addMerchToCart,
             removeFromCart,
             updateQuantity,
             clearCart,

@@ -42,9 +42,29 @@ class ApiClient {
                 sessionStorage.removeItem('user')
                 // window.location.href = '/login'
             }
+            let errorMessage = 'Error en la petición'
+            if (data) {
+                if (typeof data.message === 'string') {
+                    errorMessage = data.message
+                } else if (typeof data.detail === 'string') {
+                    errorMessage = data.detail
+                } else if (Array.isArray(data.detail)) {
+                    errorMessage = data.detail
+                        .map(err => {
+                            const field = Array.isArray(err.loc) ? err.loc[err.loc.length - 1] : ''
+                            return field ? `${field}: ${err.msg}` : err.msg
+                        })
+                        .join(', ')
+                } else if (data.detail && typeof data.detail === 'object') {
+                    errorMessage = data.detail.message || JSON.stringify(data.detail)
+                } else if (typeof data === 'string') {
+                    errorMessage = data
+                }
+            }
+
             throw {
                 status: response.status,
-                message: data.message || data.detail || 'Error en la petición',
+                message: errorMessage,
                 data
             }
         }

@@ -171,6 +171,22 @@ const Navbar = () => {
             </Link>
           </li>
 
+          {/* Carrito Global - Siempre visible */}
+          <li className='navbar-cart'>
+            <button
+              className='navbar-cart-btn'
+              onClick={toggleCart}
+              aria-label='Ver carrito'
+            >
+              <Icon name="shoppingCart" size={20} />
+              {cart.length > 0 && (
+                <span className='navbar-cart-badge'>
+                  {cart.length}
+                </span>
+              )}
+            </button>
+          </li>
+
           {user && !isGuestPreview && (
             <>
               <li>
@@ -243,23 +259,7 @@ const Navbar = () => {
                 )}
               </li>
 
-              {/* Carrito Global - SOLO PARA USUARIOS */}
-              {user?.role === 'usuario' && (
-                <li className='navbar-cart'>
-                  <button
-                    className='navbar-cart-btn'
-                    onClick={toggleCart}
-                    aria-label='Ver carrito'
-                  >
-                    <Icon name="shoppingCart" size={20} />
-                    {cart.length > 0 && (
-                      <span className='navbar-cart-badge'>
-                        {cart.length}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              )}
+
 
               {/* User Dropdown */}
               <li className='navbar-user' ref={userMenuRef}>

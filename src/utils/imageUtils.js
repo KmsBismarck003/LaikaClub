@@ -5,9 +5,15 @@
 export const getImageUrl = (path) => {
     if (!path) return 'https://placehold.co/400x200?text=No+Image';
 
+    // Self-healing: if the path has double /api/api/, fix it first
+    let cleanPath = path;
+    if (typeof cleanPath === 'string') {
+        cleanPath = cleanPath.replace('/api/api/', '/api/');
+    }
+
     // If it's already an absolute URL (http/https) or blob, return as is
-    if (path.startsWith('http') || path.startsWith('https') || path.startsWith('blob:')) {
-        return path;
+    if (cleanPath.startsWith('http') || cleanPath.startsWith('https') || cleanPath.startsWith('blob:')) {
+        return cleanPath;
     }
 
     // Construct backend base URL based on current window location
@@ -19,7 +25,7 @@ export const getImageUrl = (path) => {
     const baseUrl = `${protocol}//${hostname}:${port}`;
 
     // Ensure path starts with /
-    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    const finalCleanPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
 
-    return `${baseUrl}${cleanPath}`;
+    return `${baseUrl}${finalCleanPath}`;
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import InteractiveVenueMap from './InteractiveVenueMap';
 import SeatMapLegend from './SeatMapLegend';
+import './VenueMap.css';
 
 /**
  * VenueMapContainer — Contenedor principal del mapa de asientos para el usuario final.
@@ -55,34 +56,44 @@ export default function VenueMapContainer({
       );
 
   return (
-    <div className="event-map venue-map-container-wrapper">
+    <div className="venue-map-outer">
+      {/* Leyenda de estados */}
       <SeatMapLegend showVip={hasVip} showWheelchair={hasWheelchair} />
 
-      <InteractiveVenueMap
-        mapData={newMapData}
-        synchronizedZones={synchronizedZones}
-        selectedSection={selectedSection}
-        isRouletteActive={isRouletteActive}
-        sortedSections={sortedSections}
-        setSelectedSection={setSelectedSection}
-        activeScannerZoneId={activeScannerZoneId}
-        selectedSeats={selectedSeats}
-        onSeatToggle={toggleSeat}
-        busySeats={busySeats}
-        winnerSeatId={winningSeatId}
-        activeScannerSeatId={activeScannerSeatId}
-        onRouletteComplete={handleRouletteComplete}
-        mapScale={mapScale}
-        mapPos={mapPos}
-        isDragging={isDragging}
-        dragStart={dragStart}
-        setMapPos={setMapPos}
-        setIsDragging={setIsDragging}
-        setDragStart={setDragStart}
-        handleZoom={handleZoom}
-        resetMap={resetMap}
-      />
+      {/* Área interactiva del mapa — grande para seleccionar asientos */}
+      <div className="venue-map-interactive-area">
+        <InteractiveVenueMap
+          mapData={newMapData}
+          synchronizedZones={synchronizedZones}
+          selectedSection={selectedSection}
+          isRouletteActive={isRouletteActive}
+          sortedSections={sortedSections}
+          setSelectedSection={setSelectedSection}
+          activeScannerZoneId={activeScannerZoneId}
+          selectedSeats={selectedSeats}
+          onSeatToggle={toggleSeat}
+          busySeats={busySeats}
+          winnerSeatId={winningSeatId}
+          activeScannerSeatId={activeScannerSeatId}
+          onRouletteComplete={handleRouletteComplete}
+          mapScale={mapScale}
+          mapPos={mapPos}
+          isDragging={isDragging}
+          dragStart={dragStart}
+          setMapPos={setMapPos}
+          setIsDragging={setIsDragging}
+          setDragStart={setDragStart}
+          handleZoom={handleZoom}
+          resetMap={resetMap}
+        />
+      </div>
 
+      {/* Hint de uso */}
+      <div className="venue-map-hint">
+        🖱 Arrastra para mover · Rueda para zoom · Click en asiento para seleccionar
+      </div>
+
+      {/* Resumen de asientos seleccionados */}
       {selectedSeats && selectedSeats.length > 0 && (
         <div className="venue-map-selection-summary">
           <span className="selection-count-badge">{selectedSeats.length}</span>

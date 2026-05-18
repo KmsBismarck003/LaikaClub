@@ -41,17 +41,22 @@
 }
 
 /* ── FORCE ALL TEXT WHITE inside event page ─────────────────── */
-.event-detail-page *:not(button):not(.buy-btn-premium):not(.buy-btn-premium *):not(.function-chip.active):not(.badge-primary):not(.badge--primary):not(.ticket-badge):not(.badge):not(.badge *):not(.laika-modal-overlay *):not(.winner-announce-overlay *) {
-  color: #fff !important;
+/* Solo aplica al contenido de primer nivel, respeta colores de sub-componentes */
+.event-detail-page .event-description *,
+.event-detail-page .event-hero-title,
+.event-detail-page .event-hero-meta-pill {
+  color: #fff;
 }
 
-/* Subdued labels stay slightly dimmer but still white-ish */
-.event-detail-page .meta-inline.location,
-.event-detail-page .event-description h2,
-.event-detail-page .function-selector-compact h3,
+/* Subdued labels */
+.event-detail-page .event-description h2 {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.event-detail-page .tsp-section-label,
 .event-detail-page .total-label,
-.event-detail-page .ticket-tab:not(.active) {
-  color: rgba(255, 255, 255, 0.65) !important;
+.event-detail-page .tsp-seats-label {
+  color: rgba(255, 255, 255, 0.4) !important;
 }
 
 /* ── BACK BUTTON — glass pill ──────────────────────────────── */
@@ -84,36 +89,18 @@
 /* ── DUAL COLUMN ─────────────────────────────────────────────── */
 .layout-dual-column {
   display: grid;
-  grid-template-columns: 1fr 400px; /* Generous sidebar */
-  gap: 2.5rem; /* Clean spacious gap */
+  grid-template-columns: 1fr 420px; /* Generous sidebar */
+  gap: 2rem;
   align-items: start;
   height: auto;
   position: relative;
-}
-
-/* ── GLASS PANEL — applied to all content cards ───────────── */
-.event-meta-header,
-.event-description,
-.event-map,
-.ticket-selection-panel,
-.function-selector-compact,
-.purchase-sticky-bottom {
-  background: rgba(8, 8, 8, 0.78) !important;
-  backdrop-filter: blur(30px) !important;
-  -webkit-backdrop-filter: blur(30px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 16px !important;
-  padding: 1.5rem !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
-  margin-bottom: 1.5rem;
-  transition: all 0.3s ease;
 }
 
 /* ── LEFT COLUMN ─────────────────────────────────────────────── */
 .event-left-column {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* Spacious flow */
+  gap: 1.5rem;
 }
 
 /* Event title */
@@ -138,50 +125,14 @@
   color: #e5e5e5;
 }
 
-/* Map container */
+/* Map container — legacy, ya no se usa directamente */
 .map-container {
-  background: rgba(16, 16, 16, 0.78) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 16px !important;
-  overflow: hidden !important;
   position: relative;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-}
-
-/* Seat Map Interactive Wrapper */
-.seat-map-wrapper {
   width: 100%;
-  height: 580px; /* Spacious, gorgeous map! */
-  background: radial-gradient(circle at center, rgba(16, 24, 48, 0.45) 0%, rgba(5, 5, 5, 0.9) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: grab;
-  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.95);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
 }
 
-.seat-map-wrapper:hover {
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.95), 0 0 20px rgba(59, 130, 246, 0.1);
-}
-
-.seat-map-wrapper.dragging {
-  cursor: grabbing;
-}
-
-.seat-map-content {
-  transition: transform 0.3s ease-out;
-  transform-origin: center center;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 800px;
-  height: 600px;
-}
+/* venue-map-outer (nuevo) — definido en VenueMap.css */
 
 /* Disable transition while dragging to prevent lag and jumps */
 .seat-map-wrapper.dragging .seat-map-content {
@@ -414,29 +365,35 @@
   color: #000 !important;
 }
 
+.event-description {
+  background: rgba(8, 8, 8, 0.88);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  overflow: hidden;
+}
+
 .event-description h2 {
-  font-size: 1rem; /* Bigger label */
-  margin-bottom: 1.5rem;
-  color: rgba(255, 255, 255, 0.4) !important;
-  font-weight: 950; /* Super heavy */
+  font-size: 0.65rem;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.22em;
 }
 
 .event-description p {
-  color: #fff;
-  line-height: 1.6;
-  font-size: 0.9rem; /* Further reduced */
-  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.75;
+  font-size: 0.88rem;
+  font-weight: 500;
   letter-spacing: 0.01em;
-  overflow-wrap: break-word; /* Fix overflow */
+  overflow-wrap: break-word;
   word-wrap: break-word;
   hyphens: auto;
   max-width: 100%;
-}
-
-.event-description {
-  overflow: hidden; /* Safety net */
 }
 
 /* ── RIGHT COLUMN ─────────────────────────────────────────────── */
@@ -447,11 +404,11 @@
   height: fit-content;
 }
 
+/* ticket-selection-panel: estilos base en TicketSelection.css */
 .ticket-selection-panel {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 0 !important;
 }
 
 /* Function selector */
@@ -499,9 +456,10 @@
 }
 
 .function-chip.active {
-  background: #fff;
-  color: #000 !important;
-  border-color: #fff;
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%) !important;
+  color: #ffffff !important;
+  border-color: #3B82F6 !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.45);
 }
 
 /* Ticket filters */
@@ -853,48 +811,50 @@
   cursor: not-allowed !important;
 }
 
-/* Accordion dark style — force white text, no border-radius */
-.laika-accordion {
-  background: rgba(8, 8, 8, 0.88) !important;
-  border: 1px solid rgba(255, 255, 255, 0.07) !important;
-  border-radius: 13px !important;
-  color: #fff !important;
-  margin-bottom: 0.75rem;
+/* Accordion dark style — scoped to event-rules-container (defined in EventRules.css) */
+/* Estos estilos son un fallback global para accordions en la página de evento */
+.event-detail-page .laika-accordion {
+  background: rgba(8, 8, 8, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  color: #fff;
+  margin-bottom: 0;
 }
 
-.laika-accordion * {
-  color: #fff !important;
-  border-radius: 13px !important;
+.event-detail-page .laika-accordion * {
+  color: #fff;
 }
 
-.laika-accordion-header {
-  padding: 1.2rem 1.25rem !important;
-  width: 100% !important;
-  background: #000 !important;
-  color: #fff !important;
-  border: none !important;
+.event-detail-page .laika-accordion-header {
+  padding: 1rem 1.25rem;
+  width: 100%;
+  background: transparent;
+  color: #fff;
+  border: none;
 }
 
-.laika-accordion-content {
-  padding: 0.5rem 1.25rem 1rem !important;
+.event-detail-page .laika-accordion-content {
+  padding: 0.5rem 1.25rem 1rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
 
-.laika-accordion p {
-  font-size: 0.85rem !important;
-  line-height: 1.6 !important;
-  padding: 0.25rem 0 !important;
-  font-weight: 500 !important;
-  word-break: break-word; /* Ensure it stays inside */
+.event-detail-page .laika-accordion p {
+  font-size: 0.82rem;
+  line-height: 1.65;
+  padding: 0.2rem 0;
+  font-weight: 500;
+  word-break: break-word;
   overflow-wrap: break-word;
+  color: rgba(255,255,255,0.75);
 }
 
-.laika-accordion p strong {
-  color: #fff !important;
-  font-weight: 800 !important;
+.event-detail-page .laika-accordion p strong {
+  color: #fff;
+  font-weight: 800;
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   display: inline-block;
-  margin-right: 8px;
+  margin-right: 6px;
 }
 
 /* Skeleton */

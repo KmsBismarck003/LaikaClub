@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
 import { Input, Button, Alert } from '../../components'
 import api from '../../services/api'
@@ -17,6 +17,8 @@ const roleRedirectMap = {
 
 const Register = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from || null
   const { loginGoogle } = useAuth()
   const { error: showError } = useNotification()
   const [formData, setFormData] = useState({
@@ -79,7 +81,7 @@ const Register = () => {
         localStorage.setItem('token', response.token)
         localStorage.setItem('user', JSON.stringify(response.user))
         setAlert({ type: 'success', message: '¡Bienvenido a LAIKA Club!' })
-        setTimeout(() => navigate('/'), 1500)
+        setTimeout(() => navigate(from || '/'), 1500)
       }
     } catch (error) {
       setAlert({ type: 'error', message: error.message || 'Error en el registro' })
@@ -94,7 +96,7 @@ const Register = () => {
       try {
         const result = await loginGoogle(tokenResponse.credential || tokenResponse.access_token)
         if (result.success) {
-          navigate(roleRedirectMap[result.user.role] || '/')
+          navigate(from || roleRedirectMap[result.user.role] || '/')
         } else {
           showError(result.error || 'Error con Google')
         }

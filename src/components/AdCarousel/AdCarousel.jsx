@@ -78,8 +78,12 @@ const AdCarousel = ({ position, isLoading: externalLoading, preloadedAds, eventI
 
   if (!visible) return null
 
-  if (loading || ads.length === 0) {
+  if (loading) {
     return <SkeletonAd position={position} />
+  }
+
+  if (ads.length === 0) {
+    return null;
   }
 
   const currentAd = ads[currentIndex]
@@ -89,7 +93,10 @@ const AdCarousel = ({ position, isLoading: externalLoading, preloadedAds, eventI
       // Register click in backend (Fire and forget)
       api.ads.registerClick(ad.id, user?.id).catch(err => console.error('Click error:', err))
 
-      if (ad.link_url) {
+      // If ad is directly linked to an event, navigate to it
+      if (ad.event_id) {
+        navigate(`/event/${ad.event_id}`)
+      } else if (ad.link_url) {
         const link = ad.link_url.trim()
         
         // Handle internal relative paths
@@ -132,11 +139,13 @@ const AdCarousel = ({ position, isLoading: externalLoading, preloadedAds, eventI
             {/* Info Bar */}
             <div className="ad-bottom-bar">
               <div className="ad-info-main">
-                <span className="ad-label-alt">OFFICIAL PARTNER</span>
+                <span className="ad-label-alt">
+                  {ad.event_id ? "VER EVENTO" : ad.link_url ? "MÁS INFORMACIÓN" : "SOCIO OFICIAL"}
+                </span>
                 <h4 className="ad-title-alt">{ad.title}</h4>
               </div>
               <div className="ad-action-btn">
-                <Icon name={ad.link_url ? "arrowRight" : "plus"} size={16} />
+                <Icon name={(ad.event_id || ad.link_url) ? "arrowRight" : "plus"} size={16} />
               </div>
             </div>
           </div>

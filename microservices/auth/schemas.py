@@ -6,8 +6,8 @@ class LoginRequest(BaseModel):
     password: str
 
 class RegisterRequest(BaseModel):
-    firstName: str
-    lastName: str
+    firstName: Optional[str] = ""
+    lastName: Optional[str] = ""
     email: EmailStr
     phone: Optional[str] = None
     password: str

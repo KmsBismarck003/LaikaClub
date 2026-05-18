@@ -1,0 +1,252 @@
+/* 🔮 PREMIUM LOGIN INCENTIVE MODAL - GLASSMORPHISM & NEON GLOW 🔮 */
+
+.auth-incentive-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(8, 8, 12, 0.75);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: authFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.auth-incentive-container {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  background: linear-gradient(135deg, rgba(20, 20, 30, 0.85) 0%, rgba(10, 10, 15, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  color: #ffffff;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8), 
+              0 0 50px rgba(124, 58, 237, 0.15);
+  overflow: hidden;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  text-align: center;
+  animation: authScaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Glowing background orb */
+.auth-incentive-glow-orb {
+  position: absolute;
+  top: -15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, rgba(236, 72, 153, 0.05) 50%, transparent 100%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-incentive-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.auth-incentive-close:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  transform: rotate(90deg);
+}
+
+.auth-incentive-content {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-incentive-icon-wrapper {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.75rem auto;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25);
+  position: relative;
+}
+
+.auth-incentive-icon-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.auth-incentive-sparkle {
+  font-size: 2.2rem;
+  color: #fff;
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.8));
+  animation: authPulse 2s infinite ease-in-out;
+}
+
+.auth-incentive-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 1.25rem;
+  line-height: 1.2;
+  background: linear-gradient(to right, #ffffff 30%, #a78bfa 70%, #f472b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+.auth-incentive-text {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  padding: 0 0.5rem;
+  font-weight: 450;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.auth-incentive-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-incentive-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 1.1rem 2rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+}
+
+.auth-incentive-btn-login {
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.auth-incentive-btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45),
+              0 0 15px rgba(167, 139, 250, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.auth-incentive-btn-login:active {
+  transform: translateY(1px);
+}
+
+.auth-incentive-btn-register {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.auth-incentive-btn-register:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.auth-incentive-btn-register:active {
+  transform: translateY(1px);
+}
+
+.auth-incentive-btn-close {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.auth-incentive-btn-close:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Animations */
+@keyframes authFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes authScaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes authPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.7)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.9)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.7)); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .auth-incentive-container {
+    padding: 2.25rem 1.5rem;
+  }
+  .auth-incentive-title {
+    font-size: 1.65rem;
+  }
+  .auth-incentive-text {
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+  .auth-incentive-btn {
+    padding: 0.95rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}

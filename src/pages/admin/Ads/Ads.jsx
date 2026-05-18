@@ -183,6 +183,31 @@ const Ads = () => {
       }
     },
     {
+      key: 'destination',
+      header: 'Destino',
+      render: (_, row) => {
+        if (row.event_id) {
+          const ev = eventsList.find(e => String(e.id) === String(row.event_id));
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <Badge variant="primary">🎯 Evento: {ev ? ev.name : `ID ${row.event_id}`}</Badge>
+              {ev && !ev.ads_enabled && (
+                <span style={{ fontSize: '0.7rem', color: 'var(--error-color)', fontWeight: 600 }}>⚠️ Publicidad deshabilitada en evento</span>
+              )}
+            </div>
+          )
+        }
+        if (row.link_url) {
+          return (
+            <a href={row.link_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', fontSize: '0.8rem', textDecoration: 'underline' }}>
+              🔗 {row.link_url.length > 30 ? `${row.link_url.substring(0, 30)}...` : row.link_url}
+            </a>
+          )
+        }
+        return <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Sin destino</span>
+      }
+    },
+    {
       key: 'active',
       header: 'Estado',
       render: (active, row) => (
@@ -363,9 +388,10 @@ const Ads = () => {
                             const objectUrl = URL.createObjectURL(file)
                             setFormData({ ...formData, image_url: objectUrl })
                             const response = await api.ads.upload(file)
+                            const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8000').replace(/\/api$/, '')
                             const finalUrl = response.url.startsWith('http')
                               ? response.url
-                              : `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${response.url}`
+                              : `${baseUrl}${response.url}`
                             setFormData(prev => ({ ...prev, image_url: finalUrl }))
                             success('Imagen subida correctamente')
                           } catch (error) {

@@ -27,14 +27,32 @@ const ManagerAds = () => {
     });
 
     useEffect(() => {
-        fetchMyEvents();
-        fetchAds();
+        const loadData = async () => {
+            setLoading(true);
+            try {
+                // Fetch manager's events first
+                const eventsData = await api.event.getAll({ manager_id: user.id });
+                const filteredEvents = eventsData.filter(e => e.ads_enabled);
+                setMyEvents(filteredEvents);
+
+                // Fetch ads and filter by the manager's events
+                const adsData = await api.ads.getAll({ manager_id: user.id });
+                const managerEventIds = filteredEvents.map(e => String(e.id));
+                const filteredAds = adsData.filter(ad => managerEventIds.includes(String(ad.event_id)));
+                setAds(filteredAds);
+            } catch (error) {
+                console.error('Error loading manager ads data:', error);
+                showError('Error al cargar la información de publicidad');
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadData();
     }, []);
 
     const fetchMyEvents = async () => {
         try {
             const data = await api.event.getAll({ manager_id: user.id });
-            // Solo eventos que tengan publicidad habilitada
             const filtered = data.filter(e => e.ads_enabled);
             setMyEvents(filtered);
         } catch (error) {
@@ -45,9 +63,10 @@ const ManagerAds = () => {
     const fetchAds = async () => {
         setLoading(true);
         try {
-            // En el backend deberíamos filtrar por manager_id o por los eventos del manager
             const data = await api.ads.getAll({ manager_id: user.id });
-            setAds(data);
+            const managerEventIds = myEvents.map(e => String(e.id));
+            const filteredAds = data.filter(ad => managerEventIds.includes(String(ad.event_id)));
+            setAds(filteredAds);
         } catch (error) {
             console.error('Error fetching ads:', error);
             showError('Error al cargar tus anuncios');
@@ -122,10 +141,16 @@ const ManagerAds = () => {
         { key: 'title', header: 'Título' },
         { 
             key: 'event_id', 
-            header: 'Evento',
+            header: 'Evento Asociado',
             render: (id) => {
                 const ev = myEvents.find(e => String(e.id) === String(id));
-                return ev ? ev.name : <span style={{color: '#999'}}>N/A</span>;
+                if (!ev) return <span style={{color: '#ef4444', fontWeight: 600}}>⚠️ Evento no disponible / Sin permisos</span>;
+                return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span style={{ fontWeight: 600 }}>{ev.name}</span>
+                        <span style={{ fontSize: '0.75rem', color: '#10b981' }}>✓ Publicidad Habilitada (Límite: {ev.max_ads || 5})</span>
+                    </div>
+                );
             }
         },
         {
@@ -234,9 +259,10 @@ const ManagerAds = () => {
                                                 const objectUrl = URL.createObjectURL(file)
                                                 setFormData({ ...formData, image_url: objectUrl })
                                                 const response = await api.ads.upload(file)
+                                                const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8000').replace(/\/api$/, '')
                                                 const finalUrl = response.url.startsWith('http')
                                                     ? response.url
-                                                    : `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${response.url}`
+                                                    : `${baseUrl}${response.url}`
                                                 setFormData(prev => ({ ...prev, image_url: finalUrl }))
                                                 success('Imagen subida correctamente')
                                             } catch (err) {

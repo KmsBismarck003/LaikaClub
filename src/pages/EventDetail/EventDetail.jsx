@@ -16,6 +16,7 @@ import { cleanPrice, formatDate, formatTime } from "./utils/helpers";
 import EventHero from "./components/EventHero/EventHero";
 import TicketSelectionPanel from "./components/TicketSelection/TicketSelectionPanel";
 import EventModalsManager from "./components/Modals/EventModalsManager";
+import LoginIncentiveModal from "./components/Modals/LoginIncentiveModal";
 import EventLocation from "./components/Location/EventLocation";
 import EventRules from "./components/Rules/EventRules";
 import EventMerchSection from "./components/MerchSection/EventMerchSection";
@@ -32,6 +33,16 @@ const EventDetail = () => {
   const { user } = useAuth();
   const { success, error } = useNotification();
   const { addToCart, setIsOpen: openCart } = useCart();
+
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
+  const requireAuth = (callback) => {
+    if (!user) {
+      setShowLoginPrompt(true);
+    } else {
+      callback();
+    }
+  };
 
   // 1. Core Data Hook
   const { 
@@ -52,7 +63,7 @@ const EventDetail = () => {
   }, [fetchEventDetail]);
 
   // 2. Ticket Engine Hook
-  const ticketEngine = useTicketEngine(event, id, user, navigate, location, { success, error }, addToCart);
+  const ticketEngine = useTicketEngine(event, id, user, navigate, location, { success, error }, addToCart, zones);
 
   // 3. Venue Map Hook
   const venueMap = useVenueMap();
@@ -204,7 +215,7 @@ const EventDetail = () => {
               resetMap={venueMap.resetMap}
             />
 
-            <div className="event-description glass-panel">
+            <div className="event-description">
                 <h2>Acerca del evento</h2>
                 <p>{event.description || "Disfruta de este evento exclusivo con la mejor producción y sonido."}</p>
             </div>
@@ -221,7 +232,7 @@ const EventDetail = () => {
               setMerchColorIdx={setMerchColorIdx}
               merchGalleryIdx={merchGalleryIdx}
               setMerchGalleryIdx={setMerchGalleryIdx}
-              addToCart={addToCart}
+              addToCart={(...args) => requireAuth(() => addToCart(...args))}
               success={success}
               openCart={openCart}
             />
@@ -237,24 +248,25 @@ const EventDetail = () => {
  
            {/* RIGHT COLUMN: Ticket Selection */}
            <div className="event-right-column">
-             <TicketSelectionPanel
-               user={user}
-               event={event}
-               hasFunctions={event.functions && event.functions.length > 0}
-               selectedFunction={ticketEngine.selectedFunction}
-               setSelectedFunction={ticketEngine.setSelectedFunction}
-               sortedSections={ticketEngine.sortedSections}
-               selectedSection={ticketEngine.selectedSection}
-               setSelectedSection={ticketEngine.setSelectedSection}
-               quantity={ticketEngine.quantity}
-               setQuantity={ticketEngine.setQuantity}
-               selectedSeats={ticketEngine.selectedSeats}
-               cleanPrice={cleanPrice}
-               handleAddToCart={ticketEngine.handleAddToCart}
-               handleLuckySeat={luckySeat.handleLuckySeat}
-               isRouletteActive={luckySeat.isRouletteActive}
-               setShowProbModal={luckySeat.setShowProbModal}
-             />
+              <TicketSelectionPanel
+                user={user}
+                event={event}
+                hasFunctions={event.functions && event.functions.length > 0}
+                selectedFunction={ticketEngine.selectedFunction}
+                setSelectedFunction={ticketEngine.setSelectedFunction}
+                sortedSections={ticketEngine.sortedSections}
+                selectedSection={ticketEngine.selectedSection}
+                setSelectedSection={ticketEngine.setSelectedSection}
+                quantity={ticketEngine.quantity}
+                setQuantity={ticketEngine.setQuantity}
+                selectedSeats={ticketEngine.selectedSeats}
+                cleanPrice={cleanPrice}
+                handleAddToCart={() => requireAuth(ticketEngine.handleAddToCart)}
+                handleDirectBuy={() => requireAuth(ticketEngine.handleDirectBuy)}
+                handleLuckySeat={() => requireAuth(luckySeat.handleLuckySeat)}
+                isRouletteActive={luckySeat.isRouletteActive}
+                setShowProbModal={luckySeat.setShowProbModal}
+              />
              {event.ads_enabled && (
                <div className="event-detail-ad-wrapper right-sidebar mt-4">
                  <AdCarousel position="side_right" eventId={id} />
@@ -300,6 +312,11 @@ const EventDetail = () => {
         printingData={ticketEngine.printingData}
         isPrinterProcessing={ticketEngine.isPrinterProcessing}
         setIsPrinterProcessing={ticketEngine.setIsPrinterProcessing}
+      />
+
+      <LoginIncentiveModal
+        isOpen={showLoginPrompt}
+        onClose={() => setShowLoginPrompt(false)}
       />
     </div>
   );

@@ -1,0 +1,388 @@
+/* TicketSelection.css — Panel de selección de boletos */
+
+/* ── PANEL PRINCIPAL ─────────────────────────────────────────── */
+.ticket-selection-panel {
+  background: rgba(8, 8, 8, 0.88);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── ENCABEZADO SELECTOR DE FECHA ───────────────────────────── */
+.tsp-header {
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tsp-section-label {
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0 0 0.75rem;
+}
+
+/* ── CHIPS DE FUNCIÓN/FECHA ──────────────────────────────────── */
+.function-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.function-chip {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.function-chip:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.function-chip.active {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  color: #fff;
+  border-color: #3B82F6;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.45);
+}
+
+/* ── LISTA DE SECCIONES/BOLETOS ──────────────────────────────── */
+.tsp-sections-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 320px;
+}
+
+.tsp-sections-list::-webkit-scrollbar { width: 4px; }
+.tsp-sections-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.ticket-option-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 28px;
+  align-items: center;
+  padding: 0.65rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: background 0.18s ease;
+  gap: 0.75rem;
+}
+
+.ticket-option-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ticket-option-row.selected {
+  background: rgba(59, 130, 246, 0.07);
+  border-bottom-color: rgba(59, 130, 246, 0.15);
+}
+
+.ticket-minimap {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+
+.ticket-option-row.selected .ticket-minimap {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #60a5fa;
+}
+
+.ticket-info { min-width: 0; }
+
+.ticket-section-title {
+  font-weight: 800;
+  color: #fff;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+}
+
+.ticket-type-desc {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.45);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 0.1rem;
+}
+
+.dot-indicator {
+  width: 6px;
+  height: 6px;
+  background: #3B82F6;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.ticket-price-val {
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.ticket-price-val .each {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  font-weight: 500;
+  margin-left: 2px;
+}
+
+.mock-radio {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.ticket-option-row:hover .mock-radio {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.mock-radio.checked {
+  border-color: #3B82F6;
+  border-width: 5px;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+/* ── BOTTOM DE COMPRA ─────────────────────────────────────────── */
+.tsp-purchase-bottom {
+  padding: 1.25rem 1.5rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Asientos seleccionados */
+.tsp-seats-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.tsp-seats-label {
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.selected-seats-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 200px;
+}
+
+.seats-hint {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Selector de cantidad */
+.quantity-selector-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.quantity-selector-compact label {
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.laika-select {
+  padding: 8px 28px 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px top 50%;
+  background-size: 9px auto;
+  min-width: 60px;
+  transition: border-color 0.2s;
+}
+
+.laika-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Total */
+.total-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label {
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.total-amount {
+  font-size: 1.7rem;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  color: #fff;
+}
+
+/* Botón de compra */
+.buy-btn-premium {
+  background: #ffffff;
+  color: #000000;
+  border-radius: 14px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  height: 54px;
+  font-size: 0.88rem;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.buy-btn-premium:hover:not(:disabled) {
+  background: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(255, 255, 255, 0.25);
+}
+
+.buy-btn-premium:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+
+.buy-btn-premium:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Lucky Seat */
+.tsp-lucky-block {
+  margin: 0 1.5rem 0;
+  padding: 1rem 1.25rem;
+  background: rgba(234, 179, 8, 0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(234, 179, 8, 0.18);
+}
+
+.tsp-lucky-title {
+  color: #EAB308;
+  margin: 0 0 4px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tsp-lucky-desc {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.65rem;
+  margin: 0 0 0.85rem;
+}
+
+.tsp-lucky-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.lucky-btn-premium-gold {
+  background: linear-gradient(135deg, #EAB308 0%, #CA8A04 100%);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  font-weight: 950;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  height: 40px;
+  flex: 2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(234, 179, 8, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.lucky-btn-premium-gold:hover:not(:disabled) {
+  background: linear-gradient(135deg, #facc15 0%, #EAB308 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(234, 179, 8, 0.45);
+}
+
+.lucky-btn-premium-gold:disabled {
+  background: #222;
+  color: #555;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.back-button.prob-btn {
+  margin: 0;
+  flex: 1;
+  justify-content: center;
+  height: 40px;
+  border-radius: 10px;
+}

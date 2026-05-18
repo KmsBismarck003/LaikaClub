@@ -1,16 +1,16 @@
-import React, { useState, useRef } from 'react';
-import { Icon } from '../../../../components';
+import React from 'react';
 import VenueMapSVG from '../../../../components/VenueMapSVG';
 
 /**
  * InteractiveVenueMap — Wrapper del mapa para EventDetail.
+ * Ocupa el 100% del contenedor padre (venue-map-interactive-area).
  * Soporta el nuevo formato layout_json.components (builder v2)
  * y también el formato legacy de zones para retrocompatibilidad.
  */
 const InteractiveVenueMap = ({
   // New format
   mapData,
-  // Legacy props (backward compat) — ignored if mapData is provided
+  // Legacy props (backward compat) — ignorados si mapData existe
   synchronizedZones,
   selectedSection,
   sortedSections,
@@ -21,18 +21,26 @@ const InteractiveVenueMap = ({
   onSeatToggle,
   busySeats = [],
   winnerSeatId = null,
+  activeScannerZoneId,
+  activeScannerSeatId,
+  onRouletteComplete,
+  // Map pan/zoom — pasados desde useVenueMap
+  mapScale,
+  mapPos,
+  isDragging,
+  dragStart,
+  setMapPos,
+  setIsDragging,
+  setDragStart,
+  handleZoom,
+  resetMap,
   // Admin
   isAdminView = false,
 }) => {
-  const [showZoomPill, setShowZoomPill] = useState(false);
-  const wrapperRef = useRef(null);
-
   // Determine what data to pass to VenueMapSVG
-  // mapData = layout_json.components from new builder
   const resolvedMapData = mapData || [];
 
-  // If no new mapData but we have legacy zones, convert them
-  // (This handles events whose maps were built with the old system)
+  // Si no hay nuevo formato pero sí zonas legacy, convertirlas
   const legacyConverted = (!mapData || !mapData.length) && synchronizedZones?.length
     ? synchronizedZones.map(zone => ({
         id: zone.id || zone.frontend_id,
@@ -60,23 +68,16 @@ const InteractiveVenueMap = ({
   const finalMapData = resolvedMapData.length ? resolvedMapData : (legacyConverted || []);
 
   return (
-    <div className="map-container" ref={wrapperRef} style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <VenueMapSVG
-        mapData={finalMapData}
-        busySeats={busySeats}
-        selectedSeats={selectedSeats}
-        onSeatToggle={onSeatToggle}
-        readOnly={isAdminView}
-        height="100%"
-      />
-
-      {/* Zoom controls overlay */}
-      <div className="map-controls" style={{ position: 'absolute', bottom: 50, right: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <button type="button" className="control-btn-premium" title="Acercar" style={{ opacity: 0 }}>
-          <Icon name="plus" size={16} />
-        </button>
-      </div>
-    </div>
+    <VenueMapSVG
+      mapData={finalMapData}
+      busySeats={busySeats}
+      selectedSeats={selectedSeats}
+      onSeatToggle={onSeatToggle}
+      readOnly={isAdminView}
+      height="100%"
+      width="100%"
+      selectedSection={selectedSection}
+    />
   );
 };
 

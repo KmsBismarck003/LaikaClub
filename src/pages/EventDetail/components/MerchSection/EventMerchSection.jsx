@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Icon } from "../../../../components";
 import { merchService } from "../../../../services/merch.service";
+import { useCart } from "../../../../context/CartContext";
+import { useNotification } from "../../../../context/NotificationContext";
 
 export const MerchProductCard = ({ item, onSelect }) => {
   const [cardColorIdx, setCardColorIdx] = React.useState(0);
@@ -68,11 +70,18 @@ export default function EventMerchSection({
   setMerchColorIdx,
   merchGalleryIdx,
   setMerchGalleryIdx,
-  addToCart,
-  success,
-  openCart
+  addToCart: propAddToCart,
+  success: propSuccess,
+  openCart: propOpenCart
 }) {
   const [merchItems, setMerchItems] = useState([]);
+
+  const { addToCart: hookAddToCart, openCart: hookOpenCart } = useCart();
+  const { success: hookSuccess } = useNotification();
+
+  const addToCart = (typeof propAddToCart === 'function') ? propAddToCart : hookAddToCart;
+  const openCart = (typeof propOpenCart === 'function') ? propOpenCart : hookOpenCart;
+  const success = (typeof propSuccess === 'function') ? propSuccess : hookSuccess;
 
   useEffect(() => {
     if (event?.id && event?.merch_enabled) {

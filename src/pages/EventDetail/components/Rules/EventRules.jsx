@@ -1,26 +1,29 @@
 import React from 'react';
 import { Accordion } from "../../../../components";
+import './EventRules.css';
 
 export default function EventRules({ event }) {
   if (event?.rules && event.rules.length > 0) {
-    return event.rules.map((rule, idx) => (
-      <Accordion
-        key={rule.id || idx}
-        title={rule.title}
-        icon={rule.icon}
-        className={idx === 0 ? "mt-4" : "mt-2"}
-      >
-        <p style={{ whiteSpace: "pre-line" }}>{rule.description}</p>
-      </Accordion>
-    ));
+    return (
+      <div className="event-rules-container">
+        {event.rules.map((rule, idx) => (
+          <Accordion
+            key={rule.id || idx}
+            title={rule.title}
+            icon={rule.icon}
+          >
+            <p style={{ whiteSpace: "pre-line" }}>{rule.description}</p>
+          </Accordion>
+        ))}
+      </div>
+    );
   }
 
   return (
-    <>
+    <div className="event-rules-container">
       <Accordion
         title="Reglas de Acceso y Límites"
         icon="alertTriangle"
-        className="mt-4"
       >
         <p>
           <strong>Límite de edad:</strong> Sin límite de edad (sujeto
@@ -49,7 +52,6 @@ export default function EventRules({ event }) {
       <Accordion
         title="Servicios y Duración"
         icon="info"
-        className="mt-2"
       >
         <p>
           <strong>Servicios en el Inmueble:</strong> Barras de snacks
@@ -66,6 +68,6 @@ export default function EventRules({ event }) {
           personal a su llegada.
         </p>
       </Accordion>
-    </>
+    </div>
   );
 }

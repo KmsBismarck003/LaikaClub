@@ -64,7 +64,14 @@ async def proxy_middleware(request: Request, call_next):
             db_name = os.getenv('MYSQL_DATABASE', 'laika_club')
             conn = pymysql.connect(host='127.0.0.1', user='root', password='', database=db_name, cursorclass=pymysql.cursors.DictCursor)
             with conn.cursor() as cursor:
-                cursor.execute("SELECT id, title, image_url, link_url, position, active, event_id FROM ads WHERE active=1 ORDER BY id DESC")
+                cursor.execute("""
+                    SELECT a.id, a.title, a.image_url, a.link_url, a.position, a.active, a.event_id 
+                    FROM ads a 
+                    LEFT JOIN events e ON a.event_id = e.id 
+                    WHERE a.active = 1 
+                      AND (a.event_id IS NULL OR (e.status = 'published' AND e.ads_enabled = 1))
+                    ORDER BY a.id DESC
+                """)
                 rows = cursor.fetchall()
             conn.close()
             print(f"[GATEWAY HOTPATCH DEBUG] Fetched {len(rows)} rows from MySQL")

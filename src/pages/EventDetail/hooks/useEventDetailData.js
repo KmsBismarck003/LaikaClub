@@ -59,10 +59,18 @@ export function useEventDetailData(id, api, venueAPI, errorNotification, navigat
   }, [venueAPI]);
 
   const getSynchronizedZones = useCallback((sortedSections) => {
-    if (!sortedSections || sortedSections.length === 0) return zones;
-    
+    // If no custom sections/tiers are defined, override every seating zone's price to the base event price!
+    const hasCustomSections = event?.sections && event.sections.length > 0;
+
     return zones.map(z => {
-      const matched = sortedSections.find(s => 
+      if (!hasCustomSections && z.type === 'seating') {
+        return {
+          ...z,
+          price: event?.price || 0
+        };
+      }
+
+      const matched = sortedSections?.find(s => 
         s.name.toLowerCase() === z.name.toLowerCase() || 
         s.id === z.id
       );
@@ -77,7 +85,7 @@ export function useEventDetailData(id, api, venueAPI, errorNotification, navigat
       }
       return z;
     });
-  }, [zones]);
+  }, [zones, event]);
 
   return {
     event,

@@ -1,0 +1,56 @@
+/* EventRules.css — Estilos aislados para las reglas del evento */
+
+.event-rules-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Override de accordions para tener el estilo oscuro glass */
+.event-rules-container .laika-accordion {
+  background: rgba(8, 8, 8, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 0;
+  transition: border-color 0.2s ease;
+}
+
+.event-rules-container .laika-accordion:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.event-rules-container .laika-accordion * {
+  color: #fff;
+}
+
+.event-rules-container .laika-accordion-header {
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  width: 100%;
+}
+
+.event-rules-container .laika-accordion-content {
+  padding: 0.5rem 1.25rem 1.1rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.event-rules-container .laika-accordion p {
+  font-size: 0.82rem;
+  line-height: 1.65;
+  padding: 0.2rem 0;
+  font-weight: 500;
+  word-break: break-word;
+  color: rgba(255,255,255,0.75);
+}
+
+.event-rules-container .laika-accordion p strong {
+  color: #fff;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  display: inline-block;
+  margin-right: 6px;
+  letter-spacing: 0.04em;
+}

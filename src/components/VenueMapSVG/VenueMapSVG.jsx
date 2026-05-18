@@ -1,6 +1,6 @@
 import React, { memo, useRef, useState, useCallback, useEffect } from 'react';
 
-const SEAT_R = 9;
+const SEAT_R = 10.5; // Slightly larger for better mobile/desktop click targets
 
 const SEAT_COLORS = {
   normal:     { base: '#2a2a2a', stroke: '#555',    hover: '#3f3f46', busy: '#450a0a', busyStroke: '#7f1d1d' },
@@ -20,8 +20,8 @@ function SeatDot({ seat, isBusy, isSelected, isWinner, onToggle }) {
   let strokeW = 1;
 
   if (isBusy)      { fill = colors.busy; stroke = colors.busyStroke; }
-  if (isSelected)  { fill = '#eab308'; stroke = '#fbbf24'; strokeW = 2; }
-  if (isWinner)    { fill = '#22c55e'; stroke = '#4ade80'; strokeW = 2; }
+  if (isSelected)  { fill = '#3B82F6'; stroke = '#60a5fa'; strokeW = 2.5; } // Premium Blue accent for selected
+  if (isWinner)    { fill = '#22c55e'; stroke = '#4ade80'; strokeW = 2.5; }
   if (hovered && !isBusy && !isSelected) { fill = colors.hover; }
 
   return (
@@ -29,24 +29,31 @@ function SeatDot({ seat, isBusy, isSelected, isWinner, onToggle }) {
       <circle
         cx={seat.x} cy={seat.y} r={SEAT_R}
         fill={fill} stroke={stroke} strokeWidth={strokeW}
-        style={{ cursor: isBusy ? 'not-allowed' : 'pointer', transition: 'fill 0.12s' }}
+        style={{
+          cursor: isBusy ? 'not-allowed' : 'pointer',
+          transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
+          transformBox: 'fill-box',
+          transformOrigin: 'center',
+          transform: hovered && !isBusy ? 'scale(1.3)' : 'scale(1)',
+          filter: hovered && !isBusy ? 'drop-shadow(0 0 6px rgba(255,255,255,0.45))' : (isSelected ? 'drop-shadow(0 0 4px rgba(59,130,246,0.5))' : 'none')
+        }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={() => !isBusy && onToggle && onToggle(seat)}
+        onClick={() => !isBusy && onToggle && onToggle(seat.id)}
       />
       {seat.type && seat.type !== 'normal' && (
-        <text x={seat.x} y={seat.y + 3.5} textAnchor="middle" fontSize={6}
-          fill={isSelected ? '#000' : stroke}
-          style={{ pointerEvents: 'none', userSelect: 'none' }}
+        <text x={seat.x} y={seat.y + 3.5} textAnchor="middle" fontSize={7}
+          fill={isSelected ? '#fff' : stroke}
+          style={{ pointerEvents: 'none', userSelect: 'none', fontWeight: 900 }}
         >
           <tspan>{TYPE_ICON[seat.type] || ''}</tspan>
         </text>
       )}
       {/* Seat number label below */}
       {hovered && (
-        <text x={seat.x} y={seat.y + SEAT_R + 9} textAnchor="middle"
-          fontSize={7} fill="rgba(255,255,255,0.6)"
-          style={{ pointerEvents: 'none', userSelect: 'none' }}
+        <text x={seat.x} y={seat.y + SEAT_R + 11} textAnchor="middle"
+          fontSize={8} fill="#ffffff" fontWeight={800}
+          style={{ pointerEvents: 'none', userSelect: 'none', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.9))' }}
         >
           <tspan>{seat.rowLabel}{seat.number}</tspan>
         </text>
@@ -57,15 +64,8 @@ function SeatDot({ seat, isBusy, isSelected, isWinner, onToggle }) {
 
 /**
  * VenueMapSVG — Generic viewer/selector for the seat map.
- * Used both in EventDetail (purchase flow) and admin live view.
- *
- * Props:
- *   mapData      — the layout_json.components array saved by AdminVenueMap
- *   busySeats    — array of seat frontend_ids that are occupied
- *   selectedSeats — array of seat ids selected by user
- *   onSeatToggle — (seat) => void
- *   readOnly     — boolean, disables interaction
- *   height       — container height string, default '100%'
+ * Fully responsive, with smooth auto-focusing on selected sections, 
+ * sleek floating glass zoom/pan controls, and tactile animations.
  */
 const VenueMapSVG = memo(({
   mapData = [],
@@ -74,14 +74,15 @@ const VenueMapSVG = memo(({
   onSeatToggle,
   readOnly = false,
   height = '100%',
+  selectedSection = null
 }) => {
   const svgRef = useRef(null);
   const [viewBox, setViewBox] = useState({ x: 0, y: 0, zoom: 1 });
   const [isPanning, setIsPanning] = useState(false);
   const panStart = useRef(null);
 
-  // Auto-fit on mount
-  useEffect(() => {
+  // Helper to fit entire map
+  const resetZoom = useCallback(() => {
     if (!mapData.length || !svgRef.current) return;
     const allX = [], allY = [];
     mapData.forEach(c => {
@@ -100,9 +101,56 @@ const VenueMapSVG = memo(({
     const mapW = maxX - minX;
     const mapH = maxY - minY;
     const rect = svgRef.current.getBoundingClientRect();
-    const zoom = Math.min(rect.width / mapW, rect.height / mapH, 2);
+    const zoom = Math.min(rect.width / mapW, rect.height / mapH, 1.8);
     setViewBox({ x: minX - (rect.width / zoom - mapW) / 2, y: minY - (rect.height / zoom - mapH) / 2, zoom });
   }, [mapData]);
+
+  // Auto-fit on mount
+  useEffect(() => {
+    resetZoom();
+  }, [mapData, resetZoom]);
+
+  // Auto-focus on selectedSection change
+  useEffect(() => {
+    if (!selectedSection || !mapData.length || !svgRef.current) return;
+
+    // Find component that matches selectedSection by ID or Name
+    const comp = mapData.find(c => 
+      String(c.id) === String(selectedSection.id) || 
+      c.name?.toLowerCase() === selectedSection.name?.toLowerCase()
+    );
+
+    if (!comp) return;
+
+    // Gather coordinates for this section
+    const allX = [], allY = [];
+    if (comp.type === 'seats') {
+      comp.blocks?.forEach(b => b.seats.forEach(s => { allX.push(s.x); allY.push(s.y); }));
+    } else {
+      allX.push(comp.x, comp.x + (comp.width || 120));
+      allY.push(comp.y, comp.y + (comp.height || 40));
+    }
+
+    if (!allX.length) return;
+
+    const minX = Math.min(...allX) - 40;
+    const minY = Math.min(...allY) - 40;
+    const maxX = Math.max(...allX) + 40;
+    const maxY = Math.max(...allY) + 40;
+    const compW = maxX - minX;
+    const compH = maxY - minY;
+
+    const rect = svgRef.current.getBoundingClientRect();
+    
+    // Zoom closer to show individual seats clearly
+    const zoom = Math.min(rect.width / compW, rect.height / compH, 2.2);
+
+    setViewBox({
+      x: minX - (rect.width / zoom - compW) / 2,
+      y: minY - (rect.height / zoom - compH) / 2,
+      zoom
+    });
+  }, [selectedSection, mapData]);
 
   const svgToCanvas = (clientX, clientY) => {
     const rect = svgRef.current?.getBoundingClientRect();
@@ -115,10 +163,10 @@ const VenueMapSVG = memo(({
 
   const handleWheel = useCallback((e) => {
     e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.12 : 0.12;
+    const delta = e.deltaY > 0 ? -0.15 : 0.15;
     const { x: cx, y: cy } = svgToCanvas(e.clientX, e.clientY);
     setViewBox(prev => {
-      const newZoom = Math.max(0.3, Math.min(5, prev.zoom + delta));
+      const newZoom = Math.max(0.25, Math.min(5.5, prev.zoom + delta));
       const scale = newZoom / prev.zoom;
       return { zoom: newZoom, x: cx - (cx - prev.x) * scale, y: cy - (cy - prev.y) * scale };
     });
@@ -151,6 +199,20 @@ const VenueMapSVG = memo(({
     panStart.current = null; 
   };
 
+  const zoomIn = () => {
+    setViewBox(prev => {
+      const newZoom = Math.min(5.5, prev.zoom + 0.25);
+      return { ...prev, zoom: newZoom };
+    });
+  };
+
+  const zoomOut = () => {
+    setViewBox(prev => {
+      const newZoom = Math.max(0.25, prev.zoom - 0.25);
+      return { ...prev, zoom: newZoom };
+    });
+  };
+
   const busySet = new Set(busySeats);
   const selectedSet = new Set(selectedSeats);
 
@@ -163,7 +225,144 @@ const VenueMapSVG = memo(({
   }
 
   return (
-    <div style={{ width: '100%', height, position: 'relative', background: '#080808', borderRadius: '8px', overflow: 'hidden' }}>
+    <div style={{ width: '100%', height, position: 'relative', background: '#080808', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+      
+      {/* Floating Interactive Controls */}
+      <div style={{
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
+        zIndex: 50
+      }}>
+        <button
+          type="button"
+          onClick={zoomIn}
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: '10px',
+            background: 'rgba(20, 20, 20, 0.85)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            color: '#fff',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+            transition: 'all 0.2s',
+            outline: 'none'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#000'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(20, 20, 20, 0.85)'; e.currentTarget.style.color = '#fff'; }}
+          title="Acercar (+)"
+        >
+          ＋
+        </button>
+        <button
+          type="button"
+          onClick={zoomOut}
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: '10px',
+            background: 'rgba(20, 20, 20, 0.85)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            color: '#fff',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+            transition: 'all 0.2s',
+            outline: 'none'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#000'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(20, 20, 20, 0.85)'; e.currentTarget.style.color = '#fff'; }}
+          title="Alejar (-)"
+        >
+          －
+        </button>
+        <button
+          type="button"
+          onClick={resetZoom}
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: '10px',
+            background: 'rgba(20, 20, 20, 0.85)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            color: '#fff',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+            transition: 'all 0.2s',
+            outline: 'none'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#000'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(20, 20, 20, 0.85)'; e.currentTarget.style.color = '#fff'; }}
+          title="Restaurar Vista"
+        >
+          ⟲
+        </button>
+        
+        {/* Zoom Indicator */}
+        <div style={{
+          background: 'rgba(0, 0, 0, 0.8)',
+          padding: '4px 6px',
+          borderRadius: '8px',
+          fontSize: '9px',
+          color: '#fff',
+          textAlign: 'center',
+          fontWeight: 800,
+          border: '1px solid rgba(255,255,255,0.08)',
+          letterSpacing: '0.5px'
+        }}>
+          {Math.round(viewBox.zoom * 100)}%
+        </div>
+      </div>
+
+      {/* Floating Instructions */}
+      <div style={{
+        position: 'absolute',
+        bottom: 15,
+        left: 15,
+        background: 'rgba(10, 10, 10, 0.75)',
+        padding: '6px 12px',
+        borderRadius: '8px',
+        fontSize: '0.65rem',
+        color: 'rgba(255,255,255,0.5)',
+        pointerEvents: 'none',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        fontWeight: '700',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px'
+      }}>
+        <span>🖱 Arrastra para mover</span>
+        <span style={{ opacity: 0.3 }}>|</span>
+        <span>🎡 Rueda para zoom</span>
+      </div>
+
       <svg
         ref={svgRef}
         style={{ width: '100%', height: '100%', cursor: isPanning ? 'grabbing' : 'grab', display: 'block' }}
@@ -175,7 +374,12 @@ const VenueMapSVG = memo(({
         <defs>
           <style>{`@keyframes marchingAnts{from{stroke-dashoffset:8}to{stroke-dashoffset:0}}`}</style>
         </defs>
-        <g transform={`scale(${viewBox.zoom}) translate(${-viewBox.x}, ${-viewBox.y})`}>
+        <g 
+          transform={`scale(${viewBox.zoom}) translate(${-viewBox.x}, ${-viewBox.y})`}
+          style={{
+            transition: isPanning ? 'none' : 'transform 0.45s cubic-bezier(0.2, 0.9, 0.1, 1)'
+          }}
+        >
           {mapData.map(comp => {
             const cx = comp.x + (comp.width || 0) / 2;
             const cy = comp.y + (comp.height || 0) / 2;
@@ -189,8 +393,8 @@ const VenueMapSVG = memo(({
                       {block.seats[0] && (
                         <text
                           x={block.seats[0].x - 16} y={block.seats[0].y + 4}
-                          fontSize={8} fill="rgba(255,255,255,0.25)"
-                          fontWeight={700} textAnchor="middle" fontFamily="monospace"
+                          fontSize={8} fill="rgba(255,255,255,0.3)"
+                          fontWeight={800} textAnchor="middle" fontFamily="monospace"
                           style={{ userSelect: 'none', pointerEvents: 'none' }}
                         >
                           <tspan>{block.rowLabel}</tspan>
@@ -212,18 +416,22 @@ const VenueMapSVG = memo(({
               );
             }
 
-            // Non-seat element
+            // Non-seat element (like Stage, Screen, etc.)
             return (
               <g key={comp.id} transform={`rotate(${comp.rotation || 0}, ${cx}, ${cy})`}>
                 <rect
                   x={comp.x} y={comp.y} width={comp.width || 120} height={comp.height || 40}
-                  rx={6} fill={comp.color || '#334155'} stroke="rgba(255,255,255,0.08)" strokeWidth={1}
+                  rx={8} 
+                  fill={comp.color || '#1e293b'} 
+                  stroke="rgba(255,255,255,0.12)" 
+                  strokeWidth={1.5}
+                  style={{ filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.5))' }}
                 />
                 <text
                   x={cx} y={cy + 4}
-                  textAnchor="middle" fontSize={10} fontWeight={800}
-                  fill="rgba(255,255,255,0.6)" fontFamily="Inter,sans-serif"
-                  style={{ pointerEvents: 'none', userSelect: 'none' }}
+                  textAnchor="middle" fontSize={11} fontWeight={900}
+                  fill="#ffffff" fontFamily="Inter, sans-serif"
+                  style={{ pointerEvents: 'none', userSelect: 'none', letterSpacing: '0.5px' }}
                 >
                   <tspan>{ELEM_LABELS[comp.type] || comp.name}</tspan>
                 </text>
@@ -232,29 +440,6 @@ const VenueMapSVG = memo(({
           })}
         </g>
       </svg>
-
-      {/* Legend */}
-      <div style={{
-        position: 'absolute', bottom: 10, right: 10,
-        display: 'flex', gap: 10, padding: '6px 10px',
-        background: 'rgba(0,0,0,0.7)', borderRadius: 8,
-        backdropFilter: 'blur(8px)', fontSize: '0.65rem',
-      }}>
-        {[
-          { color: '#2a2a2a', stroke: '#555',    label: 'Disponible' },
-          { color: '#eab308', stroke: '#fbbf24', label: 'Seleccionado' },
-          { color: '#450a0a', stroke: '#7f1d1d', label: 'Ocupado' },
-          { color: '#1a1a2e', stroke: '#9333ea', label: 'VIP' },
-          { color: '#0f2027', stroke: '#06b6d4', label: '♿' },
-        ].map(({ color, stroke, label }) => (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'rgba(255,255,255,0.5)' }}>
-            <svg width={12} height={12}>
-              <circle cx={6} cy={6} r={5} fill={color} stroke={stroke} strokeWidth={1} />
-            </svg>
-            {label}
-          </div>
-        ))}
-      </div>
     </div>
   );
 });

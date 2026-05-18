@@ -1,0 +1,108 @@
+/* VenueMap.css — Estilos aislados del mapa de asientos */
+
+/* ── CONTENEDOR PRINCIPAL DEL MAPA ─────────────────────────── */
+.venue-map-outer {
+  background: rgba(8, 8, 8, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── ÁREA INTERACTIVA DEL MAPA ─────────────────────────────── */
+.venue-map-interactive-area {
+  width: 100%;
+  height: 600px;           /* GRANDE para poder interactuar */
+  background: radial-gradient(circle at center, rgba(16,24,48,0.45) 0%, rgba(5,5,5,0.92) 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.venue-map-interactive-area:active,
+.venue-map-interactive-area.dragging {
+  cursor: grabbing;
+}
+
+/* ── RESUMEN DE SELECCIÓN ──────────────────────────────────── */
+.venue-map-selection-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1.2rem;
+  border-top: 1px solid rgba(59,130,246,0.2);
+  background: rgba(59,130,246,0.06);
+  font-size: 0.75rem;
+  color: #60a5fa;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.selection-count-badge {
+  background: #3B82F6;
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+/* ── HINT DE INSTRUCCIONES ─────────────────────────────────── */
+.venue-map-hint {
+  padding: 0.45rem 1rem;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  font-style: italic;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  flex-shrink: 0;
+}
+
+/* Controles del mapa (botones de zoom) */
+.venue-map-controls {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  z-index: 20;
+}
+
+.venue-map-control-btn {
+  width: 38px;
+  height: 38px;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 900;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  line-height: 1;
+}
+
+.venue-map-control-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.08);
+}

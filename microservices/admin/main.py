@@ -680,7 +680,14 @@ def get_public_ads(db: Session = Depends(get_db)):
             f.write(f"Error en debug: {e}\n")
     # ----------------------
     
-    rows = db.execute(text("SELECT * FROM ads WHERE active=1 ORDER BY id DESC")).fetchall()
+    rows = db.execute(text("""
+        SELECT a.* 
+        FROM ads a 
+        LEFT JOIN events e ON a.event_id = e.id 
+        WHERE a.active = 1 
+          AND (a.event_id IS NULL OR (e.status = 'published' AND e.ads_enabled = 1))
+        ORDER BY a.id DESC
+    """)).fetchall()
     return [_row_to_ad(r) for r in rows]
 
 @app.get("/ads/admin")
