@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Icon } from "../../../../components";
-import { MOCK_MERCH } from "../../constants/mockData";
+import { merchService } from "../../../../services/merch.service";
 
 export const MerchProductCard = ({ item, onSelect }) => {
   const [cardColorIdx, setCardColorIdx] = React.useState(0);
   const [isFavorite, setIsFavorite] = React.useState(false);
-  const cardImg = item.colors[cardColorIdx]?.images[0] || '';
+  
+  // Adapt to real schema: item.image_url instead of nested colors.images
+  const cardImg = item.image_url || '';
+  const price = item.variants?.[0]?.price || 0;
+
 
   return (
     <div
@@ -32,26 +36,12 @@ export const MerchProductCard = ({ item, onSelect }) => {
         </button>
       </div>
 
-      {/* Color swatches - below photo, aligned left */}
-      <div style={{ display: 'flex', gap: '3px', justifyContent: 'flex-start', marginTop: '2px', paddingLeft: '2px' }} onClick={e => e.stopPropagation()}>
-        {item.colors.map((c, ci) => (
-          <button
-            key={ci}
-            title={c.name}
-            onClick={e => { e.stopPropagation(); setCardColorIdx(ci); }}
-            style={{
-              width: '10px', height: '10px', borderRadius: '50%',
-              background: c.hex.startsWith('linear') ? c.hex : c.hex,
-              border: cardColorIdx === ci ? '1.5px solid #fff' : '1.5px solid #444',
-              cursor: 'pointer', padding: 0, transition: 'border-color 0.15s', flexShrink: 0
-            }}
-          />
-        ))}
-      </div>
+      {/* Color swatches omitted for simplicity, real schema might not have nested colors array */}
+
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', flex: 1, textAlign: 'left', paddingLeft: '2px', marginBottom: '0.4rem' }}>
         <h4 style={{ fontSize: '0.48rem', color: '#fff', margin: 0, fontWeight: 700, lineHeight: 1.1 }}>{item.name}</h4>
-        <span style={{ fontSize: '0.5rem', color: '#fff', fontWeight: 900 }}>${item.price.toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span>
+        <span style={{ fontSize: '0.5rem', color: '#fff', fontWeight: 900 }}>${parseFloat(price).toLocaleString("es-MX", { minimumFractionDigits: 2 })}</span>
       </div>
 
       {/* AGREGAR Button */}
@@ -82,7 +72,17 @@ export default function EventMerchSection({
   success,
   openCart
 }) {
-  if (!event?.merch_enabled) return null;
+  const [merchItems, setMerchItems] = useState([]);
+
+  useEffect(() => {
+    if (event?.id && event?.merch_enabled) {
+      merchService.getAllMerchandise(null, null, event.id, 'approved')
+        .then(data => setMerchItems(data || []))
+        .catch(console.error);
+    }
+  }, [event]);
+
+  if (!event?.merch_enabled || merchItems.length === 0) return null;
 
   return (
     <>
@@ -91,7 +91,7 @@ export default function EventMerchSection({
           <Icon name="shoppingBag" size={16} /> Mercancía Oficial
         </h3>
         <div className="merch-products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem' }}>
-            {MOCK_MERCH.slice(0, 6).map(item => (
+            {merchItems.slice(0, 6).map(item => (
               <MerchProductCard
                 key={item.id}
                 item={item}
@@ -99,7 +99,7 @@ export default function EventMerchSection({
                   setSelectedMerchItem(item);
                   setMerchSize('M');
                   setMerchQty(1);
-                  setMerchColorIdx(cardColorIdx);
+                  setMerchColorIdx(0);
                   setMerchGalleryIdx(0);
                 }}
               />
@@ -107,11 +107,12 @@ export default function EventMerchSection({
         </div>
       </div>
 
-      {/* ── PRODUCT DETAIL MODAL (gallery left + info right) ── */}
+      {/* PRODUCT DETAIL MODAL */}
       {selectedMerchItem && (() => {
-        const activeColor = selectedMerchItem.colors[merchColorIdx] || selectedMerchItem.colors[0];
-        const galleryImages = activeColor.images;
-        const hasSize = ['Playera','Gorra','Hoodie','Bufanda'].includes(selectedMerchItem.type);
+        const galleryImages = [selectedMerchItem.image_url];
+        const hasSize = ['Playera','Gorra','Hoodie','Bufanda'].includes(selectedMerchItem.category);
+        const activePrice = selectedMerchItem.variants?.[0]?.price || 0;
+        
         return (
           <div
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
@@ -127,62 +128,24 @@ export default function EventMerchSection({
 
               {/* LEFT — Image Gallery */}
               <div style={{ flex: '1.2', display: 'flex', flexDirection: 'column', gap: '0', background: 'rgba(255,255,255,0.02)', overflow: 'hidden' }}>
-                {/* Main image */}
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
                   <img
-                    src={galleryImages[merchGalleryIdx] || galleryImages[0]}
+                    src={galleryImages[0]}
                     alt={selectedMerchItem.name}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.25s' }}
                   />
                 </div>
-                {/* Thumbnails strip */}
-                {galleryImages.length > 1 && (
-                  <div style={{ display: 'flex', height: '70px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                    {galleryImages.map((img, gi) => (
-                      <div
-                        key={gi}
-                        onClick={() => setMerchGalleryIdx(gi)}
-                        style={{ flex: 1, overflow: 'hidden', cursor: 'pointer', opacity: merchGalleryIdx === gi ? 1 : 0.45, transition: 'opacity 0.2s', borderRight: gi < galleryImages.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}
-                      >
-                        <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* RIGHT — Product Info */}
               <div style={{ width: '340px', flexShrink: 0, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', overflowY: 'auto' }}>
                 <div>
-                  <span style={{ fontSize: '0.6rem', color: '#888', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '3px' }}>{selectedMerchItem.type}</span>
+                  <span style={{ fontSize: '0.6rem', color: '#888', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '3px' }}>{selectedMerchItem.category || 'MERCANCÍA'}</span>
                   <h2 style={{ color: '#fff', margin: '0.3rem 0 0', fontWeight: 900, fontSize: '1.25rem', textTransform: 'uppercase', lineHeight: 1.2 }}>{selectedMerchItem.name}</h2>
                   <p style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 900, margin: '0.6rem 0 0' }}>
-                    ${selectedMerchItem.price.toLocaleString("es-MX")}
+                    ${parseFloat(activePrice).toLocaleString("es-MX")}
                     <span style={{ fontSize: '0.7rem', color: '#888', fontWeight: 400, marginLeft: '6px' }}>MXN</span>
                   </p>
-                </div>
-
-                {/* Color selector */}
-                <div>
-                  <p style={{ fontSize: '0.6rem', fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 0.6rem' }}>
-                    Color: <span style={{ color: '#fff' }}>{activeColor.name}</span>
-                  </p>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    {selectedMerchItem.colors.map((c, ci) => (
-                      <button
-                        key={ci}
-                        title={c.name}
-                        onClick={() => { setMerchColorIdx(ci); setMerchGalleryIdx(0); }}
-                        style={{
-                          width: '28px', height: '28px', borderRadius: '50%',
-                          background: c.hex.startsWith('linear') ? c.hex : c.hex,
-                          border: `2px solid ${merchColorIdx === ci ? '#fff' : '#444'}`,
-                          cursor: 'pointer', padding: 0, transition: 'border-color 0.15s',
-                          boxShadow: merchColorIdx === ci ? '0 0 0 3px rgba(255,255,255,0.15)' : 'none'
-                        }}
-                      />
-                    ))}
-                  </div>
                 </div>
 
                 {/* Size selector */}
@@ -221,7 +184,7 @@ export default function EventMerchSection({
                       style={{ width: '40px', height: '40px', border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: '#fff', fontSize: '1.2rem', cursor: 'pointer', fontWeight: 900 }}
                     >+</button>
                     <span style={{ marginLeft: 'auto', color: '#fff', fontWeight: 900, fontSize: '1.1rem' }}>
-                      ${(selectedMerchItem.price * merchQty).toLocaleString("es-MX")}
+                      ${(activePrice * merchQty).toLocaleString("es-MX")}
                     </span>
                   </div>
                 </div>
@@ -233,18 +196,17 @@ export default function EventMerchSection({
                   size="large"
                   style={{ fontWeight: 900, letterSpacing: '2px', marginTop: 'auto' }}
                   onClick={() => {
-                    const colorLabel = activeColor.name;
                     const sizeLabel = hasSize ? ` | Talla ${merchSize}` : '';
                     addToCart(
                       {
-                        id: `merch_${selectedMerchItem.id}_${merchColorIdx}`,
-                        name: `${selectedMerchItem.name} (${colorLabel}${sizeLabel})`,
-                        price: selectedMerchItem.price,
-                        image: activeColor.images[0]
+                        id: `merch_${selectedMerchItem.id}`,
+                        name: `${selectedMerchItem.name} (${sizeLabel})`,
+                        price: activePrice,
+                        image: selectedMerchItem.image_url
                       },
                       merchQty,
                       null,
-                      { id: 'MERCH', name: `MERCH: ${selectedMerchItem.type}`, price: selectedMerchItem.price }
+                      { id: 'MERCH', name: `MERCH: ${selectedMerchItem.category || 'MERCANCÍA'}`, price: activePrice }
                     );
                     setSelectedMerchItem(null);
                     success(`¡${selectedMerchItem.name} agregado al carrito!`);

@@ -21,6 +21,7 @@ SERVICES = {
     "admin": "http://127.0.0.1:8005",
     "achievements": "http://127.0.0.1:8006",
     "analytics": "http://127.0.0.1:8007",
+    "merchandise": "http://127.0.0.1:8008",
 }
 
 @app.middleware("http")
@@ -50,6 +51,8 @@ async def proxy_middleware(request: Request, call_next):
         target_url = f"{SERVICES['tickets']}/refund{path.replace('/api/refunds', '')}"
     elif path.startswith("/api/stats"):
         target_url = f"{SERVICES['stats']}{path.replace('/api/stats', '')}"
+    elif path.startswith("/api/merchandise"):
+        target_url = f"{SERVICES['merchandise']}{path.replace('/api/merchandise', '')}"
     elif path.startswith("/api/monitoring"):
         target_url = f"{SERVICES['stats']}{path.replace('/api/monitoring', '')}"
     elif path.startswith("/api/database"):

@@ -7,18 +7,36 @@ from decimal import Decimal
 def get_merchandise_item(db: Session, merch_id: int):
     return db.query(MerchandiseItem).filter(MerchandiseItem.id == merch_id).first()
 
-def get_all_merchandise(db: Session, manager_id: int = None, status: str = None):
+def get_all_merchandise(db: Session, manager_id: int = None, status: str = None, event_id: int = None, admin_status: str = None):
     query = db.query(MerchandiseItem)
     if manager_id:
         query = query.filter(MerchandiseItem.manager_id == manager_id)
     if status:
         query = query.filter(MerchandiseItem.status == status)
+    if event_id:
+        query = query.filter(MerchandiseItem.event_id == event_id)
+    if admin_status:
+        query = query.filter(MerchandiseItem.admin_status == admin_status)
     return query.all()
 
 def create_merchandise(db: Session, item_data: MerchandiseItemCreate, manager_id: int):
     settings = db.query(MerchandiseSettings).filter(MerchandiseSettings.manager_id == manager_id).first()
-    if not settings or not settings.is_enabled:
-        raise HTTPException(status_code=403, detail="Store is not enabled for this manager.")
+    
+    event_allowed = False
+    if item_data.event_id:
+        try:
+            import requests
+            response = requests.get(f"http://localhost:8002/{item_data.event_id}", timeout=2)
+            if response.status_code == 200:
+                event_data = response.json()
+                if event_data and event_data.get("merch_enabled"):
+                    event_allowed = True
+        except Exception as e:
+            print(f"[MERCH SERVICE] Error checking event merch_enabled: {e}")
+
+    if not event_allowed:
+        if not settings or not settings.is_enabled:
+            raise HTTPException(status_code=403, detail="Store is not enabled for this manager.")
 
     # Crear el item principal
     db_item = MerchandiseItem(
@@ -26,6 +44,8 @@ def create_merchandise(db: Session, item_data: MerchandiseItemCreate, manager_id
         description=item_data.description,
         image_url=item_data.image_url,
         status=item_data.status,
+        admin_status=item_data.admin_status,
+        event_id=item_data.event_id,
         manager_id=manager_id
     )
     db.add(db_item)
@@ -134,7 +154,19 @@ def create_order(db: Session, order: OrderCreate):
         merch_item = variant.item
             
         settings = get_settings(db, merch_item.manager_id)
-        if not settings.is_enabled:
+        event_allowed = False
+        if merch_item.event_id:
+            try:
+                import requests
+                response = requests.get(f"http://localhost:8002/{merch_item.event_id}", timeout=2)
+                if response.status_code == 200:
+                    event_data = response.json()
+                    if event_data and event_data.get("merch_enabled"):
+                        event_allowed = True
+            except Exception as e:
+                print(f"[MERCH SERVICE] Error checking event merch_enabled for order: {e}")
+
+        if not event_allowed and not settings.is_enabled:
             raise HTTPException(status_code=400, detail=f"Store not enabled for merchandise {merch_item.id}.")
             
         unit_price = variant.price

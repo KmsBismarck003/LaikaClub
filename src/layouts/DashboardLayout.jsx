@@ -46,7 +46,8 @@ const DashboardLayout = () => {
         { id: 'events', path: '/admin/events', icon: 'calendar', label: 'Eventos', permission: 'events.view' },
         { id: 'sales', path: '/admin/sales', icon: 'dollarSign', label: 'Ventas y Reportes', permission: 'sales.view' },
         { id: 'venues', path: '/admin/venues', icon: 'map', label: 'Recintos', permission: 'venues.view' },
-        { id: 'venue_map', path: '/admin/venue-map', icon: 'map', label: 'Mapa de Ventas', permission: 'admin.view' }
+        { id: 'venue_map', path: '/admin/venue-map', icon: 'map', label: 'Mapa de Ventas', permission: 'admin.view' },
+        { id: 'merchandise_adm', path: '/admin/merchandise', icon: 'shoppingBag', label: 'Aprobación Mercancía', permission: 'admin.view' }
       ]
     },
     {
@@ -121,7 +122,8 @@ const DashboardLayout = () => {
               { id: 'g_stats', path: '/manager/analytics', icon: 'chart', label: 'Analíticas Avanzadas' },
               { id: 'g_transactions', path: '/manager/transactions', icon: 'dollarSign', label: 'Auditoría Ventas' },
               { id: 'g_attendees', path: '/manager/attendees', icon: 'users', label: 'Gestor Asistentes' },
-              { id: 'g_ads', path: '/manager/ads', icon: 'image', label: 'Publicidad & Ads' }
+              { id: 'g_ads', path: '/manager/ads', icon: 'image', label: 'Publicidad & Ads' },
+              { id: 'g_merchandise', path: '/manager/merchandise', icon: 'shoppingBag', label: 'Constructor Mercancía' }
             ]
           }
         ],
@@ -170,7 +172,8 @@ const DashboardLayout = () => {
           { id: 'g_stats_s', path: '/manager/analytics', icon: 'chart', label: 'Analíticas Globales' },
           { id: 'g_transactions_s', path: '/manager/transactions', icon: 'dollarSign', label: 'Auditoría Transacciones' },
           { id: 'g_attendees_s', path: '/manager/attendees', icon: 'users', label: 'Censo Asistentes' },
-          { id: 'g_ads_s', path: '/manager/ads', icon: 'image', label: 'Publicidad & Ads' }
+          { id: 'g_ads_s', path: '/manager/ads', icon: 'image', label: 'Publicidad & Ads' },
+          { id: 'g_merchandise_s', path: '/manager/merchandise', icon: 'shoppingBag', label: 'Constructor Mercancía' }
         ]
       },
       {

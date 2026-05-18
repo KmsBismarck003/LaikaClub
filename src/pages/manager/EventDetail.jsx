@@ -8,6 +8,7 @@ import TicketOverview from './TicketOverview';
 import RevenuePanel from './RevenuePanel';
 import CancelEventModal from './CancelEventModal';
 import LiveMapViewer from './LiveMapViewer';
+import MerchandisePanel from './MerchandisePanel';
 import '../../styles/manager.css';
 
 const EventDetail = () => {
@@ -140,6 +141,12 @@ const EventDetail = () => {
                     Finanzas
                 </button>
                 <button
+                    className={`tab-button ${activeTab === 'merch' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('merch')}
+                >
+                    Mercancía
+                </button>
+                <button
                     className={`tab-button ${activeTab === 'config' ? 'active' : ''}`}
                     onClick={() => setActiveTab('config')}
                 >
@@ -234,6 +241,10 @@ const EventDetail = () => {
 
                 {activeTab === 'revenue' && (
                     <RevenuePanel eventId={id} />
+                )}
+
+                {activeTab === 'merch' && (
+                    <MerchandisePanel eventId={id} event={event} />
                 )}
 
                 {activeTab === 'config' && (

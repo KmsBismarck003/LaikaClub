@@ -11,15 +11,42 @@ from datetime import datetime
 MYSQL_URL = f"mysql+pymysql://{os.getenv('MYSQL_USER', 'root')}:{os.getenv('MYSQL_PASSWORD', '')}@{os.getenv('MYSQL_HOST', 'localhost')}:3306/{os.getenv('MYSQL_DATABASE', 'laika_club')}"
 DB_PATH = "microservices/merchandise/merchandise.db"
 
+def run_migrations(engine):
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        try:
+            if engine.name == 'mysql':
+                try:
+                    conn.execute(text("ALTER TABLE merchandise_items ADD COLUMN event_id INT;"))
+                    conn.commit()
+                except: pass
+                try:
+                    conn.execute(text("ALTER TABLE merchandise_items ADD COLUMN admin_status VARCHAR(50) DEFAULT 'pending_review';"))
+                    conn.commit()
+                except: pass
+            else:
+                try:
+                    conn.execute(text("ALTER TABLE merchandise_items ADD COLUMN event_id INTEGER;"))
+                    conn.commit()
+                except: pass
+                try:
+                    conn.execute(text("ALTER TABLE merchandise_items ADD COLUMN admin_status TEXT DEFAULT 'pending_review';"))
+                    conn.commit()
+                except: pass
+        except Exception as e:
+            print(f"[MERCH SERVICE] Error en migración: {e}")
+
 try:
     engine = create_engine(MYSQL_URL, pool_pre_ping=True, connect_args={'connect_timeout': 2})
     engine.connect()
     print("[MERCH SERVICE] Conexión MySQL establecida.")
+    run_migrations(engine)
 except Exception:
     print("[MERCH SERVICE] MySQL no disponible. Usando SQLite de respaldo...")
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     SQLALCHEMY_DATABASE_URL = f"sqlite:///./{DB_PATH}"
     engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+    run_migrations(engine)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

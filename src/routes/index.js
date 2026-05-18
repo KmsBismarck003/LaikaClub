@@ -62,10 +62,12 @@ const AdminVenueMap = lazy(() => import('../pages/admin/VenueMap/AdminVenueMap')
 const BigDataAnalytics = lazy(() => import('../pages/admin/BigDataAnalytics'))
 const WelcomePortal = lazy(() => import('../pages/admin/Dashboard/WelcomePortal'))
 const LuckySeatConfig = lazy(() => import('../pages/admin/Config/LuckySeatConfig'))
+const MerchandiseApproval = lazy(() => import('../pages/admin/MerchandiseApproval'))
 
 // Módulo Manager
 const ManagerStatsPage = lazy(() => import('../pages/manager/ManagerStatsPage'))
 const ManagerAds = lazy(() => import('../pages/manager/ManagerAds'))
+const ManagerMerchandise = lazy(() => import('../pages/manager/ManagerMerchandise'))
 
 /**
  * Rutas públicas (sin autenticación requerida)
@@ -341,6 +343,13 @@ export const adminRoutes = [
     layout: 'dashboard',
     allowedRoles: ['admin'],
     title: 'Análisis Big Data'
+  },
+  {
+    path: '/admin/merchandise',
+    element: MerchandiseApproval,
+    layout: 'dashboard',
+    allowedRoles: ['admin'],
+    title: 'Aprobación de Mercancía'
   }
 ]
 
@@ -403,6 +412,13 @@ export const managerRoutes = [
     layout: 'dashboard',
     allowedRoles: ['gestor', 'admin'],
     title: 'Diseño de Sala'
+  },
+  {
+    path: '/manager/merchandise',
+    element: ManagerMerchandise,
+    layout: 'dashboard',
+    allowedRoles: ['gestor', 'admin'],
+    title: 'Constructor Mercancía'
   }
 ]
 

@@ -10,6 +10,7 @@ import { databaseAPI, monitoringAPI, logsAPI, adminUsersAPI, restoreAuditAPI, co
 import { pagesAPI, adsAPI, notificationAPI, tickerAPI } from './contentService';
 import { managerAPI, venueAPI } from './managerService';
 import { statsAPI, achievementsAPI, analyticsAPI } from './miscService';
+import { merchService } from './merch.service';
 
 // Exportar servicios individuales
 export {
@@ -33,7 +34,8 @@ export {
   venueAPI,
   statsAPI,
   achievementsAPI,
-  analyticsAPI
+  analyticsAPI,
+  merchService
 };
 
 // Objeto API consolidado para retrocompatibilidad
@@ -58,7 +60,8 @@ const api = {
   venue: venueAPI,
   stats: statsAPI,
   achievements: achievementsAPI,
-  analytics: analyticsAPI
+  analytics: analyticsAPI,
+  merch: merchService
 };
 
 export default api;

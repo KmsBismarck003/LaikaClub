@@ -23,6 +23,8 @@ class MerchandiseItem(Base):
     is_official = Column(Boolean, default=True) # True = Premium, False = Bazar/AliExpress
     rating = Column(Float, default=4.5) # Para el estilo marketplace
     status = Column(Enum('draft','published','hidden'), default='draft')
+    admin_status = Column(String(50), default='pending_review') # 'pending_review', 'approved', 'rejected'
+    event_id = Column(Integer, nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useNotification } from '../../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../Icons/Icons';
 import TicketPrinterOverlay from '../../pages/user/UserCart/TicketPrinterOverlay';
+import { merchService } from '../../services/merch.service';
 import './Cart.css';
 
 const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false }) => {
@@ -12,7 +13,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
         serviceFee, serviceFeePercent, availableCoupons,
         appliedCoupon, discount, finalTotal,
         applyCoupon, removeCoupon, consumeAppliedCoupon,
-        closeCart
+        closeCart, addToCart
     } = useCart();
 
     const { success, error } = useNotification();
@@ -22,9 +23,29 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
     // Animation overlay state
     const [showPrinter, setShowPrinter] = useState(false);
     const [printingData, setPrintingData] = useState(null);
+    
+    // Upsell state
+    const [upsellMerch, setUpsellMerch] = useState([]);
+    const [showUpsellModal, setShowUpsellModal] = useState(false);
 
     const ticketItems = cart.filter(item => item.sectionId !== 'MERCH');
     const merchItems = cart.filter(item => item.sectionId === 'MERCH');
+
+    useEffect(() => {
+        const ticketEventIds = [...new Set(ticketItems.map(item => item.eventId))].filter(Boolean);
+        if (ticketEventIds.length > 0) {
+            Promise.all(ticketEventIds.map(id => 
+                merchService.getAllMerchandise(null, null, id, 'approved')
+            )).then(results => {
+                const allMerch = results.flat().filter(Boolean);
+                const merchInCartIds = cart.filter(item => item.sectionId === 'MERCH').map(item => item.id);
+                const filteredUpsell = allMerch.filter(item => !merchInCartIds.includes(`merch_${item.id}`));
+                setUpsellMerch(filteredUpsell);
+            }).catch(err => console.error("Error fetching upsell merch:", err));
+        } else {
+            setUpsellMerch([]);
+        }
+    }, [cart]);
 
     const renderItem = (item) => {
         const nameMatch = item.eventName?.match(/^(.+?)\s*\((.+)\)$/);
@@ -72,6 +93,14 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
 
     const handleCheckout = () => {
         if (cart.length === 0) return;
+        if (upsellMerch.length > 0) {
+            setShowUpsellModal(true);
+        } else {
+            proceedToCheckout();
+        }
+    };
+
+    const proceedToCheckout = () => {
         if (isModal && closeCart) closeCart();
         navigate('/checkout');
     };
@@ -238,6 +267,109 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                 </div>
                 </div>{/* closes right column */}
             </div>
+            
+            {/* UPSELL SOUVENIR MODAL */}
+            {showUpsellModal && (
+                <div style={{
+                    position: 'fixed', inset: 0, 
+                    background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                    zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+                }}>
+                    <div style={{
+                        background: 'linear-gradient(135deg, rgba(20,20,30,0.9) 0%, rgba(10,10,15,0.95) 100%)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '24px', width: '640px', maxWidth: '95vw', maxHeight: '85vh',
+                        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+                        boxShadow: '0 24px 80px rgba(0,0,0,0.8), 0 0 40px rgba(168,85,247,0.15)'
+                    }}>
+                        <div style={{ padding: '2rem 2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                            <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}>🎁</span>
+                            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '2px', color: '#fff', margin: 0, background: 'linear-gradient(90deg, #c084fc, #db2777)', bgClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                                ¿TE GUSTARÍA UN RECUERDITO?
+                            </h2>
+                            <p style={{ fontSize: '0.75rem', color: '#aaa', marginTop: '0.5rem', lineHeight: '1.4' }}>
+                                Merchandising oficial y exclusivo disponible únicamente para asistentes. ¡Agrégalo a tu compra ahora!
+                            </p>
+                        </div>
+
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {upsellMerch.map(item => {
+                                const price = item.variants?.[0]?.price || 0;
+                                return (
+                                    <div key={item.id} style={{
+                                        display: 'flex', alignItems: 'center', gap: '1rem',
+                                        background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)',
+                                        borderRadius: '16px', padding: '0.75rem', transition: 'all 0.2s'
+                                    }}>
+                                        <img src={item.image_url} alt="" style={{ width: '60px', height: '60px', borderRadius: '12px', objectFit: 'cover' }} />
+                                        <div style={{ flex: 1, textAlign: 'left' }}>
+                                            <span style={{ fontSize: '0.55rem', color: '#a855f7', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                                {item.category || 'MERCANCÍA'}
+                                            </span>
+                                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', margin: '0.1rem 0 0.2rem' }}>{item.name}</h4>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#f3e8ff' }}>${parseFloat(price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <button 
+                                            onClick={() => {
+                                                addToCart(
+                                                    {
+                                                        id: `merch_${item.id}`,
+                                                        name: item.name,
+                                                        price: price,
+                                                        image: item.image_url
+                                                    },
+                                                    1,
+                                                    null,
+                                                    { id: 'MERCH', name: `MERCH: ${item.category || 'MERCANCÍA'}`, price: price }
+                                                );
+                                                // Remove this item from upsell list since it's already in the cart
+                                                setUpsellMerch(prev => prev.filter(u => u.id !== item.id));
+                                                success(`¡${item.name} agregado al carrito!`);
+                                            }}
+                                            style={{
+                                                background: 'linear-gradient(90deg, #a855f7, #ec4899)', border: 'none',
+                                                color: '#fff', fontSize: '0.65rem', fontWeight: 900, padding: '0.6rem 1rem',
+                                                borderRadius: '8px', cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase'
+                                            }}
+                                        >
+                                            + AGREGAR
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div style={{ padding: '1.5rem 2rem', display: 'flex', gap: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
+                            <button 
+                                onClick={proceedToCheckout}
+                                style={{
+                                    flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.15)',
+                                    color: '#aaa', padding: '0.9rem', fontSize: '0.7rem', fontWeight: 800,
+                                    borderRadius: '12px', cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseOver={e => { e.currentTarget.style.borderColor = '#fff'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = '#aaa'; }}
+                            >
+                                No, continuar al pago
+                            </button>
+                            <button 
+                                onClick={proceedToCheckout}
+                                style={{
+                                    flex: 1, background: '#fff', border: 'none',
+                                    color: '#000', padding: '0.9rem', fontSize: '0.7rem', fontWeight: 900,
+                                    borderRadius: '12px', cursor: 'pointer', letterSpacing: '1.5px', textTransform: 'uppercase',
+                                    transition: 'opacity 0.2s', boxShadow: '0 4px 20px rgba(255,255,255,0.15)'
+                                }}
+                                onMouseOver={e => e.currentTarget.style.opacity = '0.85'}
+                                onMouseOut={e => e.currentTarget.style.opacity = '1'}
+                            >
+                                Listo, ir a pagar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

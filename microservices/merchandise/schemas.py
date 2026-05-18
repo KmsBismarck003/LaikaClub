@@ -49,6 +49,8 @@ class MerchandiseItemBase(BaseModel):
     is_official: bool = True
     rating: float = 4.5
     status: str = 'draft'
+    admin_status: str = 'pending_review'
+    event_id: Optional[int] = None
 
 class MerchandiseItemCreate(MerchandiseItemBase):
     variants: List[MerchandiseVariantCreate]
@@ -58,6 +60,8 @@ class MerchandiseItemUpdate(BaseModel):
     description: Optional[str] = None
     image_url: Optional[str] = None
     status: Optional[str] = None
+    admin_status: Optional[str] = None
+    event_id: Optional[int] = None
     variants: Optional[List[MerchandiseVariantUpdate]] = None
 
 class MerchandiseItemResponse(MerchandiseItemBase):

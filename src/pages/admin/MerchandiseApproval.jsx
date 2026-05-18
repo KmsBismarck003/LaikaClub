@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import { LoadingScreen, SkeletonMerchandiseApproval } from '../../components';
+import { LoadingScreen, Button } from '../../components';
 import { merchService } from '../../services/merch.service';
 import api from '../../services/api';
 
@@ -10,6 +10,7 @@ import MerchHeader from './MerchandiseApproval/components/MerchHeader';
 import MerchActions from './MerchandiseApproval/components/MerchActions';
 import MerchTable from './MerchandiseApproval/components/MerchTable';
 import MerchEditModal from './MerchandiseApproval/components/MerchEditModal';
+import PendingProducts from './MerchandiseApproval/components/PendingProducts';
 
 import './MerchandiseApproval.css';
 
@@ -20,6 +21,7 @@ const MerchandiseApproval = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [updatingId, setUpdatingId] = useState(null);
     const [editingSettings, setEditingSettings] = useState(null);
+    const [activeTab, setActiveTab] = useState('gestores');
 
     useEffect(() => {
         loadData();
@@ -28,11 +30,8 @@ const MerchandiseApproval = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            // Buscamos usuarios con rol gestor
-            const usersResp = await fetch('http://localhost:8001/users?role=gestor', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const usersData = await usersResp.json();
+            // Buscamos usuarios con rol gestor usando el cliente API de administración
+            const usersData = await api.adminUsers.getAll({ role: 'gestor' });
             
             // Unificamos con sus configuraciones de tienda
             const combinedData = await Promise.all(
@@ -104,30 +103,51 @@ const MerchandiseApproval = () => {
         `${g.first_name} ${g.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) return <SkeletonMerchandiseApproval />;
+    if (loading) return <LoadingScreen />;
 
     return (
         <div className="merch-approval-container industrial-page">
             <MerchHeader gestores={gestores} />
 
-            <MerchActions 
-                searchTerm={searchTerm} 
-                setSearchTerm={setSearchTerm} 
-                loadData={loadData} 
-            />
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                <Button 
+                    variant={activeTab === 'gestores' ? 'primary' : 'secondary'} 
+                    onClick={() => setActiveTab('gestores')}
+                >
+                    Gestores
+                </Button>
+                <Button 
+                    variant={activeTab === 'productos' ? 'primary' : 'secondary'} 
+                    onClick={() => setActiveTab('productos')}
+                >
+                    Productos Pendientes
+                </Button>
+            </div>
 
-            <MerchTable 
-                filteredGestores={filteredGestores} 
-                updatingId={updatingId} 
-                togglePremium={togglePremium} 
-                setEditingSettings={setEditingSettings} 
-            />
+            {activeTab === 'gestores' ? (
+                <>
+                    <MerchActions 
+                        searchTerm={searchTerm} 
+                        setSearchTerm={setSearchTerm} 
+                        loadData={loadData} 
+                    />
 
-            <MerchEditModal 
-                editingSettings={editingSettings} 
-                setEditingSettings={setEditingSettings} 
-                handleSaveSettings={handleSaveSettings} 
-            />
+                    <MerchTable 
+                        filteredGestores={filteredGestores} 
+                        updatingId={updatingId} 
+                        togglePremium={togglePremium} 
+                        setEditingSettings={setEditingSettings} 
+                    />
+
+                    <MerchEditModal 
+                        editingSettings={editingSettings} 
+                        setEditingSettings={setEditingSettings} 
+                        handleSaveSettings={handleSaveSettings} 
+                    />
+                </>
+            ) : (
+                <PendingProducts />
+            )}
         </div>
     );
 };

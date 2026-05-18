@@ -40,6 +40,7 @@ export { default as AdminSales } from './admin/SalesReports/SalesReports'
 export { default as EmailManager } from './admin/EmailManager/EmailManager'
 export { default as AuthAudit } from './admin/AuthAudit/AuthAudit'
 export { default as RestoreAudit } from './admin/RestoreAudit/RestoreAudit'
+export { default as MerchandiseApproval } from './admin/MerchandiseApproval'
 
 
 // Módulo de Manager
@@ -49,6 +50,7 @@ export { default as ManagerStatsPage } from './manager/ManagerStatsPage'
 export { default as ManagerAnalytics } from './manager/ManagerAnalytics'
 export { default as ManagerTransactions } from './manager/ManagerTransactions'
 export { default as ManagerAttendees } from './manager/ManagerAttendees'
+export { default as ManagerMerchandise } from './manager/ManagerMerchandise'
 
 // Otros
 export { default as Checkout } from './Checkout/Checkout'

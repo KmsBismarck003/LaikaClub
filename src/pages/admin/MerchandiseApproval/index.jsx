@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNotification } from '../../../context/NotificationContext';
-import { LoadingScreen, SkeletonMerchandiseApproval } from '../../../components';
+import { LoadingScreen } from '../../../components';
 import { merchService } from '../../../services/merch.service';
 import api from '../../../services/api';
 
@@ -28,11 +28,8 @@ const MerchandiseApproval = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            // Buscamos usuarios con rol gestor
-            const usersResp = await fetch('http://localhost:8001/users?role=gestor', {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            const usersData = await usersResp.json();
+            // Buscamos usuarios con rol gestor usando el cliente API de administración
+            const usersData = await api.adminUsers.getAll({ role: 'gestor' });
             
             // Unificamos con sus configuraciones de tienda
             const combinedData = await Promise.all(
@@ -104,7 +101,7 @@ const MerchandiseApproval = () => {
         `${g.first_name} ${g.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) return <SkeletonMerchandiseApproval />;
+    if (loading) return <LoadingScreen />;
 
     return (
         <div className="merch-approval-container industrial-page">
