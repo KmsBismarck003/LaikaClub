@@ -121,10 +121,12 @@ export const useCheckoutFlow = () => {
             const amount = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0) + shippingCost;
             
             // 1. Create Payment Intent
+            const eventId = cart.find(item => item.eventId)?.eventId || 1;
             const intentResp = await paymentAPI.createIntent({
                 amount: amount,
                 method: paymentMethod,
-                eventId: cart[0]?.eventId
+                eventId: eventId,
+                event_id: eventId
             });
 
             const paymentId = intentResp.payment_id || intentResp.reference;

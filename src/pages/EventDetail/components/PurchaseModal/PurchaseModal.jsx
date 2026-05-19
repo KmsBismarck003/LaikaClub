@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Icon } from "../../../../components";
 import { useTheme } from "../../../../context";
 import PremiumTicketReveal from "./PremiumTicketReveal";
+import { getSeatLabel } from "../../utils/helpers";
 import "./PurchaseModal.css";
 
 /* ─────────────────────────────────────────────
@@ -104,7 +105,7 @@ export const PurchaseModal = ({
                 <strong style={{ color: textColor }}>UBICACIÓN ASIGNADA</strong><br />
                 🎟 Zona: {directTicketData?.section?.name || selectedSection?.name || "Platino VIP"}<br />
                 {directTicketData?.seats?.length > 0 && (
-                  <>💺 Fila/Asiento: {directTicketData.seats.map(s => s.split('-').slice(-2).join('-')).join(', ')}<br /></>
+                  <>💺 Fila/Asiento: {directTicketData.seats.map(s => getSeatLabel(s, event)).join(', ')}<br /></>
                 )}
                 🛰 Red: Laika Mainframe
               </div>

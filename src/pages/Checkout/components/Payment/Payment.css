@@ -1,0 +1,528 @@
+/* 💳 MODULAR PAYMENT COMPONENT STYLES - LAIKA CLUB - VANILLA CSS */
+
+/* Grid and Flex Layouts */
+.payment-methods-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.payment-method-wrapper {
+    margin-bottom: 0.75rem;
+    width: 100%;
+}
+
+.method-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(12, 12, 14, 0.6);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    border-radius: 12px;
+    min-height: 72px;
+}
+
+.method-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.method-card.active-method {
+    border-color: #6366f1 !important;
+    background: rgba(99, 102, 241, 0.05) !important;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+.method-card.method-disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.method-card.method-disabled:hover {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Radio Button Overlay */
+.method-radio-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+}
+
+.active-method .method-radio-circle {
+    border-color: #6366f1;
+}
+
+.method-radio-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #6366f1;
+}
+
+/* Inner content area */
+.method-inner-content {
+    background: rgba(10, 10, 12, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+/* 👥 Saved Cards Section */
+.saved-cards-section {
+    margin-bottom: 1.5rem;
+}
+
+.saved-cards-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.saved-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .saved-cards-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.saved-card-item {
+    position: relative;
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 140px;
+}
+
+.saved-card-item:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-2px);
+}
+
+.saved-card-item.selected-card {
+    border-color: #6366f1;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+}
+
+.card-brand-label {
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.card-trash-btn {
+    padding: 0.4rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+}
+
+.card-trash-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.card-number-display {
+    font-size: 17px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    letter-spacing: 0.15em;
+    color: #ffffff;
+    margin: 1rem 0 0.5rem;
+    display: block;
+}
+
+.card-meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.card-holder-name {
+    max-width: 70%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Card select indicator overlay */
+.saved-card-radio {
+    position: absolute;
+    top: 1.25rem;
+    left: 1.25rem;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.selected-card .saved-card-radio {
+    border-color: #6366f1;
+}
+
+.saved-card-radio-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6366f1;
+}
+
+/* Add New Card Slot */
+.add-card-slot {
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    background: transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    min-height: 140px;
+}
+
+.add-card-slot:hover {
+    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.02);
+    transform: translateY(-2px);
+}
+
+.add-card-slot.active-slot {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.05);
+    color: #6366f1;
+}
+
+.add-card-icon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s;
+}
+
+.active-slot .add-card-icon-circle {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+}
+
+/* 📝 New Card Form layout */
+.new-card-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    .new-card-form-grid {
+        grid-template-columns: 5fr 7fr;
+    }
+}
+
+.new-card-fields-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.new-card-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.new-card-input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+}
+
+.new-card-input-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 8px !important;
+    padding: 0.85rem 1rem 0.85rem 2.75rem !important;
+    font-size: 13px;
+    color: #ffffff !important;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.new-card-input-field:focus {
+    border-color: #6366f1 !important;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.new-card-fields-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.new-card-fields-row .new-card-input-field {
+    padding-left: 1rem !important;
+    text-align: center;
+}
+
+.new-card-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0.5rem;
+}
+
+.new-card-checkbox-custom {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.new-card-checkbox-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.new-card-checkbox-label input:checked ~ .new-card-checkbox-custom {
+    background: #6366f1;
+    border-color: #6366f1;
+}
+
+.new-card-checkbox-check {
+    color: #000000;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 💳 3D Card Mockup styles */
+.mockup-card-wrapper {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 320px;
+    height: 190px;
+    position: relative;
+    margin: 0 auto;
+}
+
+.mockup-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+.mockup-card-wrapper.flipped .mockup-card-inner {
+    transform: rotateY(180deg);
+}
+
+.mockup-card-front, 
+.mockup-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 14px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.mockup-card-front {
+    transform: rotateY(0deg);
+    background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.25rem;
+}
+
+.mockup-card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.25rem 0;
+}
+
+/* 🛡️ Direct Payment Button - STUNNING VANILLA CSS */
+.direct-payment-btn {
+    width: 100%;
+    height: 52px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    box-sizing: border-box;
+}
+
+/* Active State */
+.direct-payment-btn:not(:disabled) {
+    background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    opacity: 1 !important;
+}
+
+.direct-payment-btn:not(:disabled):hover {
+    background: linear-gradient(90deg, #7477f4 0%, #5d55eb 100%) !important;
+    box-shadow: 0 6px 25px rgba(99, 102, 241, 0.6);
+    transform: translateY(-1px);
+}
+
+.direct-payment-btn:not(:disabled):active {
+    transform: translateY(1px);
+}
+
+/* Disabled State */
+.direct-payment-btn:disabled {
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: rgba(255, 255, 255, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    opacity: 0.6 !important;
+}
+
+/* Shine Animation */
+@keyframes buttonShine {
+    0% {
+        transform: translateX(-100%);
+    }
+    60% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.btn-shine-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    animation: buttonShine 3.5s infinite ease-in-out;
+    pointer-events: none;
+}
+
+/* Micro-animations */
+@keyframes scaleUp {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-scale-up {
+    animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-down {
+    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

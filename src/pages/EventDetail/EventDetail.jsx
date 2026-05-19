@@ -11,6 +11,7 @@ import { useEventDetailData } from "./hooks/useEventDetailData";
 import { useTicketEngine } from "./hooks/useTicketEngine";
 import { useLuckySeat } from "./hooks/useLuckySeat";
 import { useVenueMap } from "./hooks/useVenueMap";
+import { useSeatLock } from "./hooks/useSeatLock";
 import { cleanPrice, formatDate, formatTime } from "./utils/helpers";
 
 import EventHero from "./components/EventHero/EventHero";
@@ -49,6 +50,7 @@ const EventDetail = () => {
     event, 
     loading, 
     busySeats, 
+    addBusySeats,
     fetchEventDetail,
     zones,
     dynamicMap,
@@ -81,7 +83,14 @@ const EventDetail = () => {
   }, [getSynchronizedZones, ticketEngine.sortedSections]);
 
   // 4. Lucky Seat Hook
-  const luckySeat = useLuckySeat(id, user, navigate, location, { success, error }, api, synchronizedZones);
+  const luckySeat = useLuckySeat(id, user, navigate, location, { success, error }, api, synchronizedZones, addBusySeats);
+
+  // 5. Seat Lock Hook (Pessimistic seat booking timer)
+  const { timeLeft, isActive, formatTimeLeft, resetLock } = useSeatLock(
+    ticketEngine.selectedSeats,
+    ticketEngine.setSelectedSeats,
+    error
+  );
 
   // Direct Purchase Flow overrides
   const confirmDirectPayment = async (method) => {
@@ -99,8 +108,18 @@ const EventDetail = () => {
          quantity: ticketEngine.directTicketData.quantity,
          total: (cleanPrice(ticketEngine.directTicketData.section?.price || event?.price) * ticketEngine.directTicketData.quantity)
       };
+      
+      // Registrar instantáneamente los asientos comprados en la lista de ocupados del mapa
+      if (ticketEngine.directTicketData.seats?.length > 0) {
+        addBusySeats(ticketEngine.directTicketData.seats);
+      }
+      
+      // Detener el bloqueo temporal
+      resetLock();
+      
       ticketEngine.setPrintingData(payload);
       ticketEngine.setShowSuccessTicket(true);
+      ticketEngine.setSelectedSeats([]); // Vaciar selección activa de asientos
       success("¡Compra realizada con éxito!");
     } catch(err) {
       ticketEngine.setIsProcessingPayment(false);
@@ -188,6 +207,18 @@ const EventDetail = () => {
         <div className="layout-dual-column">
           {/* LEFT COLUMN: Map, Details, Location */}
           <div className="event-left-column">
+            {isActive && (
+              <div className="seat-lock-countdown-banner">
+                <div className="seat-lock-info">
+                  <span style={{ fontSize: '1.2rem', animation: 'pulseLock 1.5s infinite ease-in-out' }}>🔒</span>
+                  <span>Reserva temporal activa: tus asientos seleccionados están reservados</span>
+                </div>
+                <div className="seat-lock-timer">
+                  {formatTimeLeft()}
+                </div>
+              </div>
+            )}
+
             <VenueMapContainer
               event={event}
               synchronizedZones={synchronizedZones}

@@ -26,9 +26,10 @@ def log_auth_event(
 ):
     """Inserta un registro real en la tabla auth_logs. Nunca rompe el flujo principal."""
     try:
-        db.execute(text("""
+        now_func = "NOW()" if db.bind.name == "mysql" else "datetime('now', 'localtime')"
+        db.execute(text(f"""
             INSERT INTO auth_logs (user_id, user_name, email, role, event_type, ip_address, user_agent, summary, created_at)
-            VALUES (:user_id, :user_name, :email, :role, :event_type, :ip, :ua, :summary, datetime('now', 'localtime'))
+            VALUES (:user_id, :user_name, :email, :role, :event_type, :ip, :ua, :summary, {now_func})
         """), {
             "user_id": user_id,
             "user_name": user_name,

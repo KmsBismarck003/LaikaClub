@@ -87,10 +87,17 @@ export function useEventDetailData(id, api, venueAPI, errorNotification, navigat
     });
   }, [zones, event]);
 
+  const addBusySeats = useCallback((seats) => {
+    if (Array.isArray(seats)) {
+      setBusySeats(prev => [...new Set([...prev, ...seats])]);
+    }
+  }, []);
+
   return {
     event,
     loading,
     busySeats,
+    addBusySeats,
     fetchEventDetail,
     zones,
     dynamicMap,

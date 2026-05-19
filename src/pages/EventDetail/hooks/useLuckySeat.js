@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * useLuckySeat — Hook para gestionar la ruleta de asientos ganadores.
  */
-export function useLuckySeat(id, user, navigate, location, { success, error }, api, synchronizedZones) {
+export function useLuckySeat(id, user, navigate, location, { success, error }, api, synchronizedZones, addBusySeats) {
   // Configuración dinámica de Lucky Seat
   const [luckyConfig, setLuckyConfig] = useState(() => {
     const saved = localStorage.getItem('laika_lucky_config');
@@ -78,6 +78,11 @@ export function useLuckySeat(id, user, navigate, location, { success, error }, a
           price: 400.0,
           category: "LUCKY SEAT",
         });
+        
+        if (addBusySeats) {
+          addBusySeats([response.seatId]);
+        }
+        
         setIsRouletteActive(true);
       } else {
         error(response.message || "Error al procesar el pago de la ruleta.");
@@ -87,7 +92,7 @@ export function useLuckySeat(id, user, navigate, location, { success, error }, a
       error("Fallo en la conexión. No se pudo procesar el pago.");
       setIsProcessingPayment(false);
     }
-  }, [api, id, synchronizedZones, success, error]);
+  }, [api, id, synchronizedZones, success, error, addBusySeats]);
 
   const handleRouletteComplete = useCallback(() => {
     setShowWinnerModal(true);

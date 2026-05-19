@@ -3,6 +3,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 import sqlite3
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Ruta de la base de datos SQLite
 DB_PATH = "microservices/auth/auth.db"
@@ -14,16 +17,18 @@ def init_auth_db():
     """Verifica si la base de datos existe, si no, la crea (Fallback Protocol)"""
     if not os.path.exists(DB_PATH):
         print("[FALLBACK] Auth DB no encontrada. Recreando...")
+        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
         conn = sqlite3.connect(DB_PATH)
         scur = conn.cursor()
         scur.execute("""
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 first_name TEXT, last_name TEXT, email TEXT UNIQUE,
                 phone TEXT, password_hash TEXT, role TEXT, status TEXT,
                 last_login TEXT, failed_attempts INTEGER DEFAULT 0,
                 lockout_until TEXT, created_at TEXT, social_provider TEXT,
-                reset_token TEXT, reset_token_expires TEXT, avatar_url TEXT
+                reset_token TEXT, reset_token_expires TEXT, avatar_url TEXT,
+                permissions TEXT
             )
         """)
         scur.execute("""
@@ -33,7 +38,7 @@ def init_auth_db():
                 permission_type TEXT,
                 status TEXT DEFAULT 'pending',
                 request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users (id)
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             )
         """)
         scur.execute("""
@@ -101,6 +106,132 @@ def init_auth_db():
 # Ejecutar protocolo al cargar el módulo
 init_auth_db()
 
+def run_migrations(engine):
+    """Ejecuta migraciones de esquema en la base de datos activa (MySQL o SQLite)."""
+    with engine.connect() as conn:
+        print(f"[AUTH SERVICE PROTOCOL] Verificando esquema en {engine.name}...")
+        
+        # 1. Crear tablas if not exists
+        if engine.name == 'mysql':
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    first_name VARCHAR(100),
+                    last_name VARCHAR(100),
+                    email VARCHAR(100) UNIQUE,
+                    phone VARCHAR(50),
+                    password_hash VARCHAR(255),
+                    role VARCHAR(50) DEFAULT 'usuario',
+                    status VARCHAR(50) DEFAULT 'active',
+                    last_login VARCHAR(100),
+                    failed_attempts INT DEFAULT 0,
+                    lockout_until VARCHAR(100),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    social_provider VARCHAR(50),
+                    reset_token VARCHAR(100),
+                    reset_token_expires VARCHAR(100),
+                    avatar_url VARCHAR(255),
+                    permissions TEXT
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS permission_requests (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    permission_type VARCHAR(100),
+                    status VARCHAR(50) DEFAULT 'pending',
+                    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT fk_perm_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS auth_logs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    user_name VARCHAR(255),
+                    email VARCHAR(100),
+                    role VARCHAR(50),
+                    event_type VARCHAR(100),
+                    ip_address VARCHAR(50),
+                    user_agent TEXT,
+                    summary TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """))
+        else:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    first_name TEXT, last_name TEXT, email TEXT UNIQUE,
+                    phone TEXT, password_hash TEXT, role TEXT, status TEXT,
+                    last_login TEXT, failed_attempts INTEGER DEFAULT 0,
+                    lockout_until TEXT, created_at TEXT, social_provider TEXT,
+                    reset_token TEXT, reset_token_expires TEXT, avatar_url TEXT,
+                    permissions TEXT
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS permission_requests (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    permission_type TEXT,
+                    status TEXT DEFAULT 'pending',
+                    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS auth_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    user_name TEXT,
+                    email TEXT,
+                    role TEXT,
+                    event_type TEXT,
+                    ip_address TEXT,
+                    user_agent TEXT,
+                    summary TEXT,
+                    created_at TEXT DEFAULT (datetime('now', 'localtime'))
+                )
+            """))
+        conn.commit()
+
+        # 2. Asegurar que todas las columnas existen (intento de alter table no destructivo)
+        columns_to_add = [
+            ("users", "social_provider", "VARCHAR(50)" if engine.name == 'mysql' else "TEXT"),
+            ("users", "reset_token", "VARCHAR(100)" if engine.name == 'mysql' else "TEXT"),
+            ("users", "reset_token_expires", "VARCHAR(100)" if engine.name == 'mysql' else "TEXT"),
+            ("users", "permissions", "TEXT"),
+            ("users", "avatar_url", "VARCHAR(255)" if engine.name == 'mysql' else "TEXT"),
+        ]
+        
+        for table, col, col_type in columns_to_add:
+            try:
+                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
+                conn.commit()
+                print(f"[AUTH SERVICE PROTOCOL] Columna {col} añadida a {table}")
+            except Exception:
+                pass # Ignorar si ya existe
+
+# ============================================
+# CONEXIÓN CON FALLBACK MySQL → SQLite
+# ============================================
+MYSQL_URL = f"mysql+pymysql://{os.getenv('MYSQL_USER', 'root')}:{os.getenv('MYSQL_PASSWORD', '')}@{os.getenv('MYSQL_HOST', 'localhost')}:3306/{os.getenv('MYSQL_DATABASE', 'laika_club3_v2')}"
+
+try:
+    engine = create_engine(MYSQL_URL, pool_pre_ping=True, connect_args={'connect_timeout': 2})
+    engine.connect()
+    print("[AUTH SERVICE] Conexión MySQL establecida.")
+    run_migrations(engine)
+except Exception as e:
+    print(f"[AUTH SERVICE] MySQL no disponible ({e}). Usando SQLite de respaldo...")
+    SQLALCHEMY_DATABASE_URL = f"sqlite:///./{DB_PATH}"
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+    run_migrations(engine)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
 # ============================================
 # PROTOCOLO ADMIN SEED
 # ============================================
@@ -108,21 +239,16 @@ def seed_admin_user():
     """
     Verifica que exista al menos un usuario administrador.
     Si no hay ninguno, crea un admin por defecto con credenciales temporales.
-    IMPORTANTE: Cambiar la contraseña inmediatamente después del primer login.
     """
-    import hashlib, secrets
+    import hashlib
+    db = SessionLocal()
     try:
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM users WHERE role='admin'")
-        admin_count = cursor.fetchone()[0]
+        result = db.execute(text("SELECT COUNT(*) FROM users WHERE role='admin'")).fetchone()
+        admin_count = result[0] if result else 0
 
         if admin_count == 0:
             print("[ADMIN SEED] No se encontró ningún administrador. Creando admin por defecto...")
-            # Hash simple para contraseña temporal (sin passlib para independencia)
-            import hashlib
-            temp_password = "admin123"
-            # Se usa bcrypt si passlib está disponible, sino sha256 como fallback
+            temp_password = "gearsof2"
             try:
                 from passlib.context import CryptContext
                 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -132,43 +258,27 @@ def seed_admin_user():
                 password_hash = hashlib.sha256(temp_password.encode()).hexdigest()
 
             from datetime import datetime
-            cursor.execute("""
+            db.execute(text("""
                 INSERT INTO users (
                     first_name, last_name, email, phone,
                     password_hash, role, status, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                "Admin", "LAIKA",
-                "admin@laikaclub.com",
-                "0000000000",
-                password_hash,
-                "admin",
-                "active",
-                datetime.now().isoformat()
-            ))
-            conn.commit()
-            print("[ADMIN SEED] Admin creado: admin@laikaclub.com / admin123")
-            print("[ADMIN SEED] CAMBIA LA CONTRASEÑA INMEDIATAMENTE DESPUÉS DEL PRIMER LOGIN!")
+                ) VALUES (:fn, :ln, :email, :phone, :hash, 'admin', 'active', :now)
+            """), {
+                "fn": "Admin", "ln": "LAIKA",
+                "email": "admin@laikaclub.com", "phone": "0000000000",
+                "hash": password_hash, "now": datetime.now().isoformat()
+            })
+            db.commit()
+            print("[ADMIN SEED] Admin creado: admin@laikaclub.com / gearsof2")
         else:
             print(f"[ADMIN SEED] {admin_count} administrador(es) verificado(s). Sin acción necesaria.")
-
-        conn.close()
     except Exception as e:
         print(f"[ADMIN SEED ERROR] No se pudo verificar/crear el admin: {e}")
+        db.rollback()
+    finally:
+        db.close()
 
 seed_admin_user()
-
-# Configuración de SQLAlchemy para SQLite
-SQLALCHEMY_DATABASE_URL = f"sqlite:///./{DB_PATH}"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
-    connect_args={"check_same_thread": False}, # Necesario para SQLite en FastAPI
-    echo=False
-)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
 
 def get_db():
     db = SessionLocal()

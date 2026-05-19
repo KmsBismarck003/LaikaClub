@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Icon } from "../../../../components";
 import { getImageUrl } from "../../../../utils/imageUtils";
 import TicketPrinterOverlay from "../../../user/UserCart/TicketPrinterOverlay";
+import { getSeatLabel } from "../../utils/helpers";
 
 export default function EventModalsManager({
   // Probabilities Modal
@@ -275,7 +276,7 @@ export default function EventModalsManager({
                         <div style={{ fontWeight: 800 }}>RESUMEN:</div>
                         <div>Evento: {directTicketData?.event?.name}</div>
                         <div>Sección: {directTicketData?.section?.name || "General"}</div>
-                        <div>Asiento(s): {directTicketData?.seats?.length > 0 ? directTicketData.seats.map(s => s.split('-').slice(-2).join('-')).join(', ') : "General (Sin número)"}</div>
+                        <div>Asiento(s): {directTicketData?.seats?.length > 0 ? directTicketData.seats.map(s => getSeatLabel(s, event)).join(', ') : "General (Sin número)"}</div>
                         <div>Cantidad: {directTicketData?.quantity} ticket(s)</div>
                       </div>
                     </div>
@@ -371,7 +372,7 @@ export default function EventModalsManager({
                     </div>
                     <div className="row">
                       <span>ASIENTO</span>
-                      <strong>{directTicketData?.seats?.length > 0 ? directTicketData.seats.map(s => s.split('-').slice(-2).join('-')).join(', ') : "General"}</strong>
+                      <strong>{directTicketData?.seats?.length > 0 ? directTicketData.seats.map(s => getSeatLabel(s, event)).join(', ') : "General"}</strong>
                     </div>
                   </div>
                   <div className="ticket-footer">

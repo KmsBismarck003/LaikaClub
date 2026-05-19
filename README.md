@@ -1,65 +1,60 @@
-# LAIKA Club — Sistema de Gestión de Eventos
+# LAIKA Club - Sistema de Gestion de Eventos
 
-> Plataforma completa de venta y gestión de boletos para eventos en vivo. Arquitectura de microservicios con frontend React + API Gateway FastAPI.
+> Plataforma completa de venta y gestion de boletos para eventos en vivo. Arquitectura de microservicios con frontend React + API Gateway FastAPI.
 
-**Versión: 2.9.9.11** — Actualizado: Abril 2026
+**Version: 3.0.0** - Actualizado: Mayo 2026
 
 ---
 
 ## Tabla de Contenidos
 
-1. [Visión General](#visión-general)
-2. [Stack Tecnológico](#stack-tecnológico)
+1. [Vision General](#vision-general)
+2. [Stack Tecnologico](#stack-tecnologico)
 3. [Arquitectura del Sistema](#arquitectura-del-sistema)
 4. [Mapa de Microservicios y Rutas](#mapa-de-microservicios-y-rutas)
 5. [Estructura de Directorios](#estructura-de-directorios)
-6. [Instalación y Configuración](#instalación-y-configuración)
+6. [Instalacion y Configuracion](#instalacion-y-configuracion)
 7. [Variables de Entorno](#variables-de-entorno)
 8. [Base de Datos](#base-de-datos)
 9. [Sistema de Roles y Seguridad](#sistema-de-roles-y-seguridad)
 10. [Flujo de Compra](#flujo-de-compra)
-11. [Módulo de Merchandising](#módulo-de-merchandising)
-12. [Constructor de Boletos](#constructor-de-boletos)
-13. [Sistema de Recuperación Ante Desastres](#sistema-de-recuperación-ante-desastres)
-14. [Scripts de Utilidad](#scripts-de-utilidad)
-15. [Credenciales por Defecto](#credenciales-por-defecto)
+11. [Modulo de Merchandising](#modulo-de-merchandising)
+12. [Scripts de Utilidad y Herramientas Extra](#scripts-de-utilidad-y-herramientas-extra)
+13. [Credenciales por Defecto](#credenciales-por-defecto)
 
 ---
 
-## Visión General
+## Vision General
 
-LAIKA Club es una aplicación full-stack para gestión y compra de entradas a eventos. Diseñada con **microservicios desacoplados** donde cada dominio (autenticación, eventos, tickets, estadísticas, administración, logros, analítica Big Data) es un servicio FastAPI independiente, gestionado a través de un **API Gateway central**.
+LAIKA Club es una aplicacion full-stack para gestion y compra de entradas a eventos. Disenada con microservicios desacoplados donde cada dominio (autenticacion, eventos, tickets, estadisticas, administracion, logros, analitica Big Data, merchandising) es un servicio FastAPI independiente, gestionado a traves de un API Gateway central.
 
-El frontend es una **SPA** en React 19 con diseño industrial premium (blanco/negro, tipografía uppercase, glassmorphism).
+El frontend es una SPA en React 19 con diseno industrial premium (blanco/negro, tipografia uppercase, glassmorphism).
 
-### Características Principales
+### Caracteristicas Principales
 
 - **Compra de boletos** con o sin cuenta (modo invitado)
-- **Carrito de compras** estilo AliExpress Industrial — layout de 2 columnas con panel lateral de confianza, logística y seguridad
-- **Checkout independiente** — no requiere navegación al dashboard
-- **Animación tipo Impresora de Boletos** con efecto láser cinemático al comprar (25 seg sincronizados)
-- **Lucky Seat Roulette** — modo de asiento sorpresa con animación de ruleta cinemática
-- **Sección de Merchandising en Evento** — compra de merch directamente desde el detalle del evento, con modal de producto
-- **Constructor de Boletos** para personalizar el diseño visual de las entradas (Admin)
+- **Carrito de compras** estilo AliExpress Industrial - layout de 2 columnas con panel lateral de confianza, logistica y seguridad
+- **Checkout independiente** - no requiere navegacion al dashboard
+- **Animacion tipo Impresora de Boletos** con efecto laser cinematico al comprar (25 seg sincronizados)
+- **Lucky Seat Roulette** - modo de asiento sorpresa con animacion de ruleta cinematica
+- **Seccion de Merchandising en Evento** - compra de merch directamente desde el detalle del evento, con modal de producto
 - **Sistema de roles** de 4 niveles (admin, gestor, operador, usuario)
-- **Panel de administración** con monitoreo en tiempo real
-- **Radar de Operaciones** — mapa de asientos en tiempo real para administradores (`/admin/radar`)
-- **Aprobación de Merchandising** — flujo admin para aprobar/rechazar productos de gestores
+- **Panel de administracion** con monitoreo en tiempo real
+- **Aprobacion de Merchandising** - flujo admin para aprobar/rechazar productos de gestores
 - **Big Data Analytics** con visualizaciones 3D interactivas (Clustered Bar, Voxel Pie)
-- **Búsqueda tipo Spotlight** para filtrar por artista o evento
-- **Sistema de Logros y Recompensas** (gamificación) para usuarios
+- **Busqueda tipo Spotlight** para filtrar por artista o evento
+- **Sistema de Logros y Recompensas** (gamificacion) para usuarios
 - **Modo Mantenimiento** controlado desde el panel admin
-- **Monitoreo de BD en Tiempo Real** — consola visible con auto-reparación integrada
-- **Plan de Invierno (MySQL) + Plan LIA (MongoDB)** — sistemas de recuperación ante desastres
-- **Pantalla de carga industrial** con bloqueo mínimo de 8 segundos y etiqueta dinámica de vista
+- **Monitoreo de BD en Tiempo Real** - consola visible con auto-reparacion integrada
+- **Pantalla de carga industrial** con bloqueo minimo de 8 segundos y etiqueta dinamica de vista
 
 ---
 
-## Stack Tecnológico
+## Stack Tecnologico
 
 ### Backend
 
-| Componente            | Tecnología                  | Versión    |
+| Componente            | Tecnologia                  | Version    |
 | --------------------- | --------------------------- | ---------- |
 | Framework API         | FastAPI                     | Latest     |
 | Servidor ASGI         | Uvicorn                     | Latest     |
@@ -72,14 +67,14 @@ El frontend es una **SPA** en React 19 con diseño industrial premium (blanco/ne
 
 ### Frontend
 
-| Componente               | Tecnología                       | Versión |
+| Componente               | Tecnologia                       | Version |
 | ------------------------ | -------------------------------- | ------- |
 | Framework UI             | React                            | 19.x    |
 | Build Tool               | Create React App (react-scripts) | 5.0.1   |
 | Enrutamiento             | React Router DOM                 | 7.x     |
 | HTTP Client              | Axios                            | 1.x     |
-| Íconos                   | Lucide React                     | 0.564.x |
-| Generación QR            | qrcode.react                     | 4.x     |
+| Iconos                   | Lucide React                     | 0.564.x |
+| Generacion QR            | qrcode.react                     | 4.x     |
 | Escaneo QR               | html5-qrcode                     | 2.x     |
 | PDF Export               | jsPDF + html2canvas              | Latest  |
 | OAuth Google             | @react-oauth/google              | 0.13.x  |
@@ -100,9 +95,9 @@ El frontend es una **SPA** en React 19 con diseño industrial premium (blanco/ne
 │       FastAPI (Puerto 8000)                   │
 │    microservices/gateway.py                   │
 └──┬──────┬──────┬──────┬──────┬───────────────┘
-   │      │      │      │      │      │
-  :8001  :8002  :8003  :8004  :8005  :8006  :8007
-  AUTH  EVENTS TICKETS STATS  ADMIN  LOGROS BIG-DATA
+   │      │      │      │      │      │      │
+  :8001  :8002  :8003  :8004  :8005  :8006  :8007  :8008
+  AUTH  EVENTS TICKETS STATS  ADMIN  LOGROS BIGDATA MERCH
 ```
 
 ### Servicios Activos
@@ -117,6 +112,7 @@ El frontend es una **SPA** en React 19 con diseño industrial premium (blanco/ne
 | 8005   | Admin Service          | `microservices/admin/main.py`             |
 | 8006   | Achievements Service   | `microservices/achievements/main.py`      |
 | 8007   | Analytics BigData      | `microservices/analytics_bigdata/main.py` |
+| 8008   | Merchandise Service    | `microservices/merchandise/main.py`       |
 
 ---
 
@@ -137,53 +133,52 @@ El frontend es una **SPA** en React 19 con diseño industrial premium (blanco/ne
 | `/api/admin/*`         | **:8005**      | Admin Service  |
 | `/api/achievements/*`  | **:8006**      | Achievements   |
 | `/api/analytics/*`     | **:8007**      | BigData        |
+| `/api/merchandise/*`   | **:8008**      | Merchandise    |
 
 ---
 
 ## Estructura de Directorios
 
 ```
-proyectolaika2.9.9.11/
+LaikaClub/
 │
 ├── src/                           # Frontend React
 │   ├── pages/
-│   │   ├── Home/                  # Página principal pública
-│   │   ├── Login/ + Register/     # Autenticación
-│   │   ├── Shop/                  # Tienda pública de merchandising
+│   │   ├── Home/                  # Pagina principal publica
+│   │   ├── Login/ + Register/     # Autenticacion
+│   │   ├── Shop/                  # Tienda publica de merchandising
 │   │   ├── EventDetail/           # Detalle de evento + Compra directa
 │   │   │   └── components/
 │   │   │       ├── TicketSelection/   # Selector de zonas y asientos
 │   │   │       ├── VenueMap/          # Mapa SVG interactivo del venue
 │   │   │       ├── VenueZones/        # Selector de zonas visuales
-│   │   │       ├── LuckySeatModal/    # 🎰 Ruleta de asiento sorpresa
-│   │   │       ├── MerchSection/      # 🛍️ Sección de merch en evento + Modal producto
-│   │   │       ├── PurchaseModal/     # Modal de pago con flujo cinemático
+│   │   │       ├── LuckySeatModal/    # Ruleta de asiento sorpresa
+│   │   │       ├── MerchSection/      # Seccion de merch en evento + Modal producto
+│   │   │       ├── PurchaseModal/     # Modal de pago con flujo cinematico
 │   │   │       └── EventHero/         # Hero visual del evento
-│   │   ├── Checkout/              # Pago público (sin login requerido)
+│   │   ├── Checkout/              # Pago publico (sin login requerido)
 │   │   ├── Maintenance/           # Pantalla de mantenimiento
 │   │   ├── user/
 │   │   │   ├── UserDashboard.jsx
-│   │   │   ├── UserWallet.jsx     # Bóveda de boletos
+│   │   │   ├── UserWallet.jsx     # Boveda de boletos
 │   │   │   ├── UserHistory.jsx
 │   │   │   ├── UserCart.jsx       # Carrito estilo AliExpress Industrial (2 columnas)
 │   │   │   ├── UserCart/
-│   │   │   │   └── TicketPrinterOverlay.jsx  # 🎟️ Animación impresora con láser cinemático
+│   │   │   │   └── TicketPrinterOverlay.jsx  # Animacion impresora con laser cinematico
 │   │   │   ├── Achievements.jsx
 │   │   │   └── RefundTracker.jsx
 │   │   ├── admin/
 │   │   │   ├── Dashboard/         # Panel central + Big Data Visualizer
-│   │   │   ├── Users/             # Gestión de usuarios
+│   │   │   ├── Users/             # Gestion de usuarios
 │   │   │   ├── Events/            # CRUD de eventos
 │   │   │   ├── Sales/             # Ventas y reportes
 │   │   │   ├── Database/          # Monitor de BD + SqlVault
 │   │   │   ├── Ads/               # Anuncios y publicidad
-│   │   │   ├── TicketBuilder/     # Constructor visual de boletos
 │   │   │   ├── Monitoring/        # Monitoreo en tiempo real
-│   │   │   ├── AdminSeatMonitor   # 📡 Radar de Operaciones (mapa tiempo real)
-│   │   │   ├── MerchandiseApproval/ # ✅ Aprobación de merch de gestores
-│   │   │   └── Merch/             # Gestión de merchandising admin
+│   │   │   ├── MerchandiseApproval/ # Aprobacion de merch de gestores
+│   │   │   └── Merch/             # Gestion de merchandising admin
 │   │   ├── manager/               # Panel del gestor de eventos
-│   │   │   ├── MerchandiseManager # Gestión de merch por evento
+│   │   │   ├── MerchandiseManager # Gestion de merch por evento
 │   │   │   ├── ManagerAnalytics
 │   │   │   ├── ManagerTransactions
 │   │   │   └── ManagerAttendees
@@ -191,11 +186,11 @@ proyectolaika2.9.9.11/
 │   ├── components/
 │   │   ├── Cart/                  # CartModal, CartContent, PaymentVoucher
 │   │   │   └── CartContent.jsx    # Vista 2 columnas estilo AliExpress Industrial
-│   │   ├── Navbar/                # Barra de navegación global
+│   │   ├── Navbar/                # Barra de navegacion global
 │   │   ├── tickets/
 │   │   │   └── TicketTemplate.jsx # Plantilla visual de boleto (con QR)
 │   │   ├── LaikaAgent/            # Asistente IA integrado
-│   │   ├── LoadingScreen/         # Pantalla de carga industrial (8 seg mínimo)
+│   │   ├── LoadingScreen/         # Pantalla de carga industrial (8 seg minimo)
 │   │   ├── DatabaseMonitor.jsx    # Consola de BD en tiempo real
 │   │   └── Notifications/
 │   ├── context/
@@ -204,43 +199,72 @@ proyectolaika2.9.9.11/
 │   │   ├── SkeletonContext.jsx
 │   │   └── SystemContext.jsx
 │   └── layouts/
-│       ├── MainLayout.jsx
-│       ├── DashboardLayout.jsx    # Sidebar con drag-and-drop de menú
-│       └── UserLayout.jsx
+│   │   ├── MainLayout.jsx
+│   │   ├── DashboardLayout.jsx    # Sidebar con drag-and-drop de menu
+│   │   └── UserLayout.jsx
+│   └── ARCHITECTURE.md            # Manual de arquitectura y buenas practicas
 │
 ├── microservices/                 # Backend (8 servicios FastAPI)
 ├── backups/                       # Respaldos de BD (.sql / .json)
+├── tiradero/                      # Carpeta de soporte y scripts obsoletos
 │
-├── run_all.bat                    # 🚀 Arranca todo el sistema (Frontend + Backend)
+├── run_all.bat                    # Arranca todo el sistema (Frontend + Backend)
 ├── run_microservices.py           # Lanza todos los microservicios + monitoreo en tiempo real
-├── plan_invierno_mysql.py         # ❄️ Recuperación ante desastres MySQL
-└── plan_lia_mongo.py              # 🦊 Recuperación quirúrgica MongoDB Atlas
+├── run.py                         # Consola Maestra Interactiva de procesos
+├── install_all.bat                # Instalador automatico de dependencias
+├── subir.py                       # Asistente de Git interactivo para cambios
+├── setup.py                       # Script completo de instalacion y sembrado inicial
+├── plan_invierno_mysql.py         # Recuperacion ante desastres MySQL
+└── plan_lia_mongo.py              # Recuperacion quirurgica MongoDB Atlas
 ```
 
 ---
 
-## Instalación y Configuración
+## Instalacion y Configuracion
 
 ### Prerrequisitos
 
 - **Python 3.10+**
 - **Node.js 18+** con npm
-- **MySQL 8.0+** con Xampp (o servidor MySQL)
-- **MongoDB Atlas** (URI en `.env`)
+- **MySQL 8.0+** con Xampp (o servidor MySQL activo en el puerto 3306)
+- **MongoDB Atlas** (Configurar URI en el archivo `.env`)
 
-### Arranque Rápido
+### Proceso de Inicializacion en Equipos Nuevos
+
+Para configurar la aplicacion en un sistema limpio por primera vez, el proyecto incluye un script de instalacion inteligente en Python:
 
 ```bash
-# Opción A — Todo en uno (RECOMENDADO)
-run_all.bat
-# Arranca microservicios Python + Frontend React automáticamente
-
-# Opción B — Manual
-python run_microservices.py  # Terminal 1 (Backend)
-npm start                    # Terminal 2 (Frontend)
+# 1. Ejecutar el asistente de instalacion y configuracion inicial
+python setup.py
 ```
 
-La aplicación estará en: **http://localhost:3000**
+Este script automatizara los siguientes pasos:
+1. Verificara que tengas instalados en tu sistema Node.js, npm y Python.
+2. Creara un archivo de variables de entorno `.env` local con valores preconfigurados en caso de no existir.
+3. Instalara las dependencias de Python listadas en `requirements.txt`.
+4. Instalara los paquetes frontend ejecutando `npm install`.
+5. Buscara la instalacion local de MySQL (soporta rutas por defecto de XAMPP y WAMP) e importara la estructura inicial de base de datos desde `laika_club_database.sql`.
+6. Creara los directorios necesarios para logs, cargas de imagenes y respaldos en la raiz.
+
+### Actualizaciones Rapidas
+
+Si estas trabajando en un entorno ya configurado y solo necesitas actualizar las librerias locales tras un pull:
+
+```bash
+# Ejecutar para sincronizar dependencias conda, pip y npm
+install_all.bat
+```
+
+### Arranque del Sistema
+
+Para levantar la aplicacion completa (Backend microservicios + Frontend React):
+
+```bash
+# Ejecutar la Consola Maestra Interactiva
+python run.py
+```
+
+La aplicacion estara disponible en: **http://localhost:3000**
 
 ---
 
@@ -272,27 +296,27 @@ REACT_APP_API_URL=http://localhost:8000/api
 
 ## Base de Datos
 
-### MySQL — Tablas Principales
+### MySQL - Tablas Principales
 
-| Tabla                 | Servicio   | Descripción                           |
+| Tabla                 | Servicio   | Descripcion                           |
 | --------------------- | ---------- | ------------------------------------- |
 | `users`               | Auth       | Usuarios, roles y estado de cuenta    |
-| `auth_logs`           | Auth       | Auditoría de accesos                  |
+| `auth_logs`           | Auth       | Auditoria de accesos                  |
 | `permission_requests` | Auth       | Solicitudes de permisos               |
-| `events`              | Events     | Catálogo de eventos                   |
-| `tickets`             | Tickets    | Entradas con código QR                |
+| `events`              | Events     | Catalogo de eventos                   |
+| `tickets`             | Tickets    | Entradas con codigo QR                |
 | `payments`            | Tickets    | Registro de transacciones             |
-| `achievements`        | Auth/Admin | Definición de logros                  |
+| `achievements`        | Auth/Admin | Definicion de logros                  |
 | `user_achievements`   | Auth/Admin | Logros por usuario                    |
 | `merch_products`      | Events     | Productos de merchandising por evento |
-| `merch_orders`        | Tickets    | Órdenes de merchandising              |
+| `merch_orders`        | Tickets    | Ordenes de merchandising              |
 
-### MongoDB Atlas — Colecciones Principales
+### MongoDB Atlas - Colecciones Principales
 
-| Colección        | Descripción                              |
+| Coleccion        | Descripcion                              |
 | ---------------- | ---------------------------------------- |
-| `analytics`      | Datos de visualización Big Data          |
-| `event_clicks`   | Métricas de interacción por evento       |
+| `analytics`      | Datos de visualizacion Big Data          |
+| `event_clicks`   | Métricas de interaccion por evento       |
 | `artist_sales`   | Ventas agrupadas por artista             |
 
 ---
@@ -302,14 +326,14 @@ REACT_APP_API_URL=http://localhost:8000/api
 | Rol          | Acceso                                                                   |
 | ------------ | ------------------------------------------------------------------------ |
 | **admin**    | Total: usuarios, logs, BD, eventos, backups, email, analytics, merch     |
-| **gestor**   | Crear/editar eventos, métricas, auditoría, Analytics BigData, merch propia|
+| **gestor**   | Crear/editar eventos, métricas, auditoria, Analytics BigData, merch propia|
 | **operador** | Validar tickets QR, asistentes, incidencias                              |
-| **usuario**  | Ver eventos, comprar, carrito, bóveda de boletos, logros, perfil         |
+| **usuario**  | Ver eventos, comprar, carrito, boveda de boletos, logros, perfil         |
 | **invitado** | Ver eventos, carrito, comprar sin cuenta (Checkout público)              |
 
-### Autenticación
+### Autenticacion
 
-- Tokens JWT `HS256`, vida de **7 días**
+- Tokens JWT `HS256`, vida de **7 dias**
 - Header: `Authorization: Bearer <token>`
 - Contraseñas con **Bcrypt**
 - Bloqueo tras **5 intentos fallidos**
@@ -318,122 +342,106 @@ REACT_APP_API_URL=http://localhost:8000/api
 
 ## Flujo de Compra
 
-El checkout es **completamente público** — no se requiere cuenta.
+El checkout es **completamente publico** - no se requiere cuenta.
 
 ```
 1. Agrega boleto al carrito (btn "Agregar" en cualquier evento)
-   └─ Alternativa: modo "Lucky Seat" 🎰 — asiento sorpresa via ruleta
-2. Abre CartModal desde el ícono en la Navbar
-3. Revisa artículos → "Continuar al Pago"
-   └─ Vista de carrito completa en /cart con recomendaciones de merch
-4. /checkout → rellena datos de contacto + método de pago
+   - Alternativa: modo "Lucky Seat" - asiento sorpresa via ruleta
+2. Abre CartModal desde el icono en la Navbar
+3. Revisa articulos -> "Continuar al Pago"
+   - Vista de carrito completa en /cart con recomendaciones de merch
+4. /checkout -> rellena datos de contacto + método de pago
 5. Confirma la compra
-6. 🎟️ Animación de impresora con efecto láser cinemático (25 seg sinc.)
-7. Boleto enviado al correo + guardado en la Bóveda de Boletos
+6. Animacion de impresora con efecto laser cinematico (25 seg sinc.)
+7. Boleto enviado al correo + guardado en la Boveda de Boletos
 ```
 
-### 🎰 Lucky Seat Roulette
+### Lucky Seat Roulette
 
 Modo especial disponible en el detalle de evento. En lugar de elegir asiento manualmente, el sistema:
-1. Muestra una animación de ruleta cinemática
+1. Muestra una animacion de ruleta cinematica
 2. Selecciona aleatoriamente un asiento disponible en la mejor zona
 3. Presenta el asiento ganador con efecto de reveal premium
 4. Permite confirmar o re-girar la ruleta
 
 ---
 
-## Módulo de Merchandising
+## Modulo de Merchandising
 
 ### Para Usuarios (Desde el Detalle de Evento)
 
-La sección **"MERCH DEL EVENTO"** aparece en la página de detalle de cada evento:
+La seccion **"MERCH DEL EVENTO"** aparece en la pagina de detalle de cada evento:
 - Grid de productos con imagen, nombre y precio
 - Modal de producto con selector de talla/color, cantidad y CTA de compra
 - Añade merch al carrito junto con los boletos del evento
 
 ### Para Gestores (`/manager/merchandise`)
 
-- Dashboard de gestión de productos por evento
+- Dashboard de gestion de productos por evento
 - Crear, editar y eliminar productos de merchandising
-- Productos quedan en estado **"Pendiente de aprobación"** hasta revisión admin
+- Productos quedan en estado **"Pendiente de aprobacion"** hasta revision admin
 
 ### Para Administradores (`/admin/merchandise-approval`)
 
-- Vista de todos los productos pendientes de aprobación
+- Vista de todos los productos pendientes de aprobacion
 - Aprobar o rechazar productos con comentario
-- Gestión global del catálogo de merch (`/admin/merch`)
+- Gestion global del catalogo de merch (`/admin/merch`)
+
 
 ---
 
-## Constructor de Boletos
+## Scripts de Utilidad y Herramientas Extra
 
-Panel exclusivo de Admin (`/admin/ticket-builder`) para diseñar visualmente el formato de los boletos:
-- Arrastra y suelta elementos (logo, texto, QR, imagen del evento)
-- Cambia colores de fondo y tipografías
-- Vista previa en tiempo real del boleto final
+El proyecto cuenta con varias herramientas automatizadas en la raiz para facilitar el desarrollo, despliegue y versionado:
 
----
+### 1. `setup.py`
+* **Que hace**: Script de preparacion del ecosistema LaikaClub. Revisa dependencias, crea las carpetas operativas (`uploads/`, `microservices_logs/`, `backups/`), crea el archivo `.env` base e importa de forma directa la base de datos estructurada a tu servidor MySQL.
+* **Como usarlo**: Ejecuta `python setup.py` en tu terminal preferida antes de levantar los servicios por primera vez.
 
-## Radar de Operaciones (`/admin/radar`)
+### 2. `install_all.bat`
+* **Que hace**: Inicializa y actualiza el entorno completo del proyecto en Windows.
+  * Llama a `conda env update` usando `environment.yml` para actualizar el entorno de Conda `laika`.
+  * Ejecuta `npm install` para instalar las librerias y dependencias del frontend en Node.
+  * Realiza `pip install` sobre `requirements.txt` para asegurar que el entorno de Conda cuente con todas las librerias de FastAPI, SQLAlchemy y PySpark necesarias.
+* **Como usarlo**: Haz doble click en el archivo `install_all.bat` o ejecútalo desde cmd/powershell.
 
-Panel exclusivo de Admin para monitoreo en vivo del venue:
-- Mapa de asientos en tiempo real con estado de ocupación
-- Indicadores de color por estado (libre / ocupado / reservado / bloqueado)
-- Estadísticas de ocupación por zona
-- Útil para coordinación logística durante el evento
+### 3. `run.py`
+* **Que hace**: Consola Maestra Interactiva para gestionar los procesos locales en Windows. Levanta simultaneamente el frontend (enrutando a `npm start`) y la coleccion de backend microservicios (enrutando a `run_microservices.py`) en ventanas independientes de comando.
+* **Control interactivo de procesos**: Permite controlar el estado de los servicios presionando teclas especificas en la terminal:
+  * `1` -> Detener la suite de Backend
+  * `A` -> Iniciar/Levantar la suite de Backend
+  * `Q` -> Reiniciar la suite de Backend
+  * `2` -> Detener el servidor de Frontend
+  * `S` -> Iniciar/Levantar el servidor de Frontend
+  * `W` -> Reiniciar el servidor de Frontend
+  * `ESC` -> Detiene de forma segura todos los procesos y cierra la terminal interactiva.
+* **Como usarlo**: Ejecuta `python run.py`.
 
----
+### 4. `subir.py`
+* **Que hace**: Asistente de Git interactivo disenado para acelerar el flujo de guardado y subida de cambios a ramas locales o remotas en GitHub sin necesidad de escribir comandos manuales repetitivos.
+* **Modos de ejecucion**:
+  * **Modo Interactivo (`python subir.py`)**: Analiza y lista de forma interactiva que archivos fueron modificados, creados o eliminados. Te permite decidir si deseas continuar en la rama actual o cambiarte/crear una nueva rama. Despues te sugiere un mensaje de commit inteligente basado en los nombres de los archivos modificados y finalmente te consulta si deseas realizar un `git push` a `origin/tu-rama`.
+  * **Modo Rapido (`python subir.py "mensaje del commit"`)**: Agrega todos los cambios del directorio (`git add .`), realiza el commit con el mensaje ingresado y ejecuta inmediatamente un push a la rama de seguimiento remota activa.
 
-## Sistema de Recuperación Ante Desastres
-
-El sistema incluye dos scripts de auto-recuperación activos **en tiempo real** mientras el servidor está corriendo.
-
-### ❄️ Plan de Invierno (MySQL)
-
-Detecta si la base de datos `laika_club` está vacía o dañada y **automáticamente** restaura desde el respaldo `.sql` más reciente en `backups/`.
-
-```bash
-python plan_invierno_mysql.py --check    # Solo verificar conexión
-python plan_invierno_mysql.py --restore  # Restaurar manualmente
-```
-
-### 🦊 Plan LIA (MongoDB Atlas)
-
-Detecta si las colecciones de Atlas fueron borradas. Valida la integridad del respaldo `.json` antes de restaurar y realiza una **inserción quirúrgica** (no sobreescribe datos sanos).
-
-```bash
-python plan_lia_mongo.py --validate [coleccion]  # Verificar integridad
-python plan_lia_mongo.py --restore [coleccion]   # Restaurar colección
-```
-
-> **Monitoreo automático**: `run_microservices.py` ejecuta un chequeo de salud cada **10 segundos** y dispara el plan correspondiente si detecta pérdida de datos — sin intervención manual.
-
----
-
-## Scripts de Utilidad
-
-| Script                   | Descripción                                           |
-| ------------------------ | ----------------------------------------------------- |
-| `run_all.bat`            | Arranca Frontend + Backend en un solo clic            |
-| `run_microservices.py`   | Lanza los 8 microservicios + monitoreo en tiempo real |
-| `plan_invierno_mysql.py` | ❄️ Recuperación ante desastres MySQL                  |
-| `plan_lia_mongo.py`      | 🦊 Recuperación quirúrgica MongoDB Atlas              |
+### 5. Otros Scripts de Ejecucion
+* `run_all.bat` -> Ejecuta tanto el backend como el frontend de forma directa en un solo click (iniciando `run_microservices.py` y `npm start` de forma paralela en segundo plano).
+* `run_microservices.py` -> Arranca de manera secuencial los 9 microservicios de Python en sus respectivos puertos locales (puertos `8001` a `8008`) y el API Gateway (puerto `8000`), manteniendo un hilo de monitoreo continuo de recursos y salud de base de datos.
 
 ---
 
 ## Credenciales por Defecto
 
-> **Solo para desarrollo.** Cambia estas contraseñas en producción.
+> **Solo para desarrollo.** Cambia estas contraseñas en produccion.
 
 | Rol       | Correo                     | Contraseña  |
 | --------- | -------------------------- | ----------- |
-| Admin     | admin@laikaclub.com        | admin123    |
-| Gestor    | gestor@laikaclub.com       | gestor123   |
-| Operador  | operador@laikaclub.com     | operador123 |
-| Usuario   | usuario@laikaclub.com      | usuario123  |
+| Admin     | admin@laikaclub.com        | gearsof2    |
+| Gestor    | gestor@laikaclub.com       | gearsof2    |
+| Operador  | operador@laikaclub.com     | gearsof2    |
+| Usuario   | usuario@laikaclub.com      | gearsof2    |
 
 ---
 
 ## Licencia
 
-Proyecto privado — LAIKA Club © 2026. Todos los derechos reservados.
+Proyecto privado - LAIKA Club © 2026. Todos los derechos reservados.

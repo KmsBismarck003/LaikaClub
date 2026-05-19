@@ -98,8 +98,7 @@ export default function VenueMapContainer({
         <div className="venue-map-selection-summary">
           <span className="selection-count-badge">{selectedSeats.length}</span>
           <span>
-            asiento{selectedSeats.length !== 1 ? 's' : ''}{' '}
-            seleccionado{selectedSeats.length !== 1 ? 's' : ''}
+            {`asiento${selectedSeats.length !== 1 ? 's' : ''} seleccionado${selectedSeats.length !== 1 ? 's' : ''}`}
           </span>
         </div>
       )}

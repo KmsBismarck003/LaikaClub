@@ -53,3 +53,55 @@ export const formatTime = (timeStr) => {
   // Standard time format
   return strVal.substring(0, 5);
 };
+
+// Resuelve el identificador de asiento único (ID o frontend_id) a su nombre legible (ej: E4)
+export const getSeatLabel = (seatId, event) => {
+  if (!seatId) return "";
+  
+  // 1. Intentar extraer del nuevo formato del builder v2: layout_json.components
+  const components =
+    event?.room?.layout_json?.components ||
+    event?.seating_map?.layout_json?.components;
+
+  if (components && Array.isArray(components)) {
+    for (const comp of components) {
+      if (comp.type === 'seats' && Array.isArray(comp.blocks)) {
+        for (const block of comp.blocks) {
+          if (Array.isArray(block.seats)) {
+            const seat = block.seats.find(s => s && s.id === seatId);
+            if (seat) {
+              const row = seat.rowLabel || seat.row_label || block.rowLabel || block.name || '';
+              const num = seat.number !== undefined ? seat.number : (seat.seat_number !== undefined ? seat.seat_number : '');
+              return `${row}${num}`;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Intentar extraer del formato legacy de zonas si está presente
+  const zones = event?.room?.zones || event?.zones;
+  if (zones && Array.isArray(zones)) {
+    for (const zone of zones) {
+      if (Array.isArray(zone.blocks)) {
+        for (const block of zone.blocks) {
+          if (Array.isArray(block.seats)) {
+            const seat = block.seats.find(s => s && (s.id === seatId || s.frontend_id === seatId));
+            if (seat) {
+              const row = seat.row_label || seat.rowLabel || block.name || '';
+              const num = seat.seat_number !== undefined ? seat.seat_number : (seat.number !== undefined ? seat.number : '');
+              return `${row}${num}`;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 3. Fallback: Parsear formato legacy con guiones (ej: "General-A-4" o "VIP-E-12")
+  const parts = String(seatId).split('-');
+  return parts.length >= 3
+    ? `${parts[parts.length - 2]}${parts[parts.length - 1]}`
+    : parts.pop() || seatId;
+};

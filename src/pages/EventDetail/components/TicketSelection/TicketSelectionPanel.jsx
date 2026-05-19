@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, Icon } from "../../../../components";
-import { formatDate, formatTime } from "../../utils/helpers";
+import { formatDate, formatTime, getSeatLabel } from "../../utils/helpers";
 import './TicketSelection.css';
 
 export default function TicketSelectionPanel({
@@ -74,7 +74,7 @@ export default function TicketSelectionPanel({
                 {section.type === 'seating' ? 'Selección en mapa' : 'Entrada General'}
               </div>
               <div className="ticket-price-val">
-                ${cleanPrice(section.price)} <span className="each">c/u</span>
+                {`$${cleanPrice(section.price)}`} <span className="each">c/u</span>
               </div>
             </div>
 
@@ -84,29 +84,6 @@ export default function TicketSelectionPanel({
         ))}
       </div>
 
-      {/* ── Lucky Seat ── */}
-      {event.has_lucky_seat && (
-        <div className="tsp-lucky-block">
-          <h4 className="tsp-lucky-title">¡Gana un ascenso! ✨</h4>
-          <p className="tsp-lucky-desc">Prueba suerte por un asiento premium por solo $40</p>
-          <div className="tsp-lucky-actions">
-            <button
-              className="back-button prob-btn"
-              onClick={() => setShowProbModal(true)}
-            >
-              Ver probs
-            </button>
-            <button
-              className="lucky-btn-premium-gold"
-              onClick={handleLuckySeat}
-              disabled={isRouletteActive}
-            >
-              <Icon name="zap" size={15} />
-              {isRouletteActive ? 'Girando...' : 'Jugar Ruleta'}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ── Bottom de Compra ── */}
       {selectedSection && (
@@ -118,10 +95,7 @@ export default function TicketSelectionPanel({
               <div className="selected-seats-chips">
                 {selectedSeats.length > 0 ? (
                   selectedSeats.map(s => {
-                    const parts = s.split('-');
-                    const label = parts.length >= 3
-                      ? `${parts[parts.length - 2]}${parts[parts.length - 1]}`
-                      : parts.pop();
+                    const label = getSeatLabel(s, event);
                     return (
                       <Badge key={s} variant="primary" size="sm">{label}</Badge>
                     );
@@ -149,7 +123,7 @@ export default function TicketSelectionPanel({
           {/* Total */}
           <div className="total-preview">
             <span className="total-label">Total estimado</span>
-            <span className="total-amount">${total}</span>
+            <span className="total-amount">{`$${total}`}</span>
           </div>
 
           {/* Botones de Acción: Carrito y Compra Directa */}
@@ -179,9 +153,11 @@ export default function TicketSelectionPanel({
               disabled={isSeating ? selectedSeats.length === 0 : false}
             >
               <Icon name="credit-card" size={18} />
-              {isSeating && selectedSeats.length > 0
-                ? `Pagar ${selectedSeats.length} Asiento${selectedSeats.length > 1 ? 's' : ''}`
-                : 'Pagar Directo'}
+              <span>
+                {isSeating && selectedSeats.length > 0
+                  ? `Pagar ${selectedSeats.length} Asiento${selectedSeats.length > 1 ? 's' : ''}`
+                  : 'Pagar Directo'}
+              </span>
             </button>
           </div>
         </div>

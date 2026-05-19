@@ -50,14 +50,19 @@ function SeatDot({ seat, isBusy, isSelected, isWinner, onToggle }) {
         </text>
       )}
       {/* Seat number label below */}
-      {hovered && (
-        <text x={seat.x} y={seat.y + SEAT_R + 11} textAnchor="middle"
-          fontSize={8} fill="#ffffff" fontWeight={800}
-          style={{ pointerEvents: 'none', userSelect: 'none', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.9))' }}
-        >
-          <tspan>{seat.rowLabel}{seat.number}</tspan>
-        </text>
-      )}
+      <text x={seat.x} y={seat.y + SEAT_R + 11} textAnchor="middle"
+        fontSize={8} fill="#ffffff" fontWeight={800}
+        style={{
+          pointerEvents: 'none',
+          userSelect: 'none',
+          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.9))',
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity 0.15s ease',
+          visibility: hovered ? 'visible' : 'hidden'
+        }}
+      >
+        <tspan>{`${seat.rowLabel}${seat.number}`}</tspan>
+      </text>
     </g>
   );
 }

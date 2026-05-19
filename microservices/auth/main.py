@@ -82,7 +82,9 @@ def check_lockout(email: str, db: Session = Depends(get_db)):
             return {"locked": True, "retry_after": remaining, "failed_attempts": result.get("failed_attempts", 0)}
         return {"locked": False, "failed_attempts": result.get("failed_attempts", 0)}
     except Exception as e:
-        print(f"⚠️ [AUTH] check-lockout error: {e}")
+        print(f"[AUTH WARNING] check-lockout error: {e}")
+        import traceback
+        traceback.print_exc()
         return {"locked": False}
 
 
