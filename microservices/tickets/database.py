@@ -34,7 +34,8 @@ def init_tickets_db():
                 payment_method TEXT,
                 redeemed_at TEXT,
                 purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                event_function_id INTEGER
             )
         """)
 
@@ -69,6 +70,7 @@ def init_tickets_db():
             "qr_data": "TEXT",
             "redeemed_at": "TEXT",
             "purchase_date": "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            "event_function_id": "INTEGER",
         }
 
         migration_done = False
@@ -123,7 +125,8 @@ def run_migrations(engine):
                     payment_method VARCHAR(50),
                     redeemed_at VARCHAR(100),
                     purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    event_function_id INT
                 )
             """))
             conn.execute(text("""
@@ -193,6 +196,7 @@ def run_migrations(engine):
             ("tickets", "payment_method", "VARCHAR(50)" if engine.name == 'mysql' else "TEXT"),
             ("tickets", "qr_data", "TEXT"),
             ("tickets", "redeemed_at", "VARCHAR(100)" if engine.name == 'mysql' else "TEXT"),
+            ("tickets", "event_function_id", "INT" if engine.name == 'mysql' else "INTEGER"),
             ("payments", "event_id", "INT" if engine.name == 'mysql' else "INTEGER"),
             ("payments", "reference", "VARCHAR(100)" if engine.name == 'mysql' else "TEXT"),
             ("payments", "created_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"),

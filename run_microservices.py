@@ -29,9 +29,11 @@ def ensure_database_exists():
             # 💡 NUEVA REGLA: Verificar si hay tablas creadas
             res = conn.execute(text("SHOW TABLES;"))
             tables = res.fetchall()
-                   if len(tables) <= 1: # Si está vacía o tiene sólo 1 tabla
+            
+        if len(tables) <= 1: # Si está vacía o tiene sólo 1 tabla
             print(f"[RESCUE] La base de datos '{dbname}' está VACÍA o DAÑADA ({len(tables)} tablas).")
-            print("[WARNING] El script de auto-restauración 'plan_invierno_mysql.py' no está disponible en este entorno.")
+            print("[INFO] ❄️ Activando AUTOMÁTICAMENTE el PLAN DE INVIERNO...")
+            subprocess.run([sys.executable, "plan_invierno_mysql.py", "--restore"])
         else:
             print(f"[INFO] Base de datos MySQL '{dbname}' activa con {len(tables)} tablas.")
             
@@ -39,12 +41,12 @@ def ensure_database_exists():
         error_str = str(e)
         if "1049" in error_str or "Unknown database" in error_str:
             print(f"[RESCUE] La base de datos '{dbname}' NO existe en MySQL.")
-            print("[INFO] Creando base de datos...")
+            print("[INFO] Creando base de datos y activando PLAN DE INVIERNO...")
             try:
                 temp_engine = create_engine(BASE_URL)
                 with temp_engine.connect() as conn:
                     conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {dbname}"))
-                print("[WARNING] El script de auto-restauración 'plan_invierno_mysql.py' no está disponible.")
+                subprocess.run([sys.executable, "plan_invierno_mysql.py", "--restore"])
             except Exception as e2:
                 print(f"[ERROR] Fallo crítico al crear DB: {e2}")
         else:
@@ -68,8 +70,7 @@ def ensure_mongo_exists():
         
         collections = mongo_db.list_collection_names()
         
-        # Colecciones Críticas del Sistema Laika
-        # Colecciones Críticas del Sistema Laika (Ecosistema Total)
+        # Colecciones Críticas del Ecosistema Total
         critical_collections = [
             'usuarios', 'eventos', 'analytics', 'merchandise', 
             'tickets', 'payments', 'agent_intelligence', 
@@ -78,17 +79,20 @@ def ensure_mongo_exists():
         
         if len(collections) == 0:
             print("[RESCUE] 🦊 La base de datos MongoDB Atlas está VACÍA.")
-            print("[WARNING] El script de auto-restauración 'plan_lia_mongo.py' no está disponible.")
+            print("[INFO] Activando AUTOMÁTICAMENTE el PLAN LIA...")
+            subprocess.run([sys.executable, "plan_lia_mongo.py", "--restore"])
         else:
             # Verificación Granular (Súrgica)
             missing_critical = [c for c in critical_collections if c not in collections]
             
             if missing_critical:
                 print(f"[RESCUE] 🦊 Faltan colecciones críticas: {missing_critical}")
-                print("[WARNING] El script de restauración 'plan_lia_mongo.py' no está disponible.")
+                for coll_name in missing_critical:
+                    print(f"[INFO] Activando PLAN LIA para restaurar colección: {coll_name}...")
+                    subprocess.run([sys.executable, "plan_lia_mongo.py", "--restore", coll_name])
             else:
                 print(f"[INFO] MongoDB Atlas activa con {len(collections)} colecciones. (Salud OK)")
-             
+              
     except Exception as e:
         print(f"[ERROR] No se pudo verificar salud de MongoDB Atlas: {e}")
 

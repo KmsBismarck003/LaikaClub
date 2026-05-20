@@ -511,6 +511,7 @@ def get_user_permissions(db: Session, user_id: int):
     if not result:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
+    role = result.get('role', 'usuario')
     import json
     permissions = result.get('permissions')
     if permissions:
@@ -521,8 +522,29 @@ def get_user_permissions(db: Session, user_id: int):
     else:
         permissions = {}
         
+    default_perms = {
+        "canViewMyTickets": True,
+        "canViewMyHistory": True,
+        "canAccessCart": True,
+        "canViewAchievements": True
+    }
+    
+    if role in ['admin', 'gestor']:
+        default_perms.update({
+            "canViewDashboard": True,
+            "canCreateEvents": True,
+            "canEditEvents": True,
+            "canViewEventAnalytics": True,
+            "canManageVenues": True,
+            "canManageUsers": True if role == 'admin' else False
+        })
+        
+    for k, v in default_perms.items():
+        if k not in permissions:
+            permissions[k] = v
+            
     return {
-        "role": result.get('role', 'usuario'),
+        "role": role,
         "permissions": permissions
     }
 

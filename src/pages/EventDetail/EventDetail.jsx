@@ -52,6 +52,7 @@ const EventDetail = () => {
     busySeats, 
     addBusySeats,
     fetchEventDetail,
+    fetchBusySeats,
     zones,
     dynamicMap,
     seatTypes,
@@ -74,8 +75,9 @@ const EventDetail = () => {
   useEffect(() => {
     if (ticketEngine.selectedFunction) {
       loadDynamicMap(ticketEngine.selectedFunction);
+      fetchBusySeats(id, ticketEngine.selectedFunction.id);
     }
-  }, [ticketEngine.selectedFunction, loadDynamicMap]);
+  }, [ticketEngine.selectedFunction, loadDynamicMap, fetchBusySeats, id]);
 
   // Sync Zones
   const synchronizedZones = useMemo(() => {
@@ -96,17 +98,68 @@ const EventDetail = () => {
   const confirmDirectPayment = async (method) => {
     ticketEngine.setIsProcessingPayment(true);
     try {
-      await new Promise(r => setTimeout(r, 2000));
-      ticketEngine.setIsProcessingPayment(false);
-      ticketEngine.setShowDirectPayment(false);
+      const amount = cleanPrice(ticketEngine.directTicketData.section?.price || event?.price) * ticketEngine.directTicketData.quantity;
+
+      // 1. Create Payment Intent
+      const intentResp = await api.payment.createIntent({
+         amount: amount,
+         method: method,
+         eventId: id,
+         event_id: id
+      });
       
+      const paymentId = intentResp.payment_id || intentResp.reference;
+      
+      // 2. Confirm Payment for cards
+      if (method === 'card') {
+         await api.payment.confirm(paymentId);
+      }
+
+      // 3. Purchase Tickets
+      const purchaseItems = [];
+      const directSeats = ticketEngine.directTicketData.seats;
+      if (directSeats && directSeats.length > 0) {
+        for (const seat of directSeats) {
+          purchaseItems.push({
+            eventId: id,
+            quantity: 1,
+            functionId: ticketEngine.selectedFunction?.id,
+            sectionId: ticketEngine.directTicketData.section?.id,
+            sectionName: ticketEngine.directTicketData.section?.name,
+            price: cleanPrice(ticketEngine.directTicketData.section?.price || event?.price),
+            seatId: seat
+          });
+        }
+      } else {
+        for (let i = 0; i < ticketEngine.directTicketData.quantity; i++) {
+          purchaseItems.push({
+            eventId: id,
+            quantity: 1,
+            functionId: ticketEngine.selectedFunction?.id,
+            sectionId: ticketEngine.directTicketData.section?.id,
+            sectionName: ticketEngine.directTicketData.section?.name,
+            price: cleanPrice(ticketEngine.directTicketData.section?.price || event?.price),
+            seatId: null
+          });
+        }
+      }
+
+      await api.ticket.purchase({
+        items: purchaseItems,
+        paymentMethod: method,
+        paymentId
+      });
+
+      // Detener el bloqueo temporal
+      resetLock();
+
       const payload = {
-         id: `tc_${Date.now()}`,
+         id: paymentId,
          event: ticketEngine.directTicketData.event,
          section: ticketEngine.directTicketData.section,
          seats: ticketEngine.directTicketData.seats,
          quantity: ticketEngine.directTicketData.quantity,
-         total: (cleanPrice(ticketEngine.directTicketData.section?.price || event?.price) * ticketEngine.directTicketData.quantity)
+         total: amount
       };
       
       // Registrar instantáneamente los asientos comprados en la lista de ocupados del mapa
@@ -114,16 +167,15 @@ const EventDetail = () => {
         addBusySeats(ticketEngine.directTicketData.seats);
       }
       
-      // Detener el bloqueo temporal
-      resetLock();
-      
       ticketEngine.setPrintingData(payload);
       ticketEngine.setShowSuccessTicket(true);
       ticketEngine.setSelectedSeats([]); // Vaciar selección activa de asientos
+      ticketEngine.setIsProcessingPayment(false);
+      ticketEngine.setShowDirectPayment(false);
       success("¡Compra realizada con éxito!");
     } catch(err) {
       ticketEngine.setIsProcessingPayment(false);
-      error("Error procesando pago");
+      error(err.response?.data?.detail || "Error procesando pago");
     }
   };
 

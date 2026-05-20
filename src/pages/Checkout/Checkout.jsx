@@ -153,16 +153,37 @@ const Checkout = () => {
             }
 
             // 3. Procesar la compra de los tickets
+            const purchaseItems = [];
+            for (const item of cart) {
+                if (item.seats && item.seats.length > 0) {
+                    for (const seat of item.seats) {
+                        purchaseItems.push({
+                            eventId: item.eventId,
+                            quantity: 1,
+                            functionId: item.functionId,
+                            sectionId: item.sectionId,
+                            sectionName: item.sectionName,
+                            price: item.price,
+                            seatId: seat
+                        });
+                    }
+                } else {
+                    for (let i = 0; i < item.quantity; i++) {
+                        purchaseItems.push({
+                            eventId: item.eventId,
+                            quantity: 1,
+                            functionId: item.functionId,
+                            sectionId: item.sectionId,
+                            sectionName: item.sectionName,
+                            price: item.price,
+                            seatId: null
+                        });
+                    }
+                }
+            }
+
             const purchaseData = {
-                items: cart.map(item => ({
-                    eventId: item.eventId,
-                    quantity: item.quantity,
-                    functionId: item.functionId,
-                    sectionId: item.sectionId,
-                    sectionName: item.sectionName,
-                    price: item.price,
-                    seatId: item.seatId // Para asegurar que se guarden los asientos
-                })),
+                items: purchaseItems,
                 paymentMethod: paymentMethod,
                 paymentId: paymentId,
                 shippingInfo: formData,

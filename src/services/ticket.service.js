@@ -6,7 +6,10 @@ import { apiClient } from './apiClient'
 export const ticketAPI = {
     purchase: purchaseData => apiClient.post('/tickets/purchase', purchaseData),
     getMyTickets: () => apiClient.get('/tickets/my-tickets'),
-    getBusySeats: eventId => apiClient.get(`/tickets/busy-seats/${eventId}`),
+    getBusySeats: (eventId, functionId = null) => {
+        const url = functionId ? `/tickets/busy-seats/${eventId}?function_id=${functionId}` : `/tickets/busy-seats/${eventId}`;
+        return apiClient.get(url);
+    },
     verify: ticketCode => apiClient.post('/tickets/verify', { ticketCode }),
     redeem: ticketCode => apiClient.post('/tickets/redeem', { ticketCode }),
     getByCode: ticketCode => apiClient.get(`/tickets/${ticketCode}`),

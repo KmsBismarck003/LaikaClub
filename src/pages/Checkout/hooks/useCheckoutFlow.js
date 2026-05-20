@@ -140,16 +140,37 @@ export const useCheckoutFlow = () => {
 
             // 3. Purchase Tickets
             if (ticketItems.length > 0) {
+                const purchaseItems = [];
+                for (const item of ticketItems) {
+                    if (item.seats && item.seats.length > 0) {
+                        for (const seat of item.seats) {
+                            purchaseItems.push({
+                                eventId: item.eventId,
+                                quantity: 1,
+                                functionId: item.functionId,
+                                sectionId: item.sectionId,
+                                sectionName: item.sectionName,
+                                price: item.price,
+                                seatId: seat
+                            });
+                        }
+                    } else {
+                        for (let i = 0; i < item.quantity; i++) {
+                            purchaseItems.push({
+                                eventId: item.eventId,
+                                quantity: 1,
+                                functionId: item.functionId,
+                                sectionId: item.sectionId,
+                                sectionName: item.sectionName,
+                                price: item.price,
+                                seatId: null
+                            });
+                        }
+                    }
+                }
+
                 await ticketAPI.purchase({
-                    items: ticketItems.map(item => ({
-                        eventId: item.eventId,
-                        quantity: item.quantity,
-                        functionId: item.functionId,
-                        sectionId: item.sectionId,
-                        sectionName: item.sectionName,
-                        price: item.price,
-                        seatId: item.seatId
-                    })),
+                    items: purchaseItems,
                     paymentMethod,
                     paymentId,
                     shippingInfo: formData,

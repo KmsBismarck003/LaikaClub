@@ -21,8 +21,8 @@ def health():
     return {"status": "alive", "service": "ticket-service"}
 
 @app.get("/my-tickets")
-def my_tickets(db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
-    return controller.get_user_tickets(db, user['id'])
+async def my_tickets(db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
+    return await controller.get_user_tickets(db, user['id'])
 
 @app.post("/verify")
 def verify_ticket(data: TicketVerify, db: Session = Depends(get_db)):
@@ -33,8 +33,8 @@ def redeem_ticket(data: TicketVerify, db: Session = Depends(get_db)):
     return controller.redeem_ticket(db, data.ticketCode)
 
 @app.get("/busy-seats/{event_id}")
-def busy_seats(event_id: int, db: Session = Depends(get_db)):
-    return controller.get_busy_seats(db, event_id)
+def busy_seats(event_id: int, function_id: int = None, db: Session = Depends(get_db)):
+    return controller.get_busy_seats(db, event_id, function_id)
 
 @app.post("/purchase")
 async def purchase(data: TicketPurchase, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
@@ -52,6 +52,18 @@ async def confirm_payment(reference: str, db: Session = Depends(get_db)):
 def refund(data: dict, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
     ticket_id = data.get("ticket_id")
     if not ticket_id:
+        raise HTTPException(status_code=400, detail="ticket_id requerido")
+    return controller.process_refund(db, user['id'], ticket_id)
+
+@app.get("/refund/my-refunds")
+async def get_my_refunds(db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
+    return await controller.get_user_refunds(db, user['id'])
+
+@app.post("/refund/request")
+def request_refund(data: dict, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
+    ticket_id = data.get("ticket_id") or data.get("ticketId")
+    if not ticket_id:
+        from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="ticket_id requerido")
     return controller.process_refund(db, user['id'], ticket_id)
 

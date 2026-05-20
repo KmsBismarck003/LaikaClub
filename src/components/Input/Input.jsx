@@ -34,7 +34,7 @@ const Input = ({
     <div className={classNames}>
       {label && (
         <label className="input__label" htmlFor={name}>
-          {label}
+          <span>{label}</span>
           {required && <span className="input__required">*</span>}
         </label>
       )}

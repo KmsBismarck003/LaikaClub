@@ -50,7 +50,7 @@ from .permission_schemas import PermissionRequest
 
 @app.post("/request-permission")
 def request_permission(request: PermissionRequest, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
-    return controller.create_permission_request(db, user['id'], request.permission_type)
+    return controller.create_permission_request(db, user['user_id'], request.permission_type)
 
 @app.get("/all-requests")
 def list_requests(db: Session = Depends(get_db)):
@@ -103,7 +103,7 @@ def login_apple(data: dict, background_tasks: BackgroundTasks, db: Session = Dep
 
 @app.get("/users/me")
 def get_me(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    return controller.get_user_by_id(db, current_user['id'])
+    return controller.get_user_by_id(db, current_user['user_id'])
 
 @app.get("/verify")
 def verify_token(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
@@ -136,14 +136,14 @@ async def upload_avatar(
         if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
             raise HTTPException(status_code=400, detail="Formato no soportado")
             
-        filename = f"user_{current_user['id']}_{uuid.uuid4().hex[:8]}{ext}"
+        filename = f"user_{current_user['user_id']}_{uuid.uuid4().hex[:8]}{ext}"
         filepath = AVATARS_DIR / filename
         
         with open(filepath, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
         avatar_url = f"/api/auth/uploads/avatars/{filename}"
-        return controller.update_user_avatar(db, current_user['id'], avatar_url)
+        return controller.update_user_avatar(db, current_user['user_id'], avatar_url)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al subir avatar: {str(e)}")
 

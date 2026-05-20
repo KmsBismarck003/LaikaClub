@@ -26,7 +26,7 @@ const UserCart = () => {
 
     const handleCheckout = () => {
         if (cart.length === 0) return;
-        navigate('/user/checkout');
+        navigate('/checkout');
     };
 
     const handlePrintingComplete = () => {

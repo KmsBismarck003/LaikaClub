@@ -55,4 +55,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     payload = decode_access_token(token)
     if payload is None:
         raise credentials_exception
+    if isinstance(payload, dict) and "user_id" in payload:
+        payload["id"] = payload["user_id"]
     return payload # Retorna el dict con user_id y role

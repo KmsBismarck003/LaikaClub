@@ -22,22 +22,73 @@ async def get_user_tickets(db: Session, user_id: int):
                     resp = await client.get(f"{EVENT_SERVICE_URL}/{tkt['event_id']}")
                     if resp.status_code == 200:
                         ev_data = resp.json()
-                        tkt["event_name"] = ev_data.get("name", "Evento desconocido")
-                        tkt["event_date"] = ev_data.get("event_date")
+                        
+                        # Find matching function/schedule if event_function_id is present
+                        func_date = None
+                        func_time = None
+                        fid = tkt.get("event_function_id")
+                        if fid and ev_data.get("functions"):
+                            for func in ev_data.get("functions"):
+                                if func.get("id") == fid:
+                                    func_date = func.get("event_date") or func.get("date")
+                                    func_time = func.get("event_time") or func.get("time")
+                                    break
+                        
+                        final_date = func_date or ev_data.get("event_date") or ev_data.get("date")
+                        final_time = func_time or ev_data.get("event_time") or ev_data.get("time") or "N/A"
+                        
+                        tkt["event"] = {
+                            "id": ev_data.get("id"),
+                            "name": ev_data.get("name"),
+                            "date": final_date,
+                            "time": final_time,
+                            "venue_name": ev_data.get("venue_name") or ev_data.get("venue"),
+                            "image_url": ev_data.get("image_url"),
+                            "room": ev_data.get("room"),
+                            "seating_map": ev_data.get("seating_map"),
+                            "zones": ev_data.get("zones")
+                        }
+                        tkt["eventName"] = ev_data.get("name")
+                        tkt["date"] = final_date
+                        tkt["time"] = final_time
+                        tkt["venue"] = ev_data.get("venue_name") or ev_data.get("venue")
+                        tkt["imageUrl"] = ev_data.get("image_url")
+                        tkt["event_name"] = ev_data.get("name")
+                        tkt["event_date"] = final_date
+                        tkt["event_time"] = final_time
+                        tkt["venue_name"] = ev_data.get("venue_name") or ev_data.get("venue")
                     else:
                         tkt["event_name"] = "Info no disponible"
+                        tkt["event_date"] = None
+                        tkt["event_time"] = "N/A"
+                        tkt["venue_name"] = "Lugar no especificado"
+                        tkt["eventName"] = "Info no disponible"
+                        tkt["date"] = None
+                        tkt["time"] = "N/A"
+                        tkt["venue"] = "Lugar no especificado"
                 except:
                     tkt["event_name"] = "Error de conexión"
+                    tkt["event_date"] = None
+                    tkt["event_time"] = "N/A"
+                    tkt["venue_name"] = "Lugar no especificado"
+                    tkt["eventName"] = "Error de conexión"
+                    tkt["date"] = None
+                    tkt["time"] = "N/A"
+                    tkt["venue"] = "Lugar no especificado"
         
         return tickets
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Error en Ticket Service")
 
-def get_busy_seats(db: Session, event_id: int):
+def get_busy_seats(db: Session, event_id: int, function_id: int = None):
     """Retorna lista de IDs de asientos ocupados para un evento"""
-    query = text("SELECT seat_id FROM tickets WHERE event_id = :eid AND status IN ('active', 'used')")
-    rows = db.execute(query, {"eid": event_id}).fetchall()
+    if function_id:
+        query = text("SELECT seat_id FROM tickets WHERE event_id = :eid AND event_function_id = :fid AND status IN ('active', 'used')")
+        rows = db.execute(query, {"eid": event_id, "fid": function_id}).fetchall()
+    else:
+        query = text("SELECT seat_id FROM tickets WHERE event_id = :eid AND status IN ('active', 'used')")
+        rows = db.execute(query, {"eid": event_id}).fetchall()
     return [row[0] for row in rows if row[0]]
 
 async def purchase_tickets(db: Session, user_id: int, items: list, payment_method: str = "card"):
@@ -46,18 +97,26 @@ async def purchase_tickets(db: Session, user_id: int, items: list, payment_metho
         now = datetime.now()
         for item in items:
             # Manejo flexible de objetos o diccionarios
-            eid = item.eventId if hasattr(item, 'eventId') else item.get('eventId')
-            seat = item.seatId if hasattr(item, 'seatId') else item.get('seatId')
-            section = item.sectionName if hasattr(item, 'sectionName') else item.get('sectionName')
-            price = item.price if hasattr(item, 'price') else item.get('price', 0)
+            if isinstance(item, dict):
+                eid = item.get('eventId') or item.get('event_id')
+                seat = item.get('seatId') or item.get('seat_id')
+                section = item.get('sectionName') or item.get('section_name')
+                price = item.get('price', 0)
+                fid = item.get('functionId') or item.get('function_id') or item.get('event_function_id')
+            else:
+                eid = getattr(item, 'eventId', None) or getattr(item, 'event_id', None)
+                seat = getattr(item, 'seatId', None) or getattr(item, 'seat_id', None)
+                section = getattr(item, 'sectionName', None) or getattr(item, 'section_name', None)
+                price = getattr(item, 'price', 0)
+                fid = getattr(item, 'functionId', None) or getattr(item, 'function_id', None) or getattr(item, 'event_function_id', None)
 
             unique_code = f"TKT-{uuid.uuid4().hex[:8].upper()}"
             db.execute(text("""
-                INSERT INTO tickets (user_id, event_id, ticket_code, status, purchase_date, seat_id, section_name, price, payment_method)
-                VALUES (:uid, :eid, :code, 'active', :now, :seat, :sec, :price, :pm)
+                INSERT INTO tickets (user_id, event_id, ticket_code, status, purchase_date, seat_id, section_name, price, payment_method, event_function_id)
+                VALUES (:uid, :eid, :code, 'active', :now, :seat, :sec, :price, :pm, :fid)
             """), {
                 "uid": user_id, "eid": eid, "code": unique_code, "now": now,
-                "seat": seat, "sec": section, "price": price, "pm": payment_method
+                "seat": seat, "sec": section, "price": price, "pm": payment_method, "fid": fid
             })
             
             # SINCRONIZACIÓN A MONGO (Para análisis Spark/Jupyter)
@@ -153,6 +212,51 @@ def process_refund(db: Session, user_id: int, ticket_id: int):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error en reembolso: {str(e)}")
+
+async def get_user_refunds(db: Session, user_id: int):
+    try:
+        query = text("SELECT * FROM tickets WHERE user_id = :user_id AND status = 'refunded' ORDER BY purchase_date DESC")
+        tickets_rows = db.execute(query, {"user_id": user_id}).fetchall()
+        tickets = [dict(row._mapping) for row in tickets_rows]
+        
+        async with httpx.AsyncClient() as client:
+            for tkt in tickets:
+                try:
+                    resp = await client.get(f"{EVENT_SERVICE_URL}/{tkt['event_id']}")
+                    if resp.status_code == 200:
+                        ev_data = resp.json()
+                        tkt["event_name"] = ev_data.get("name", "Evento desconocido")
+                        tkt["event_date"] = ev_data.get("event_date")
+                        tkt["imageUrl"] = ev_data.get("image_url")
+                    else:
+                        tkt["event_name"] = "Info no disponible"
+                except:
+                    tkt["event_name"] = "Error de conexión"
+        
+        refunds = []
+        for tkt in tickets:
+            refunds.append({
+                "id": tkt["id"],
+                "status": "approved",
+                "amount": tkt["price"],
+                "reason": "Reembolso procesado",
+                "detail": f"Asiento: {tkt['seat_id'] or 'N/A'}, Sección: {tkt['section_name'] or 'N/A'}",
+                "created_at": tkt["purchase_date"],
+                "ticket": {
+                    "id": tkt["id"],
+                    "ticket_code": tkt["ticket_code"],
+                    "price": tkt["price"],
+                    "seat_id": tkt["seat_id"],
+                    "section_name": tkt["section_name"],
+                    "event_id": tkt["event_id"],
+                    "eventName": tkt["event_name"],
+                    "imageUrl": tkt.get("imageUrl")
+                }
+            })
+        return refunds
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Error en recuperar reembolsos")
 
 def verify_ticket(db: Session, code: str):
     query = text("SELECT * FROM tickets WHERE ticket_code = :code")

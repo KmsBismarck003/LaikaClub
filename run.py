@@ -14,6 +14,12 @@ import subprocess
 import platform
 import time
 import threading
+import io
+
+# Safe encoding for Windows
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 # Configuración de colores
 GREEN  = "\033[92m"
@@ -49,11 +55,42 @@ def kill_process_tree(proc):
         except:
             pass
 
+def kill_port_owner(port):
+    """Busca el proceso que está escuchando en el puerto especificado y lo mata."""
+    try:
+        if IS_WINDOWS:
+            cmd = "netstat -ano"
+            res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            for line in res.stdout.strip().split('\n'):
+                if "LISTENING" in line and f":{port}" in line:
+                    parts = line.split()
+                    if len(parts) >= 5:
+                        local_addr = parts[1]
+                        if local_addr.endswith(f":{port}"):
+                            pid = parts[-1]
+                            print(f"{YELLOW}[!] Liberando puerto {port} (matando proceso {pid})...{RESET}")
+                            subprocess.run(["taskkill", "/F", "/PID", pid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            time.sleep(0.5)
+        else:
+            cmd = f"lsof -t -i:{port}"
+            res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            for pid in res.stdout.strip().split('\n'):
+                if pid.strip():
+                    print(f"{YELLOW}[!] Liberando puerto {port} (matando proceso {pid})...{RESET}")
+                    subprocess.run(["kill", "-9", pid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    time.sleep(0.5)
+    except Exception as e:
+        print(f"{RED}[!] Error al intentar liberar el puerto {port}: {e}{RESET}")
+
 def start_backend():
     global backend_proc
     if backend_proc and backend_proc.poll() is None:
         print(f"{YELLOW}[!] El backend ya está corriendo.{RESET}")
         return
+
+    # Liberar puertos del backend (8000 al 8008) antes de iniciar
+    for port in range(8000, 8009):
+        kill_port_owner(port)
 
     print(f"{GREEN}[+] Iniciando Backend...{RESET}")
     # Usamos CREATE_NEW_CONSOLE en Windows para que tenga su propia ventana
@@ -93,6 +130,9 @@ def start_frontend():
         print(f"{YELLOW}[!] El frontend ya está corriendo.{RESET}")
         return
 
+    # Liberar puerto del frontend (3000) antes de iniciar
+    kill_port_owner(3000)
+
     print(f"{GREEN}[+] Iniciando Frontend...{RESET}")
     if IS_WINDOWS:
         # Usamos shell=True para npm start
@@ -106,6 +146,7 @@ def start_frontend():
         frontend_proc = subprocess.Popen(["npm", "start"], cwd=ROOT)
     
     time.sleep(1)
+
 
 def stop_frontend():
     global frontend_proc

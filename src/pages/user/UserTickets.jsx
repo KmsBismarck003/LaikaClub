@@ -20,11 +20,13 @@ const UserTickets = () => {
             // Solo boletos reales de la API
             const allTickets = apiTickets.map(t => ({
                 id: t.id,
-                eventName: t.eventName,
-                sectionName: t.ticketType || 'GENERAL',
-                date: t.date,
-                qrHash: t.ticketCode || '',
-                venueName: t.location || ''
+                eventName: t.event_name,
+                sectionName: t.section_name || 'GENERAL',
+                date: t.event_date,
+                time: t.event_time || 'N/A',
+                qrHash: t.ticket_code || '',
+                venueName: t.venue_name || 'Lugar no especificado',
+                seatId: t.seat_id || 'N/A'
             }));
 
             setTickets(allTickets);
@@ -120,48 +122,55 @@ const UserTickets = () => {
 
             {/* Modal de Detalle Estilo Mobile */}
             {selectedTicket && (
-                <div className="qr-modal-overlay-elite !bg-black/90 backdrop-blur-xl flex items-center justify-center p-4" onClick={() => setSelectedTicket(null)}>
-                    <div className="bg-[#111] w-full max-w-sm rounded-[40px] overflow-hidden border border-white/10 shadow-2xl" onClick={e => e.stopPropagation()}>
-                        <div className="p-8">
-                            <div className="flex justify-between items-start mb-8">
+                <div className="qr-modal-overlay-elite !bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4" onClick={() => setSelectedTicket(null)}>
+                    <div className="bg-[#0b0c10] w-full max-w-md rounded-[32px] overflow-hidden border border-white/15 shadow-2xl relative" onClick={e => e.stopPropagation()}>
+                        {/* Luxury Cyber Deco Lines */}
+                        <div className="absolute top-0 left-0 right-0 h-[6px] bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-400" />
+                        
+                        <div className="p-8 pb-4">
+                            <div className="flex justify-between items-start mb-6">
                                 <div>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 block mb-1">ACCESO ELITE</span>
-                                    <h3 className="text-xl font-black uppercase tracking-tighter leading-none">{selectedTicket.eventName}</h3>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-cyan-400 block mb-1">ACCESO ELITE OFICIAL</span>
+                                    <h3 className="text-2xl font-black uppercase tracking-tighter text-white leading-tight">{selectedTicket.eventName}</h3>
                                 </div>
-                                <button className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white" onClick={() => setSelectedTicket(null)}>&times;</button>
+                                <button className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white/80 hover:text-white transition-colors" onClick={() => setSelectedTicket(null)}>&times;</button>
                             </div>
 
-                            <div className="bg-white p-6 rounded-[30px] mb-8 shadow-[0_0_50px_rgba(255,255,255,0.1)] ticket-print-area">
-                                <QRCodeSVG value={selectedTicket.qrHash} size={240} className="w-full h-auto" bgColor="#fff" fgColor="#000" level="H" includeMargin={true} />
+                            <div className="bg-white p-5 rounded-[24px] mb-6 flex justify-center items-center shadow-[0_0_40px_rgba(0,255,242,0.15)] border border-cyan-500/20 ticket-print-area">
+                                <QRCodeSVG value={selectedTicket.qrHash} size={220} className="w-full h-auto" bgColor="#fff" fgColor="#000" level="H" includeMargin={true} />
                             </div>
 
-                            <div className="text-center mb-8">
-                                <span className="text-[10px] font-mono font-bold text-white/40 tracking-[0.5em]">{selectedTicket.qrHash}</span>
+                            <div className="text-center mb-6 bg-white/5 py-2 rounded-lg border border-white/5">
+                                <span className="text-[10px] font-mono font-bold text-white/70 tracking-[0.4em]">{selectedTicket.qrHash}</span>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-8 mb-8">
-                                <div className="space-y-1">
-                                    <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Zona</label>
-                                    <p className="text-xs font-bold text-white uppercase">{selectedTicket.sectionName}</p>
+                            <div className="grid grid-cols-2 gap-y-4 gap-x-4 border-t border-white/10 pt-6 mb-6">
+                                <div className="col-span-2 space-y-1">
+                                    <label className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Lugar</label>
+                                    <p className="text-sm font-black text-white uppercase">{selectedTicket.venueName}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Asiento</label>
-                                    <p className="text-xs font-bold text-white uppercase">{selectedTicket.seatId || 'N/A'}</p>
+                                    <label className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Fecha</label>
+                                    <p className="text-sm font-black text-white uppercase">{selectedTicket.date}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Fecha</label>
-                                    <p className="text-xs font-bold text-white uppercase">{selectedTicket.date}</p>
+                                    <label className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Horario</label>
+                                    <p className="text-sm font-black text-white uppercase">{selectedTicket.time}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest">ID</label>
-                                    <p className="text-xs font-bold text-white uppercase">#{selectedTicket.id?.toString().slice(-6)}</p>
+                                    <label className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Zona</label>
+                                    <p className="text-sm font-black text-yellow-400 uppercase">{selectedTicket.sectionName}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Asiento</label>
+                                    <p className="text-sm font-black text-cyan-400 uppercase">{selectedTicket.seatId}</p>
                                 </div>
                             </div>
                             
-                            <div className="flex gap-4">
+                            <div className="flex gap-4 mb-4">
                                 <button 
                                     onClick={() => window.print()}
-                                    className="flex-1 bg-white text-black py-4 text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2"
+                                    className="flex-1 bg-white hover:bg-gray-100 text-black py-4 text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition-colors"
                                 >
                                     <Icon name="printer" size={14} /> IMPRIMIR
                                 </button>
@@ -178,7 +187,7 @@ const UserTickets = () => {
                                             }
                                         }
                                     }}
-                                    className="px-6 border border-red-500/30 text-red-500 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500/10 transition-colors"
+                                    className="px-6 border border-red-500/30 hover:border-red-500/50 text-red-500 py-4 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500/10 transition-all"
                                 >
                                     REEMBOLSO
                                 </button>
@@ -186,7 +195,7 @@ const UserTickets = () => {
                         </div>
                         <button 
                             onClick={() => setSelectedTicket(null)}
-                            className="w-full bg-white/5 text-white/40 py-6 text-[10px] font-black uppercase tracking-[0.3em] hover:text-white transition-colors"
+                            className="w-full bg-white/5 text-white/40 py-5 text-[10px] font-black uppercase tracking-[0.3em] hover:text-white hover:bg-white/10 transition-all border-t border-white/5"
                         >
                             CERRAR VISTA
                         </button>

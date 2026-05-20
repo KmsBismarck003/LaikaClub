@@ -286,48 +286,41 @@ const Login = () => {
             />
 
             {/* — Indicador de intentos — */}
-            {failedAttempts > 0 && failedAttempts < MAX_ATTEMPTS && (() => {
-              const remaining = MAX_ATTEMPTS - failedAttempts
-              const colors = [
-                null,
-                { bg: '#dcfce7', border: '#16a34a', text: '#15803d', bar: '#22c55e' }, // 1 intento
-                { bg: '#fff7ed', border: '#ea580c', text: '#c2410c', bar: '#f97316' }, // 2 intentos
-              ]
-              const c = colors[failedAttempts] || colors[2]
-              return (
-                <div style={{
-                  border: `1.5px solid ${c.border}`,
-                  background: c.bg,
-                  borderRadius: '10px',
-                  padding: '10px 14px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 700, color: c.text }}>
-                      {failedAttempts === 1 ? '⚠️ Contraseña incorrecta' : '🔴 Último intento antes del bloqueo'}
-                    </span>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: c.text }}>
-                      {failedAttempts}/{MAX_ATTEMPTS}
-                    </span>
-                  </div>
-                  {/* Barra de progreso */}
-                  <div style={{ height: '4px', background: 'rgba(0,0,0,0.08)', borderRadius: '99px', overflow: 'hidden' }}>
-                    <div style={{
-                      height: '100%',
-                      width: `${(failedAttempts / MAX_ATTEMPTS) * 100}%`,
-                      background: c.bar,
-                      borderRadius: '99px',
-                      transition: 'width 0.4s ease'
-                    }} />
-                  </div>
-                  <span style={{ fontSize: '0.7rem', color: c.text }}>
-                    Te queda{remaining === 1 ? '' : 'n'} <strong>{remaining} intento{remaining === 1 ? '' : 's'}</strong> antes del bloqueo de 10 minutos.
+            {failedAttempts > 0 && failedAttempts < MAX_ATTEMPTS && (
+              <div style={{
+                border: `1.5px solid ${failedAttempts === 1 ? '#16a34a' : '#ea580c'}`,
+                background: failedAttempts === 1 ? '#dcfce7' : '#fff7ed',
+                borderRadius: '10px',
+                padding: '10px 14px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: failedAttempts === 1 ? '#15803d' : '#c2410c' }}>
+                    <span>{failedAttempts === 1 ? '⚠️ Contraseña incorrecta' : '🔴 Último intento antes del bloqueo'}</span>
+                  </span>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: failedAttempts === 1 ? '#15803d' : '#c2410c' }}>
+                    <span>{`${failedAttempts}/${MAX_ATTEMPTS}`}</span>
                   </span>
                 </div>
-              )
-            })()}
+                {/* Barra de progreso */}
+                <div style={{ height: '4px', background: 'rgba(0,0,0,0.08)', borderRadius: '99px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${(failedAttempts / MAX_ATTEMPTS) * 100}%`,
+                    background: failedAttempts === 1 ? '#22c55e' : '#f97316',
+                    borderRadius: '99px',
+                    transition: 'width 0.4s ease'
+                  }} />
+                </div>
+                <span style={{ fontSize: '0.7rem', color: failedAttempts === 1 ? '#15803d' : '#c2410c' }}>
+                  <span>{`Te queda${(MAX_ATTEMPTS - failedAttempts) === 1 ? '' : 'n'} `}</span>
+                  <strong>{`${MAX_ATTEMPTS - failedAttempts} intento${(MAX_ATTEMPTS - failedAttempts) === 1 ? '' : 's'}`}</strong>
+                  <span>{` antes del bloqueo de 10 minutos.`}</span>
+                </span>
+              </div>
+            )}
 
             <div className='login-options'>
               <label className='remember-me'>
@@ -379,7 +372,7 @@ const Login = () => {
 
           <div className='login-footer'>
             <p>
-              ¿No tienes una cuenta?{' '}
+              <span>¿No tienes una cuenta? </span>
               <a href='/register' className='register-link'>
                 Regístrate aquí
               </a>

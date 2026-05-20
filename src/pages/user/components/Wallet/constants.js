@@ -18,3 +18,19 @@ export const FALLBACK_IMGS = [
 export function qr(code) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(code)}&qzone=1&color=cccccc&bgcolor=111111`;
 }
+
+export function getEventImageUrl(url, idx = 0) {
+  if (!url) return FALLBACK_IMGS[idx % FALLBACK_IMGS.length];
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  const host = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8000'
+    : `http://${window.location.hostname}:8000`;
+  
+  if (url.startsWith('/')) {
+    return `${host}${url}`;
+  }
+  return `${host}/${url}`;
+}
+

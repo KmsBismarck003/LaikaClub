@@ -203,6 +203,9 @@ def run_migrations(engine):
             ("users", "reset_token_expires", "VARCHAR(100)" if engine.name == 'mysql' else "TEXT"),
             ("users", "permissions", "TEXT"),
             ("users", "avatar_url", "VARCHAR(255)" if engine.name == 'mysql' else "TEXT"),
+            ("users", "last_login", "VARCHAR(100)" if engine.name == 'mysql' else "TEXT"),
+            ("users", "failed_attempts", "INT DEFAULT 0" if engine.name == 'mysql' else "INTEGER DEFAULT 0"),
+            ("users", "lockout_until", "VARCHAR(100)" if engine.name == 'mysql' else "TEXT"),
         ]
         
         for table, col, col_type in columns_to_add:

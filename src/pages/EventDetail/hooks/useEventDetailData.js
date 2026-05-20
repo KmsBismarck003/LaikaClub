@@ -13,6 +13,16 @@ export function useEventDetailData(id, api, venueAPI, errorNotification, navigat
   const [dynamicMap, setDynamicMap] = useState(null);
   const [seatTypes, setSeatTypes] = useState([]);
 
+  const fetchBusySeats = useCallback(async (eventId, functionId = null) => {
+    try {
+      const seatsRes = await api.ticket.getBusySeats(eventId, functionId);
+      setBusySeats(seatsRes || []);
+    } catch (e) {
+      console.warn("Failed to fetch busy seats", e);
+      setBusySeats([]);
+    }
+  }, [api]);
+
   const fetchEventDetail = useCallback(async () => {
     setLoading(true);
     try {
@@ -28,14 +38,9 @@ export function useEventDetailData(id, api, venueAPI, errorNotification, navigat
           setZones(SUMMER_EDITION_PRESET);
       }
 
-      // Cargar asientos ocupados
-      try {
-        const seatsRes = await api.ticket.getBusySeats(id);
-        setBusySeats(seatsRes || []);
-      } catch (e) {
-        console.warn("Failed to fetch busy seats, using empty array");
-        setBusySeats([]);
-      }
+      // Cargar asientos ocupados iniciales
+      const initialFunctionId = response.functions?.[0]?.id || null;
+      await fetchBusySeats(id, initialFunctionId);
       
     } catch (err) {
       errorNotification("No se pudo cargar el detalle del evento.");
@@ -44,7 +49,7 @@ export function useEventDetailData(id, api, venueAPI, errorNotification, navigat
     } finally {
       setLoading(false);
     }
-  }, [id, api, errorNotification, navigate]);
+  }, [id, api, errorNotification, navigate, fetchBusySeats]);
 
   const loadDynamicMap = useCallback(async (selectedFunction) => {
     if (!selectedFunction?.room_id) return;
@@ -99,6 +104,7 @@ export function useEventDetailData(id, api, venueAPI, errorNotification, navigat
     busySeats,
     addBusySeats,
     fetchEventDetail,
+    fetchBusySeats,
     zones,
     dynamicMap,
     seatTypes,
