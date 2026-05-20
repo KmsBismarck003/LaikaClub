@@ -19,7 +19,7 @@ const Skeleton = ({
         borderRadius: borderRadius || (type === 'circle' ? '50%' : type === 'text' ? '8px' : '10px'),
         ...style
     }
-    return <div className={`skeleton ${className}`} style={baseStyle} />
+    return <span className={`skeleton ${className}`} style={baseStyle} />
 }
 
 // --- Fila de tabla skeleton ---

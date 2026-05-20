@@ -29,6 +29,7 @@ class UserAchievement(Base):
     __tablename__ = "user_achievements"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)
+    achievement_id = Column(Integer, index=True)
     tier = Column(Integer)
     tier_name = Column(String(100))
     phase = Column(String(50))

@@ -150,9 +150,9 @@ const AuthAudit = () => {
             <div className='admin-header'>
                 <div>
                     <h1 className='admin-title' style={{ fontSize: '1.4rem' }}>AUDITORÍA DE ACCESOS</h1>
-                    <p className='admin-subtitle' style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center' }}>
+                    <div className='admin-subtitle' style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center' }}>
                         {loading ? <Skeleton style={{ height: '12px', width: '80px', borderRadius: '4px' }} animate /> : `${filtered.length} registro${filtered.length !== 1 ? 's' : ''}`}
-                    </p>
+                    </div>
                 </div>
                 <Button variant='outline' size='sm' onClick={fetchLogs} loading={loading}>
                     Actualizar

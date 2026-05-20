@@ -105,6 +105,7 @@ async def check_achievements_logic(user_id: int, ticket_count: int, db: Session)
             # Create Achievement
             new_ach = UserAchievement(
                 user_id=user_id,
+                achievement_id=t["tier"],
                 tier=t["tier"],
                 tier_name=t["name"],
                 phase=t["phase"]
