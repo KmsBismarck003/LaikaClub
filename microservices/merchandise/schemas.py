@@ -16,8 +16,7 @@ class MerchandiseSettingsResponse(MerchandiseSettingsBase):
 # ====== VARIANTES ======
 class MerchandiseVariantBase(BaseModel):
     sku: Optional[str] = None
-    size: Optional[str] = None
-    color: Optional[str] = None
+    attributes: Optional[dict] = None
     price: Decimal
     stock: int = 0
     is_active: bool = True
@@ -28,8 +27,7 @@ class MerchandiseVariantCreate(MerchandiseVariantBase):
 class MerchandiseVariantUpdate(BaseModel):
     id: Optional[int] = None # Para saber si actualizar o crear en cascada
     sku: Optional[str] = None
-    size: Optional[str] = None
-    color: Optional[str] = None
+    attributes: Optional[dict] = None
     price: Optional[Decimal] = None
     stock: Optional[int] = None
     is_active: Optional[bool] = None
@@ -51,6 +49,9 @@ class MerchandiseItemBase(BaseModel):
     status: str = 'draft'
     admin_status: str = 'pending_review'
     event_id: Optional[int] = None
+    attributes_schema: Optional[dict] = None
+    delivery_methods: Optional[List[str]] = None
+    max_per_person: int = 5
 
 class MerchandiseItemCreate(MerchandiseItemBase):
     variants: List[MerchandiseVariantCreate]
@@ -62,6 +63,9 @@ class MerchandiseItemUpdate(BaseModel):
     status: Optional[str] = None
     admin_status: Optional[str] = None
     event_id: Optional[int] = None
+    attributes_schema: Optional[dict] = None
+    delivery_methods: Optional[List[str]] = None
+    max_per_person: Optional[int] = None
     variants: Optional[List[MerchandiseVariantUpdate]] = None
 
 class MerchandiseItemResponse(MerchandiseItemBase):

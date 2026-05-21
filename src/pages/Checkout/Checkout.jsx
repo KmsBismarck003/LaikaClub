@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../context/NotificationContext';
 import { ticketAPI, paymentAPI } from '../../services/api';
+import { merchService } from '../../services/merch.service';
 import Icon from '../../components/Icons/Icons';
 import Step1_Identity from './components/Step1_Identity';
 import Step2_Shipping from './components/Step2_Shipping';
@@ -152,9 +153,9 @@ const Checkout = () => {
                 }
             }
 
-            // 3. Procesar la compra de los tickets
+            // 3. Procesar la compra de los tickets y merchandise por separado
             const purchaseItems = [];
-            for (const item of cart) {
+            for (const item of ticketItems) {
                 if (item.seats && item.seats.length > 0) {
                     for (const seat of item.seats) {
                         purchaseItems.push({
@@ -182,15 +183,30 @@ const Checkout = () => {
                 }
             }
 
-            const purchaseData = {
-                items: purchaseItems,
-                paymentMethod: paymentMethod,
-                paymentId: paymentId,
-                shippingInfo: formData,
-                shippingMethod: shippingMethod
-            };
+            if (purchaseItems.length > 0) {
+                const purchaseData = {
+                    items: purchaseItems,
+                    paymentMethod: paymentMethod,
+                    paymentId: paymentId,
+                    shippingInfo: formData,
+                    shippingMethod: shippingMethod
+                };
+                await ticketAPI.purchase(purchaseData);
+            }
 
-            const result = await ticketAPI.purchase(purchaseData);
+            // 4. Procesar Merchandise Order (aislamiento de modulo)
+            if (merchItems.length > 0) {
+                const orderItems = merchItems.map(item => ({
+                    variant_id: item.variant_id,
+                    quantity: item.quantity
+                }));
+                const orderData = {
+                    items: orderItems,
+                    user_id: user.id || 1,
+                    payment_method: paymentMethod
+                };
+                await merchService.createOrder(orderData);
+            }
             
             if (appliedCoupon) await consumeAppliedCoupon();
             

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Text, Boolean, DateTime, ForeignKey, Enum, Numeric
+from sqlalchemy import Column, Integer, String, Float, Text, Boolean, DateTime, ForeignKey, Enum, Numeric, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from microservices.merchandise.database import Base
@@ -25,6 +25,9 @@ class MerchandiseItem(Base):
     status = Column(Enum('draft','published','hidden'), default='draft')
     admin_status = Column(String(50), default='pending_review') # 'pending_review', 'approved', 'rejected'
     event_id = Column(Integer, nullable=True, index=True)
+    attributes_schema = Column(JSON, nullable=True)
+    delivery_methods = Column(JSON, nullable=True)
+    max_per_person = Column(Integer, default=5)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -35,8 +38,7 @@ class MerchandiseVariant(Base):
     id = Column(Integer, primary_key=True, index=True)
     item_id = Column(Integer, ForeignKey('merchandise_items.id'), nullable=False)
     sku = Column(String(100), nullable=True)
-    size = Column(String(50), nullable=True)
-    color = Column(String(50), nullable=True)
+    attributes = Column(JSON, nullable=True)
     price = Column(Numeric(10, 2), nullable=False)
     stock = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)

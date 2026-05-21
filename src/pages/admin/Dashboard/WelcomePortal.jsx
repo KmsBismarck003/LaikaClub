@@ -162,8 +162,24 @@ const WelcomePortal = () => {
             label: 'ESTRUCTURA',
             title: 'DISEÑO SALA',
             icon: 'map',
-            path: '/events/manage',
+            path: '/admin/venue-map',
             description: 'Configura zonas y precios en el mapa de asientos'
+        },
+        {
+            id: 'g_merchandise',
+            label: 'SHOP Y PRODUCTOS',
+            title: 'MERCANCÍA',
+            icon: 'shoppingBag',
+            path: '/manager/merchandise',
+            description: 'Constructor de productos y control de inventario'
+        },
+        {
+            id: 'g_transactions',
+            label: 'FINANZAS',
+            title: 'TRANSACCIONES',
+            icon: 'dollarSign',
+            path: '/manager/transactions',
+            description: 'Auditoría de ventas y movimientos de saldo'
         }
     ];
 

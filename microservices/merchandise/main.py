@@ -104,6 +104,10 @@ def update_admin_status(merch_id: int, status_update: MerchandiseItemUpdate, db:
     
     if status_update.admin_status:
         db_item.admin_status = status_update.admin_status
+        if status_update.admin_status == 'approved':
+            db_item.status = 'published'
+        elif status_update.admin_status == 'rejected':
+            db_item.status = 'hidden'
         db.commit()
         db.refresh(db_item)
         

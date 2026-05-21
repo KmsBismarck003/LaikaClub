@@ -37,14 +37,14 @@ const PendingProducts = () => {
         }
     };
 
-    // Robust function to handle uploads paths and testing placeholders
     const formatImageUrl = (url) => {
         if (!url) return 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=400&fit=crop';
-        if (url.startsWith('http://') || url.startsWith('https://')) {
-            return url;
+        const firstUrl = url.split(',')[0];
+        if (firstUrl.startsWith('http://') || firstUrl.startsWith('https://')) {
+            return firstUrl;
         }
-        if (url.startsWith('/')) {
-            return `http://localhost:8000${url}`;
+        if (firstUrl.startsWith('/')) {
+            return `http://localhost:8000${firstUrl}`;
         }
         // Fallback for dummy texts like "dfghm"
         return 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=400&fit=crop';

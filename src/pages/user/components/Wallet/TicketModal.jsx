@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import TicketV1 from './bol_v1/TicketV1';
 import TicketV2 from './bol_v2/TicketV2';
 import TicketV3 from './bol_v3/TicketV3';
+import TicketV4 from './bol_v4/TicketV4';
 
 export default function TicketModal({ ticket, onClose }) {
-  const [version, setVersion] = useState('v1');
+  const [version, setVersion] = useState('v4'); // Default to v4
 
   // Map versions to their respective components
   const versions = {
     v1: { name: 'Clásico', component: TicketV1 },
     v2: { name: 'Coleccionista', component: TicketV2 },
     v3: { name: 'Horizontal', component: TicketV3 },
+    v4: { name: 'Concierto', component: TicketV4 },
   };
 
   const ActiveComponent = versions[version]?.component || TicketV1;

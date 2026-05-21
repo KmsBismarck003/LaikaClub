@@ -23,7 +23,12 @@ const ManagerMerchandise = () => {
         stock: '',
         category: '',
         image_url: '',
-        event_id: ''
+        event_id: '',
+        max_per_person: '5',
+        delivery_pickup: true,
+        delivery_home: false,
+        attributes_name: '',
+        attributes_values: ''
     });
     const [uploadType, setUploadType] = useState('file');
     const [uploading, setUploading] = useState(false);
@@ -70,7 +75,9 @@ const ManagerMerchandise = () => {
         try {
             const res = await api.manager.uploadImage(file);
             if (res && res.url) {
-                setFormData(prev => ({ ...prev, image_url: res.url }));
+                const currentImages = formData.image_url ? formData.image_url.split(',') : [];
+                currentImages.push(res.url);
+                setFormData(prev => ({ ...prev, image_url: currentImages.join(',') }));
                 success('Imagen subida correctamente');
             } else {
                 showError('Error al subir imagen');
@@ -101,18 +108,33 @@ const ManagerMerchandise = () => {
 
             setSubmitting(true);
 
+            let parsedAttributes = null;
+            if (formData.attributes_name && formData.attributes_values) {
+                parsedAttributes = {
+                    [formData.attributes_name]: formData.attributes_values.split(',').map(v => v.trim()).filter(Boolean)
+                };
+            }
+
+            const dMethods = [];
+            if (formData.delivery_pickup) dMethods.push('PICKUP_AT_EVENT');
+            if (formData.delivery_home) dMethods.push('HOME_DELIVERY');
+
             const payload = {
                 name: formData.name,
                 description: formData.description,
                 image_url: formData.image_url,
                 category: formData.category,
                 event_id: parseInt(formData.event_id),
+                max_per_person: parseInt(formData.max_per_person) || 5,
+                delivery_methods: dMethods,
+                attributes_schema: parsedAttributes,
                 variants: [
                     {
                         ...(formData.variant_id ? { id: formData.variant_id } : {}),
                         sku: formData.sku || `SKU-${Date.now()}`,
                         price: parseFloat(formData.price),
                         stock: parseInt(formData.stock),
+                        attributes: parsedAttributes ? { [formData.attributes_name]: formData.attributes_values.split(',').map(v=>v.trim())[0] } : null
                     }
                 ]
             };
@@ -127,7 +149,7 @@ const ManagerMerchandise = () => {
 
             setShowModal(false);
             setEditingId(null);
-            setFormData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', event_id: '', variant_id: '', sku: '' });
+            setFormData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', event_id: '', variant_id: '', sku: '', max_per_person: '5', delivery_pickup: true, delivery_home: false, attributes_name: '', attributes_values: '' });
             loadInitialData();
         } catch (error) {
             console.error(error);
@@ -139,6 +161,10 @@ const ManagerMerchandise = () => {
 
     const handleEditClick = (item) => {
         setEditingId(item.id);
+        const attrKeys = item.attributes_schema ? Object.keys(item.attributes_schema) : [];
+        const attrName = attrKeys.length > 0 ? attrKeys[0] : '';
+        const attrValues = attrName ? item.attributes_schema[attrName].join(', ') : '';
+
         setFormData({
             name: item.name,
             description: item.description,
@@ -148,7 +174,12 @@ const ManagerMerchandise = () => {
             image_url: item.image_url || '',
             event_id: item.event_id || '',
             variant_id: item.variants?.[0]?.id || '',
-            sku: item.variants?.[0]?.sku || ''
+            sku: item.variants?.[0]?.sku || '',
+            max_per_person: item.max_per_person || '5',
+            delivery_pickup: item.delivery_methods?.includes('PICKUP_AT_EVENT') || false,
+            delivery_home: item.delivery_methods?.includes('HOME_DELIVERY') || false,
+            attributes_name: attrName,
+            attributes_values: attrValues
         });
         setUploadType(item.image_url ? 'url' : 'file');
         setShowModal(true);
@@ -226,7 +257,7 @@ const ManagerMerchandise = () => {
                     {merchItems.map(item => (
                         <Card key={item.id} className="overflow-hidden flex flex-col bg-gray-900 border border-gray-800 rounded-xl hover:border-purple-500/50 transition-all duration-300">
                             {item.image_url ? (
-                                <div className="h-52 w-full bg-cover bg-center" style={{ backgroundImage: `url(${item.image_url})` }} />
+                                <div className="h-52 w-full bg-cover bg-center" style={{ backgroundImage: `url(${item.image_url.split(',')[0]})` }} />
                             ) : (
                                 <div className="h-52 w-full bg-gray-800 flex items-center justify-center text-gray-500">Sin Imagen</div>
                             )}
@@ -303,7 +334,7 @@ const ManagerMerchandise = () => {
                 onClose={() => {
                     setShowModal(false);
                     setEditingId(null);
-                    setFormData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', event_id: '', variant_id: '', sku: '' });
+                    setFormData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', event_id: '', variant_id: '', sku: '', max_per_person: '5', delivery_pickup: true, delivery_home: false, attributes_name: '', attributes_values: '' });
                 }} 
                 title={editingId ? "Editar Mercancía" : "Añadir Mercancía"} 
                 size="medium"
@@ -372,6 +403,48 @@ const ManagerMerchandise = () => {
                             placeholder="Ej. Playeras, Tazas, etc."
                         />
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Opción Dinámica (Ej. Talla)</label>
+                            <Input 
+                                value={formData.attributes_name}
+                                onChange={(e) => setFormData({...formData, attributes_name: e.target.value})}
+                                placeholder="Nombre de opción (Opcional)"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Valores (separados por coma)</label>
+                            <Input 
+                                value={formData.attributes_values}
+                                onChange={(e) => setFormData({...formData, attributes_values: e.target.value})}
+                                placeholder="Ej. S, M, L, XL"
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 border-t border-gray-200 pt-3">
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Límite por persona</label>
+                            <Input 
+                                type="number" 
+                                min="1"
+                                value={formData.max_per_person}
+                                onChange={(e) => setFormData({...formData, max_per_person: e.target.value})}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-2 text-gray-700">Métodos de Entrega</label>
+                            <div className="flex flex-col gap-2">
+                                <label className="flex items-center gap-2 text-sm text-gray-800">
+                                    <input type="checkbox" checked={formData.delivery_pickup} onChange={(e) => setFormData({...formData, delivery_pickup: e.target.checked})} />
+                                    Recoger en Stand del Evento
+                                </label>
+                                <label className="flex items-center gap-2 text-sm text-gray-800">
+                                    <input type="checkbox" checked={formData.delivery_home} onChange={(e) => setFormData({...formData, delivery_home: e.target.checked})} />
+                                    Envío a Domicilio
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <div>
                         <label className="block text-sm font-medium mb-1 text-gray-700">Imagen del Producto</label>
                         <div className="flex gap-2 mb-2">
@@ -404,24 +477,50 @@ const ManagerMerchandise = () => {
                                     id="global-merch-file-upload"
                                 />
                                 <span className="text-purple-600 font-bold block mb-1">
-                                    {uploading ? 'Subiendo...' : formData.image_url ? 'Cambiar Imagen' : 'Selecciona una imagen'}
+                                    {uploading ? 'Subiendo...' : 'Añadir nueva imagen'}
                                 </span>
-                                <span className="text-xs text-gray-500 block mb-2">PNG, JPG, WEBP o GIF hasta 5MB</span>
-                                {formData.image_url && (
-                                    <div className="mt-3 flex items-center justify-center gap-2 bg-white p-2 rounded border border-gray-200 max-w-xs mx-auto">
-                                        <img src={formData.image_url} alt="Vista previa" className="h-12 w-12 object-cover rounded" />
-                                        <span className="text-xs text-green-600 font-semibold">¡Subida con éxito!</span>
-                                    </div>
-                                )}
+                                <span className="text-xs text-gray-500 block">Puedes subir múltiples imágenes una por una para el carrusel</span>
                             </label>
                         ) : (
-                            <Input 
-                                type="url"
-                                value={formData.image_url}
-                                onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                                placeholder="https://ejemplo.com/imagen.jpg"
-                                required
-                            />
+                            <div className="flex gap-2">
+                                <Input 
+                                    type="url"
+                                    id="url-input-temp"
+                                    placeholder="https://ejemplo.com/imagen.jpg"
+                                />
+                                <Button type="button" onClick={() => {
+                                    const input = document.getElementById('url-input-temp');
+                                    if(input.value) {
+                                        const currentImages = formData.image_url ? formData.image_url.split(',') : [];
+                                        currentImages.push(input.value);
+                                        setFormData(prev => ({ ...prev, image_url: currentImages.join(',') }));
+                                        input.value = '';
+                                    }
+                                }}>Añadir</Button>
+                            </div>
+                        )}
+                        
+                        {formData.image_url && (
+                            <div className="mt-4">
+                                <p className="text-xs font-bold text-gray-500 mb-2 uppercase">Imágenes en el carrusel ({formData.image_url.split(',').length})</p>
+                                <div className="flex gap-2 overflow-x-auto pb-2">
+                                    {formData.image_url.split(',').map((url, idx) => (
+                                        <div key={idx} className="relative shrink-0 border border-gray-200 rounded p-1 bg-white">
+                                            <img src={url} alt={`Preview ${idx}`} className="h-16 w-16 object-cover rounded" />
+                                            <button 
+                                                type="button" 
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold hover:bg-red-600"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    const imgs = formData.image_url.split(',');
+                                                    imgs.splice(idx, 1);
+                                                    setFormData(prev => ({...prev, image_url: imgs.join(',')}));
+                                                }}
+                                            >×</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         )}
                     </div>
                     <div className="pt-4 flex justify-end gap-2">
@@ -431,7 +530,7 @@ const ManagerMerchandise = () => {
                             onClick={() => {
                                 setShowModal(false);
                                 setEditingId(null);
-                                setFormData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', event_id: '', variant_id: '', sku: '' });
+                                setFormData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', event_id: '', variant_id: '', sku: '', max_per_person: '5', delivery_pickup: true, delivery_home: false, attributes_name: '', attributes_values: '' });
                             }}
                         >
                             Cancelar

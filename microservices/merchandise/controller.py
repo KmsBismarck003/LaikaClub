@@ -38,14 +38,17 @@ def create_merchandise(db: Session, item_data: MerchandiseItemCreate, manager_id
         if not settings or not settings.is_enabled:
             raise HTTPException(status_code=403, detail="Store is not enabled for this manager.")
 
-    # Crear el item principal
     db_item = MerchandiseItem(
         name=item_data.name,
         description=item_data.description,
         image_url=item_data.image_url,
+        category=item_data.category,
         status=item_data.status,
         admin_status=item_data.admin_status,
         event_id=item_data.event_id,
+        attributes_schema=item_data.attributes_schema,
+        delivery_methods=item_data.delivery_methods,
+        max_per_person=item_data.max_per_person,
         manager_id=manager_id
     )
     db.add(db_item)
@@ -57,8 +60,7 @@ def create_merchandise(db: Session, item_data: MerchandiseItemCreate, manager_id
         db_variant = MerchandiseVariant(
             item_id=db_item.id,
             sku=variant.sku,
-            size=variant.size,
-            color=variant.color,
+            attributes=variant.attributes,
             price=variant.price,
             stock=variant.stock,
             is_active=variant.is_active
@@ -103,8 +105,7 @@ def update_merchandise(db: Session, merch_id: int, item_update: MerchandiseItemU
                 db_variant = MerchandiseVariant(
                     item_id=db_item.id,
                     sku=v_data.get('sku'),
-                    size=v_data.get('size'),
-                    color=v_data.get('color'),
+                    attributes=v_data.get('attributes'),
                     price=v_data.get('price', Decimal('0.0')),
                     stock=v_data.get('stock', 0),
                     is_active=v_data.get('is_active', True)
@@ -152,6 +153,16 @@ def create_order(db: Session, order: OrderCreate):
             raise HTTPException(status_code=400, detail=f"Not enough stock for variant {item.variant_id}.")
         
         merch_item = variant.item
+        
+        # Validación max_per_person
+        user_previous_orders = db.query(MerchandiseOrderItem).join(MerchandiseOrder).filter(
+            MerchandiseOrder.user_id == order.user_id,
+            MerchandiseOrderItem.variant_id == item.variant_id,
+            MerchandiseOrder.status == 'completed'
+        ).all()
+        previous_quantity = sum([o.quantity for o in user_previous_orders])
+        if previous_quantity + item.quantity > merch_item.max_per_person:
+            raise HTTPException(status_code=400, detail=f"Limit exceeded. Max {merch_item.max_per_person} items per person allowed.")
             
         settings = get_settings(db, merch_item.manager_id)
         event_allowed = False

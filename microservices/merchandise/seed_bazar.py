@@ -41,7 +41,10 @@ def seed():
                 "image_url": "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=800",
                 "category": "vip",
                 "is_official": True,
-                "variants": [{"size": "VIP", "price": Decimal("2500.00"), "stock": 5}]
+                "attributes_schema": {"tipo": ["VIP"]},
+                "delivery_methods": ["PICKUP_AT_EVENT"],
+                "max_per_person": 1,
+                "variants": [{"attributes": {"tipo": "VIP"}, "price": Decimal("2500.00"), "stock": 5}]
             },
             {
                 "name": "Sudadera 'Glitch Archive' - Ltd Edition",
@@ -49,7 +52,10 @@ def seed():
                 "image_url": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800",
                 "category": "sudaderas",
                 "is_official": True,
-                "variants": [{"size": "M", "price": Decimal("950.00"), "stock": 10}, {"size": "L", "price": Decimal("950.00"), "stock": 15}]
+                "attributes_schema": {"talla": ["M", "L"]},
+                "delivery_methods": ["PICKUP_AT_EVENT", "HOME_DELIVERY"],
+                "max_per_person": 2,
+                "variants": [{"attributes": {"talla": "M"}, "price": Decimal("950.00"), "stock": 10}, {"attributes": {"talla": "L"}, "price": Decimal("950.00"), "stock": 15}]
             },
             {
                 "name": "Gorra 'Red Industrial' - Flash Sale",
@@ -57,7 +63,10 @@ def seed():
                 "image_url": "https://images.unsplash.com/photo-1588850561407-ed78c282e881?auto=format&fit=crop&w=800",
                 "category": "accesorios",
                 "is_official": False,
-                "variants": [{"color": "Rojo/Negro", "price": Decimal("199.00"), "stock": 50}]
+                "attributes_schema": {"color": ["Rojo/Negro"]},
+                "delivery_methods": ["HOME_DELIVERY"],
+                "max_per_person": 5,
+                "variants": [{"attributes": {"color": "Rojo/Negro"}, "price": Decimal("199.00"), "stock": 50}]
             },
             {
                 "name": "Playera 'Cyber Laika' - Edición Neon",
@@ -65,7 +74,10 @@ def seed():
                 "image_url": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800",
                 "category": "playeras",
                 "is_official": False,
-                "variants": [{"size": "S", "price": Decimal("350.00"), "stock": 50}]
+                "attributes_schema": {"talla": ["S", "M", "L"]},
+                "delivery_methods": ["PICKUP_AT_EVENT", "HOME_DELIVERY"],
+                "max_per_person": 3,
+                "variants": [{"attributes": {"talla": "S"}, "price": Decimal("350.00"), "stock": 50}]
             }
         ]
 
@@ -77,6 +89,9 @@ def seed():
                 category=p["category"],
                 is_official=p["is_official"],
                 status="published",
+                attributes_schema=p.get("attributes_schema"),
+                delivery_methods=p.get("delivery_methods"),
+                max_per_person=p.get("max_per_person", 5),
                 manager_id=1
             )
             db.add(item)
@@ -86,9 +101,8 @@ def seed():
             for v in p["variants"]:
                 variant = MerchandiseVariant(
                     item_id=item.id,
-                    sku=v.get("sku", f"{p['category'][:2]}-{item.id}-{v.get('size', 'U')}"),
-                    size=v.get("size"),
-                    color=v.get("color"),
+                    sku=v.get("sku", f"{p['category'][:2]}-{item.id}-{len(v.get('attributes', {}))}"),
+                    attributes=v.get("attributes"),
                     price=v["price"],
                     stock=v["stock"]
                 )

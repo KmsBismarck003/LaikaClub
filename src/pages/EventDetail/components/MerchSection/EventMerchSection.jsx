@@ -62,19 +62,16 @@ export default function EventMerchSection({
   event,
   selectedMerchItem,
   setSelectedMerchItem,
-  merchSize,
-  setMerchSize,
+  merchAttributes,
+  setMerchAttributes,
   merchQty,
   setMerchQty,
-  merchColorIdx,
-  setMerchColorIdx,
-  merchGalleryIdx,
-  setMerchGalleryIdx,
   addToCart: propAddToCart,
   success: propSuccess,
   openCart: propOpenCart
 }) {
   const [merchItems, setMerchItems] = useState([]);
+  const [galleryIdx, setGalleryIdx] = useState(0);
 
   const { addToCart: hookAddToCart, openCart: hookOpenCart } = useCart();
   const { success: hookSuccess } = useNotification();
@@ -85,7 +82,7 @@ export default function EventMerchSection({
 
   useEffect(() => {
     if (event?.id && event?.merch_enabled) {
-      merchService.getAllMerchandise(null, null, event.id, 'approved')
+      merchService.getAllMerchandise(null, 'published', event.id, 'approved')
         .then(data => setMerchItems(data || []))
         .catch(console.error);
     }
@@ -97,19 +94,26 @@ export default function EventMerchSection({
     <>
       <div className="event-merch-section" style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
         <h3 className="section-label-premium" style={{ marginBottom: '1rem' }}>
-          <Icon name="shoppingBag" size={16} /> Mercancía Oficial
+          <Icon name="shoppingBag" size={16} /> Laika Shop
         </h3>
         <div className="merch-products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem' }}>
             {merchItems.slice(0, 6).map(item => (
               <MerchProductCard
                 key={item.id}
-                item={item}
-                onSelect={(cardColorIdx) => {
+                item={{...item, image_url: item.image_url ? item.image_url.split(',')[0] : ''}}
+                onSelect={() => {
                   setSelectedMerchItem(item);
-                  setMerchSize('M');
+                  setGalleryIdx(0);
+                  
+                  // Initialize default attributes based on schema
+                  const defaultAttrs = {};
+                  if (item.attributes_schema) {
+                    Object.entries(item.attributes_schema).forEach(([key, values]) => {
+                       if (values && values.length > 0) defaultAttrs[key] = values[0];
+                    });
+                  }
+                  setMerchAttributes(defaultAttrs);
                   setMerchQty(1);
-                  setMerchColorIdx(0);
-                  setMerchGalleryIdx(0);
                 }}
               />
             ))}
@@ -118,9 +122,21 @@ export default function EventMerchSection({
 
       {/* PRODUCT DETAIL MODAL */}
       {selectedMerchItem && (() => {
-        const galleryImages = [selectedMerchItem.image_url];
-        const hasSize = ['Playera','Gorra','Hoodie','Bufanda'].includes(selectedMerchItem.category);
-        const activePrice = selectedMerchItem.variants?.[0]?.price || 0;
+        const galleryImages = selectedMerchItem.image_url ? selectedMerchItem.image_url.split(',') : [];
+        
+        // Find matching variant
+        let activeVariant = selectedMerchItem.variants?.[0];
+        if (selectedMerchItem.variants && selectedMerchItem.attributes_schema) {
+            activeVariant = selectedMerchItem.variants.find(v => {
+                if (!v.attributes) return false;
+                for (const key in merchAttributes) {
+                    if (v.attributes[key] !== merchAttributes[key]) return false;
+                }
+                return true;
+            }) || activeVariant;
+        }
+        
+        const activePrice = activeVariant?.price || 0;
         
         return (
           <div
@@ -136,14 +152,50 @@ export default function EventMerchSection({
               <button onClick={() => setSelectedMerchItem(null)} style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 10, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
 
               {/* LEFT — Image Gallery */}
-              <div style={{ flex: '1.2', display: 'flex', flexDirection: 'column', gap: '0', background: 'rgba(255,255,255,0.02)', overflow: 'hidden' }}>
-                <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+              <div style={{ flex: '1.2', display: 'flex', flexDirection: 'column', gap: '0', background: 'rgba(255,255,255,0.02)', overflow: 'hidden', padding: '1.5rem', alignItems: 'center' }}>
+                <div 
+                   style={{ width: '100%', flex: 1, overflow: 'hidden', borderRadius: '16px', position: 'relative', cursor: 'zoom-in', background: '#000' }}
+                   onMouseMove={(e) => {
+                     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+                     const x = ((e.clientX - left) / width) * 100;
+                     const y = ((e.clientY - top) / height) * 100;
+                     const img = e.currentTarget.querySelector('img');
+                     if (img) {
+                       img.style.transformOrigin = `${x}% ${y}%`;
+                       img.style.transform = 'scale(2.2)';
+                     }
+                   }}
+                   onMouseLeave={(e) => {
+                     const img = e.currentTarget.querySelector('img');
+                     if (img) {
+                       img.style.transformOrigin = 'center center';
+                       img.style.transform = 'scale(1)';
+                     }
+                   }}
+                >
                   <img
-                    src={galleryImages[0]}
+                    src={galleryImages[galleryIdx] || ''}
                     alt={selectedMerchItem.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.25s' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.1s ease-out' }}
                   />
                 </div>
+                {galleryImages.length > 1 && (
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '1rem', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%' }}>
+                    {galleryImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setGalleryIdx(idx)}
+                        style={{ 
+                           width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0,
+                           border: galleryIdx === idx ? '2px solid #fff' : '2px solid transparent',
+                           cursor: 'pointer', background: '#000', padding: 0, transition: 'all 0.2s'
+                        }}
+                      >
+                         <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: galleryIdx === idx ? 1 : 0.6 }} />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* RIGHT — Product Info */}
@@ -155,33 +207,62 @@ export default function EventMerchSection({
                     ${parseFloat(activePrice).toLocaleString("es-MX")}
                     <span style={{ fontSize: '0.7rem', color: '#888', fontWeight: 400, marginLeft: '6px' }}>MXN</span>
                   </p>
+                  
+                  {selectedMerchItem.description && (
+                     <p style={{ fontSize: '0.75rem', color: '#ccc', marginTop: '0.8rem', lineHeight: 1.4 }}>
+                        {selectedMerchItem.description}
+                     </p>
+                  )}
                 </div>
 
-                {/* Size selector */}
-                {hasSize && (
-                  <div>
-                    <p style={{ fontSize: '0.6rem', fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 0.6rem' }}>Talla</p>
+                {/* Dynamic Attributes */}
+                {selectedMerchItem.attributes_schema && Object.entries(selectedMerchItem.attributes_schema).map(([attrName, attrValues]) => (
+                  <div key={attrName}>
+                    <p style={{ fontSize: '0.6rem', fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 0.6rem' }}>{attrName}</p>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      {['XS','S','M','L','XL','XXL'].map(s => (
-                        <button
-                          key={s}
-                          onClick={() => setMerchSize(s)}
-                          style={{
-                            minWidth: '44px', height: '44px', padding: '0 8px',
-                            border: `1px solid ${merchSize === s ? '#fff' : 'rgba(255,255,255,0.15)'}`,
-                            background: merchSize === s ? '#fff' : 'transparent',
-                            color: merchSize === s ? '#000' : '#aaa',
-                            fontWeight: 800, fontSize: '0.7rem', cursor: 'pointer', transition: 'all 0.15s'
-                          }}
-                        >{s}</button>
-                      ))}
+                      {attrValues.map(val => {
+                        const isSelected = merchAttributes[attrName] === val;
+                        return (
+                          <button
+                            key={val}
+                            onClick={() => setMerchAttributes(prev => ({ ...prev, [attrName]: val }))}
+                            style={{
+                              minWidth: '44px', height: '44px', padding: '0 12px',
+                              border: `1px solid ${isSelected ? '#fff' : 'rgba(255,255,255,0.15)'}`,
+                              background: isSelected ? '#fff' : 'transparent',
+                              color: isSelected ? '#000' : '#aaa',
+                              fontWeight: 800, fontSize: '0.7rem', cursor: 'pointer', transition: 'all 0.15s'
+                            }}
+                          >{val}</button>
+                        );
+                      })}
                     </div>
                   </div>
+                ))}
+                
+                {/* Logistics */}
+                {selectedMerchItem.delivery_methods && selectedMerchItem.delivery_methods.length > 0 && (
+                   <div>
+                       <p style={{ fontSize: '0.6rem', fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 0.6rem' }}>Entrega</p>
+                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {selectedMerchItem.delivery_methods.includes('PICKUP_AT_EVENT') && (
+                              <span style={{ fontSize: '0.7rem', color: '#fff', background: 'rgba(34, 197, 94, 0.2)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(34, 197, 94, 0.5)' }}>Recoger en Evento</span>
+                          )}
+                          {selectedMerchItem.delivery_methods.includes('HOME_DELIVERY') && (
+                              <span style={{ fontSize: '0.7rem', color: '#fff', background: 'rgba(59, 130, 246, 0.2)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(59, 130, 246, 0.5)' }}>Envío a Domicilio</span>
+                          )}
+                       </div>
+                   </div>
                 )}
 
                 {/* Quantity */}
                 <div>
-                  <p style={{ fontSize: '0.6rem', fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 0.6rem' }}>Cantidad</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.6rem' }}>
+                    <p style={{ fontSize: '0.6rem', fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '2px', margin: '0' }}>Cantidad</p>
+                    {selectedMerchItem.max_per_person && (
+                        <p style={{ fontSize: '0.55rem', color: '#ffaa00', margin: 0, fontWeight: 700 }}>MÁX. {selectedMerchItem.max_per_person} POR PERSONA</p>
+                    )}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
                     <button
                       onClick={() => setMerchQty(q => Math.max(1, q - 1))}
@@ -189,7 +270,10 @@ export default function EventMerchSection({
                     >−</button>
                     <span style={{ color: '#fff', fontWeight: 900, fontSize: '1rem', width: '48px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.15)', borderLeft: 'none', borderRight: 'none', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{merchQty}</span>
                     <button
-                      onClick={() => setMerchQty(q => q + 1)}
+                      onClick={() => {
+                        const limit = selectedMerchItem.max_per_person || 99;
+                        setMerchQty(q => Math.min(limit, q + 1));
+                      }}
                       style={{ width: '40px', height: '40px', border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', color: '#fff', fontSize: '1.2rem', cursor: 'pointer', fontWeight: 900 }}
                     >+</button>
                     <span style={{ marginLeft: 'auto', color: '#fff', fontWeight: 900, fontSize: '1.1rem' }}>
@@ -205,20 +289,24 @@ export default function EventMerchSection({
                   size="large"
                   style={{ fontWeight: 900, letterSpacing: '2px', marginTop: 'auto' }}
                   onClick={() => {
-                    const sizeLabel = hasSize ? ` | Talla ${merchSize}` : '';
+                    const attrsLabel = Object.entries(merchAttributes).map(([k,v]) => `${v}`).join(' | ');
+                    const nameLabel = attrsLabel ? `${selectedMerchItem.name} (${attrsLabel})` : selectedMerchItem.name;
+                    
                     addToCart(
                       {
-                        id: `merch_${selectedMerchItem.id}`,
-                        name: `${selectedMerchItem.name} (${sizeLabel})`,
+                        id: `merch_${activeVariant?.id || selectedMerchItem.id}`,
+                        variant_id: activeVariant?.id,
+                        name: nameLabel,
                         price: activePrice,
-                        image: selectedMerchItem.image_url
+                        image: selectedMerchItem.image_url,
+                        isMerch: true
                       },
                       merchQty,
                       null,
-                      { id: 'MERCH', name: `MERCH: ${selectedMerchItem.category || 'MERCANCÍA'}`, price: activePrice }
+                      { id: 'MERCH', name: `LAIKA SHOP: ${selectedMerchItem.category || 'MERCANCÍA'}`, price: activePrice }
                     );
                     setSelectedMerchItem(null);
-                    success(`¡${selectedMerchItem.name} agregado al carrito!`);
+                    success(`¡${nameLabel} agregado al carrito!`);
                     openCart();
                   }}
                 >
@@ -232,3 +320,4 @@ export default function EventMerchSection({
     </>
   );
 }
+

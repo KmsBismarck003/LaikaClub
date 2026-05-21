@@ -195,10 +195,8 @@ const EventDetail = () => {
   };
   
   const [selectedMerchItem, setSelectedMerchItem] = useState(null);
-  const [merchSize, setMerchSize] = useState("M");
+  const [merchAttributes, setMerchAttributes] = useState({});
   const [merchQty, setMerchQty] = useState(1);
-  const [merchColorIdx, setMerchColorIdx] = useState(0);
-  const [merchGalleryIdx, setMerchGalleryIdx] = useState(0);
 
   // Parallax Hero
   const heroRef = useRef(null);
@@ -307,14 +305,10 @@ const EventDetail = () => {
               event={event}
               selectedMerchItem={selectedMerchItem}
               setSelectedMerchItem={setSelectedMerchItem}
-              merchSize={merchSize}
-              setMerchSize={setMerchSize}
+              merchAttributes={merchAttributes}
+              setMerchAttributes={setMerchAttributes}
               merchQty={merchQty}
               setMerchQty={setMerchQty}
-              merchColorIdx={merchColorIdx}
-              setMerchColorIdx={setMerchColorIdx}
-              merchGalleryIdx={merchGalleryIdx}
-              setMerchGalleryIdx={setMerchGalleryIdx}
               addToCart={(...args) => requireAuth(() => addToCart(...args))}
               success={success}
               openCart={openCart}
