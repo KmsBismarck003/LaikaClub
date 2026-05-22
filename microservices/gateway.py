@@ -12,16 +12,17 @@ CACHE_TTL = 60 # 60 seconds cache for public data
 
 app = FastAPI(title="Laika API Gateway", version="1.0.0")
 
-# Configuración de destinos
+# Configuración de destinos (Carga desde variables de entorno para compatibilidad con Docker)
+import os
 SERVICES = {
-    "auth": "http://127.0.0.1:8001",
-    "events": "http://127.0.0.1:8002",
-    "tickets": "http://127.0.0.1:8003",
-    "stats": "http://127.0.0.1:8004",
-    "admin": "http://127.0.0.1:8005",
-    "achievements": "http://127.0.0.1:8006",
-    "analytics": "http://127.0.0.1:8007",
-    "merchandise": "http://127.0.0.1:8008",
+    "auth": os.getenv("AUTH_SERVICE_URL", "http://127.0.0.1:8001"),
+    "events": os.getenv("EVENTS_SERVICE_URL", "http://127.0.0.1:8002"),
+    "tickets": os.getenv("TICKETS_SERVICE_URL", "http://127.0.0.1:8003"),
+    "stats": os.getenv("STATS_SERVICE_URL", "http://127.0.0.1:8004"),
+    "admin": os.getenv("ADMIN_SERVICE_URL", "http://127.0.0.1:8005"),
+    "achievements": os.getenv("ACHIEVEMENTS_SERVICE_URL", "http://127.0.0.1:8006"),
+    "analytics": os.getenv("ANALYTICS_SERVICE_URL", "http://127.0.0.1:8007"),
+    "merchandise": os.getenv("MERCHANDISE_SERVICE_URL", "http://127.0.0.1:8008"),
 }
 
 @app.middleware("http")
@@ -61,8 +62,17 @@ async def proxy_middleware(request: Request, call_next):
         try:
             import pymysql, json, os
             from starlette.responses import JSONResponse
+            db_host = os.getenv('MYSQL_HOST', '127.0.0.1')
+            db_user = os.getenv('MYSQL_USER', 'root')
+            db_pass = os.getenv('MYSQL_PASSWORD', '')
             db_name = os.getenv('MYSQL_DATABASE', 'laika_club')
-            conn = pymysql.connect(host='127.0.0.1', user='root', password='', database=db_name, cursorclass=pymysql.cursors.DictCursor)
+            conn = pymysql.connect(
+                host=db_host,
+                user=db_user,
+                password=db_pass,
+                database=db_name,
+                cursorclass=pymysql.cursors.DictCursor
+            )
             with conn.cursor() as cursor:
                 cursor.execute("""
                     SELECT a.id, a.title, a.image_url, a.link_url, a.position, a.active, a.event_id 

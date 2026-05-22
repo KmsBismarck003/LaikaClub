@@ -20,6 +20,9 @@ diagnosticos/
 *.sql
 *.sql.json
 laika_club_transfer.zip
+*.sock
+**/#*
+**/*.tmp
 
 # Node
 node_modules/
