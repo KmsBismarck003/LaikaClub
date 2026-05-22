@@ -20,7 +20,7 @@ app.add_middleware(
 # Initialize DB
 database.init_db()
 
-TICKET_SERVICE_URL = "http://localhost:8003"
+TICKET_SERVICE_URL = os.getenv("TICKETS_SERVICE_URL", "http://localhost:8003")
 
 async def get_user_ticket_count(user_id: int, request: Request):
     token = request.headers.get("Authorization")

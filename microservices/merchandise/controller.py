@@ -26,7 +26,9 @@ def create_merchandise(db: Session, item_data: MerchandiseItemCreate, manager_id
     if item_data.event_id:
         try:
             import requests
-            response = requests.get(f"http://localhost:8002/{item_data.event_id}", timeout=2)
+            import os
+            events_url = os.getenv("EVENTS_SERVICE_URL", "http://localhost:8002")
+            response = requests.get(f"{events_url}/{item_data.event_id}", timeout=2)
             if response.status_code == 200:
                 event_data = response.json()
                 if event_data and event_data.get("merch_enabled"):
@@ -169,7 +171,9 @@ def create_order(db: Session, order: OrderCreate):
         if merch_item.event_id:
             try:
                 import requests
-                response = requests.get(f"http://localhost:8002/{merch_item.event_id}", timeout=2)
+                import os
+                events_url = os.getenv("EVENTS_SERVICE_URL", "http://localhost:8002")
+                response = requests.get(f"{events_url}/{merch_item.event_id}", timeout=2)
                 if response.status_code == 200:
                     event_data = response.json()
                     if event_data and event_data.get("merch_enabled"):

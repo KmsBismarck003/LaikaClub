@@ -6,9 +6,10 @@ import traceback
 import uuid
 from datetime import datetime
 import random
+import os
 from ..common.mongodb_sync import sync_purchase_to_mongo
 
-EVENT_SERVICE_URL = "http://localhost:8002"
+EVENT_SERVICE_URL = os.getenv("EVENTS_SERVICE_URL", "http://localhost:8002")
 
 async def get_user_tickets(db: Session, user_id: int):
     try:
