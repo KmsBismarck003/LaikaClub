@@ -143,6 +143,7 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
     toggleSeat,
     handleAddToCart,
     handleDirectBuy,
+    isEventSeating,
     
     // Payment & Printer
     isProcessingPayment, setIsProcessingPayment,

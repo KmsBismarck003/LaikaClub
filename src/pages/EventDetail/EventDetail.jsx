@@ -22,6 +22,8 @@ import EventLocation from "./components/Location/EventLocation";
 import EventRules from "./components/Rules/EventRules";
 import EventMerchSection from "./components/MerchSection/EventMerchSection";
 import VenueMapContainer from "./components/VenueMap/VenueMapContainer";
+import EventPoster from "./components/EventPoster/EventPoster";
+import EventDescription from "./components/EventDescription/EventDescription";
 
 import { LoadingScreen, AdCarousel } from "../../components";
 import "./EventDetail.css";
@@ -67,6 +69,7 @@ const EventDetail = () => {
 
   // 2. Ticket Engine Hook
   const ticketEngine = useTicketEngine(event, id, user, navigate, location, { success, error }, addToCart, zones);
+  const { isEventSeating } = ticketEngine;
 
   // 3. Venue Map Hook
   const venueMap = useVenueMap();
@@ -269,37 +272,38 @@ const EventDetail = () => {
               </div>
             )}
 
-            <VenueMapContainer
-              event={event}
-              synchronizedZones={synchronizedZones}
-              sortedSections={ticketEngine.sortedSections}
-              selectedSection={ticketEngine.selectedSection}
-              setSelectedSection={ticketEngine.setSelectedSection}
-              selectedSeats={ticketEngine.selectedSeats}
-              toggleSeat={ticketEngine.toggleSeat}
-              busySeats={busySeats}
-              seatTypes={seatTypes}
-              isRouletteActive={luckySeat.isRouletteActive}
-              winningSeatId={luckySeat.winningSeatId}
-              activeScannerZoneId={luckySeat.activeScannerZoneId}
-              activeScannerSeatId={luckySeat.activeScannerSeatId}
-              showCrownTransition={luckySeat.showCrownTransition}
-              handleRouletteComplete={luckySeat.handleRouletteComplete}
-              mapScale={venueMap.mapScale}
-              mapPos={venueMap.mapPos}
-              isDragging={venueMap.isDragging}
-              dragStart={venueMap.dragStart}
-              setMapPos={venueMap.setMapPos}
-              setIsDragging={venueMap.setIsDragging}
-              setDragStart={venueMap.setDragStart}
-              handleZoom={venueMap.handleZoom}
-              resetMap={venueMap.resetMap}
-            />
+            {isEventSeating ? (
+              <VenueMapContainer
+                event={event}
+                synchronizedZones={synchronizedZones}
+                sortedSections={ticketEngine.sortedSections}
+                selectedSection={ticketEngine.selectedSection}
+                setSelectedSection={ticketEngine.setSelectedSection}
+                selectedSeats={ticketEngine.selectedSeats}
+                toggleSeat={ticketEngine.toggleSeat}
+                busySeats={busySeats}
+                seatTypes={seatTypes}
+                isRouletteActive={luckySeat.isRouletteActive}
+                winningSeatId={luckySeat.winningSeatId}
+                activeScannerZoneId={luckySeat.activeScannerZoneId}
+                activeScannerSeatId={luckySeat.activeScannerSeatId}
+                showCrownTransition={luckySeat.showCrownTransition}
+                handleRouletteComplete={luckySeat.handleRouletteComplete}
+                mapScale={venueMap.mapScale}
+                mapPos={venueMap.mapPos}
+                isDragging={venueMap.isDragging}
+                dragStart={venueMap.dragStart}
+                setMapPos={venueMap.setMapPos}
+                setIsDragging={venueMap.setIsDragging}
+                setDragStart={venueMap.setDragStart}
+                handleZoom={venueMap.handleZoom}
+                resetMap={venueMap.resetMap}
+              />
+            ) : (
+              <EventPoster imageUrl={imageUrl} eventName={event.name} />
+            )}
 
-            <div className="event-description">
-                <h2>Acerca del evento</h2>
-                <p>{event.description || "Disfruta de este evento exclusivo con la mejor producción y sonido."}</p>
-            </div>
+            <EventDescription event={event} isEventSeating={isEventSeating} />
 
             <EventMerchSection
               event={event}
