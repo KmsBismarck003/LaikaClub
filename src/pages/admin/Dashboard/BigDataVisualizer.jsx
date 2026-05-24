@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { analyticsAPI } from '../../../services/miscService';
+import { eventAPI } from '../../../services/eventService';
 import { Card } from '../../../components';
 import Skeleton from '../../../components/Skeleton/Skeleton';
 import Plot from 'react-plotly.js';
@@ -24,7 +25,7 @@ import {
   X
 } from 'lucide-react';
 
-const BigDataVisualizer = () => {
+const BigDataVisualizer = ({ managerId = null }) => {
     const [errorDismissed, setErrorDismissed] = useState(false);
     const [zScale, setZScale] = useState(1.0);
     const [barWidth, setBarWidth] = useState(0.2);
@@ -57,6 +58,7 @@ const BigDataVisualizer = () => {
 
     // 2. FILTROS ESTRUCTURADOS + NUEVOS FILTROS TÁCTICOS
     const [selectedTable, setSelectedTable] = useState('tickets');
+    const [eventsList, setEventsList] = useState([]);
     const [filters, setFilters] = useState({
         date_from: '',
         date_to: '',
@@ -66,7 +68,8 @@ const BigDataVisualizer = () => {
         hour_range: '',
         status: '',
         min_price: '',
-        max_price: ''
+        max_price: '',
+        event_id: ''
     });
     
     const [data3D, setData3D] = useState([]);
@@ -75,10 +78,17 @@ const BigDataVisualizer = () => {
     const [lastSync, setLastSync] = useState(new Date().toLocaleTimeString());
     const [engineStatus, setEngineStatus] = useState('IDLE'); // IDLE, STARTING, READY, ERROR
 
-    // 2.5 NUEVOS ESTADOS PARA MACHINE LEARNING
-    const [analysisMode, setAnalysisMode] = useState('3D_EXPLORATION'); // 3D_EXPLORATION, ML_REGRESSION, ML_DECISION_TREE
+    // 2.5 NUEVOS ESTADOS PARA MACHINE LEARNING Y CLASE KDD
+    const [analysisMode, setAnalysisMode] = useState('3D_EXPLORATION'); // 3D_EXPLORATION, ML_REGRESSION, ML_DECISION_TREE, CLASS_KDD
     const [mlData, setMlData] = useState(null);
     const [mlLoading, setMlLoading] = useState(false);
+    
+    // Estados para el laboratorio de clase KDD
+    const [descriptiveStats, setDescriptiveStats] = useState(null);
+    const [statsLoading, setStatsLoading] = useState(false);
+    const [kddCleanResult, setKddCleanResult] = useState(null);
+    const [cleanLoading, setCleanLoading] = useState(false);
+    const [kddStep, setKddStep] = useState(1);
 
     const theme = {
         bg: '#FFFFFF',
@@ -107,6 +117,9 @@ const BigDataVisualizer = () => {
         setEngineStatus('STARTING');
         try {
             const queryFilters = { ...filters };
+            if (managerId) {
+                queryFilters.manager_id = managerId;
+            }
             Object.keys(queryFilters).forEach(k => !queryFilters[k] && delete queryFilters[k]);
             
             const response = await analyticsAPI.getMapReduceStats3D(selectedTable, queryFilters);
@@ -133,9 +146,9 @@ const BigDataVisualizer = () => {
         try {
             let data;
             if (mode === 'ML_REGRESSION') {
-                data = await analyticsAPI.getRegressionML();
+                data = await analyticsAPI.getRegressionML(managerId);
             } else if (mode === 'ML_DECISION_TREE') {
-                data = await analyticsAPI.getDecisionTreeML();
+                data = await analyticsAPI.getDecisionTreeML(managerId);
             }
             setMlData(data);
         } catch (err) {
@@ -145,16 +158,63 @@ const BigDataVisualizer = () => {
         }
     };
 
+    const fetchDescriptiveStats = async (table) => {
+        setStatsLoading(true);
+        try {
+            const res = await analyticsAPI.getDescriptiveStats(table, managerId, filters.event_id);
+            setDescriptiveStats(res);
+        } catch (err) {
+            console.error("Error fetching descriptive stats", err);
+            setError('FALLO EN EL CÁLCULO ESTADÍSTICO DE CLASE');
+        } finally {
+            setStatsLoading(false);
+        }
+    };
+
+    const runKddCleaning = async () => {
+        setCleanLoading(true);
+        try {
+            const res = await analyticsAPI.runCleanAction(selectedTable);
+            setKddCleanResult(res.data || res);
+        } catch (err) {
+            console.error("Error running KDD cleaning", err);
+            setError('FALLO EN LA OPERACIÓN DE LIMPIEZA KDD');
+        } finally {
+            setCleanLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const loadEvents = async () => {
+            try {
+                let res;
+                if (managerId) {
+                    res = await eventAPI.getMyEvents();
+                } else {
+                    res = await eventAPI.getAll();
+                }
+                const list = res.data || res || [];
+                setEventsList(Array.isArray(list) ? list : []);
+            } catch (err) {
+                console.error("Error loading events for filter:", err);
+            }
+        };
+        loadEvents();
+    }, [managerId]);
+
     useEffect(() => {
         setErrorDismissed(false);
     }, [error]);
     useEffect(() => { 
         if (analysisMode === '3D_EXPLORATION') {
             executeAnalysis(); 
+        } else if (analysisMode === 'CLASS_KDD') {
+            fetchDescriptiveStats(selectedTable);
+            setKddCleanResult(null);
         } else {
             executeMLAnalysis(analysisMode);
         }
-    }, [selectedTable, analysisMode]);
+    }, [selectedTable, analysisMode, managerId, filters.event_id]);
 
     const handleFilterChange = (e) => {
         setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -419,10 +479,13 @@ const BigDataVisualizer = () => {
                     </div>
                     <div>
                         <div style={{ fontWeight: 800, fontSize: '1.4rem', letterSpacing: '-0.02em', color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            SALA DE ANÁLISIS 
+                            SALA DE ANÁLISIS {managerId ? 'DE MIS EVENTOS' : ''}
                             <span style={{ fontSize: '0.65rem', background: '#e2e8f0', color: '#475569', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>v8.5_ML</span>
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-primary)', opacity: 0.8, marginTop: '2px', fontWeight: 500 }}>Motor Distribuido: Spark ML • Modo: <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{analysisMode.replace('_', ' ')}</span></div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-primary)', opacity: 0.8, marginTop: '2px', fontWeight: 500 }}>
+                            {managerId ? 'Filtrado por tus eventos • Modo: ' : 'Motor Distribuido: Spark ML • Modo: '}
+                            <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{analysisMode.replace('_', ' ')}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -431,7 +494,8 @@ const BigDataVisualizer = () => {
                         {[
                             { id: '3D_EXPLORATION', label: 'EXPLORACIÓN 3D', icon: <Layers size={14} /> },
                             { id: 'ML_REGRESSION', label: 'REGRESIÓN ML', icon: <Activity size={14} /> },
-                            { id: 'ML_DECISION_TREE', label: 'ÁRBOL DE DECISIÓN', icon: <Terminal size={14} /> }
+                            { id: 'ML_DECISION_TREE', label: 'ÁRBOL DE DECISIÓN', icon: <Terminal size={14} /> },
+                            { id: 'CLASS_KDD', label: 'ESTADÍSTICA & KDD', icon: <DatabaseIcon size={14} /> }
                         ].map(mode => (
                             <button 
                                 key={mode.id}
@@ -470,6 +534,23 @@ const BigDataVisualizer = () => {
                             <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>CENTRO DE FILTROS</h3>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxHeight: 'calc(100vh - 250px)', overflowY: 'auto', paddingRight: '12px' }}>
+                            <div className="filter-group">
+                                <label>FILTRAR POR EVENTO</label>
+                                <select 
+                                    name="event_id" 
+                                    value={filters.event_id} 
+                                    onChange={handleFilterChange} 
+                                    className="select-premium"
+                                    style={{ width: '100%' }}
+                                >
+                                    <option value="">Todos los eventos</option>
+                                    {eventsList.map(ev => (
+                                        <option key={ev.id} value={ev.id}>
+                                            {ev.name} ({ev.venue || 'Ubicación General'})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                             <div className="filter-group">
                                 <label>RANGO TEMPORAL</label>
                                 <input type="date" name="date_from" value={filters.date_from} onChange={handleFilterChange} className="input-premium" />
@@ -567,9 +648,9 @@ const BigDataVisualizer = () => {
                             </div>
                         </div>
                         
-                        <div style={{ height: '520px', background: '#f8fafc', position: 'relative' }}>
+                        <div style={{ minHeight: '520px', height: analysisMode === 'CLASS_KDD' ? 'auto' : '520px', background: '#f8fafc', position: 'relative' }}>
                             {/* CAJA DE LEYENDA PARA LOS CUADRADITOS DE COLORES */}
-                            {colorMode === 'solid' && (
+                            {colorMode === 'solid' && analysisMode === '3D_EXPLORATION' && (
                                 <div style={{ 
                                     position: 'absolute', top: '15px', right: '15px', 
                                     background: 'rgba(255,255,255,0.95)', padding: '10px 15px', 
@@ -616,7 +697,7 @@ const BigDataVisualizer = () => {
                                     config={{ responsive: true, displaylogo: false }}
                                 />
                             ) : analysisMode === 'ML_REGRESSION' ? (
-                                <div className="ml-panel-content">
+                                <div className="ml-panel-content" style={{ maxHeight: '520px', overflowY: 'auto' }}>
                                     <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={18} color="#000000"/> COMPARATIVA DE MODELOS (R²)</h2>
                                     {mlData?.model_comparison ? (
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem' }}>
@@ -624,6 +705,7 @@ const BigDataVisualizer = () => {
                                                 <div key={name} style={{ background: name === mlData.best_model ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : '#fff', color: name === mlData.best_model ? '#fff' : '#1e293b', padding: '1.5rem', borderRadius: '20px', boxShadow: name === mlData.best_model ? '0 10px 25px rgba(124, 58, 237, 0.3)' : '0 4px 15px rgba(0,0,0,0.03)', border: name === mlData.best_model ? 'none' : '1px solid rgba(0,0,0,0.05)', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}>
                                                     <div style={{ fontSize: '0.7rem', fontWeight: 600, opacity: 0.8, marginBottom: '6px' }}>ALGORITMO</div>
                                                     <div style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem' }}>{name}</div>
+
                                                     <div style={{ padding: '10px', background: name === mlData.best_model ? 'rgba(0,0,0,0.1)' : '#f8fafc', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                         <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Score R²</span>
                                                         <span style={{ fontSize: '1.2rem', fontWeight: 800 }}>{r2}</span>
@@ -633,10 +715,69 @@ const BigDataVisualizer = () => {
                                             <div style={{ gridColumn: 'span 2', background: 'rgba(16, 185, 129, 0.1)', color: '#059669', padding: '1.2rem', borderRadius: '16px', fontSize: '0.9rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
                                                 <Check size={16} /> EL MEJOR MODELO PARA PREDICCIÓN ES <b>{mlData.best_model}</b>
                                             </div>
+                                            
+                                            {mlData?.predictions && mlData.predictions.length > 0 && (
+                                                <div style={{ gridColumn: 'span 2', marginTop: '1.5rem' }}>
+                                                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <Layers size={16} style={{ color: '#4F46E5' }} />
+                                                        PROYECCIÓN DE INGRESOS Y PREDICCIÓN POR EVENTO
+                                                    </h3>
+                                                    <div style={{ overflowX: 'auto', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                                                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.75rem' }}>
+                                                            <thead>
+                                                                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Evento</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Recinto / Ubicación</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'center' }}>Ventas</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Ingreso Real</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Predicción</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Ingreso Potencial (Max)</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'center' }}>Clasificación</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {mlData.predictions.map((p, idx) => (
+                                                                    <tr key={idx} style={{ borderBottom: idx === mlData.predictions.length - 1 ? 'none' : '1px solid #F1F5F9' }}>
+                                                                        <td style={{ padding: '12px 14px', fontWeight: 700, color: '#1E293B' }}>{p.name}</td>
+                                                                        <td style={{ padding: '12px 14px', color: '#475569' }}>
+                                                                            <div style={{ fontWeight: 600 }}>{p.venue}</div>
+                                                                            <div style={{ fontSize: '0.65rem', color: '#64748B' }}>{p.location}</div>
+                                                                        </td>
+                                                                        <td style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 600, color: '#334155' }}>
+                                                                            {p.tickets_sold} / {p.total_tickets}
+                                                                        </td>
+                                                                        <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#0F172A' }}>
+                                                                            ${p.actual_income.toLocaleString()}
+                                                                        </td>
+                                                                        <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#2563EB' }}>
+                                                                            ${p.predicted_income.toLocaleString()}
+                                                                        </td>
+                                                                        <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#059669' }}>
+                                                                            ${p.potential_max_income.toLocaleString()}
+                                                                        </td>
+                                                                        <td style={{ padding: '12px 14px', textAlign: 'center' }}>
+                                                                            <span style={{ 
+                                                                                fontSize: '0.6rem', 
+                                                                                fontWeight: 700, 
+                                                                                padding: '3px 6px', 
+                                                                                borderRadius: '20px',
+                                                                                background: p.classification === 'Venta Alta' ? '#DCFCE7' : '#FEE2E2',
+                                                                                color: p.classification === 'Venta Alta' ? '#15803D' : '#B91C1C'
+                                                                            }}>
+                                                                                {p.classification}
+                                                                            </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     ) : <div className="ml-placeholder">Esperando datos del motor de inferencia...</div>}
                                 </div>
-                            ) : (
+                            ) : analysisMode === 'ML_DECISION_TREE' ? (
                                 <div className="ml-panel-content">
                                     <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Terminal size={18} color="#000000"/> ÁRBOL DE DECISIÓN GENERADO</h2>
                                     <div style={{ background: '#0f172a', color: 'var(--text-primary)', padding: '1.5rem', borderRadius: '16px', fontFamily: '"Fira Code", monospace', fontSize: '0.85rem', whiteSpace: 'pre-wrap', border: '1px solid #1e293b', overflowY: 'auto', maxHeight: '300px', boxShadow: 'inset 0 4px 20px rgba(0,0,0,0.5)' }}>
@@ -645,6 +786,219 @@ const BigDataVisualizer = () => {
                                     <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '1rem 1.5rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.05)' }}>
                                         <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', opacity: 0.8 }}>Precisión del Modelo: <span style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.4rem', marginLeft: '8px' }}>{Math.round(mlData?.accuracy * 100) || 0}%</span></div>
                                         <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', background: '#f8fafc', padding: '6px 12px', borderRadius: '20px' }}>{mlData?.summary || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="kdd-panel-content" style={{ padding: '1.8rem', color: '#1e293b', background: '#ffffff' }}>
+                                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px' }}>
+                                        <DatabaseIcon size={22} style={{ color: '#4f46e5' }} /> PROCESO DE DESCUBRIMIENTO KDD & ESTADÍSTICA DE CLASE
+                                    </h2>
+                                    
+                                    {/* PASOS DE LA METODOLOGÍA KDD */}
+                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between', marginBottom: '1.5rem', padding: '0.8rem', background: '#f8fafc', borderRadius: '18px', border: '1px solid #e2e8f0' }}>
+                                        {[
+                                            { step: 1, label: "1. Selección", desc: "Datos relevantes" },
+                                            { step: 2, label: "2. Limpieza", desc: "Pre-procesar" },
+                                            { step: 3, label: "3. Transformación", desc: "Formato evaluable" },
+                                            { step: 4, label: "4. Minería", desc: "Algoritmos ML" },
+                                            { step: 5, label: "5. Evaluación", desc: "Interpretación" }
+                                        ].map(item => (
+                                            <button 
+                                                key={item.step}
+                                                onClick={() => setKddStep(item.step)}
+                                                style={{
+                                                    flex: 1,
+                                                    padding: '12px 6px',
+                                                    border: 'none',
+                                                    background: kddStep === item.step ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : 'transparent',
+                                                    color: kddStep === item.step ? '#ffffff' : '#64748b',
+                                                    borderRadius: '12px',
+                                                    cursor: 'pointer',
+                                                    transition: '0.2s',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    boxShadow: kddStep === item.step ? '0 4px 12px rgba(79, 70, 229, 0.2)' : 'none'
+                                                }}
+                                            >
+                                                <span style={{ fontWeight: 800, fontSize: '0.8rem' }}>{item.label}</span>
+                                                <span style={{ fontSize: '0.65rem', opacity: kddStep === item.step ? 0.9 : 0.7, marginTop: '2px', textAlign: 'center' }}>{item.desc}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* CONTENIDO DEL PASO KDD SELECCIONADO */}
+                                    <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '1.5rem', marginBottom: '1.8rem', minHeight: '180px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)' }}>
+                                        {kddStep === 1 && (
+                                            <div>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 1: Selección de Datos (Fuentes de Información)</h3>
+                                                <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
+                                                    En esta fase extraemos las muestras de datos desde la base de datos relacional <b>MySQL ({selectedTable.toUpperCase()})</b> hacia nuestro motor analítico Spark.
+                                                </p>
+                                                <div style={{ marginTop: '14px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', fontFamily: 'monospace', color: '#334155' }}>
+                                                    <b>Dataset Jalado:</b> laika_club.{selectedTable} <br/>
+                                                    <b>Registros Muestreados:</b> {canonicalData.length} registros cargados de forma activa.<br/>
+                                                    <b>Esquema detectado:</b> {descriptiveStats ? `${descriptiveStats.numeric_field} (Numérico) | ${descriptiveStats.categorical_field} (Categoría)` : 'Cargando...'}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {kddStep === 2 && (
+                                            <div>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 2: Pre-Procesamiento y Preparación (Limpieza & Eliminar Duplicados)</h3>
+                                                <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', marginBottom: '14px' }}>
+                                                    Corregimos valores nulos (imputación con defaults o medias) y removemos filas redundantes para garantizar que no afecten los cálculos de los modelos ML.
+                                                </p>
+                                                
+                                                <button 
+                                                    onClick={runKddCleaning}
+                                                    disabled={cleanLoading}
+                                                    style={{ background: '#4f46e5', color: '#fff', fontSize: '0.8rem', padding: '8px 16px', borderRadius: '10px', border: 'none', fontWeight: 700, cursor: 'pointer', transition: '0.2s', boxShadow: '0 4px 10px rgba(79, 70, 229, 0.2)' }}
+                                                    onMouseEnter={e => e.currentTarget.style.background = '#4338ca'}
+                                                    onMouseLeave={e => e.currentTarget.style.background = '#4f46e5'}
+                                                >
+                                                    {cleanLoading ? 'Procesando Limpieza en Spark...' : '✨ Ejecutar Limpieza KDD'}
+                                                </button>
+
+                                                {kddCleanResult && (
+                                                    <div style={{ marginTop: '14px', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', lineHeight: '1.5' }}>
+                                                        <div style={{ fontWeight: 800, marginBottom: '6px', color: '#14532d' }}>Resultado del Pre-Procesamiento Spark:</div>
+                                                        • Registros iniciales: {kddCleanResult.total_records_before} <br/>
+                                                        • Duplicados eliminados: {kddCleanResult.duplicates_removed} <br/>
+                                                        • Nulos corregidos e imputados: {kddCleanResult.nulls_imputed} <br/>
+                                                        • Registros limpios en memoria Spark: {kddCleanResult.total_records_after}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {kddStep === 3 && (
+                                            <div>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 3: Transformación de Datos</h3>
+                                                <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
+                                                    Convertimos los datos estructurados en formatos numéricos indexados aptos para algoritmos. Aplicamos <b>MapReduce distribuido</b> con Spark para agrupar variables y estructurar vectores de características (<code>VectorAssembler</code>) para alimentar la regresión.
+                                                </p>
+                                                <div style={{ marginTop: '14px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', fontFamily: 'monospace', color: '#334155' }}>
+                                                    <b>Operación Spark:</b> df.groupBy("{descriptiveStats?.categorical_field}").agg(avg("{descriptiveStats?.numeric_field}"))<br/>
+                                                    <b>Vectorización:</b> VectorAssembler(inputCols=["{descriptiveStats?.numeric_field}"], outputCol="features")
+                                                </div>
+                                            </div>
+                                        )}
+                                        {kddStep === 4 && (
+                                            <div>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 4: Minería de Datos (Modelado / Algoritmos)</h3>
+                                                <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
+                                                    Es el núcleo donde se corren los algoritmos matemáticos. El sistema tiene integrados modelos de <b>Regresión Lineal/Polinomial/Ridge/Lasso</b> (para proyectar montos) y <b>Árboles de Decisión</b> (para clasificar éxito de venta).
+                                                </p>
+                                                <div style={{ marginTop: '14px', display: 'flex', gap: '10px' }}>
+                                                    <button onClick={() => setAnalysisMode('ML_REGRESSION')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '8px 14px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>Ver Regresiones ML</button>
+                                                    <button onClick={() => setAnalysisMode('ML_DECISION_TREE')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '8px 14px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>Ver Árbol de Decisión</button>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {kddStep === 5 && (
+                                            <div>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 5: Interpretación y Evaluación (Conocimiento)</h3>
+                                                <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
+                                                    Analizamos los indicadores de precisión (R² Score, Accuracy). Estos números determinan la utilidad real del modelo antes de mandarlo a producción para la <b>Toma de Decisiones</b> comerciales en LaikaClub.
+                                                </p>
+                                                <div style={{ marginTop: '14px', background: '#ecfdf5', color: '#047857', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 600 }}>
+                                                    Nota de clase: "El análisis predictivo requiere datos de calidad, no garantiza exactitud." Por eso evaluamos el R² de forma continua.
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* METRICAS ESTADISTICAS DESCRIPTIVAS */}
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem' }}>
+                                        Métricas Estadísticas Generales ({selectedTable.toUpperCase()})
+                                    </h3>
+                                    {statsLoading ? (
+                                        <div style={{ padding: '1rem', textAlign: 'center' }}>Calculando medidas estadísticas en Spark...</div>
+                                    ) : descriptiveStats ? (
+                                        <div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.2rem' }}>
+                                                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '16px' }}>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b' }}>Media (Promedio)</span>
+                                                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+                                                        {selectedTable === 'users' ? descriptiveStats.mean : `$${descriptiveStats.mean.toLocaleString()}`}
+                                                    </div>
+                                                    <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '6px 0 0 0', lineHeight: '1.4' }}>
+                                                        Suma de todos los valores dividido entre N.
+                                                    </p>
+                                                </div>
+                                                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '16px' }}>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b' }}>Mediana (Valor Medio)</span>
+                                                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+                                                        {selectedTable === 'users' ? descriptiveStats.median : `$${descriptiveStats.median.toLocaleString()}`}
+                                                    </div>
+                                                    <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '6px 0 0 0', lineHeight: '1.4' }}>
+                                                        Valor en la posición central (50% superior/inferior).
+                                                    </p>
+                                                </div>
+                                                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '16px' }}>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b' }}>Moda (Más Repetido)</span>
+                                                    <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', marginTop: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        {descriptiveStats.mode}
+                                                    </div>
+                                                    <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '6px 0 0 0', lineHeight: '1.4' }}>
+                                                        Frecuencia: {descriptiveStats.mode_frequency} veces.
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem', marginBottom: '1.5rem' }}>
+                                                <div style={{ background: '#fffbeb', border: '1px solid #fef3c7', padding: '1rem', borderRadius: '16px' }}>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#b45309' }}>Dispersión y Desviación Estándar (σ)</span>
+                                                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#b45309', marginTop: '6px' }}>
+                                                        σ = {descriptiveStats.dispersion.standard_deviation.toLocaleString()}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#b45309', opacity: 0.95, marginTop: '6px', lineHeight: '1.4' }}>
+                                                        Varianza (σ²): {descriptiveStats.dispersion.variance.toLocaleString()}<br/>
+                                                        Rango de fluctuación: {descriptiveStats.dispersion.range ? `$${descriptiveStats.dispersion.range}` : 'N/A'}<br/>
+                                                        Mín: ${descriptiveStats.dispersion.min} | Máx: ${descriptiveStats.dispersion.max}
+                                                    </div>
+                                                    <p style={{ fontSize: '0.7rem', color: '#b45309', opacity: 0.8, margin: '8px 0 0 0', lineHeight: '1.4' }}>
+                                                        Mide la dispersión en la que los puntos de datos individuales difieren de la media.
+                                                    </p>
+                                                </div>
+
+                                                <div style={{ background: '#f0fdf4', border: '1px solid #dcfce7', padding: '1rem', borderRadius: '16px' }}>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#166534' }}>Análisis de Variables (Impacto de Clase)</span>
+                                                    <div style={{ fontSize: '0.8rem', color: '#166534', marginTop: '6px', lineHeight: '1.5' }}>
+                                                        <div style={{ marginBottom: '8px' }}>
+                                                            <b>Variable Independiente (X):</b> <code style={{ background: 'rgba(255,255,255,0.7)', padding: '2px 6px', borderRadius: '4px' }}>{descriptiveStats.variables.independent}</code>
+                                                            <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '2px' }}>{descriptiveStats.variables.independent_description}</div>
+                                                        </div>
+                                                        <div>
+                                                            <b>Variable Dependiente (Y):</b> <code style={{ background: 'rgba(255,255,255,0.7)', padding: '2px 6px', borderRadius: '4px' }}>{descriptiveStats.variables.dependent}</code>
+                                                            <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '2px' }}>{descriptiveStats.variables.dependent_description}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div style={{ padding: '1rem', textAlign: 'center' }}>No se cargaron las estadísticas descriptivas.</div>
+                                    )}
+
+                                    {/* LOS 4 CUESTIONAMIENTOS */}
+                                    <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.2rem', marginTop: '1.2rem' }}>
+                                        <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: '#0f172a', marginBottom: '10px' }}>
+                                            Preguntas Clave del Negocio (Tipos de Analítica)
+                                        </h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+                                            {[
+                                                { title: "¿Qué ocurrió?", type: "Descriptiva", answer: "Suma y MapReduce del histórico de tickets.", col: '#f0f9ff', txt: '#0369a1', border: '#e0f2fe' },
+                                                { title: "¿Por qué ocurrió?", type: "Diagnóstica", answer: "Filtros de correlación y análisis de dispersión.", col: '#fffbeb', txt: '#b45309', border: '#fef3c7' },
+                                                { title: "¿Qué podría pasar?", type: "Predictiva", answer: "Regresiones y Árbol de decisión para el éxito.", col: '#faf5ff', txt: '#6b21a8', border: '#f3e8ff' },
+                                                { title: "¿Qué podemos hacer?", type: "Prescriptiva", answer: "Imputación inteligente y toma de decisiones VIP.", col: '#f0fdf4', txt: '#166534', border: '#dcfce7' }
+                                            ].map((q, idx) => (
+                                                <div key={idx} style={{ background: q.col, color: q.txt, border: `1px solid ${q.border}`, padding: '12px', borderRadius: '14px', fontSize: '0.75rem' }}>
+                                                    <div style={{ fontWeight: 800 }}>{q.title}</div>
+                                                    <div style={{ fontWeight: 700, fontSize: '0.65rem', opacity: 0.8, textTransform: 'uppercase', margin: '2px 0' }}>{q.type}</div>
+                                                    <p style={{ margin: '6px 0 0 0', fontSize: '0.7rem', lineHeight: '1.4', opacity: 0.95 }}>{q.answer}</p>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             )}

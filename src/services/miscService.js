@@ -56,8 +56,9 @@ export const analyticsAPI = {
         const response = await fetch(`${ANALYTICS_URL}/incremental?last_date=${lastDate}`);
         return response.json();
     },
-    getMapReduceStats3D: async (table, filter = '') => {
-        const response = await axios.get(`${ANALYTICS_URL}/3d`, { params: { table, focus_filter: filter } });
+    getMapReduceStats3D: async (table, filters = {}) => {
+        const params = typeof filters === 'string' ? { table, focus_filter: filters } : { table, ...filters };
+        const response = await axios.get(`${ANALYTICS_URL}/3d`, { params });
         return response.data;
     },
     runPredictAction: async () => {
@@ -70,6 +71,13 @@ export const analyticsAPI = {
     },
     runCleanAction: async (table) => {
         const response = await axios.post(`${ANALYTICS_URL}/clean`, null, { params: { table } });
+        return response.data;
+    },
+    getDescriptiveStats: async (table, managerId = null, eventId = null) => {
+        const params = { table };
+        if (managerId) params.manager_id = managerId;
+        if (eventId) params.event_id = eventId;
+        const response = await axios.get(`${ANALYTICS_URL}/stats/descriptive`, { params });
         return response.data;
     },
     syncNoSqlVault: async (params = {}) => {
@@ -95,12 +103,16 @@ export const analyticsAPI = {
         const response = await axios.post(`${ANALYTICS_URL}/vault/restore/${snapshotId}`);
         return response.data;
     },
-    getRegressionML: async () => {
-        const response = await axios.get(`${ANALYTICS_URL}/ml/regression`);
+    getRegressionML: async (managerId = null) => {
+        const params = {};
+        if (managerId) params.manager_id = managerId;
+        const response = await axios.get(`${ANALYTICS_URL}/ml/regression`, { params });
         return response.data;
     },
-    getDecisionTreeML: async () => {
-        const response = await axios.get(`${ANALYTICS_URL}/ml/decision-tree`);
+    getDecisionTreeML: async (managerId = null) => {
+        const params = {};
+        if (managerId) params.manager_id = managerId;
+        const response = await axios.get(`${ANALYTICS_URL}/ml/decision-tree`, { params });
         return response.data;
     }
 }

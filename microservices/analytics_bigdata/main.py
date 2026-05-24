@@ -78,7 +78,9 @@ def get_mapreduce(
     date_from: str = None, 
     date_to: str = None,
     category: str = None,
-    role: str = None
+    role: str = None,
+    manager_id: int = None,
+    event_id: int = None
 ):
     if not engine:
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
@@ -87,7 +89,9 @@ def get_mapreduce(
         "date_from": date_from,
         "date_to": date_to,
         "category": category,
-        "role": role
+        "role": role,
+        "manager_id": manager_id,
+        "event_id": event_id
     }
     filters = {k: v for k, v in filters.items() if v is not None}
     
@@ -107,7 +111,9 @@ def get_3d_stats(
     date_from: str = None, 
     date_to: str = None,
     category: str = None,
-    role: str = None
+    role: str = None,
+    manager_id: int = None,
+    event_id: int = None
 ):
     if not engine:
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
@@ -116,7 +122,9 @@ def get_3d_stats(
         "date_from": date_from,
         "date_to": date_to,
         "category": category,
-        "role": role
+        "role": role,
+        "manager_id": manager_id,
+        "event_id": event_id
     }
     filters = {k: v for k, v in filters.items() if v is not None}
     
@@ -137,6 +145,15 @@ async def get_anomalies():
 async def run_clean(table: str = "tickets"):
     if not engine: raise HTTPException(500, "Motor apagado")
     return {"status": "success", "data": engine.run_saneamiento(table)}
+
+@app.get("/api/analytics/stats/descriptive")
+def get_descriptive_stats(table: str = "tickets", manager_id: int = None, event_id: int = None):
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    res = engine.get_descriptive_stats(table, manager_id, event_id)
+    if isinstance(res, dict) and "error" in res:
+        raise HTTPException(status_code=500, detail=res["error"])
+    return res
 
 @app.get("/api/analytics/intelligence")
 def get_intelligence(action: str = "sold_out", table: str = "tickets"):
@@ -218,16 +235,16 @@ def get_vault_status():
     }
 
 @app.get("/api/analytics/ml/regression")
-def get_ml_regression():
+def get_ml_regression(manager_id: int = None):
     if not engine:
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
-    return engine.predict_regression()
+    return engine.predict_regression(manager_id)
 
 @app.get("/api/analytics/ml/decision-tree")
-def get_ml_decision_tree():
+def get_ml_decision_tree(manager_id: int = None):
     if not engine:
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
-    return engine.predict_classification()
+    return engine.predict_classification(manager_id)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8007)

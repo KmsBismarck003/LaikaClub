@@ -97,12 +97,17 @@ export const analyticsAPI = {
         const response = await axios.post(`${ANALYTICS_URL}/vault/restore/${snapshotId}`);
         return response.data;
     },
-    getRegressionML: async (algorithm = null) => {
-        const response = await axios.get(`${ANALYTICS_URL}/ml/regression`, { params: { algorithm } });
+    getRegressionML: async (managerId = null, algorithm = null) => {
+        const params = {};
+        if (managerId) params.manager_id = managerId;
+        if (algorithm) params.algorithm = algorithm;
+        const response = await axios.get(`${ANALYTICS_URL}/ml/regression`, { params });
         return response.data;
     },
-    getDecisionTreeML: async (max_depth = 5) => {
-        const response = await axios.get(`${ANALYTICS_URL}/ml/decision-tree`, { params: { max_depth } });
+    getDecisionTreeML: async (managerId = null, max_depth = 5) => {
+        const params = { max_depth };
+        if (managerId) params.manager_id = managerId;
+        const response = await axios.get(`${ANALYTICS_URL}/ml/decision-tree`, { params });
         return response.data;
     },
     getPCAML: async (k = 3) => {

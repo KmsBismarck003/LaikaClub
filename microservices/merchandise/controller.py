@@ -3,6 +3,9 @@ from microservices.merchandise.models import MerchandiseItem, MerchandiseVariant
 from microservices.merchandise.schemas import MerchandiseItemCreate, MerchandiseItemUpdate, MerchandiseSettingsBase, OrderCreate
 from fastapi import HTTPException
 from decimal import Decimal
+from ..common.mongodb_sync import sync_purchase_to_mongo
+import asyncio
+
 
 def get_merchandise_item(db: Session, merch_id: int):
     return db.query(MerchandiseItem).filter(MerchandiseItem.id == merch_id).first()
@@ -221,5 +224,26 @@ def create_order(db: Session, order: OrderCreate):
         
     db.commit()
     db.refresh(db_order)
+    
+    # SINCRONIZACIÓN A MONGO (Para análisis Spark/Jupyter centralizado)
+    try:
+        items_summary = [{"variant_id": oi.variant_id, "quantity": oi.quantity} for oi in order_items]
+        sync_data = {
+            "order_id": int(db_order.id),
+            "user_id": int(order.user_id),
+            "total_amount": float(total_amount),
+            "total_commission": float(total_commission),
+            "net_amount": float(net_amount),
+            "payment_method": order.payment_method,
+            "status": "completed",
+            "purchase_date": datetime.now().isoformat(),
+            "items": items_summary,
+            "type": "merchandise_purchase"
+        }
+        # Sincronizar de forma no bloqueante a MongoDB
+        asyncio.create_task(sync_purchase_to_mongo(sync_data))
+        print(f"[MONGO-SYNC] Merchandise order {db_order.id} scheduled for Mongo synchronization.")
+    except Exception as mongo_ex:
+        print(f"[MONGO-SYNC] Error scheduling merchandise order for Mongo sync: {mongo_ex}")
     
     return db_order

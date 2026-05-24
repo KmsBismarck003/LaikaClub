@@ -16,23 +16,65 @@ def run_migrations(engine):
     with engine.connect() as conn:
         try:
             if engine.name == 'mysql':
-                try:
-                    conn.execute(text("ALTER TABLE merchandise_items ADD COLUMN event_id INT;"))
-                    conn.commit()
-                except: pass
-                try:
-                    conn.execute(text("ALTER TABLE merchandise_items ADD COLUMN admin_status VARCHAR(50) DEFAULT 'pending_review';"))
-                    conn.commit()
-                except: pass
+                columns_to_add = [
+                    ("merchandise_items", "category", "VARCHAR(100) NULL"),
+                    ("merchandise_items", "is_official", "TINYINT(1) DEFAULT 1"),
+                    ("merchandise_items", "rating", "FLOAT DEFAULT 4.5"),
+                    ("merchandise_items", "status", "VARCHAR(50) DEFAULT 'draft'"),
+                    ("merchandise_items", "admin_status", "VARCHAR(50) DEFAULT 'pending_review'"),
+                    ("merchandise_items", "event_id", "INT NULL"),
+                    ("merchandise_items", "attributes_schema", "JSON NULL"),
+                    ("merchandise_items", "delivery_methods", "JSON NULL"),
+                    ("merchandise_items", "max_per_person", "INT DEFAULT 5"),
+                    ("merchandise_items", "created_at", "DATETIME DEFAULT CURRENT_TIMESTAMP"),
+                    ("merchandise_items", "updated_at", "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
+                    
+                    ("merchandise_variants", "sku", "VARCHAR(100) NULL"),
+                    ("merchandise_variants", "attributes", "JSON NULL"),
+                    ("merchandise_variants", "price", "DECIMAL(10, 2) NOT NULL DEFAULT 0.00"),
+                    ("merchandise_variants", "stock", "INT DEFAULT 0"),
+                    ("merchandise_variants", "is_active", "TINYINT(1) DEFAULT 1"),
+                    ("merchandise_variants", "created_at", "DATETIME DEFAULT CURRENT_TIMESTAMP"),
+                    ("merchandise_variants", "updated_at", "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+                ]
+                for table, column, col_type in columns_to_add:
+                    try:
+                        conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {col_type};"))
+                        conn.commit()
+                        print(f"[MERCH MIGRATION] Added column {column} to table {table} in MySQL.")
+                    except Exception as col_ex:
+                        # Column might already exist
+                        pass
             else:
-                try:
-                    conn.execute(text("ALTER TABLE merchandise_items ADD COLUMN event_id INTEGER;"))
-                    conn.commit()
-                except: pass
-                try:
-                    conn.execute(text("ALTER TABLE merchandise_items ADD COLUMN admin_status TEXT DEFAULT 'pending_review';"))
-                    conn.commit()
-                except: pass
+                columns_to_add_sqlite = [
+                    ("merchandise_items", "category", "TEXT NULL"),
+                    ("merchandise_items", "is_official", "BOOLEAN DEFAULT 1"),
+                    ("merchandise_items", "rating", "FLOAT DEFAULT 4.5"),
+                    ("merchandise_items", "status", "TEXT DEFAULT 'draft'"),
+                    ("merchandise_items", "admin_status", "TEXT DEFAULT 'pending_review'"),
+                    ("merchandise_items", "event_id", "INTEGER NULL"),
+                    ("merchandise_items", "attributes_schema", "TEXT NULL"),
+                    ("merchandise_items", "delivery_methods", "TEXT NULL"),
+                    ("merchandise_items", "max_per_person", "INTEGER DEFAULT 5"),
+                    ("merchandise_items", "created_at", "DATETIME DEFAULT CURRENT_TIMESTAMP"),
+                    ("merchandise_items", "updated_at", "DATETIME DEFAULT CURRENT_TIMESTAMP"),
+                    
+                    ("merchandise_variants", "sku", "TEXT NULL"),
+                    ("merchandise_variants", "attributes", "TEXT NULL"),
+                    ("merchandise_variants", "price", "DECIMAL(10, 2) NOT NULL DEFAULT 0.00"),
+                    ("merchandise_variants", "stock", "INTEGER DEFAULT 0"),
+                    ("merchandise_variants", "is_active", "BOOLEAN DEFAULT 1"),
+                    ("merchandise_variants", "created_at", "DATETIME DEFAULT CURRENT_TIMESTAMP"),
+                    ("merchandise_variants", "updated_at", "DATETIME DEFAULT CURRENT_TIMESTAMP")
+                ]
+                for table, column, col_type in columns_to_add_sqlite:
+                    try:
+                        conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {col_type};"))
+                        conn.commit()
+                        print(f"[MERCH MIGRATION] Added column {column} to table {table} in SQLite.")
+                    except Exception as col_ex:
+                        # Column might already exist
+                        pass
         except Exception as e:
             print(f"[MERCH SERVICE] Error en migración: {e}")
 
