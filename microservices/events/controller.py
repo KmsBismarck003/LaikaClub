@@ -89,7 +89,13 @@ def get_event_by_id(db: Session, event_id: int):
         rules_db = db.execute(rules_query, {"event_id": event_id}).fetchall()
         res['rules'] = [dict(r._mapping) for r in rules_db]
 
-        functions_query = text("SELECT * FROM event_functions WHERE event_id = :event_id")
+        functions_query = text("""
+            SELECT ef.*, v.name AS venue_name, v.city AS venue_city, vr.name AS room_name
+            FROM event_functions ef
+            LEFT JOIN venues v ON ef.venue_id = v.id
+            LEFT JOIN venue_rooms vr ON ef.room_id = vr.id
+            WHERE ef.event_id = :event_id
+        """)
         functions_db = db.execute(functions_query, {"event_id": event_id}).fetchall()
         res['functions'] = [dict(f._mapping) for f in functions_db]
 

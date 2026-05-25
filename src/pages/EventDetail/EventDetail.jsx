@@ -232,8 +232,8 @@ const EventDetail = () => {
 
   const displayDate = ticketEngine.selectedFunction ? ticketEngine.selectedFunction.date : event.date;
   const displayTime = ticketEngine.selectedFunction ? ticketEngine.selectedFunction.time : event.time;
-  const displayVenue = event.venue?.name || event.venue || event.location || "Recinto por confirmar";
-  const displayCity = event.venue?.city || "";
+  const displayVenue = ticketEngine.selectedFunction?.venue_name || event.venue?.name || event.venue || event.location || "Recinto por confirmar";
+  const displayCity = ticketEngine.selectedFunction?.venue_city || event.venue?.city || "";
 
   const customTicketDesign = event.printing_canvas_json ? (() => { try { return JSON.parse(event.printing_canvas_json); } catch(e) { return null; } })() : null;
 

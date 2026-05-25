@@ -27,24 +27,74 @@ export default function TicketSelectionPanel({
   const unitPrice = cleanPrice(selectedSection?.price || event?.price || 0);
   const total = (seatCount * unitPrice).toFixed(2);
 
+  // Group functions by date
+  const uniqueDates = React.useMemo(() => {
+    if (!event?.functions) return [];
+    const dates = event.functions.map(f => f.date);
+    return Array.from(new Set(dates)).sort();
+  }, [event?.functions]);
+
+  const selectedDate = selectedFunction?.date || uniqueDates[0] || null;
+
+  const functionsForSelectedDate = React.useMemo(() => {
+    if (!event?.functions || !selectedDate) return [];
+    return event.functions.filter(f => f.date === selectedDate);
+  }, [event?.functions, selectedDate]);
+
   return (
     <div className="ticket-selection-panel">
 
       {/* ── Selector de Fecha/Función ── */}
       {hasFunctions && (
-        <div className="tsp-header">
-          <p className="tsp-section-label">Selecciona la fecha</p>
-          <div className="function-chips">
-            {event.functions.map(f => (
-              <div
-                key={f.id}
-                className={`function-chip ${selectedFunction?.id === f.id ? 'active' : ''}`}
-                onClick={() => setSelectedFunction(f)}
-              >
-                {formatDate(f.date)} — {formatTime(f.time)}
-              </div>
-            ))}
+        <div className="tsp-header" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          <div>
+            <p className="tsp-section-label">Selecciona el día</p>
+            <div className="function-chips">
+              {uniqueDates.map(d => (
+                <div
+                  key={d}
+                  className={`function-chip ${selectedDate === d ? 'active' : ''}`}
+                  onClick={() => {
+                    const firstFuncForDate = event.functions.find(f => f.date === d);
+                    if (firstFuncForDate) {
+                      setSelectedFunction(firstFuncForDate);
+                    }
+                  }}
+                >
+                  {formatDate(d)}
+                </div>
+              ))}
+            </div>
           </div>
+
+          {functionsForSelectedDate.length > 0 && (
+            <div>
+              <p className="tsp-section-label">Selecciona el horario y lugar</p>
+              <div className="function-chips" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '100%' }}>
+                {functionsForSelectedDate.map(f => (
+                  <div
+                    key={f.id}
+                    className={`function-chip ${selectedFunction?.id === f.id ? 'active' : ''}`}
+                    onClick={() => setSelectedFunction(f)}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      padding: '8px 12px',
+                      width: '100%',
+                      textTransform: 'none',
+                      letterSpacing: 'normal'
+                    }}
+                  >
+                    <span style={{ fontWeight: 800, fontSize: '0.75rem' }}>{formatTime(f.time)} HRS</span>
+                    <span style={{ fontSize: '0.62rem', opacity: 0.8, marginTop: '2px', textAlign: 'left' }}>
+                      {f.venue_name || 'Recinto'} — {f.room_name || 'Sala'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
