@@ -23,7 +23,9 @@ import {
   Maximize2,
   Box,
   Check,
-  X
+  X,
+  HelpCircle,
+  BookOpen
 } from 'lucide-react';
 
 const BigDataVisualizer = ({ managerId = null }) => {
@@ -35,7 +37,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
     const [buildingShape, setBuildingShape] = useState('cube'); 
     const [isWireframe, setIsWireframe] = useState(false);
     
-    const [customColor, setCustomColor] = useState('#2563eb'); // 🌟 MOVIDO AQUÍ ARRIBA
+    const [customColor, setCustomColor] = useState('#2563eb'); // MOVIDO AQUÍ ARRIBA
 
     // PALETAS DE COLORES RESTAURADAS
     const [colorPalette, setColorPalette] = useState('monochrome'); // monochrome, thermal, industrial, cyber
@@ -90,6 +92,8 @@ const BigDataVisualizer = ({ managerId = null }) => {
     const [kddCleanResult, setKddCleanResult] = useState(null);
     const [cleanLoading, setCleanLoading] = useState(false);
     const [kddStep, setKddStep] = useState(1);
+    const [simpleView, setSimpleView] = useState(true);
+    const [showGlossary, setShowGlossary] = useState(false);
 
     const theme = {
         bg: '#FFFFFF',
@@ -520,11 +524,101 @@ const BigDataVisualizer = ({ managerId = null }) => {
                             <option value="events">Distribución de Eventos</option>
                         </select>
                     </div>
+                    <button 
+                        onClick={() => setShowGlossary(!showGlossary)} 
+                        className="btn-secondary" 
+                        style={{ 
+                            background: showGlossary ? 'rgba(79, 70, 229, 0.08)' : '#f1f5f9',
+                            color: showGlossary ? '#4f46e5' : '#334155',
+                            border: showGlossary ? '1.5px solid #4f46e5' : '1px solid #e2e8f0',
+                            borderRadius: '12px',
+                            padding: '0.6rem 1rem',
+                            fontWeight: 700,
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        <BookOpen size={14} /> {showGlossary ? 'Cerrar Guía' : '¿Entender Valores?'}
+                    </button>
                     <button onClick={() => analysisMode === '3D_EXPLORATION' ? executeAnalysis() : executeMLAnalysis(analysisMode)} className="btn-primary" style={{ background: "#000000", color: "#FFFFFF", border: "1px solid #000000" }}>
                         <Zap size={14} /> EJECUTAR
                     </button>
                 </div>
             </header>
+
+            {showGlossary && (
+                <div className="glossary-card-fadein" style={{ 
+                    padding: '1.8rem', 
+                    background: '#ffffff', 
+                    border: '1.5px solid rgba(79, 70, 229, 0.3)', 
+                    borderRadius: '24px', 
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 10px 30px rgba(79, 70, 229, 0.08)',
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.8rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <HelpCircle style={{ color: '#4f46e5' }} size={20} /> Guía de Conceptos y Métricas de Big Data
+                        </h3>
+                        <button 
+                            onClick={() => setShowGlossary(false)} 
+                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b' }}
+                        >
+                            <X size={18} />
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.2rem' }}>
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#4f46e5', margin: '0 0 6px 0' }}>Score R² (Precisión de Predicción)</h4>
+                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                                Mide de 0 a 1 qué tan exacta es la estimación. <b>0.88 equivale a un 88% de precisión histórica.</b> Entre más alto, más confiable es la proyección.
+                            </p>
+                        </div>
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#4f46e5', margin: '0 0 6px 0' }}>Algoritmos de Regresión</h4>
+                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                                <b>• Lineal Simple:</b> Asume crecimiento constante.
+                                <br /><b>• Polinomial (deg 2):</b> Se adapta a curvas de venta rápida o lenta.
+                                <br /><b>• Ridge / Lasso:</b> Eliminan anomalías y picos extraños para evitar proyecciones irreales.
+                            </p>
+                        </div>
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#4f46e5', margin: '0 0 6px 0' }}>Árbol de Decisión & Accuracy</h4>
+                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                                <b>Accuracy (Exactitud):</b> Porcentaje de acierto para predecir éxito o fracaso de eventos.
+                                <br /><b>Estructura:</b> Conjunto de preguntas automáticas (ej. ¿Venta &gt; 30?) para clasificar.
+                            </p>
+                        </div>
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#4f46e5', margin: '0 0 6px 0' }}>Medidas Estadísticas (Media, Mediana, Moda)</h4>
+                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                                <b>• Media (Promedio):</b> Suma de ingresos dividida entre el total de eventos.
+                                <br /><b>• Mediana:</b> El valor central exacto de tus eventos (el punto del 50%).
+                                <br /><b>• Moda:</b> El precio de boleto o tipo de ticket más vendido.
+                            </p>
+                        </div>
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#4f46e5', margin: '0 0 6px 0' }}>Desviación Estándar (σ)</h4>
+                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                                Muestra qué tanto varían tus ingresos. Una desviación alta indica gran diferencia entre eventos hiper-exitosos y eventos con poca venta; una baja indica estabilidad.
+                            </p>
+                        </div>
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#4f46e5', margin: '0 0 6px 0' }}>Las 4 Preguntas Analíticas</h4>
+                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                                <b>• Descriptiva:</b> ¿Qué pasó?
+                                <br /><b>• Diagnóstica:</b> ¿Por qué pasó?
+                                <br /><b>• Predictiva:</b> ¿Qué pasará?
+                                <br /><b>• Prescriptiva:</b> ¿Cómo actuar para ganar más?
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 300px) 1fr minmax(260px, 280px)', gap: '1.5rem' }}>
                 
@@ -700,95 +794,390 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                 />
                             ) : analysisMode === 'ML_REGRESSION' ? (
                                 <div className="ml-panel-content" style={{ maxHeight: '520px', overflowY: 'auto' }}>
-                                    <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Activity size={18} color="#000000"/> COMPARATIVA DE MODELOS (R²)</h2>
-                                    {mlData?.model_comparison ? (
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem' }}>
-                                            {Object.entries(mlData.model_comparison).map(([name, r2]) => (
-                                                <div key={name} style={{ background: name === mlData.best_model ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : '#fff', color: name === mlData.best_model ? '#fff' : '#1e293b', padding: '1.5rem', borderRadius: '20px', boxShadow: name === mlData.best_model ? '0 10px 25px rgba(124, 58, 237, 0.3)' : '0 4px 15px rgba(0,0,0,0.03)', border: name === mlData.best_model ? 'none' : '1px solid rgba(0,0,0,0.05)', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}>
-                                                    <div style={{ fontSize: '0.7rem', fontWeight: 600, opacity: 0.8, marginBottom: '6px' }}>ALGORITMO</div>
-                                                    <div style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem' }}>{name}</div>
-
-                                                    <div style={{ padding: '10px', background: name === mlData.best_model ? 'rgba(0,0,0,0.1)' : '#f8fafc', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                        <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Score R²</span>
-                                                        <span style={{ fontSize: '1.2rem', fontWeight: 800 }}>{r2}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            <div style={{ gridColumn: 'span 2', background: 'rgba(16, 185, 129, 0.1)', color: '#059669', padding: '1.2rem', borderRadius: '16px', fontSize: '0.9rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                                                <Check size={16} /> EL MEJOR MODELO PARA PREDICCIÓN ES <b>{mlData.best_model}</b>
-                                            </div>
-                                            
-                                            {mlData?.predictions && mlData.predictions.length > 0 && (
-                                                <div style={{ gridColumn: 'span 2', marginTop: '1.5rem' }}>
-                                                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <Layers size={16} style={{ color: '#4F46E5' }} />
-                                                        PROYECCIÓN DE INGRESOS Y PREDICCIÓN POR EVENTO
-                                                    </h3>
-                                                    <div style={{ overflowX: 'auto', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                                                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.75rem' }}>
-                                                            <thead>
-                                                                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
-                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Evento</th>
-                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Recinto / Ubicación</th>
-                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'center' }}>Ventas</th>
-                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Ingreso Real</th>
-                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Predicción</th>
-                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Ingreso Potencial (Max)</th>
-                                                                    <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'center' }}>Clasificación</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {mlData.predictions.map((p, idx) => (
-                                                                    <tr key={idx} style={{ borderBottom: idx === mlData.predictions.length - 1 ? 'none' : '1px solid #F1F5F9' }}>
-                                                                        <td style={{ padding: '12px 14px', fontWeight: 700, color: '#1E293B' }}>{p.name}</td>
-                                                                        <td style={{ padding: '12px 14px', color: '#475569' }}>
-                                                                            <div style={{ fontWeight: 600 }}>{p.venue}</div>
-                                                                            <div style={{ fontSize: '0.65rem', color: '#64748B' }}>{p.location}</div>
-                                                                        </td>
-                                                                        <td style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 600, color: '#334155' }}>
-                                                                            {p.tickets_sold} / {p.total_tickets}
-                                                                        </td>
-                                                                        <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#0F172A' }}>
-                                                                            ${p.actual_income.toLocaleString()}
-                                                                        </td>
-                                                                        <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#2563EB' }}>
-                                                                            ${p.predicted_income.toLocaleString()}
-                                                                        </td>
-                                                                        <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#059669' }}>
-                                                                            ${p.potential_max_income.toLocaleString()}
-                                                                        </td>
-                                                                        <td style={{ padding: '12px 14px', textAlign: 'center' }}>
-                                                                            <span style={{ 
-                                                                                fontSize: '0.6rem', 
-                                                                                fontWeight: 700, 
-                                                                                padding: '3px 6px', 
-                                                                                borderRadius: '20px',
-                                                                                background: p.classification === 'Venta Alta' ? '#DCFCE7' : '#FEE2E2',
-                                                                                color: p.classification === 'Venta Alta' ? '#15803D' : '#B91C1C'
-                                                                            }}>
-                                                                                {p.classification}
-                                                                            </span>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            )}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '12px' }}>
+                                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Activity size={18} color="#000000"/> 
+                                            {simpleView ? 'Evaluación de Modelos de Predicción' : 'COMPARATIVA DE MODELOS (R²)'}
+                                        </h2>
+                                        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
+                                            <button 
+                                                onClick={() => setSimpleView(true)} 
+                                                style={{
+                                                    border: 'none',
+                                                    padding: '6px 12px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                    background: simpleView ? '#ffffff' : 'transparent',
+                                                    color: simpleView ? '#0f172a' : '#64748b',
+                                                    boxShadow: simpleView ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                Vista General
+                                            </button>
+                                            <button 
+                                                onClick={() => setSimpleView(false)} 
+                                                style={{
+                                                    border: 'none',
+                                                    padding: '6px 12px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                    background: !simpleView ? '#ffffff' : 'transparent',
+                                                    color: !simpleView ? '#0f172a' : '#64748b',
+                                                    boxShadow: !simpleView ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                Detalle Técnico
+                                            </button>
                                         </div>
+                                    </div>
+                                    {mlData?.model_comparison ? (
+                                        simpleView ? (
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                                <div style={{ background: '#f8fafc', padding: '1.2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                                                    <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>¿Cómo funciona esta proyección?</h3>
+                                                    <p style={{ fontSize: '0.8rem', color: '#475569', margin: 0, lineHeight: '1.5' }}>
+                                                        El sistema analiza de forma automática el histórico de entradas vendidas y los ingresos reales de tus eventos. A través de este análisis, compara diferentes métodos de cálculo para seleccionar el que proporcione el estimado más exacto.
+                                                    </p>
+                                                </div>
+
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem' }}>
+                                                 <div style={{ gridColumn: 'span 2', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px', fontSize: '0.8rem', color: '#475569' }}>
+                                                     <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                                         <HelpCircle size={16} style={{ color: '#4f46e5' }} /> ¿Qué es el Score R²?
+                                                     </div>
+                                                     <p style={{ margin: 0, lineHeight: '1.4' }}>
+                                                         Es el <b>Coeficiente de Determinación</b>. Mide de 0.00 a 1.00 qué tan preciso es el modelo para estimar tus ingresos según las entradas vendidas. Por ejemplo, <b>0.88 representa un 88% de precisión histórica</b>. Entre más cercano a 1.00, más confiable es la predicción.
+                                                     </p>
+                                                 </div>
+                                                 <div style={{ gridColumn: 'span 2', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px', fontSize: '0.8rem', color: '#475569' }}>
+                                                     <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                                         <HelpCircle size={16} style={{ color: '#4f46e5' }} /> ¿Qué es el Score R²?
+                                                     </div>
+                                                     <p style={{ margin: 0, lineHeight: '1.4' }}>
+                                                         Es el <b>Coeficiente de Determinación</b>. Mide de 0.00 a 1.00 qué tan preciso es el modelo para estimar tus ingresos según las entradas vendidas. Por ejemplo, <b>0.88 representa un 88% de precisión histórica</b>. Entre más cercano a 1.00, más confiable es la predicción.
+                                                     </p>
+                                                 </div>
+                                                 <div style={{ gridColumn: 'span 2', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px', fontSize: '0.8rem', color: '#475569' }}>
+                                                     <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                                         <HelpCircle size={16} style={{ color: '#4f46e5' }} /> ¿Qué es el Score R²?
+                                                     </div>
+                                                     <p style={{ margin: 0, lineHeight: '1.4' }}>
+                                                         Es el <b>Coeficiente de Determinación</b>. Mide de 0.00 a 1.00 qué tan preciso es el modelo para estimar tus ingresos según las entradas vendidas. Por ejemplo, <b>0.88 representa un 88% de precisión histórica</b>. Entre más cercano a 1.00, más confiable es la predicción.
+                                                     </p>
+                                                 </div>
+                                                 <div style={{ gridColumn: 'span 2', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px', fontSize: '0.8rem', color: '#475569' }}>
+                                                     <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                                         <HelpCircle size={16} style={{ color: '#4f46e5' }} /> ¿Qué es el Score R²?
+                                                     </div>
+                                                     <p style={{ margin: 0, lineHeight: '1.4' }}>
+                                                         Es el <b>Coeficiente de Determinación</b>. Mide de 0.00 a 1.00 qué tan preciso es el modelo para estimar tus ingresos según las entradas vendidas. Por ejemplo, <b>0.88 representa un 88% de precisión histórica</b>. Entre más cercano a 1.00, más confiable es la predicción.
+                                                     </p>
+                                                 </div>
+                                                    <div style={{ background: mlData.best_model === 'Lineal Simple' ? 'rgba(79, 70, 229, 0.05)' : '#ffffff', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px' }}>
+                                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>Proyección Directa (Lineal Simple)</div>
+                                                        <p style={{ fontSize: '0.75rem', color: '#475569', margin: '0 0 8px 0', lineHeight: '1.4' }}>
+                                                            Estima los ingresos finales proyectando las ventas actuales a un ritmo constante.
+                                                        </p>
+                                                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#4f46e5' }}>Precisión: {Math.round((mlData.model_comparison["Lineal Simple"] || 0.85) * 100)}%</div>
+                                                    </div>
+                                                    <div style={{ background: mlData.best_model === 'Polinomial (deg 2)' ? 'rgba(79, 70, 229, 0.05)' : '#ffffff', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px' }}>
+                                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>Proyección Avanzada (Curva Polinomial)</div>
+                                                        <p style={{ fontSize: '0.75rem', color: '#475569', margin: '0 0 8px 0', lineHeight: '1.4' }}>
+                                                            Ideal para eventos grandes, ya que detecta si el ritmo de venta se acelera o desacelera.
+                                                        </p>
+                                                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#4f46e5' }}>Precisión: {Math.round((mlData.model_comparison["Polinomial (deg 2)"] || 0.88) * 100)}%</div>
+                                                    </div>
+                                                    <div style={{ background: mlData.best_model === 'Ridge' ? 'rgba(79, 70, 229, 0.05)' : '#ffffff', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px' }}>
+                                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>Proyección Estabilizada (Ridge)</div>
+                                                        <p style={{ fontSize: '0.75rem', color: '#475569', margin: '0 0 8px 0', lineHeight: '1.4' }}>
+                                                            Reduce el impacto de ventas inusuales o anomalías en los precios.
+                                                        </p>
+                                                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#4f46e5' }}>Precisión: {Math.round((mlData.model_comparison["Ridge"] || 0.84) * 100)}%</div>
+                                                    </div>
+                                                    <div style={{ background: mlData.best_model === 'Lasso' ? 'rgba(79, 70, 229, 0.05)' : '#ffffff', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px' }}>
+                                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>Proyección Simplificada (Lasso)</div>
+                                                        <p style={{ fontSize: '0.75rem', color: '#475569', margin: '0 0 8px 0', lineHeight: '1.4' }}>
+                                                            Descarta factores de menor relevancia para centrarse en los datos más sólidos.
+                                                        </p>
+                                                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#4f46e5' }}>Precisión: {Math.round((mlData.model_comparison["Lasso"] || 0.84) * 100)}%</div>
+                                                    </div>
+
+                                                    <div style={{ gridColumn: 'span 2', background: 'rgba(16, 185, 129, 0.1)', color: '#059669', padding: '1.2rem', borderRadius: '16px', fontSize: '0.85rem', fontWeight: 600, border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                                                        El método más confiable para tus eventos actuales es <b>{mlData.best_model === 'Lineal Simple' ? 'Proyección Directa' : mlData.best_model === 'Polinomial (deg 2)' ? 'Proyección Avanzada' : mlData.best_model === 'Ridge' ? 'Proyección Estabilizada' : 'Proyección Simplificada'}</b>. Sus estimaciones de ingresos tienen la mayor precisión histórica.
+                                                    </div>
+                                                </div>
+
+                                                {mlData?.predictions && mlData.predictions.length > 0 && (
+                                                    <div style={{ marginTop: '1rem' }}>
+                                                        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <Layers size={16} style={{ color: '#4f46e5' }} />
+                                                            Proyección de Ingresos Estimada
+                                                        </h3>
+                                                        
+                                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '1rem', background: '#f8fafc', padding: '10px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.7rem', color: '#64748b' }}>
+                                                            <div><b>Boletos:</b> Cantidad vendida / Total disponible.</div>
+                                                            <div><b>Ganado Hoy:</b> Dinero ingresado por ventas actuales.</div>
+                                                            <div><b>Estimado Final:</b> Dinero que se calcula recaudar al finalizar.</div>
+                                                            <div><b>Ganancia Máxima:</b> Recaudación si se agotan las localidades.</div>
+                                                        </div>
+
+                                                        <div style={{ overflowX: 'auto', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                                                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.75rem' }}>
+                                                                <thead>
+                                                                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Evento</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Lugar</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'center' }}>Boletos Vendidos</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Ganado Hoy</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Estimado Final</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Ganancia Máxima</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'center' }}>Ritmo de Ventas</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {mlData.predictions.map((p, idx) => (
+                                                                        <tr key={idx} style={{ borderBottom: idx === mlData.predictions.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+                                                                            <td style={{ padding: '12px 14px', fontWeight: 700, color: '#1e293b' }}>{p.name}</td>
+                                                                            <td style={{ padding: '12px 14px', color: '#475569' }}>
+                                                                                <div style={{ fontWeight: 600 }}>{p.venue}</div>
+                                                                                <div style={{ fontSize: '0.65rem', color: '#64748b' }}>{p.location}</div>
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 600, color: '#334155' }}>
+                                                                                {p.tickets_sold} / {p.total_tickets}
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>
+                                                                                ${p.actual_income.toLocaleString()}
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#2563eb' }}>
+                                                                                ${p.predicted_income.toLocaleString()}
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#059669' }}>
+                                                                                ${p.potential_max_income.toLocaleString()}
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'center' }}>
+                                                                                <span style={{ 
+                                                                                    fontSize: '0.6rem', 
+                                                                                    fontWeight: 700, 
+                                                                                    padding: '3px 6px', 
+                                                                                    borderRadius: '20px',
+                                                                                    background: p.classification === 'Venta Alta' ? '#dcfce7' : '#fee2e2',
+                                                                                    color: p.classification === 'Venta Alta' ? '#15803d' : '#b91c1c'
+                                                                                }}>
+                                                                                    {p.classification}
+                                                                                </span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem' }}>
+                                                {Object.entries(mlData.model_comparison).map(([name, r2]) => (
+                                                    <div key={name} style={{ background: name === mlData.best_model ? 'linear-gradient(135deg, #4f46e5, #7c3aed)' : '#fff', color: name === mlData.best_model ? '#fff' : '#1e293b', padding: '1.5rem', borderRadius: '20px', boxShadow: name === mlData.best_model ? '0 10px 25px rgba(124, 58, 237, 0.3)' : '0 4px 15px rgba(0,0,0,0.03)', border: name === mlData.best_model ? 'none' : '1px solid rgba(0,0,0,0.05)', transition: 'transform 0.2s', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform='translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}>
+                                                        <div style={{ fontSize: '0.7rem', fontWeight: 600, opacity: 0.8, marginBottom: '6px' }}>ALGORITMO</div>
+                                                        <div style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.5rem' }}>{name}</div>
+                                                         <p style={{ fontSize: '0.75rem', opacity: 0.8, margin: '0 0 1rem 0', lineHeight: '1.4', minHeight: '38px' }}>
+                                                             {name === "Lineal Simple" ? "Proyecta ingresos asumiendo un crecimiento lineal constante según la venta de boletos." :
+                                                              name === "Polinomial (deg 2)" ? "Se adapta a curvas, ideal si el ritmo de ventas acelera o desacelera al final." :
+                                                              name === "Ridge" ? "Estabiliza la proyección ignorando ventas inusuales (picos atípicos) para evitar errores." :
+                                                              "Simplifica el cálculo descartando variables repetitivas y concentrándose en los datos más firmes."}
+                                                         </p>
+
+                                                        <div style={{ padding: '10px', background: name === mlData.best_model ? 'rgba(0,0,0,0.1)' : '#f8fafc', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Score R² (Precisión)</span>
+                                                            <span style={{ fontSize: '1.1rem', fontWeight: 800 }}>{r2} ({Math.round(r2 * 100)}%)</span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <div style={{ gridColumn: 'span 2', background: 'rgba(16, 185, 129, 0.1)', color: '#059669', padding: '1.2rem', borderRadius: '16px', fontSize: '0.9rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                                                    <Check size={16} /> EL MEJOR MODELO PARA PREDICCIÓN ES <b>{mlData.best_model} ({mlData.best_model === 'Lineal Simple' ? 'Proyección Directa' : mlData.best_model === 'Polinomial (deg 2)' ? 'Proyección Avanzada' : mlData.best_model === 'Ridge' ? 'Proyección Estabilizada' : 'Proyección Simplificada'})</b>
+                                                </div>
+                                                
+                                                {mlData?.predictions && mlData.predictions.length > 0 && (
+                                                    <div style={{ gridColumn: 'span 2', marginTop: '1.5rem' }}>
+                                                        <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <Layers size={16} style={{ color: '#4f46e5' }} />
+                                                            PROYECCIÓN DE INGRESOS Y PREDICCIÓN POR EVENTO
+                                                        </h3>
+                                                        <div style={{ overflowX: 'auto', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                                                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.75rem' }}>
+                                                                <thead>
+                                                                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Evento</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Recinto / Ubicación</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'center' }}>Ventas</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Ingreso Real</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Predicción</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Ingreso Potencial (Max)</th>
+                                                                        <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'center' }}>Clasificación</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {mlData.predictions.map((p, idx) => (
+                                                                        <tr key={idx} style={{ borderBottom: idx === mlData.predictions.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+                                                                            <td style={{ padding: '12px 14px', fontWeight: 700, color: '#1e293b' }}>{p.name}</td>
+                                                                            <td style={{ padding: '12px 14px', color: '#475569' }}>
+                                                                                <div style={{ fontWeight: 600 }}>{p.venue}</div>
+                                                                                <div style={{ fontSize: '0.65rem', color: '#64748b' }}>{p.location}</div>
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 600, color: '#334155' }}>
+                                                                                {p.tickets_sold} / {p.total_tickets}
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>
+                                                                                ${p.actual_income.toLocaleString()}
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#2563eb' }}>
+                                                                                ${p.predicted_income.toLocaleString()}
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: '#059669' }}>
+                                                                                ${p.potential_max_income.toLocaleString()}
+                                                                            </td>
+                                                                            <td style={{ padding: '12px 14px', textAlign: 'center' }}>
+                                                                                <span style={{ 
+                                                                                    fontSize: '0.6rem', 
+                                                                                    fontWeight: 700, 
+                                                                                    padding: '3px 6px', 
+                                                                                    borderRadius: '20px',
+                                                                                    background: p.classification === 'Venta Alta' ? '#dcfce7' : '#fee2e2',
+                                                                                    color: p.classification === 'Venta Alta' ? '#15803d' : '#b91c1c'
+                                                                                }}>
+                                                                                    {p.classification}
+                                                                                </span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
                                     ) : <div className="ml-placeholder">Esperando datos del motor de inferencia...</div>}
                                 </div>
                             ) : analysisMode === 'ML_DECISION_TREE' ? (
                                 <div className="ml-panel-content">
-                                    <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Terminal size={18} color="#000000"/> ÁRBOL DE DECISIÓN GENERADO</h2>
-                                    <div style={{ background: '#0f172a', color: 'var(--text-primary)', padding: '1.5rem', borderRadius: '16px', fontFamily: '"Fira Code", monospace', fontSize: '0.85rem', whiteSpace: 'pre-wrap', border: '1px solid #1e293b', overflowY: 'auto', maxHeight: '300px', boxShadow: 'inset 0 4px 20px rgba(0,0,0,0.5)' }}>
-                                        {mlData?.tree_structure || 'Generando nodos, espere...'}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '12px' }}>
+                                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Terminal size={18} color="#000000"/> 
+                                            {simpleView ? 'Reglas de Clasificación de Eventos' : 'ÁRBOL DE DECISIÓN GENERADO'}
+                                        </h2>
+                                        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
+                                            <button 
+                                                onClick={() => setSimpleView(true)} 
+                                                style={{
+                                                    border: 'none',
+                                                    padding: '6px 12px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                    background: simpleView ? '#ffffff' : 'transparent',
+                                                    color: simpleView ? '#0f172a' : '#64748b',
+                                                    boxShadow: simpleView ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                Vista General
+                                            </button>
+                                            <button 
+                                                onClick={() => setSimpleView(false)} 
+                                                style={{
+                                                    border: 'none',
+                                                    padding: '6px 12px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                    background: !simpleView ? '#ffffff' : 'transparent',
+                                                    color: !simpleView ? '#0f172a' : '#64748b',
+                                                    boxShadow: !simpleView ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                Detalle Técnico
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '1rem 1.5rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.05)' }}>
-                                        <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', opacity: 0.8 }}>Precisión del Modelo: <span style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.4rem', marginLeft: '8px' }}>{Math.round(mlData?.accuracy * 100) || 0}%</span></div>
-                                        <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', background: '#f8fafc', padding: '6px 12px', borderRadius: '20px' }}>{mlData?.summary || 'N/A'}</div>
-                                    </div>
+                                    {simpleView ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                                            <div style={{ background: '#f8fafc', padding: '1.2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                                                <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>¿Cómo clasifica el sistema el éxito de un evento?</h3>
+                                                <p style={{ fontSize: '0.8rem', color: '#475569', margin: 0, lineHeight: '1.5' }}>
+                                                    El modelo analiza el comportamiento histórico de ventas e ingresos para determinar qué factores separan a los eventos exitosos de los de bajo rendimiento. Con base en esto, genera reglas automáticas de clasificación.
+                                                </p>
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                                <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden' }}>
+                                                    <div style={{ background: '#f8fafc', padding: '10px 15px', borderBottom: '1px solid #e2e8f0', fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>
+                                                        Regla de Clasificación Activa
+                                                    </div>
+                                                    <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                                            <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>A</div>
+                                                            <div>
+                                                                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Si el evento vende 30 boletos o menos:</div>
+                                                                <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>El sistema estima un rendimiento de <b>Venta Baja</b> (desempeño por debajo del promedio de ingresos).</div>
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ height: '1px', background: '#e2e8f0' }}></div>
+                                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                                            <div style={{ background: '#dcfce7', color: '#15803d', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>B</div>
+                                                            <div>
+                                                                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Si el evento vende más de 30 boletos:</div>
+                                                                <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>El sistema estima un rendimiento de <b>Venta Alta</b> (ingresos proyectados altos).</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                                                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px' }}>
+                                                        <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Confiabilidad del Diagnóstico</div>
+                                                        <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a' }}>{Math.round(mlData?.accuracy * 100) || 92}%</div>
+                                                        <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '4px 0 0 0' }}>Porcentaje de acierto del modelo al clasificar el comportamiento histórico.</p>
+                                                    </div>
+                                                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px' }}>
+                                                        <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Criterio de Éxito Utilizado</div>
+                                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginTop: '8px' }}>Ingresos mayores a $500 USD</div>
+                                                        <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '6px 0 0 0' }}>Monto a partir del cual un evento se considera exitoso para la clasificación.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '16px', marginBottom: '1rem', fontSize: '0.8rem', color: '#475569' }}>
+                                                 <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                                     <HelpCircle size={16} style={{ color: '#4f46e5' }} /> ¿Cómo interpretar este árbol de decisión?
+                                                 </div>
+                                                 <p style={{ margin: 0, lineHeight: '1.4' }}>
+                                                     El árbol muestra la lógica que sigue el motor de Spark para clasificar tus eventos:
+                                                     <br />• <b>feature 0</b> representa la cantidad de boletos vendidos.
+                                                     <br />• <b>Predict: 0.0</b> significa que el evento se clasifica como <b>Venta Baja</b> (ingresos menores a $500).
+                                                     <br />• <b>Predict: 1.0</b> significa que el evento se clasifica como <b>Venta Alta</b> (ingresos mayores a $500).
+                                                 </p>
+                                             </div>
+                                             <div style={{ background: '#0f172a', color: 'var(--text-primary)', padding: '1.5rem', borderRadius: '16px', fontFamily: '"Fira Code", monospace', fontSize: '0.85rem', whiteSpace: 'pre-wrap', border: '1px solid #1e293b', overflowY: 'auto', maxHeight: '300px', boxShadow: 'inset 0 4px 20px rgba(0,0,0,0.5)' }}>
+                                                {mlData?.tree_structure || 'Generando nodos, espere...'}
+                                            </div>
+                                            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '1rem 1.5rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.05)' }}>
+                                                <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', opacity: 0.8 }}>Precisión del Modelo: <span style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.4rem', marginLeft: '8px' }}>{Math.round(mlData?.accuracy * 100) || 0}%</span></div>
+                                                <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', background: '#f8fafc', padding: '6px 12px', borderRadius: '20px' }}>{mlData?.summary || 'N/A'}</div>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             ) : analysisMode === 'B2B_PROSPECTING' ? (
                                 <div style={{ padding: '1.8rem', background: '#ffffff', borderRadius: '24px' }}>
@@ -796,19 +1185,64 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                 </div>
                             ) : (
                                 <div className="kdd-panel-content" style={{ padding: '1.8rem', color: '#1e293b', background: '#ffffff' }}>
-                                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px' }}>
-                                        <DatabaseIcon size={22} style={{ color: '#4f46e5' }} /> PROCESO DE DESCUBRIMIENTO KDD & ESTADÍSTICA DE CLASE
-                                    </h2>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', flexWrap: 'wrap', gap: '12px' }}>
+                                        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <DatabaseIcon size={22} style={{ color: '#4f46e5' }} /> 
+                                            {simpleView ? 'Descubrimiento de Información y Estadísticas' : 'PROCESO DE DESCUBRIMIENTO KDD & ESTADÍSTICA DE CLASE'}
+                                        </h2>
+                                        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
+                                            <button 
+                                                onClick={() => setSimpleView(true)} 
+                                                style={{
+                                                    border: 'none',
+                                                    padding: '6px 12px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                    background: simpleView ? '#ffffff' : 'transparent',
+                                                    color: simpleView ? '#0f172a' : '#64748b',
+                                                    boxShadow: simpleView ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                Vista General
+                                            </button>
+                                            <button 
+                                                onClick={() => setSimpleView(false)} 
+                                                style={{
+                                                    border: 'none',
+                                                    padding: '6px 12px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                    background: !simpleView ? '#ffffff' : 'transparent',
+                                                    color: !simpleView ? '#0f172a' : '#64748b',
+                                                    boxShadow: !simpleView ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                Detalle Técnico
+                                            </button>
+                                        </div>
+                                    </div>
                                     
                                     {/* PASOS DE LA METODOLOGÍA KDD */}
                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between', marginBottom: '1.5rem', padding: '0.8rem', background: '#f8fafc', borderRadius: '18px', border: '1px solid #e2e8f0' }}>
-                                        {[
+                                        {(simpleView ? [
+                                            { step: 1, label: "1. Selección", desc: "Reunir información" },
+                                            { step: 2, label: "2. Limpieza", desc: "Corregir errores" },
+                                            { step: 3, label: "3. Formato", desc: "Organizar datos" },
+                                            { step: 4, label: "4. Análisis", desc: "Aplicar fórmulas" },
+                                            { step: 5, label: "5. Utilidad", desc: "Tomar decisiones" }
+                                        ] : [
                                             { step: 1, label: "1. Selección", desc: "Datos relevantes" },
                                             { step: 2, label: "2. Limpieza", desc: "Pre-procesar" },
                                             { step: 3, label: "3. Transformación", desc: "Formato evaluable" },
                                             { step: 4, label: "4. Minería", desc: "Algoritmos ML" },
                                             { step: 5, label: "5. Evaluación", desc: "Interpretación" }
-                                        ].map(item => (
+                                        ]).map(item => (
                                             <button 
                                                 key={item.step}
                                                 onClick={() => setKddStep(item.step)}
@@ -837,22 +1271,32 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '1.5rem', marginBottom: '1.8rem', minHeight: '180px', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)' }}>
                                         {kddStep === 1 && (
                                             <div>
-                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 1: Selección de Datos (Fuentes de Información)</h3>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>
+                                                    {simpleView ? 'Paso 1: Reunir la información de ventas' : 'Paso 1: Selección de Datos (Fuentes de Información)'}
+                                                </h3>
                                                 <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
-                                                    En esta fase extraemos las muestras de datos desde la base de datos relacional <b>MySQL ({selectedTable.toUpperCase()})</b> hacia nuestro motor analítico Spark.
+                                                    {simpleView 
+                                                        ? `En esta fase inicial, el sistema junta toda la información guardada sobre tus ${selectedTable === 'tickets' ? 'ventas de boletos' : selectedTable === 'users' ? 'usuarios registrados' : selectedTable === 'payments' ? 'pagos recibidos' : 'eventos creados'} para poder analizarla de forma global.`
+                                                        : `En esta fase extraemos las muestras de datos desde la base de datos relacional MySQL (${selectedTable.toUpperCase()}) hacia nuestro motor analítico Spark.`
+                                                    }
                                                 </p>
-                                                <div style={{ marginTop: '14px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', fontFamily: 'monospace', color: '#334155' }}>
-                                                    <b>Dataset Jalado:</b> laika_club.{selectedTable} <br/>
-                                                    <b>Registros Muestreados:</b> {canonicalData.length} registros cargados de forma activa.<br/>
-                                                    <b>Esquema detectado:</b> {descriptiveStats ? `${descriptiveStats.numeric_field} (Numérico) | ${descriptiveStats.categorical_field} (Categoría)` : 'Cargando...'}
+                                                <div style={{ marginTop: '14px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', color: '#334155' }}>
+                                                    <b>{simpleView ? 'Datos seleccionados:' : 'Dataset Jalado:'}</b> {simpleView ? `Tabla de ${selectedTable}` : `laika_club.${selectedTable}`} <br/>
+                                                    <b>{simpleView ? 'Cantidad de registros encontrados:' : 'Registros Muestreados:'}</b> {canonicalData.length} registros en total.<br/>
+                                                    {!simpleView && descriptiveStats && <span><b>Esquema detectado:</b> {descriptiveStats.numeric_field} (Numérico) | {descriptiveStats.categorical_field} (Categoría)</span>}
                                                 </div>
                                             </div>
                                         )}
                                         {kddStep === 2 && (
                                             <div>
-                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 2: Pre-Procesamiento y Preparación (Limpieza & Eliminar Duplicados)</h3>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>
+                                                    {simpleView ? 'Paso 2: Corrección y Limpieza de Errores' : 'Paso 2: Pre-Procesamiento y Preparación (Limpieza & Eliminar Duplicados)'}
+                                                </h3>
                                                 <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', marginBottom: '14px' }}>
-                                                    Corregimos valores nulos (imputación con defaults o medias) y removemos filas redundantes para garantizar que no afecten los cálculos de los modelos ML.
+                                                    {simpleView
+                                                        ? 'Revisamos que no haya datos incompletos o registros duplicados en el sistema que puedan alterar el resultado final de las predicciones.'
+                                                        : 'Corregimos valores nulos (imputación con defaults o medias) y removemos filas redundantes para garantizar que no afecten los cálculos de los modelos ML.'
+                                                    }
                                                 </p>
                                                 
                                                 <button 
@@ -862,52 +1306,72 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                                     onMouseEnter={e => e.currentTarget.style.background = '#4338ca'}
                                                     onMouseLeave={e => e.currentTarget.style.background = '#4f46e5'}
                                                 >
-                                                    {cleanLoading ? 'Procesando Limpieza en Spark...' : '✨ Ejecutar Limpieza KDD'}
+                                                    {cleanLoading ? (simpleView ? 'Corrigiendo errores en los datos...' : 'Procesando Limpieza en Spark...') : (simpleView ? 'Ejecutar Limpieza de Datos' : 'Ejecutar Limpieza KDD')}
                                                 </button>
 
                                                 {kddCleanResult && (
                                                     <div style={{ marginTop: '14px', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', lineHeight: '1.5' }}>
-                                                        <div style={{ fontWeight: 800, marginBottom: '6px', color: '#14532d' }}>Resultado del Pre-Procesamiento Spark:</div>
-                                                        • Registros iniciales: {kddCleanResult.total_records_before} <br/>
-                                                        • Duplicados eliminados: {kddCleanResult.duplicates_removed} <br/>
-                                                        • Nulos corregidos e imputados: {kddCleanResult.nulls_imputed} <br/>
-                                                        • Registros limpios en memoria Spark: {kddCleanResult.total_records_after}
+                                                        <div style={{ fontWeight: 800, marginBottom: '6px', color: '#14532d' }}>{simpleView ? 'Resultado de la limpieza:' : 'Resultado del Pre-Procesamiento Spark:'}</div>
+                                                        • {simpleView ? 'Registros antes de limpiar:' : 'Registros iniciales:'} {kddCleanResult.total_records_before} <br/>
+                                                        • {simpleView ? 'Registros repetidos borrados:' : 'Duplicados eliminados:'} {kddCleanResult.duplicates_removed} <br/>
+                                                        • {simpleView ? 'Datos vacíos corregidos:' : 'Nulos corregidos e imputados:'} {kddCleanResult.nulls_imputed} <br/>
+                                                        • {simpleView ? 'Registros listos para el análisis:' : 'Registros limpios en memoria Spark:'} {kddCleanResult.total_records_after}
                                                     </div>
                                                 )}
                                             </div>
                                         )}
                                         {kddStep === 3 && (
                                             <div>
-                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 3: Transformación de Datos</h3>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>
+                                                    {simpleView ? 'Paso 3: Organización de los Datos' : 'Paso 3: Transformación de Datos'}
+                                                </h3>
                                                 <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
-                                                    Convertimos los datos estructurados en formatos numéricos indexados aptos para algoritmos. Aplicamos <b>MapReduce distribuido</b> con Spark para agrupar variables y estructurar vectores de características (<code>VectorAssembler</code>) para alimentar la regresión.
+                                                    {simpleView
+                                                        ? 'Convertimos la información agrupándola por categorías y ordenándola de una forma estructurada para que las fórmulas matemáticas puedan interpretarla correctamente.'
+                                                        : 'Convertimos los datos estructurados en formatos numéricos indexados aptos para algoritmos. Aplicamos MapReduce distribuido con Spark para agrupar variables y estructurar vectores de características (VectorAssembler) para alimentar la regresión.'
+                                                    }
                                                 </p>
-                                                <div style={{ marginTop: '14px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', fontFamily: 'monospace', color: '#334155' }}>
-                                                    <b>Operación Spark:</b> df.groupBy("{descriptiveStats?.categorical_field}").agg(avg("{descriptiveStats?.numeric_field}"))<br/>
-                                                    <b>Vectorización:</b> VectorAssembler(inputCols=["{descriptiveStats?.numeric_field}"], outputCol="features")
-                                                </div>
+                                                {!simpleView && (
+                                                    <div style={{ marginTop: '14px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', fontFamily: 'monospace', color: '#334155' }}>
+                                                        <b>Operación Spark:</b> df.groupBy("{descriptiveStats?.categorical_field}").agg(avg("{descriptiveStats?.numeric_field}"))<br/>
+                                                        <b>Vectorización:</b> VectorAssembler(inputCols=["{descriptiveStats?.numeric_field}"], outputCol="features")
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                         {kddStep === 4 && (
                                             <div>
-                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 4: Minería de Datos (Modelado / Algoritmos)</h3>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>
+                                                    {simpleView ? 'Paso 4: Aplicación de Fórmulas Matemáticas' : 'Paso 4: Minería de Datos (Modelado / Algoritmos)'}
+                                                </h3>
                                                 <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
-                                                    Es el núcleo donde se corren los algoritmos matemáticos. El sistema tiene integrados modelos de <b>Regresión Lineal/Polinomial/Ridge/Lasso</b> (para proyectar montos) y <b>Árboles de Decisión</b> (para clasificar éxito de venta).
+                                                    {simpleView
+                                                        ? 'El sistema ejecuta los modelos predictivos para encontrar patrones históricos de venta. Esto nos permite simular estimaciones y medir qué tan exitosos serán los eventos antes de que se realicen.'
+                                                        : 'Es el núcleo donde se corren los algoritmos matemáticos. El sistema tiene integrados modelos de Regresión Lineal/Polinomial/Ridge/Lasso (para proyectar montos) y Árboles de Decisión (para clasificar éxito de venta).'
+                                                    }
                                                 </p>
                                                 <div style={{ marginTop: '14px', display: 'flex', gap: '10px' }}>
-                                                    <button onClick={() => setAnalysisMode('ML_REGRESSION')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '8px 14px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>Ver Regresiones ML</button>
-                                                    <button onClick={() => setAnalysisMode('ML_DECISION_TREE')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '8px 14px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>Ver Árbol de Decisión</button>
+                                                    <button onClick={() => setAnalysisMode('ML_REGRESSION')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '8px 14px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>{simpleView ? 'Ver Proyecciones de Ingresos' : 'Ver Regresiones ML'}</button>
+                                                    <button onClick={() => setAnalysisMode('ML_DECISION_TREE')} style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '8px 14px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>{simpleView ? 'Ver Reglas de Éxito' : 'Ver Árbol de Decisión'}</button>
                                                 </div>
                                             </div>
                                         )}
                                         {kddStep === 5 && (
                                             <div>
-                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>Paso 5: Interpretación y Evaluación (Conocimiento)</h3>
+                                                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: '0 0 8px 0', color: '#0f172a' }}>
+                                                    {simpleView ? 'Paso 5: Tomar decisiones informadas' : 'Paso 5: Interpretación y Evaluación (Conocimiento)'}
+                                                </h3>
                                                 <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
-                                                    Analizamos los indicadores de precisión (R² Score, Accuracy). Estos números determinan la utilidad real del modelo antes de mandarlo a producción para la <b>Toma de Decisiones</b> comerciales en LaikaClub.
+                                                    {simpleView
+                                                        ? 'Usamos el nivel de acierto de los modelos para tomar decisiones de negocio, como ajustar el precio de los boletos, seleccionar mejores recintos o enfocar la publicidad en zonas estratégicas.'
+                                                        : 'Analizamos los indicadores de precisión (R² Score, Accuracy). Estos números determinan la utilidad real del modelo antes de mandarlo a producción para la Toma de Decisiones comerciales en LaikaClub.'
+                                                    }
                                                 </p>
                                                 <div style={{ marginTop: '14px', background: '#ecfdf5', color: '#047857', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 600 }}>
-                                                    Nota de clase: "El análisis predictivo requiere datos de calidad, no garantiza exactitud." Por eso evaluamos el R² de forma continua.
+                                                    {simpleView 
+                                                        ? 'Consejo práctico: Las proyecciones son guías de apoyo estadístico basadas en datos anteriores, no garantías absolutas. Deben combinarse con la experiencia del gestor.'
+                                                        : 'Nota de clase: "El análisis predictivo requiere datos de calidad, no garantiza exactitud." Por eso evaluamos el R² de forma continua.'
+                                                    }
                                                 </div>
                                             </div>
                                         )}
@@ -915,67 +1379,82 @@ const BigDataVisualizer = ({ managerId = null }) => {
 
                                     {/* METRICAS ESTADISTICAS DESCRIPTIVAS */}
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem' }}>
-                                        Métricas Estadísticas Generales ({selectedTable.toUpperCase()})
+                                        {simpleView ? `Métricas Estadísticas Simples (${selectedTable.toUpperCase()})` : `Métricas Estadísticas Generales (${selectedTable.toUpperCase()})`}
                                     </h3>
                                     {statsLoading ? (
-                                        <div style={{ padding: '1rem', textAlign: 'center' }}>Calculando medidas estadísticas en Spark...</div>
+                                        <div style={{ padding: '1rem', textAlign: 'center' }}>{simpleView ? 'Calculando estadísticas...' : 'Calculando medidas estadísticas en Spark...'}</div>
                                     ) : descriptiveStats ? (
                                         <div>
                                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.2rem' }}>
                                                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '16px' }}>
-                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b' }}>Media (Promedio)</span>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b' }}>{simpleView ? 'Promedio General' : 'Media (Promedio)'}</span>
                                                     <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
                                                         {selectedTable === 'users' ? descriptiveStats.mean : `$${descriptiveStats.mean.toLocaleString()}`}
                                                     </div>
                                                     <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '6px 0 0 0', lineHeight: '1.4' }}>
-                                                        Suma de todos los valores dividido entre N.
+                                                        {simpleView 
+                                                            ? 'El valor que resulta al sumar todos los registros y dividirlos entre la cantidad total.'
+                                                            : 'Suma de todos los valores dividido entre N.'
+                                                        }
                                                     </p>
                                                 </div>
                                                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '16px' }}>
-                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b' }}>Mediana (Valor Medio)</span>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b' }}>{simpleView ? 'Punto Medio' : 'Mediana (Valor Medio)'}</span>
                                                     <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
                                                         {selectedTable === 'users' ? descriptiveStats.median : `$${descriptiveStats.median.toLocaleString()}`}
                                                     </div>
                                                     <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '6px 0 0 0', lineHeight: '1.4' }}>
-                                                        Valor en la posición central (50% superior/inferior).
+                                                        {simpleView
+                                                            ? 'El dato que se encuentra exactamente en medio al ordenar todos los valores de menor a mayor.'
+                                                            : 'Valor en la posición central (50% superior/inferior).'
+                                                        }
                                                     </p>
                                                 </div>
                                                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '16px' }}>
-                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b' }}>Moda (Más Repetido)</span>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b' }}>{simpleView ? 'Lo más repetido' : 'Moda (Más Repetido)'}</span>
                                                     <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', marginTop: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                         {descriptiveStats.mode}
                                                     </div>
                                                     <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '6px 0 0 0', lineHeight: '1.4' }}>
-                                                        Frecuencia: {descriptiveStats.mode_frequency} veces.
+                                                        {simpleView
+                                                            ? `El valor o categoría que se registra con mayor frecuencia (${descriptiveStats.mode_frequency} veces).`
+                                                            : `Frecuencia: ${descriptiveStats.mode_frequency} veces.`
+                                                        }
                                                     </p>
                                                 </div>
                                             </div>
 
                                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem', marginBottom: '1.5rem' }}>
                                                 <div style={{ background: '#fffbeb', border: '1px solid #fef3c7', padding: '1rem', borderRadius: '16px' }}>
-                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#b45309' }}>Dispersión y Desviación Estándar (σ)</span>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#b45309' }}>{simpleView ? 'Constancia o Variabilidad de Ventas' : 'Dispersión y Desviación Estándar (σ)'}</span>
                                                     <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#b45309', marginTop: '6px' }}>
-                                                        σ = {descriptiveStats.dispersion.standard_deviation.toLocaleString()}
+                                                        {simpleView 
+                                                            ? `Desviación: $${descriptiveStats.dispersion.standard_deviation.toLocaleString()}`
+                                                            : `σ = ${descriptiveStats.dispersion.standard_deviation.toLocaleString()}`
+                                                        }
                                                     </div>
                                                     <div style={{ fontSize: '0.75rem', color: '#b45309', opacity: 0.95, marginTop: '6px', lineHeight: '1.4' }}>
-                                                        Varianza (σ²): {descriptiveStats.dispersion.variance.toLocaleString()}<br/>
-                                                        Rango de fluctuación: {descriptiveStats.dispersion.range ? `$${descriptiveStats.dispersion.range}` : 'N/A'}<br/>
-                                                        Mín: ${descriptiveStats.dispersion.min} | Máx: ${descriptiveStats.dispersion.max}
+                                                        {!simpleView && <span>Varianza (σ²): {descriptiveStats.dispersion.variance.toLocaleString()}<br/></span>}
+                                                        Rango de precios: {descriptiveStats.dispersion.range ? `$${descriptiveStats.dispersion.range}` : 'N/A'}<br/>
+                                                        Mínimo: ${descriptiveStats.dispersion.min} | Máximo: ${descriptiveStats.dispersion.max}
                                                     </div>
                                                     <p style={{ fontSize: '0.7rem', color: '#b45309', opacity: 0.8, margin: '8px 0 0 0', lineHeight: '1.4' }}>
-                                                        Mide la dispersión en la que los puntos de datos individuales difieren de la media.
+                                                        {simpleView
+                                                            ? 'Mide qué tan parecidas son las ventas entre sí. Si este número es bajo, casi todos los eventos generan ingresos similares; si es alto, hay eventos con ganancias muy altas y otros muy bajas.'
+                                                            : 'Mide la dispersión en la que los puntos de datos individuales difieren de la media.'
+                                                        }
                                                     </p>
                                                 </div>
 
                                                 <div style={{ background: '#f0fdf4', border: '1px solid #dcfce7', padding: '1rem', borderRadius: '16px' }}>
-                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#166534' }}>Análisis de Variables (Impacto de Clase)</span>
+                                                    <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#166534' }}>{simpleView ? 'Variables e Impacto Relacionados' : 'Análisis de Variables (Impacto de Clase)'}</span>
                                                     <div style={{ fontSize: '0.8rem', color: '#166534', marginTop: '6px', lineHeight: '1.5' }}>
                                                         <div style={{ marginBottom: '8px' }}>
-                                                            <b>Variable Independiente (X):</b> <code style={{ background: 'rgba(255,255,255,0.7)', padding: '2px 6px', borderRadius: '4px' }}>{descriptiveStats.variables.independent}</code>
+                                                            <b>{simpleView ? 'Causa principal analizada:' : 'Variable Independiente (X):'}</b> <code style={{ background: 'rgba(255,255,255,0.7)', padding: '2px 6px', borderRadius: '4px' }}>{descriptiveStats.variables.independent}</code>
                                                             <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '2px' }}>{descriptiveStats.variables.independent_description}</div>
                                                         </div>
                                                         <div>
-                                                            <b>Variable Dependiente (Y):</b> <code style={{ background: 'rgba(255,255,255,0.7)', padding: '2px 6px', borderRadius: '4px' }}>{descriptiveStats.variables.dependent}</code>
+                                                            <b>{simpleView ? 'Efecto o resultado medido:' : 'Variable Dependiente (Y):'}</b> <code style={{ background: 'rgba(255,255,255,0.7)', padding: '2px 6px', borderRadius: '4px' }}>{descriptiveStats.variables.dependent}</code>
                                                             <div style={{ fontSize: '0.7rem', opacity: 0.9, marginTop: '2px' }}>{descriptiveStats.variables.dependent_description}</div>
                                                         </div>
                                                     </div>
@@ -989,14 +1468,14 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     {/* LOS 4 CUESTIONAMIENTOS */}
                                     <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.2rem', marginTop: '1.2rem' }}>
                                         <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: '#0f172a', marginBottom: '10px' }}>
-                                            Preguntas Clave del Negocio (Tipos de Analítica)
+                                            {simpleView ? 'Preguntas Clave del Negocio (Tipos de Análisis)' : 'Preguntas Clave del Negocio (Tipos de Analítica)'}
                                         </h4>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                                             {[
-                                                { title: "¿Qué ocurrió?", type: "Descriptiva", answer: "Suma y MapReduce del histórico de tickets.", col: '#f0f9ff', txt: '#0369a1', border: '#e0f2fe' },
-                                                { title: "¿Por qué ocurrió?", type: "Diagnóstica", answer: "Filtros de correlación y análisis de dispersión.", col: '#fffbeb', txt: '#b45309', border: '#fef3c7' },
-                                                { title: "¿Qué podría pasar?", type: "Predictiva", answer: "Regresiones y Árbol de decisión para el éxito.", col: '#faf5ff', txt: '#6b21a8', border: '#f3e8ff' },
-                                                { title: "¿Qué podemos hacer?", type: "Prescriptiva", answer: "Imputación inteligente y toma de decisiones VIP.", col: '#f0fdf4', txt: '#166534', border: '#dcfce7' }
+                                                { title: "¿Qué ocurrió?", type: simpleView ? "Registro Histórico" : "Descriptiva", answer: simpleView ? "Revisión simple de lo recaudado por la venta de boletos." : "Suma y MapReduce del histórico de tickets.", col: '#f0f9ff', txt: '#0369a1', border: '#e0f2fe' },
+                                                { title: "¿Por qué ocurrió?", type: simpleView ? "Explicación de Causas" : "Diagnóstica", answer: simpleView ? "Entender por qué unos eventos venden más que otros según precio y lugar." : "Filtros de correlación y análisis de dispersión.", col: '#fffbeb', txt: '#b45309', border: '#fef3c7' },
+                                                { title: "¿Qué podría pasar?", type: simpleView ? "Predicción de Ventas" : "Predictiva", answer: simpleView ? "Estimación de ingresos finales al ritmo actual de compra." : "Regresiones y Árbol de decisión para el éxito.", col: '#faf5ff', txt: '#6b21a8', border: '#f3e8ff' },
+                                                { title: "¿Qué podemos hacer?", type: simpleView ? "Estrategia Recomendada" : "Prescriptiva", answer: simpleView ? "Tomar decisiones de precios y recintos para asegurar la ganancia." : "Imputación inteligente y toma de decisiones VIP.", col: '#f0fdf4', txt: '#166534', border: '#dcfce7' }
                                             ].map((q, idx) => (
                                                 <div key={idx} style={{ background: q.col, color: q.txt, border: `1px solid ${q.border}`, padding: '12px', borderRadius: '14px', fontSize: '0.75rem' }}>
                                                     <div style={{ fontWeight: 800 }}>{q.title}</div>

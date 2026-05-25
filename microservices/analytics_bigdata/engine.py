@@ -625,9 +625,10 @@ class AnalyticsEngine:
                 
                 slope = float(model_simple.coefficients[0])
                 intercept = float(model_simple.intercept)
-                best_model = max(resultados, key=resultados.get)
             except Exception as e:
                 print(f"Error entrenando modelos Spark ML: {e}")
+        
+        best_model = max(resultados, key=resultados.get)
         
         # Obtener eventos del gestor y calcular predicciones con el modelo lineal
         event_predictions = []
