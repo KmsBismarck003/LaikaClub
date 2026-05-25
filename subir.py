@@ -31,17 +31,28 @@ os.chdir(ROOT)
 
 def run_cmd(cmd):
     """Ejecuta un comando en la terminal y retorna el código de salida, stdout y stderr."""
-    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
-    return result.returncode, result.stdout.strip(), result.stderr.strip()
+    try:
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace', shell=True)
+        stdout = result.stdout or ""
+        stderr = result.stderr or ""
+        return result.returncode, stdout.strip(), stderr.strip()
+    except Exception:
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        stdout = result.stdout.decode('utf-8', errors='replace') if result.stdout else ""
+        stderr = result.stderr.decode('utf-8', errors='replace') if result.stderr else ""
+        return result.returncode, stdout.strip(), stderr.strip()
 
 def run_cmd_live(cmd):
     """Ejecuta un comando mostrando su salida en tiempo real."""
     print(f"{CYAN}$ {cmd}{RESET}")
     # En Windows, algunas operaciones de git pueden necesitar shell=True
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=True)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace', shell=True)
     
     while True:
-        output = process.stdout.readline()
+        try:
+            output = process.stdout.readline()
+        except Exception:
+            break
         if output == '' and process.poll() is not None:
             break
         if output:
