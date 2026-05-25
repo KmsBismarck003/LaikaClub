@@ -222,6 +222,64 @@
   /* No entry animation */
 }
 
+/* ========================================
+   GLASS NAV ARROWS
+   ======================================== */
+.ad-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 10, 14, 0.18);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  color: #f2f4f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 12;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.ad-nav:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.24);
+  transform: translateY(-50%) scale(1.03);
+}
+
+.ad-nav:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.ad-nav-left {
+  left: 12px;
+}
+
+.ad-nav-right {
+  right: 12px;
+}
+
+.ad-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  z-index: -1;
+  mask-image:
+    linear-gradient(to right, transparent 0%, black 18%, black 82%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
 
 /* ========================================
    INDICATORS
@@ -297,6 +355,19 @@
   .ad-indicators {
     bottom: 10px;
     gap: 6px;
+  }
+
+  .ad-nav {
+    width: 22px;
+    height: 32px;
+  }
+
+  .ad-nav-left {
+    left: 8px;
+  }
+
+  .ad-nav-right {
+    right: 8px;
   }
 }
 

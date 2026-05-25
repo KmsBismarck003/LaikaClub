@@ -267,7 +267,7 @@
 .banner-subtitle {
   font-size: 0.45rem !important;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.7);
+  color: #d9dde3;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   line-height: 1;
@@ -276,7 +276,7 @@
 .banner-title {
   font-size: 0.75rem !important; 
   font-weight: 950;
-  color: #fff;
+  color: #e7eaef;
   text-transform: uppercase;
   line-height: 1;
   letter-spacing: 0.1em !important; /* Espaciado extra para legibilidad */

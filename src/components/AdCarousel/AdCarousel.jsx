@@ -117,6 +117,15 @@ const AdCarousel = ({ position, isLoading: externalLoading, preloadedAds, eventI
   }
 
   const isVertical = position.startsWith('side')
+  const goPrev = (e) => {
+    e.stopPropagation()
+    setCurrentIndex(prev => (prev - 1 + ads.length) % ads.length)
+  }
+
+  const goNext = (e) => {
+    e.stopPropagation()
+    setCurrentIndex(prev => (prev + 1) % ads.length)
+  }
 
   return (
     <div className={`ad-carousel ${position} ${isVertical ? 'vertical' : 'horizontal'}`}>
@@ -151,6 +160,17 @@ const AdCarousel = ({ position, isLoading: externalLoading, preloadedAds, eventI
           </div>
         ))}
       </div>
+
+      {ads.length > 1 && (
+        <>
+          <button className="ad-nav ad-nav-left" onClick={goPrev} aria-label="Anterior">
+            <Icon name="chevronLeft" size={18} />
+          </button>
+          <button className="ad-nav ad-nav-right" onClick={goNext} aria-label="Siguiente">
+            <Icon name="chevronRight" size={18} />
+          </button>
+        </>
+      )}
 
       {ads.length > 1 && (
         <div className="ad-indicators">
