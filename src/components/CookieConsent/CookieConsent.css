@@ -1,0 +1,389 @@
+/* ==========================================================================
+   COOKIE CONSENT - PREMIUM STYLING (DARK/HYBRID MODE)
+   ========================================================================== */
+
+/* 🍪 BANNER DE COOKIES (Fijo en la parte inferior) */
+.cookie-banner-container {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(96vw, 1840px);
+  background: linear-gradient(130deg, rgba(12, 12, 16, 0.78), rgba(22, 22, 30, 0.66));
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  color: #ffffff;
+  padding: 1.25rem 2rem;
+  z-index: 11050;
+  box-shadow: 0 -14px 45px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cookie-banner-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.cookie-banner-text {
+  flex: 1;
+  min-width: 280px;
+}
+
+.cookie-banner-title {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+.cookie-banner-description {
+  font-size: 0.9rem;
+  color: #a1a1aa; /* Zinc 400 */
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cookie-link {
+  color: #ffffff;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.cookie-link:hover {
+  opacity: 0.8;
+}
+
+/* Acciones en el banner */
+.cookie-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* X de cerrar en el banner */
+.cookie-banner-close {
+  background: none;
+  border: none;
+  color: #a1a1aa;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.cookie-banner-close:hover {
+  background-color: #27272a;
+  color: #ffffff;
+}
+
+/* 🔘 BOTONES COMUNES Y PREMIUM (Pill shape) */
+.cookie-btn {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px; /* Pill shape exact */
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.cookie-btn-primary {
+  background: rgba(255, 255, 255, 0.92);
+  color: #0b0b0f;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.cookie-btn-primary:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.cookie-btn-primary:active {
+  transform: translateY(0);
+}
+
+.cookie-btn-secondary {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(12px) saturate(1.3);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cookie-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.cookie-btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* 🖼️ MODAL DE PREFERENCIAS (Superposición de fondo) */
+.cookie-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11060;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.cookie-modal-container {
+  background: linear-gradient(140deg, rgba(10, 10, 14, 0.84), rgba(22, 22, 28, 0.7));
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  width: 100%;
+  max-width: 580px;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+  animation: scaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cookie-modal-header {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #18181b;
+}
+
+.cookie-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.cookie-modal-close-btn {
+  background: none;
+  border: none;
+  color: #a1a1aa;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.cookie-modal-close-btn:hover {
+  background-color: #18181b;
+  color: #ffffff;
+}
+
+.cookie-modal-body {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.cookie-modal-description {
+  font-size: 0.875rem;
+  color: #ffffff;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+}
+
+.cookie-modal-description .cookie-link {
+  color: #ffffff;
+}
+
+.cookie-modal-divider {
+  border: 0;
+  height: 1px;
+  background-color: #18181b;
+  margin: 1.25rem 0;
+}
+
+/* Categorías del Modal */
+.cookie-modal-category {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.cookie-category-info {
+  flex: 1;
+}
+
+.cookie-category-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.25rem 0;
+}
+
+.cookie-category-desc {
+  font-size: 0.8rem;
+  color: #ffffff;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cookie-category-toggle {
+  display: flex;
+  align-items: center;
+  padding-top: 0.25rem;
+}
+
+/* 🎛️ SWITCH TOGGLE PERSONALIZADO (Tipo iOS Premium) */
+.cookie-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.cookie-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cookie-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #3f3f46; /* Inactivo - Zinc 700 */
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+}
+
+.cookie-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #ffffff;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+input:checked + .cookie-slider {
+  background-color: #cfd3da; /* Perla gris */
+}
+
+input:focus + .cookie-slider {
+  box-shadow: 0 0 0 2px rgba(229, 231, 235, 0.45);
+}
+
+input:checked + .cookie-slider:before {
+  transform: translateX(20px);
+}
+
+/* Slider deshabilitado (Estrictamente necesarias) */
+.cookie-slider.disabled {
+  background-color: #5b606a;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+input:checked + .cookie-slider.disabled {
+  background-color: #b9bec7;
+}
+
+input:checked + .cookie-slider.disabled:before {
+  background-color: #d1d5db;
+}
+
+/* Footer del Modal */
+.cookie-modal-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid #18181b;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  background-color: #09090b;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+/* ==========================================================================
+   ANIMACIONES
+   ========================================================================== */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cookie-banner-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+    padding-right: 1.5rem;
+  }
+
+  .cookie-banner-actions {
+    justify-content: flex-end;
+  }
+
+  .cookie-banner-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}
