@@ -10,7 +10,7 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - ./data/mysql:/var/lib/mysql
+      - laika_db_conda_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
@@ -184,3 +184,6 @@ services:
 networks:
   default:
     name: laika_network_conda
+
+volumes:
+  laika_db_conda_data:

@@ -15,6 +15,7 @@ backend/venv/
 .env.*
 
 # Database and local data
+data/
 backups/
 diagnosticos/
 *.sql

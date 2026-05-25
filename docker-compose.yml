@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de Datos MySQL
   laika_db:
@@ -12,7 +10,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./data/mysql:/var/lib/mysql
+      - laika_db_data:/var/lib/mysql
       # Importa automáticamente el respaldo configurado en init.sql al iniciar por primera vez en un equipo limpio
       - ./backups/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
@@ -235,3 +233,6 @@ services:
 networks:
   default:
     name: laika_network
+
+volumes:
+  laika_db_data:

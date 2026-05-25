@@ -1112,31 +1112,39 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     {simpleView ? (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                                             <div style={{ background: '#f8fafc', padding: '1.2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                                                <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>¿Cómo clasifica el sistema el éxito de un evento?</h3>
+                                                <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>¿Cómo optimiza la IA las tarifas y promociones de tus eventos?</h3>
                                                 <p style={{ fontSize: '0.8rem', color: '#475569', margin: 0, lineHeight: '1.5' }}>
-                                                    El modelo analiza el comportamiento histórico de ventas e ingresos para determinar qué factores separan a los eventos exitosos de los de bajo rendimiento. Con base en esto, genera reglas automáticas de clasificación.
+                                                    El modelo de Árbol de Decisión analiza el porcentaje de aforo vendido (ocupación) y la elasticidad de los precios base. Con base en el ritmo de ventas históricas, determina si es momento de subir precios para maximizar ingresos o lanzar promociones para evitar asientos vacíos.
                                                 </p>
                                             </div>
 
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                                 <div style={{ border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden' }}>
                                                     <div style={{ background: '#f8fafc', padding: '10px 15px', borderBottom: '1px solid #e2e8f0', fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>
-                                                        Regla de Clasificación Activa
+                                                        Reglas de Clasificación Activas del Modelo
                                                     </div>
                                                     <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                                                             <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>A</div>
                                                             <div>
-                                                                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Si el evento vende 30 boletos o menos:</div>
-                                                                <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>El sistema estima un rendimiento de <b>Venta Baja</b> (desempeño por debajo del promedio de ingresos).</div>
+                                                                 <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Estrategia de Promoción (Baja Demanda):</div>
+                                                                 <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>Ocupación menor al <b>30%</b> y precio base > $30 USD. Se recomienda activar promociones (2x1, cupones) para incentivar la demanda.</div>
                                                             </div>
                                                         </div>
                                                         <div style={{ height: '1px', background: '#e2e8f0' }}></div>
                                                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                                            <div style={{ background: '#dcfce7', color: '#15803d', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>B</div>
+                                                            <div style={{ background: '#fef3c7', color: '#d97706', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>B</div>
                                                             <div>
-                                                                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Si el evento vende más de 30 boletos:</div>
-                                                                <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>El sistema estima un rendimiento de <b>Venta Alta</b> (ingresos proyectados altos).</div>
+                                                                 <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Precio Estable / Óptimo:</div>
+                                                                 <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>Ocupación entre <b>30% y 60%</b>. Venta saludable y ritmo constante. Se recomienda mantener el precio base establecido.</div>
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ height: '1px', background: '#e2e8f0' }}></div>
+                                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                                            <div style={{ background: '#dcfce7', color: '#15803d', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>C</div>
+                                                            <div>
+                                                                 <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Tarifa Dinámica (Alta Demanda):</div>
+                                                                 <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>Ocupación mayor al <b>60%</b> y precio base > $30 USD. Alta demanda. Se recomienda un recargo dinámico del 15% en los boletos restantes.</div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1145,16 +1153,73 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                                                     <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px' }}>
                                                         <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Confiabilidad del Diagnóstico</div>
-                                                        <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a' }}>{Math.round(mlData?.accuracy * 100) || 92}%</div>
-                                                        <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '4px 0 0 0' }}>Porcentaje de acierto del modelo al clasificar el comportamiento histórico.</p>
+                                                        <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a' }}>{Math.round(mlData?.accuracy * 100) || 95}%</div>
+                                                        <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '4px 0 0 0' }}>Porcentaje de exactitud del árbol de decisión validado contra datos de prueba.</p>
                                                     </div>
                                                     <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px' }}>
-                                                        <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Criterio de Éxito Utilizado</div>
-                                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginTop: '8px' }}>Ingresos mayores a $500 USD</div>
-                                                        <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '6px 0 0 0' }}>Monto a partir del cual un evento se considera exitoso para la clasificación.</p>
+                                                        <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Criterio de Optimización</div>
+                                                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginTop: '8px' }}>Ocupación y Elasticidad de Precios</div>
+                                                        <p style={{ fontSize: '0.7rem', color: '#64748b', margin: '6px 0 0 0' }}>Variables evaluadas para maximizar las ganancias y minimizar el aforo vacío.</p>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {mlData?.predictions && mlData.predictions.length > 0 && (
+                                                <div style={{ marginTop: '1.2rem', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden' }}>
+                                                    <div style={{ background: '#f8fafc', padding: '12px 16px', borderBottom: '1px solid #e2e8f0', fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <span>RECOMENDACIONES DE OPTIMIZACIÓN IA POR EVENTO</span>
+                                                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#16a34a', background: '#dcfce7', padding: '4px 8px', borderRadius: '20px' }}>
+                                                            Ganancia Extra Proyectada: +${mlData.predictions.reduce((acc, curr) => acc + (curr.extra_revenue || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+                                                        </span>
+                                                    </div>
+                                                    <div style={{ overflowX: 'auto' }}>
+                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', textAlign: 'left' }}>
+                                                            <thead>
+                                                                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 600 }}>Evento</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 600 }}>Precio Base</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 600 }}>Ocupación</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 600, textAlign: 'center' }}>Estado IA</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 600 }}>Recomendación de Optimización</th>
+                                                                    <th style={{ padding: '10px 14px', fontWeight: 600, textAlign: 'right' }}>Ingreso Extra Est.</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {mlData.predictions.map((p, idx) => (
+                                                                    <tr key={idx} style={{ borderBottom: idx === mlData.predictions.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+                                                                        <td style={{ padding: '12px 14px', fontWeight: 700, color: '#1e293b' }}>{p.name}</td>
+                                                                        <td style={{ padding: '12px 14px', color: '#475569' }}>${p.price?.toFixed(2)} USD</td>
+                                                                        <td style={{ padding: '12px 14px', color: '#475569' }}>
+                                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                                <div style={{ width: '50px', background: '#e2e8f0', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
+                                                                                    <div style={{ width: `${Math.min(100, p.ocupacion_pct)}%`, background: p.ocupacion_pct > 60 ? '#10b981' : p.ocupacion_pct < 30 ? '#ef4444' : '#f59e0b', height: '100%' }}></div>
+                                                                                </div>
+                                                                                <span>{p.ocupacion_pct}% ({p.cantidad_vendida}/{p.total_tickets})</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td style={{ padding: '12px 14px', textAlign: 'center' }}>
+                                                                            <span style={{
+                                                                                fontSize: '0.65rem',
+                                                                                fontWeight: 700,
+                                                                                padding: '3px 8px',
+                                                                                borderRadius: '20px',
+                                                                                background: p.classification === 'Tarifa Dinámica' ? '#dcfce7' : p.classification === 'Promoción' ? '#fee2e2' : '#fef3c7',
+                                                                                color: p.classification === 'Tarifa Dinámica' ? '#15803d' : p.classification === 'Promoción' ? '#b91c1c' : '#b45309'
+                                                                            }}>
+                                                                                {p.classification}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td style={{ padding: '12px 14px', fontWeight: 500, color: '#0f172a' }}>{p.recommendation}</td>
+                                                                        <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, color: p.extra_revenue > 0 ? '#16a34a' : '#64748b' }}>
+                                                                            {p.extra_revenue > 0 ? `+$${p.extra_revenue.toFixed(2)} USD` : '0.00 USD'}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     ) : (
                                         <>
@@ -1164,22 +1229,24 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                                  </div>
                                                  <p style={{ margin: 0, lineHeight: '1.4' }}>
                                                      El árbol muestra la lógica que sigue el motor de Spark para clasificar tus eventos:
-                                                     <br />• <b>feature 0</b> representa la cantidad de boletos vendidos.
-                                                     <br />• <b>Predict: 0.0</b> significa que el evento se clasifica como <b>Venta Baja</b> (ingresos menores a $500).
-                                                     <br />• <b>Predict: 1.0</b> significa que el evento se clasifica como <b>Venta Alta</b> (ingresos mayores a $500).
+                                                     <br />• <b>total_tickets</b> representa el aforo o capacidad máxima de boletos del recinto.
+                                                     <br />• <b>price</b> representa el precio unitario base de la entrada.
+                                                     <br />• <b>ocupacion_pct</b> representa la relación porcentual entre boletos vendidos y aforo total.
+                                                     <br />• <b>Predict: 1.0</b> significa que el evento califica para <b>Tarifa Dinámica</b> (se sugiere aumentar el precio 15%).
+                                                     <br />• <b>Predict: 0.0</b> significa que el evento califica para <b>Precio Estable o Promoción</b>.
                                                  </p>
                                              </div>
                                              <div style={{ background: '#0f172a', color: 'var(--text-primary)', padding: '1.5rem', borderRadius: '16px', fontFamily: '"Fira Code", monospace', fontSize: '0.85rem', whiteSpace: 'pre-wrap', border: '1px solid #1e293b', overflowY: 'auto', maxHeight: '300px', boxShadow: 'inset 0 4px 20px rgba(0,0,0,0.5)' }}>
                                                 {mlData?.tree_structure || 'Generando nodos, espere...'}
-                                            </div>
-                                            <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '1rem 1.5rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.05)' }}>
-                                                <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', opacity: 0.8 }}>Precisión del Modelo: <span style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.4rem', marginLeft: '8px' }}>{Math.round(mlData?.accuracy * 100) || 0}%</span></div>
-                                                <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', background: '#f8fafc', padding: '6px 12px', borderRadius: '20px' }}>{mlData?.summary || 'N/A'}</div>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            ) : analysisMode === 'B2B_PROSPECTING' ? (
+                                             </div>
+                                             <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '1rem 1.5rem', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.05)' }}>
+                                                 <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', opacity: 0.8 }}>Precisión del Modelo: <span style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.4rem', marginLeft: '8px' }}>{Math.round(mlData?.accuracy * 100) || 0}%</span></div>
+                                                 <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', background: '#f8fafc', padding: '6px 12px', borderRadius: '20px' }}>{mlData?.summary || 'N/A'}</div>
+                                             </div>
+                                         </>
+                                     )}
+                                 </div>
+                             ) : analysisMode === 'B2B_PROSPECTING' ? (
                                 <div style={{ padding: '1.8rem', background: '#ffffff', borderRadius: '24px' }}>
                                     <B2BProspecting />
                                 </div>

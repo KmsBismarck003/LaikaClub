@@ -7,7 +7,7 @@ def train_decision_tree(train_df, test_df, evaluator, max_depth=4, mongo_db=None
     Entrena un clasificador de Árbol de Decisión sobre PySpark.
     Guarda la ejecución, métricas de precisión y el árbol en MongoDB si se especifica.
     """
-    assembler = VectorAssembler(inputCols=["cantidad"], outputCol="features")
+    assembler = VectorAssembler(inputCols=["total_tickets", "price", "ocupacion_pct"], outputCol="features")
     train_vector = assembler.transform(train_df)
     test_vector = assembler.transform(test_df)
     
@@ -23,8 +23,8 @@ def train_decision_tree(train_df, test_df, evaluator, max_depth=4, mongo_db=None
         "type": "classification",
         "accuracy": accuracy_score,
         "max_depth": max_depth,
-        "features": ["cantidad"],
-        "label": "label (venta alta > 500)",
+        "features": ["total_tickets", "price", "ocupacion_pct"],
+        "label": "label (oportunidad_tarifa_dinamica)",
         "trained_at": datetime.now().isoformat(),
         "tree_structure": model.toDebugString
     }
@@ -37,3 +37,4 @@ def train_decision_tree(train_df, test_df, evaluator, max_depth=4, mongo_db=None
             print(f"[MONGO SAVE] Error saving metrics to MongoDB: {e}")
             
     return accuracy_score, model
+

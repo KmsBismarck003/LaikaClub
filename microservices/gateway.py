@@ -172,9 +172,11 @@ async def proxy_middleware(request: Request, call_next):
                     headers=resp_headers
                 )
         except Exception as e:
-            print(f"[GATEWAY ERROR] {str(e)}")
+            import traceback
+            tb = traceback.format_exc()
+            print(f"[GATEWAY ERROR] {tb}")
             return Response(
-                content=f'{{"detail": "Gateway Error: {str(e)}"}}',
+                content=f'{{"detail": "Gateway Error: {str(e)} (Traceback: {tb})"}}',
                 status_code=502,
                 headers={"Content-Type": "application/json"}
             )
