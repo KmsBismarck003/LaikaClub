@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { Button, NewsTicker, Dropdown, SkeletonMainHeader, SkeletonSearchRow, SkeletonNewsTicker } from '../components'
 import Footer from '../components/Footer'
-import ThemeToggle from '../components/ThemeToggle/ThemeToggle'
 import LaikaAgent from '../components/LaikaAgent/LaikaAgent'
 import Icon from '../components/Icons/Icons'
 import { useSkeletonContext } from '../context/SkeletonContext'
@@ -130,6 +129,19 @@ const MainLayout = () => {
             <SkeletonMainHeader />
           ) : (
             <div className="navbar-top-row">
+              {/* Mobile hamburger — left side, only visible on mobile */}
+              <button
+                className='main-mobile-toggle'
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label='Menu'
+                aria-expanded={isMobileMenuOpen}
+              >
+                <span className={`main-mobile-toggle-icon ${isMobileMenuOpen ? 'open' : ''}`}>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+              </button>
               <div className="brand-nav-group">
                 <div className='main-navbar-brand' onClick={() => navigate('/')}>
                   <img src="/logob.png" alt="LAIKA Club" style={{ height: '32px' }} />
@@ -145,7 +157,6 @@ const MainLayout = () => {
               </div>
 
               <div className='main-navbar-actions desktop-actions'>
-                <ThemeToggle variant="inline" />
                 <button
                   className="navbar-cart-btn-main"
                   onClick={toggleCart}
@@ -283,32 +294,44 @@ const MainLayout = () => {
             </div>
           )}
 
-          {/* Mobile Menu Button - Moved inside container and hidden on desktop */}
-          <button
-            className='main-mobile-toggle'
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label='Menu'
-            aria-expanded={isMobileMenuOpen}
-          >
-            <span className={`main-mobile-toggle-icon ${isMobileMenuOpen ? 'open' : ''}`}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </span>
-          </button>
         </div>
       </header>
 
       {/* Mobile Navigation */}
       <div className={`main-mobile-nav ${isMobileMenuOpen ? 'main-mobile-nav--open' : ''}`}>
+        <div className="main-mobile-nav-header">
+          <img 
+            src="/logob.png" 
+            alt="LAIKA Club" 
+            className="mobile-menu-logo" 
+            onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }} 
+          />
+          <button className="main-mobile-close-btn" onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
         <nav className='main-mobile-nav-items'>
-          <button className='main-mobile-nav-link' onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }}>
+          <button className='main-mobile-nav-link' onClick={() => { navigate('/?category=concert'); setIsMobileMenuOpen(false); }}>
             <span>Conciertos y Festivales</span>
           </button>
-          <button className='main-mobile-nav-link' onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }}>
+          <button className='main-mobile-nav-link' onClick={() => { navigate('/?category=theater'); setIsMobileMenuOpen(false); }}>
             <span>Teatro y Cultura</span>
           </button>
-          {/* Add more as needed */}
+          <button className='main-mobile-nav-link' onClick={() => { navigate('/?category=sport'); setIsMobileMenuOpen(false); }}>
+            <span>Deportes</span>
+          </button>
+          <button className='main-mobile-nav-link' onClick={() => { navigate('/?category=family'); setIsMobileMenuOpen(false); }}>
+            <span>Familiares</span>
+          </button>
+          <button className='main-mobile-nav-link' onClick={() => { navigate('/?category=other'); setIsMobileMenuOpen(false); }}>
+            <span>Especiales</span>
+          </button>
+          <button className='main-mobile-nav-link' onClick={() => { navigate('/?city=CDMX'); setIsMobileMenuOpen(false); }}>
+            <span>Ciudades</span>
+          </button>
         </nav>
 
         <div className='main-mobile-nav-divider' />
@@ -355,7 +378,7 @@ const MainLayout = () => {
       {/* Main Content */}
       <main className='main-content'>
         <Outlet />
-        <LaikaAgent />
+        <LaikaAgent loading={showSkeleton} />
       </main>
 
       {/* Footer */}

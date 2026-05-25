@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react'
+import React, { Suspense, lazy, useState, useEffect, useRef } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import ScrollToTop from './components/ScrollToTop/ScrollToTop'
 import {
@@ -49,9 +49,23 @@ const EventDetail = lazy(() => import('./pages/EventDetail/EventDetail'))
 
 function AppContent() {
   const { loading, loggingOut } = useAuth()
+  const [minDone, setMinDone] = useState(false)
+  const startedRef = useRef(false)
 
-  if (loading) return <LoadingScreen />;
+  useEffect(() => {
+    if (loading || loggingOut) {
+      startedRef.current = true
+      setMinDone(false)
+    } else if (startedRef.current) {
+      const t = setTimeout(() => setMinDone(true), 2000)
+      return () => clearTimeout(t)
+    } else {
+      setMinDone(true)
+    }
+  }, [loading, loggingOut])
+
   if (loggingOut) return <LoadingScreen label="CERRANDO SESIÓN" status="GUARDANDO DATOS DE SESIÓN..." />;
+  if (loading || !minDone) return <LoadingScreen />;
 
   return (
     <div className='App'>
@@ -60,7 +74,7 @@ function AppContent() {
         <ScrollToTop />
         <MaintenanceGuard>
           <SkeletonProvider minDuration={0}>
-            <Suspense fallback={null}>
+            <Suspense fallback={<LoadingScreen />}>
               <Routes>
                 <Route path='/maintenance' element={<Maintenance />} />
                 {/* ... existing routes ... */}

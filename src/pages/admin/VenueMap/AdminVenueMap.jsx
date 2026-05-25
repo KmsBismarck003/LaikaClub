@@ -480,10 +480,10 @@ const AdminVenueMap = () => {
               <span className="avm-selection-text">asientos seleccionados</span>
               <button className="avm-sel-btn" onClick={() => changeSeatType('normal')}>Normal</button>
               <button className="avm-sel-btn" onClick={() => changeSeatType('vip')} style={{ color: '#a855f7' }}>VIP</button>
-              <button className="avm-sel-btn" onClick={() => changeSeatType('accessible')} style={{ color: '#06b6d4' }}>♿</button>
+              <button className="avm-sel-btn" onClick={() => changeSeatType('accessible')} style={{ color: '#06b6d4' }}>Acc</button>
               <div className="avm-sep" />
               <button className="avm-sel-btn danger" onClick={deleteSelectedSeats}>Eliminar</button>
-              <button className="avm-sel-btn" onClick={() => setSelectedSeats([])}>✕</button>
+              <button className="avm-sel-btn" onClick={() => setSelectedSeats([])}>X</button>
             </div>
           )}
 

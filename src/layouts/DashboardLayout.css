@@ -669,9 +669,9 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  color: var(--text-sidebar);
+  background: #000 !important;
+  border: 1px solid #000 !important;
+  color: #fff !important;
   padding: 0.5rem 1rem;
   border-radius: var(--border-radius-base);
   font-size: 0.85rem;
@@ -686,11 +686,8 @@
 }
 
 .back-body-btn:hover {
-  background: var(--black);
-  color: var(--white);
-  border-color: var(--black);
+  opacity: 0.85;
   transform: translateX(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ============================================

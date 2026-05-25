@@ -95,8 +95,8 @@ const Logs = () => {
       <Card className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
         {loading ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr style={{ background: 'var(--bg-secondary)', borderBottom: '2px solid var(--border-color)' }}>
-              {['HORA', 'NIVEL', 'ORIGEN', 'DETALLE DEL EVENTO'].map(h => <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{h}</th>)}
+            <thead><tr style={{ background: '#000' }}>
+              {['HORA', 'NIVEL', 'ORIGEN', 'DETALLE DEL EVENTO'].map(h => <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', color: '#fff', textTransform: 'uppercase' }}>{h}</th>)}
             </tr></thead>
             <tbody>{Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} columns={4} />)}</tbody>
           </table>

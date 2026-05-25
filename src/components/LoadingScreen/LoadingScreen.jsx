@@ -16,6 +16,7 @@ const LoadingScreen = ({ label = "INICIANDO SISTEMA LAIKA", status = "ESTABLECIE
           <div className="loading-status">{status}</div>
         </div>
       </div>
+      <div className="welcome-screen-edge-vibrant" />
     </div>
   );
 };

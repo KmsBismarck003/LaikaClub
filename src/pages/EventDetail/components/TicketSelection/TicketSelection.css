@@ -2,7 +2,7 @@
 
 /* ── PANEL PRINCIPAL ─────────────────────────────────────────── */
 .ticket-selection-panel {
-  background: rgba(8, 8, 8, 0.88);
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -11,6 +11,10 @@
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
+}
+
+[data-theme='dark'] .ticket-selection-panel {
+  background: var(--glass-bg);
 }
 
 /* ── ENCABEZADO SELECTOR DE FECHA ───────────────────────────── */
@@ -38,8 +42,8 @@
 .function-chip {
   padding: 6px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
@@ -55,10 +59,9 @@
 }
 
 .function-chip.active {
-  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
-  border-color: #3B82F6;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.45);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ── LISTA DE SECCIONES/BOLETOS ──────────────────────────────── */
@@ -232,6 +235,46 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.45);
+}
+
+.qty-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.qty-btn {
+  width: 56px;
+  height: 28px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.qty-btn:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.qty-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.qty-value {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #fff;
+  min-width: 24px;
+  text-align: center;
 }
 
 .laika-select {

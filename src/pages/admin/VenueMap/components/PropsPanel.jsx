@@ -1,13 +1,14 @@
 import React from 'react';
+import { Star, Accessibility, Square, Monitor, Minus, Users, Grid3x3, Trash2, X } from 'lucide-react';
 
 const COLORS = ['#3f3f46','#7c3aed','#9333ea','#2563eb','#0891b2','#059669','#d97706','#dc2626','#ea580c','#be185d'];
 
 const ELEMENT_ICONS = {
-  stage:  '🎸',
-  screen: '🖥',
-  aisle:  '⟺',
-  ga:     '👥',
-  seats:  '🪑',
+  stage:  <Square size={14} />,
+  screen: <Monitor size={14} />,
+  aisle:  <Minus size={14} />,
+  ga:     <Users size={14} />,
+  seats:  <Grid3x3 size={14} />,
 };
 
 const PropsPanel = ({
@@ -20,11 +21,11 @@ const PropsPanel = ({
     return (
       <aside className="avm-props-panel" key="seats-selection">
         <div className="avm-props-header">
-          <span className="avm-props-title">✦ SELECCIÓN</span>
+          <span className="avm-props-title">SELECCIÓN</span>
         </div>
         <div className="avm-props-body">
           <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.5rem' }}>
-            <strong style={{ color: '#eab308', marginRight: '4px' }}>{selectedSeats.length}</strong>
+            <strong style={{ color: '#ffffff', marginRight: '4px' }}>{selectedSeats.length}</strong>
             {`asientos seleccionados`}
           </div>
 
@@ -64,15 +65,15 @@ const PropsPanel = ({
             </div>
             <div className="avm-legend-row">
               <div className="avm-legend-dot" style={{ background: '#0f2027', border: '1.5px solid #06b6d4' }} />
-              ♿ Accesible
+              <Accessibility size={12} color="#06b6d4" /> Accesible
             </div>
           </div>
 
           <button className="avm-action-btn danger" onClick={onDeleteSeats}>
-            🗑 Eliminar seleccionados
+            <Trash2 size={14} /> Eliminar seleccionados
           </button>
           <button className="avm-action-btn" onClick={onClearSelection}>
-            ✕ Deseleccionar
+            <X size={14} /> Deseleccionar
           </button>
         </div>
       </aside>
@@ -83,10 +84,10 @@ const PropsPanel = ({
     return (
       <aside className="avm-props-panel" key="empty-selection">
         <div className="avm-props-header">
-          <span className="avm-props-title">✦ PROPIEDADES</span>
+          <span className="avm-props-title">PROPIEDADES</span>
         </div>
         <div className="avm-props-empty">
-          <div className="avm-props-empty-icon">◻</div>
+          <div className="avm-props-empty-icon"><Square size={32} /></div>
           <div className="avm-props-empty-text">Selecciona un elemento para editar sus propiedades</div>
         </div>
       </aside>
@@ -151,7 +152,7 @@ const PropsPanel = ({
             type="range" min={-180} max={180} step={5}
             value={selected.rotation || 0}
             onChange={e => onUpdate({ rotation: +e.target.value })}
-            style={{ width: '100%', accentColor: '#eab308' }}
+            style={{ width: '100%', accentColor: '#ffffff' }}
           />
           <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
             {[-90, 0, 90, 180].map(deg => (
@@ -188,10 +189,10 @@ const PropsPanel = ({
         {isSeats && seatCount !== null && (
           <div style={{
             padding: '10px 12px', borderRadius: '8px',
-            background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)',
+            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
             fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)'
           }}>
-            <span style={{ color: '#eab308', fontWeight: 800, fontSize: '1rem', marginRight: '4px' }}>{seatCount}</span>
+            <span style={{ color: '#ffffff', fontWeight: 800, fontSize: '1rem', marginRight: '4px' }}>{seatCount}</span>
             {`asientos en ${selected.blocks?.length || 0} fila${selected.blocks?.length !== 1 ? 's' : ''}`}
           </div>
         )}
@@ -199,7 +200,7 @@ const PropsPanel = ({
         {/* Add seat */}
         {isSeats && (
           <button className="avm-action-btn" onClick={onAddSeat}>
-            ＋ Agregar asiento al final
+            <Grid3x3 size={14} /> Agregar asiento al final
           </button>
         )}
 
@@ -207,10 +208,10 @@ const PropsPanel = ({
 
         {/* Duplicate & Delete */}
         <button className="avm-action-btn" onClick={onDuplicate}>
-          ⧉ Duplicar
+          <Square size={14} /> Duplicar
         </button>
         <button className="avm-action-btn danger" onClick={onDelete}>
-          🗑 Eliminar
+          <Trash2 size={14} /> Eliminar
         </button>
       </div>
     </aside>

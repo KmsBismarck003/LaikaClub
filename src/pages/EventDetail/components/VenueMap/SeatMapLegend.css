@@ -4,7 +4,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 0.5rem 1.5rem;
     padding: 0.75rem 1.25rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
@@ -48,6 +48,10 @@
     border-color: #EAB308;
 }
 
+.legend-swatch--vip .legend-icon {
+    color: #EAB308;
+}
+
 .legend-swatch--wheelchair {
     background: rgba(107, 114, 128, 0.3);
     border-color: rgba(107, 114, 128, 0.5);
@@ -63,6 +67,9 @@
 .legend-icon {
     font-size: 12px;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .legend-label {

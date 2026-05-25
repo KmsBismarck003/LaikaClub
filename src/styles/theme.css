@@ -24,10 +24,10 @@
   --error: #000000;
   --info: #737373;
 
-  /* Glassmorphism Light */
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.6);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+  /* Glassmorphism Light — transparente para ver la carátula */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.06);
 
   /* Sombra Suave */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -78,10 +78,10 @@
   --info: #ffffff;
   /* Pure White (Industrial labels) */
 
-  /* Glassmorphism Dark */
-  --glass-bg: rgba(9, 9, 11, 0.85);
+  /* Glassmorphism Dark — menos sólido, menos oscuro */
+  --glass-bg: rgba(8, 8, 8, 0.5);
   --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
 
   /* Card Gradients */
   --gradient-card: linear-gradient(145deg, #09090b 0%, #18181b 100%);

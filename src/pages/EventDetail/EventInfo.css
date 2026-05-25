@@ -17,6 +17,18 @@
   position: relative;
 }
 
+[data-theme='dark'] .glass-module-industrial {
+  background: var(--glass-bg);
+}
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+  padding: 1.5rem 2rem;
+  border-radius: 20px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  position: relative;
+}
+
 /* DESCRIPCIÓN */
 .event-description-glass {
   composes: glass-module-industrial; /* Not standard CSS, but logical here */

@@ -308,6 +308,16 @@
   background: rgba(255,255,255,0.12);
 }
 
+.ra-btn-back {
+  background: #000 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.ra-btn-back:hover {
+  opacity: 0.85;
+}
+
 .ra-btn-success {
   background: var(--success, #22c55e);
   color: #fff;
@@ -363,9 +373,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-secondary);
-  background: var(--bg-secondary, rgba(255,255,255,0.03));
-  border-bottom: 2px solid var(--border-color, rgba(255,255,255,0.08));
+  color: #fff;
+  background: #000;
   white-space: nowrap;
 }
 
@@ -595,8 +604,8 @@
   padding: 8px 12px;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.08));
+  color: #fff;
+  background: #000;
 }
 
 .ra-dist-table td {

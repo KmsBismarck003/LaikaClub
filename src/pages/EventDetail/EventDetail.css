@@ -25,7 +25,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--glass-bg);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   pointer-events: none;
@@ -64,7 +64,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(8, 8, 8, 0.8);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.09);
@@ -366,13 +366,18 @@
 }
 
 .event-description {
-  background: rgba(8, 8, 8, 0.88);
+  background: var(--glass-bg);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
   padding: 1.75rem 2rem;
   overflow: hidden;
+}
+
+[data-theme='dark'] .event-description {
+  background: var(--glass-bg);
+  border-color: rgba(255, 255, 255, 0.07);
 }
 
 .event-description h2 {
@@ -440,8 +445,8 @@
 .function-chip {
   padding: 6px 12px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent !important;
   color: #fff !important;
   font-size: 0.72rem;
   font-weight: 700;
@@ -451,15 +456,15 @@
 }
 
 .function-chip:hover {
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.35);
+  background: transparent !important;
   color: #fff !important;
 }
 
 .function-chip.active {
-  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
-  border-color: #3B82F6 !important;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.45);
+  border-color: rgba(255, 255, 255, 0.35) !important;
 }
 
 /* Ticket filters */
@@ -640,13 +645,17 @@
 
 /* ── PURCHASE BOTTOM ─────────────────────────────────────────── */
 .purchase-sticky-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-top: 1px solid var(--glass-border) !important;
   border-radius: 13px !important;
   padding: 0.6rem 1rem 0.8rem !important;
-  background: rgba(5, 5, 5, 0.6) !important;
+  background: var(--glass-bg) !important;
   backdrop-filter: blur(16px) !important;
   box-shadow: none !important;
   margin-bottom: 0 !important;
+}
+
+[data-theme='dark'] .purchase-sticky-bottom {
+  background: var(--glass-bg) !important;
 }
 
 .quantity-selector-compact {
@@ -814,7 +823,7 @@
 /* Accordion dark style — scoped to event-rules-container (defined in EventRules.css) */
 /* Estos estilos son un fallback global para accordions en la página de evento */
 .event-detail-page .laika-accordion {
-  background: rgba(8, 8, 8, 0.88);
+  background: var(--glass-bg);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 14px;
   color: #fff;
@@ -866,15 +875,41 @@
 /* Responsive */
 @media (max-width: 1024px) {
   .layout-dual-column {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2rem !important;
+    align-items: stretch !important;
+  }
+  .event-left-column,
+  .event-right-column {
+    display: contents !important;
+  }
+  .seat-lock-countdown-banner {
+    order: 1 !important;
+  }
+  .venue-map-outer {
+    order: 2 !important;
+  }
+  .ticket-selection-panel {
+    order: 3 !important; /* Mover el menú de pago justo abajo del mapa de asientos */
+  }
+  .event-description {
+    order: 4 !important;
+  }
+  .event-merch-section {
+    order: 5 !important;
+  }
+  .location-section-glass {
+    order: 6 !important;
+  }
+  .event-rules-container {
+    order: 7 !important;
+  }
+  .event-detail-ad-wrapper {
+    order: 8 !important;
   }
   .event-detail-container {
     padding: 0 2rem;
-  }
-  .event-right-column {
-    position: relative;
-    top: unset;
   }
 }
 
@@ -2411,167 +2446,173 @@
 
 
 /* =========================================================
-   TRANSPARENT GLASS THEME OVERRIDE ("TIPO TRANSPARENTE")
+   LIGHT MODE — TRANSPARENT GLASS OVERRIDE ("TIPO TRANSPARENTE")
 ========================================================= */
-.event-detail-page::before {
-  background: rgba(0, 0, 0, 0.3) !important;
-  backdrop-filter: blur(24px) !important;
-  -webkit-backdrop-filter: blur(24px) !important;
+[data-theme='light'] .event-detail-page::before {
+  background: rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
 }
 
-.event-meta-header,
-.event-description,
-.event-map,
-.ticket-selection-panel,
-.function-selector-compact,
-.purchase-sticky-bottom,
-.laika-accordion {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+[data-theme='light'] .event-meta-header,
+[data-theme='light'] .event-description,
+[data-theme='light'] .event-map,
+[data-theme='light'] .ticket-selection-panel,
+[data-theme='light'] .function-selector-compact,
+[data-theme='light'] .purchase-sticky-bottom,
+[data-theme='light'] .laika-accordion,
+[data-theme='light'] .location-section-glass,
+[data-theme='light'] .glass-module-industrial,
+[data-theme='light'] .glass-panel-modular,
+[data-theme='light'] .venue-map-outer,
+[data-theme='light'] .venue-map-container-wrapper {
+  background: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
 }
 
 /* Force text white again */
-.event-detail-page *:not(button):not(.buy-btn-premium):not(.lucky-btn-premium-gold) {
+[data-theme='light'] .event-detail-page *:not(button):not(.buy-btn-premium):not(.lucky-btn-premium-gold) {
   color: #ffffff !important;
 }
 
 /* Subdued text */
-.event-detail-page .meta-inline.location,
-.event-detail-page .event-description h2,
-.event-detail-page .function-selector-compact h3,
-.event-detail-page .total-label,
-.event-detail-page .ticket-tab:not(.active),
-.ticket-type-desc,
-.ticket-price-val .each {
+[data-theme='light'] .event-detail-page .meta-inline.location,
+[data-theme='light'] .event-detail-page .event-description h2,
+[data-theme='light'] .event-detail-page .function-selector-compact h3,
+[data-theme='light'] .event-detail-page .total-label,
+[data-theme='light'] .event-detail-page .ticket-tab:not(.active),
+[data-theme='light'] .ticket-type-desc,
+[data-theme='light'] .ticket-price-val .each {
   color: rgba(255, 255, 255, 0.55) !important;
 }
 
-.ticket-tab.active {
+[data-theme='light'] .ticket-tab.active {
   color: #fff !important;
 }
-.ticket-tab.active::after {
+[data-theme='light'] .ticket-tab.active::after {
   background: #fff !important;
 }
 
-.ticket-option-row {
+[data-theme='light'] .ticket-option-row {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
-.ticket-option-row:hover {
+[data-theme='light'] .ticket-option-row:hover {
   background: rgba(255, 255, 255, 0.05) !important;
 }
-.ticket-option-row.selected {
+[data-theme='light'] .ticket-option-row.selected {
   border-color: #fff !important;
   background: rgba(255, 255, 255, 0.1) !important;
 }
 
-.ticket-minimap {
+[data-theme='light'] .ticket-minimap {
   background: rgba(255, 255, 255, 0.06) !important;
   color: #fff !important;
 }
 
-.map-container,
-.seat-map-wrapper {
-  background: rgba(0, 0, 0, 0.3) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+[data-theme='light'] .map-container,
+[data-theme='light'] .seat-map-wrapper {
+  background: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
 }
 
-.map-controls button {
+[data-theme='light'] .map-controls button {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #fff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
-.map-controls button:hover {
+[data-theme='light'] .map-controls button:hover {
   background: rgba(255, 255, 255, 0.2) !important;
 }
 
-.google-mini-map {
+[data-theme='light'] .google-mini-map {
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.google-maps-btn {
+[data-theme='light'] .google-maps-btn {
   background: rgba(255, 255, 255, 0.05) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: #fff !important;
 }
-.google-maps-btn:hover {
+[data-theme='light'] .google-maps-btn:hover {
   background: rgba(255, 255, 255, 0.15) !important;
 }
 
-.back-button {
+[data-theme='light'] .back-button {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #fff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
-.back-button:hover {
+[data-theme='light'] .back-button:hover {
   background: rgba(255, 255, 255, 0.2) !important;
   border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-.mock-radio {
+[data-theme='light'] .mock-radio {
   border-color: rgba(255, 255, 255, 0.3) !important;
 }
-.mock-radio.checked {
+[data-theme='light'] .mock-radio.checked {
   border-color: #fff !important;
   background-color: #fff !important;
 }
 
-.ticket-badge, .ticket-results-count .badge {
+[data-theme='light'] .ticket-badge, [data-theme='light'] .ticket-results-count .badge {
   background: #fff !important;
   color: #000 !important;
 }
 
 /* Accordion text */
-.laika-accordion * {
+[data-theme='light'] .laika-accordion * {
   color: #fff !important;
 }
-.laika-accordion-header {
+[data-theme='light'] .laika-accordion-header {
   background: rgba(255, 255, 255, 0.05) !important;
   color: #fff !important;
 }
 
-.laika-select {
+[data-theme='light'] .laika-select {
   background: rgba(255, 255, 255, 0.05) !important;
   color: #fff !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important;
 }
 
-.function-chip {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+[data-theme='light'] .function-chip {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
   color: #fff !important;
 }
-.function-chip:hover {
-  border-color: rgba(255, 255, 255, 0.3) !important;
+[data-theme='light'] .function-chip:hover {
+  border-color: rgba(255, 255, 255, 0.35) !important;
 }
-.function-chip.active {
-  background: #fff !important;
-  color: #000 !important;
+[data-theme='light'] .function-chip.active {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
 }
 
-.buy-btn-premium {
+[data-theme='light'] .buy-btn-premium {
   background: rgba(255, 255, 255, 0.05) !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: #fff !important;
 }
-.buy-btn-premium:hover {
+[data-theme='light'] .buy-btn-premium:hover {
   background: rgba(255, 255, 255, 0.1) !important;
 }
-.buy-btn-premium, .buy-btn-premium * {
+[data-theme='light'] .buy-btn-premium, [data-theme='light'] .buy-btn-premium * {
   color: #fff !important;
 }
 
 /* Glass Theme Overrides for direct fast checkout Payment Modal */
-.laika-modal-overlay {
+[data-theme='light'] .laika-modal-overlay {
   background: rgba(0, 0, 0, 0.5) !important;
   -webkit-backdrop-filter: blur(10px) !important;
   backdrop-filter: blur(10px) !important;
 }
 
-.payment-roulette-modal {
+[data-theme='light'] .payment-roulette-modal {
   background: rgba(255, 255, 255, 0.05) !important;
   -webkit-backdrop-filter: blur(24px) !important;
   backdrop-filter: blur(24px) !important;
@@ -2582,47 +2623,47 @@
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6) !important;
 }
 
-.payment-roulette-modal .data-sheet-header {
+[data-theme='light'] .payment-roulette-modal .data-sheet-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-.payment-roulette-modal .price-tag-container {
+[data-theme='light'] .payment-roulette-modal .price-tag-container {
   background: rgba(255, 255, 255, 0.03) !important;
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
   border-radius: 12px !important;
 }
 
-.payment-roulette-modal .payment-security-labels > div {
+[data-theme='light'] .payment-roulette-modal .payment-security-labels > div {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 12px !important;
 }
 
-.payment-roulette-modal .method-card {
+[data-theme='light'] .payment-roulette-modal .method-card {
   background: rgba(255, 255, 255, 0.03) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 12px !important;
 }
 
-.payment-roulette-modal .method-card.active {
+[data-theme='light'] .payment-roulette-modal .method-card.active {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: #fff !important;
 }
 
-.payment-roulette-modal .card-form-compact input {
+[data-theme='light'] .payment-roulette-modal .card-form-compact input {
   background: rgba(255, 255, 255, 0.02) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: #fff !important;
   border-radius: 13px !important;
 }
 
-.payment-roulette-modal .card-form-compact input:focus {
+[data-theme='light'] .payment-roulette-modal .card-form-compact input:focus {
   border-color: rgba(255, 255, 255, 0.3) !important;
   outline: none;
 }
 
 /* Glass Theme Overrides for Probabilities Modal */
-.prob-modal-glass {
+[data-theme='light'] .prob-modal-glass {
   background: rgba(255, 255, 255, 0.05) !important;
   -webkit-backdrop-filter: blur(24px) !important;
   backdrop-filter: blur(24px) !important;
@@ -2632,33 +2673,38 @@
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6) !important;
 }
 
-.prob-modal-glass .data-sheet-header {
+[data-theme='light'] .prob-modal-glass .data-sheet-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-.prob-modal-glass .data-sheet-footer {
+[data-theme='light'] .prob-modal-glass .data-sheet-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: #ccc !important;
 }
 
-.prob-modal-glass .prob-bar {
+[data-theme='light'] .prob-modal-glass .prob-bar {
   background: rgba(255, 255, 255, 0.08) !important;
   border-radius: 13px !important;
 }
 
-.prob-modal-glass .prob-row span {
+[data-theme='light'] .prob-modal-glass .prob-row span {
   color: #fff !important;
 }
 
 /* Premium Glassmorphism Overrides */
-.payment-roulette-modal,
-.prob-modal-glass,
-.event-detail-page .laika-accordion,
-.merch-product-card,
-.ticket-selection-panel,
-.event-map,
-.event-meta-header,
-.glass-card {
+[data-theme='light'] .payment-roulette-modal,
+[data-theme='light'] .prob-modal-glass,
+[data-theme='light'] .event-detail-page .laika-accordion,
+[data-theme='light'] .merch-product-card,
+[data-theme='light'] .ticket-selection-panel,
+[data-theme='light'] .event-map,
+[data-theme='light'] .event-meta-header,
+[data-theme='light'] .glass-card,
+[data-theme='light'] .location-section-glass,
+[data-theme='light'] .glass-module-industrial,
+[data-theme='light'] .glass-panel-modular,
+[data-theme='light'] .venue-map-outer,
+[data-theme='light'] .venue-map-container-wrapper {
   background: rgba(255, 255, 255, 0.05) !important;
   backdrop-filter: blur(11px) !important;
   -webkit-backdrop-filter: blur(11px) !important;
@@ -2670,14 +2716,16 @@
     inset 0 0 8px 4px rgba(255, 255, 255, 0.12) !important;
 }
 
-.payment-roulette-modal::before,
-.prob-modal-glass::before,
-.event-detail-page .laika-accordion::before,
-.merch-product-card::before,
-.ticket-selection-panel::before,
-.event-map::before,
-.event-meta-header::before,
-.glass-card::before {
+[data-theme='light'] .payment-roulette-modal::before,
+[data-theme='light'] .prob-modal-glass::before,
+[data-theme='light'] .event-detail-page .laika-accordion::before,
+[data-theme='light'] .merch-product-card::before,
+[data-theme='light'] .ticket-selection-panel::before,
+[data-theme='light'] .event-map::before,
+[data-theme='light'] .event-meta-header::before,
+[data-theme='light'] .glass-card::before,
+[data-theme='light'] .venue-map-outer::before,
+[data-theme='light'] .venue-map-container-wrapper::before {
   content: '' !important;
   position: absolute !important;
   top: 0 !important; left: 0 !important; right: 0 !important; height: 1px !important;
@@ -2685,14 +2733,16 @@
   z-index: 10 !important;
 }
 
-.payment-roulette-modal::after,
-.prob-modal-glass::after,
-.event-detail-page .laika-accordion::after,
-.merch-product-card::after,
-.ticket-selection-panel::after,
-.event-map::after,
-.event-meta-header::after,
-.glass-card::after {
+[data-theme='light'] .payment-roulette-modal::after,
+[data-theme='light'] .prob-modal-glass::after,
+[data-theme='light'] .event-detail-page .laika-accordion::after,
+[data-theme='light'] .merch-product-card::after,
+[data-theme='light'] .ticket-selection-panel::after,
+[data-theme='light'] .event-map::after,
+[data-theme='light'] .event-meta-header::after,
+[data-theme='light'] .glass-card::after,
+[data-theme='light'] .venue-map-outer::after,
+[data-theme='light'] .venue-map-container-wrapper::after {
   content: '' !important;
   position: absolute !important;
   top: 0 !important; left: 0 !important; width: 1px !important; height: 100% !important;
@@ -2700,20 +2750,20 @@
   z-index: 10 !important;
 }
 
-.event-detail-page .laika-accordion-header {
+[data-theme='light'] .event-detail-page .laika-accordion-header {
   background: transparent !important;
   background-color: transparent !important;
   color: #ffffff !important;
 }
 
-.event-detail-page .laika-accordion-content {
+[data-theme='light'] .event-detail-page .laika-accordion-content {
   background: transparent !important;
   color: #e0e0e0 !important;
 }
 
-.event-detail-page .laika-accordion-content p,
-.event-detail-page .laika-accordion-content span,
-.event-detail-page .laika-accordion-content li {
+[data-theme='light'] .event-detail-page .laika-accordion-content p,
+[data-theme='light'] .event-detail-page .laika-accordion-content span,
+[data-theme='light'] .event-detail-page .laika-accordion-content li {
   color: #ffffff !important;
 }
 

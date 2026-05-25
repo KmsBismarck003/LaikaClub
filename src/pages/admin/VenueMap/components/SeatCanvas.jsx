@@ -6,10 +6,9 @@ const SEAT_COLORS = {
   vip:        { fill: '#1a1a2e', stroke: '#9333ea' },
   accessible: { fill: '#0f2027', stroke: '#06b6d4' },
 };
-const TYPE_ICONS = { normal: '', vip: '★', accessible: '♿' };
 
 function getSeatColor(seat, isSelected, isOccupied) {
-  if (isSelected) return { fill: '#eab308', stroke: '#fbbf24' };
+  if (isSelected) return { fill: '#ffffff', stroke: '#e5e5e5' };
   if (isOccupied)  return { fill: '#450a0a', stroke: '#7f1d1d' };
   return SEAT_COLORS[seat.type] || SEAT_COLORS.normal;
 }
@@ -28,7 +27,7 @@ function SeatsComp({ comp, selectedSeats, onToggleSeat, onSelectBlock, onSelectC
         <rect
           x={comp.x - 6} y={comp.y - 6}
           width={comp.width + 12} height={comp.height + 12}
-          rx={8} fill="none" stroke="#eab308" strokeWidth={1.5}
+          rx={8} fill="none" stroke="#ffffff" strokeWidth={1.5}
           strokeDasharray="5 3" style={{ animation: 'marchingAnts 0.5s linear infinite' }}
         />
       )}
@@ -62,15 +61,11 @@ function SeatsComp({ comp, selectedSeats, onToggleSeat, onSelectBlock, onSelectC
                     onSelectBlock(block.seats.map(s => s.id));
                   }}
                 />
-                {seat.type !== 'normal' && (
-                  <text
-                    x={seat.x} y={seat.y + 3}
-                    fontSize={7} textAnchor="middle"
-                    fill={colors.stroke}
-                    style={{ pointerEvents: 'none', userSelect: 'none' }}
-                  >
-                    <tspan>{TYPE_ICONS[seat.type]}</tspan>
-                  </text>
+                {seat.type === 'vip' && (
+                  <text x={seat.x} y={seat.y + 2} fontSize={5} textAnchor="middle" fill={colors.stroke} fontWeight={900} fontFamily="sans-serif">V</text>
+                )}
+                {seat.type === 'accessible' && (
+                  <text x={seat.x} y={seat.y + 2} fontSize={5} textAnchor="middle" fill={colors.stroke} fontWeight={900} fontFamily="sans-serif">A</text>
                 )}
                 {/* Seat number */}
                 <text
@@ -92,7 +87,7 @@ function SeatsComp({ comp, selectedSeats, onToggleSeat, onSelectBlock, onSelectC
 
 // ── Render non-seat element ──
 function ElementComp({ comp, isSelected, onSelectComp }) {
-  const TYPE_LABELS = { stage: '🎸 ESCENARIO', screen: '🖥 PANTALLA', aisle: 'PASILLO', ga: 'GENERAL' };
+  const TYPE_LABELS = { stage: 'ESCENARIO', screen: 'PANTALLA', aisle: 'PASILLO', ga: 'GENERAL' };
   const cx = comp.x + comp.width / 2;
   const cy = comp.y + comp.height / 2;
 
@@ -105,7 +100,7 @@ function ElementComp({ comp, isSelected, onSelectComp }) {
       <rect
         x={comp.x} y={comp.y} width={comp.width} height={comp.height}
         rx={6} fill={comp.color || '#334155'}
-        stroke={isSelected ? '#eab308' : 'rgba(255,255,255,0.1)'}
+        stroke={isSelected ? '#ffffff' : 'rgba(255,255,255,0.1)'}
         strokeWidth={isSelected ? 2 : 1}
       />
       <text
@@ -344,31 +339,31 @@ const SeatCanvas = ({
         {/* Ghost cursor for tool placement */}
         {ghostPos && activeTool === 'add-seats' && (
           <circle cx={ghostPos.x} cy={ghostPos.y} r={SEAT_R}
-            fill="rgba(234,179,8,0.2)" stroke="#eab308" strokeWidth={1.5}
+            fill="rgba(255,255,255,0.2)" stroke="#ffffff" strokeWidth={1.5}
             strokeDasharray="3 2" style={{ pointerEvents: 'none' }}
           />
         )}
         {ghostPos && activeTool === 'add-stage' && (
           <rect x={ghostPos.x - 80} y={ghostPos.y - 25} width={160} height={50} rx={6}
-            fill="rgba(51,65,85,0.3)" stroke="#eab308" strokeWidth={1.5} strokeDasharray="4 2"
+            fill="rgba(51,65,85,0.3)" stroke="#ffffff" strokeWidth={1.5} strokeDasharray="4 2"
             style={{ pointerEvents: 'none' }}
           />
         )}
         {ghostPos && activeTool === 'add-screen' && (
           <rect x={ghostPos.x - 90} y={ghostPos.y - 10} width={180} height={20} rx={4}
-            fill="rgba(30,58,95,0.3)" stroke="#eab308" strokeWidth={1.5} strokeDasharray="4 2"
+            fill="rgba(30,58,95,0.3)" stroke="#ffffff" strokeWidth={1.5} strokeDasharray="4 2"
             style={{ pointerEvents: 'none' }}
           />
         )}
         {ghostPos && activeTool === 'add-aisle' && (
           <rect x={ghostPos.x - 60} y={ghostPos.y - 15} width={120} height={30} rx={4}
-            fill="rgba(28,28,28,0.4)" stroke="#eab308" strokeWidth={1.5} strokeDasharray="4 2"
+            fill="rgba(28,28,28,0.4)" stroke="#ffffff" strokeWidth={1.5} strokeDasharray="4 2"
             style={{ pointerEvents: 'none' }}
           />
         )}
         {ghostPos && activeTool === 'add-ga' && (
           <rect x={ghostPos.x - 70} y={ghostPos.y - 40} width={140} height={80} rx={6}
-            fill="rgba(20,83,45,0.3)" stroke="#eab308" strokeWidth={1.5} strokeDasharray="4 2"
+            fill="rgba(20,83,45,0.3)" stroke="#ffffff" strokeWidth={1.5} strokeDasharray="4 2"
             style={{ pointerEvents: 'none' }}
           />
         )}

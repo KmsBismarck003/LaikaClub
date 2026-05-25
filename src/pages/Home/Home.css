@@ -9,6 +9,7 @@
   /* overflow-x: hidden removed to allow sticky sidebar */
   min-height: 100vh;
   background-color: #ffffff;
+  padding-bottom: 3rem;
 }
 
 [data-theme='dark'] .home {
@@ -136,8 +137,8 @@
 @media (min-width: 1280px) {
   .home-layout {
     display: grid;
-    grid-template-columns: 180px 1fr 180px; /* SYMMETRIC: Left Ad | Content | Right Ad */
-    gap: 4rem; /* Reduced gap for a tighter feel */
+    grid-template-columns: 180px 1fr 180px; /* Left Ad | Content | Right Ad */
+    gap: 4rem;
     max-width: 1800px; /* Controlled width for better centering */
     margin: 0 auto;
     padding: 0 2rem;
@@ -365,9 +366,9 @@
 
 .events-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* TICKETMASTER: 2 wide columns */
+  grid-template-columns: repeat(2, 1fr);
   justify-content: flex-start;
-  gap: 0.75rem; /* Further reduced gap */
+  gap: 0.6rem;
   margin: 0 0 2rem;
   width: 100%;
 }
@@ -501,24 +502,32 @@
   z-index: 10;
 }
 
+.event-card-badge .badge {
+  background: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
 .event-card-content {
-  padding: 0.75rem 0.5rem;
+  padding: 0.6rem 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
   z-index: 2;
   background: transparent;
 }
 
 .event-card-venue {
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  color: #71717a; /* Neutral gray like TM */
+  color: #71717a;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 [data-theme='dark'] .event-card-venue {
@@ -526,10 +535,10 @@
 }
 
 .event-card-title {
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 850;
   color: #000 !important;
-  text-transform: none; /* Ticketmaster uses normal case often, but let's keep it bold */
+  text-transform: none;
   line-height: 1.1;
   margin: 0.1rem 0;
 }
@@ -541,8 +550,8 @@
 .event-card-date {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
+  gap: 0.4rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: #3f3f46;
 }
@@ -552,8 +561,8 @@
 }
 
 .event-card-price-tm {
-  margin-top: 0.5rem;
-  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
   font-weight: 800;
   color: #000;
 }
@@ -929,7 +938,30 @@
   }
 
   .events-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+  }
+
+  .events-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.4rem !important;
+  }
+  .event-card-title {
+    font-size: 0.85rem !important;
+  }
+  .event-card-venue {
+    font-size: 0.55rem !important;
+  }
+  .event-card-date {
+    font-size: 0.75rem !important;
+  }
+  .price-amount {
+    font-size: 0.85rem !important;
+  }
+  .event-buy-btn-tm {
+    padding: 0.5rem !important;
+    font-size: 0.65rem !important;
+    border-radius: 8px !important;
   }
 }
 
@@ -954,10 +986,10 @@
 }
 
 .discovery-container {
-  margin-top: 4rem;
+  margin-top: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 2rem;
   width: 100%;
 }
 
@@ -969,7 +1001,7 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
   width: 100%;
 }
 
@@ -1054,14 +1086,17 @@
 /* 3. Discover Banners */
 .category-banners {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin: 0;
 }
 
 .category-banner {
   position: relative;
-  aspect-ratio: 16/10;
+  aspect-ratio: 16/9;
   background: #000;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .category-banner img {
@@ -1074,28 +1109,28 @@
 .banner-overlay {
   position: absolute;
   inset: 0;
-  padding: 1.5rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
 .banner-subtitle {
-  font-size: 0.6rem;
+  font-size: 0.5rem;
   font-weight: 800;
   color: #fff;
   margin-bottom: 0.25rem;
 }
 
 .banner-title {
-  font-size: 1.75rem;
+  font-size: 0.85rem;
   font-weight: 950;
   color: #fff;
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.25rem;
 }
 
 .banner-link {
-  font-size: 0.65rem;
+  font-size: 0.5rem;
   font-weight: 900;
   color: #d9dde3;
   text-decoration: none;
@@ -1105,25 +1140,28 @@
 /* 4. Cities Grid */
 .cities-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 0;
 }
 
 .city-card {
   cursor: pointer;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .city-card img {
   width: 100%;
   aspect-ratio: 16/9;
   object-fit: cover;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .city-name-link {
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #2563eb;
+  color: #18181b;
   text-decoration: underline;
 }
 
@@ -1160,7 +1198,7 @@
 }
 
 .mini-event-card:hover .mini-card-info .mini-name {
-    color: #026cdf;
+    color: #b0b8c4;
 }
 
 /* ============================================
@@ -1170,7 +1208,9 @@
   position: relative;
   width: 100%;
   height: 500px;
-  background: #f0f0f0;
+  background: linear-gradient(110deg, #e2e8f0 8%, #f1f5f9 18%, #e2e8f0 33%);
+  background-size: 200% 100%;
+  animation: diagonalMove 1.5s linear infinite;
   display: flex;
   align-items: center;
   justify-content: center;

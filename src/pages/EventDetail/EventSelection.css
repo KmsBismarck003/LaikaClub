@@ -33,9 +33,9 @@
 .function-chip {
   padding: 6px 12px;
   border-radius: 30px;
-  border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--event-text-primary) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent !important;
+  color: #fff !important;
   font-size: 0.62rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -45,15 +45,14 @@
 }
 
 .function-chip:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .function-chip.active {
-  background: #fff;
-  color: #000 !important;
-  border-color: #fff;
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
 }
 
 /* TABS */
@@ -368,7 +367,7 @@
 
 /* ── LIGHT MODE OVERRIDES (Industrial Premium) ── */
 [data-theme='light'] .ticket-selection-panel {
-  background: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.7) !important;
   backdrop-filter: blur(20px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
   border: 1px solid rgba(255, 255, 255, 0.8) !important;
@@ -424,16 +423,15 @@
 }
 
 [data-theme='light'] .function-chip {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  color: #000000 !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
 }
 
 [data-theme='light'] .function-chip.active {
-  background: #000000 !important;
-  color: #ffffff !important;
-  border-color: #000000 !important;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
 }
 
 [data-theme='light'] .btn-purchase-glass-capsule {
