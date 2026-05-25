@@ -4,6 +4,7 @@ import { eventAPI } from '../../../services/eventService';
 import { Card } from '../../../components';
 import Skeleton from '../../../components/Skeleton/Skeleton';
 import Plot from 'react-plotly.js';
+import B2BProspecting from './components/B2BProspecting';
 import { 
   Activity, 
   Settings, 
@@ -495,7 +496,8 @@ const BigDataVisualizer = ({ managerId = null }) => {
                             { id: '3D_EXPLORATION', label: 'EXPLORACIÓN 3D', icon: <Layers size={14} /> },
                             { id: 'ML_REGRESSION', label: 'REGRESIÓN ML', icon: <Activity size={14} /> },
                             { id: 'ML_DECISION_TREE', label: 'ÁRBOL DE DECISIÓN', icon: <Terminal size={14} /> },
-                            { id: 'CLASS_KDD', label: 'ESTADÍSTICA & KDD', icon: <DatabaseIcon size={14} /> }
+                            { id: 'CLASS_KDD', label: 'ESTADÍSTICA & KDD', icon: <DatabaseIcon size={14} /> },
+                            { id: 'B2B_PROSPECTING', label: 'PROSPECCIÓN B2B', icon: <Search size={14} /> }
                         ].map(mode => (
                             <button 
                                 key={mode.id}
@@ -787,6 +789,10 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                         <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', opacity: 0.8 }}>Precisión del Modelo: <span style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.4rem', marginLeft: '8px' }}>{Math.round(mlData?.accuracy * 100) || 0}%</span></div>
                                         <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', background: '#f8fafc', padding: '6px 12px', borderRadius: '20px' }}>{mlData?.summary || 'N/A'}</div>
                                     </div>
+                                </div>
+                            ) : analysisMode === 'B2B_PROSPECTING' ? (
+                                <div style={{ padding: '1.8rem', background: '#ffffff', borderRadius: '24px' }}>
+                                    <B2BProspecting />
                                 </div>
                             ) : (
                                 <div className="kdd-panel-content" style={{ padding: '1.8rem', color: '#1e293b', background: '#ffffff' }}>

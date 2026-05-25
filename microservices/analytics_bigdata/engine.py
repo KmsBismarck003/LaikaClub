@@ -21,6 +21,7 @@ from .algorithms.regression.lasso_regression import train_lasso_regression
 from .algorithms.classification.decision_tree import train_decision_tree
 from .algorithms.clustering.k_means import train_k_means
 from .algorithms.clustering.pca import run_pca
+from .algorithms.clustering.venue_prospecting import run_venue_prospecting
 
 
 class AnalyticsEngine:
@@ -742,6 +743,17 @@ class AnalyticsEngine:
             "tree_structure": tree_structure,
             "summary": "Clasificación de eventos: 1=Venta Alta (>500), 0=Venta Baja"
         }
+
+    def get_venue_prospecting_leads(self):
+        """Ejecuta el pipeline de prospección B2B comparando prospectos NoSQL con recintos MySQL."""
+        # Extraer parámetros de conexión de MySQL desde las variables de entorno
+        mysql_params = {
+            "host": os.getenv("MYSQL_HOST", "localhost"),
+            "user": os.getenv("MYSQL_USER", "root"),
+            "password": os.getenv("MYSQL_PASSWORD", ""),
+            "database": os.getenv("MYSQL_DATABASE", "laika_club")
+        }
+        return run_venue_prospecting(mysql_params, self.mongo_uri, self.mongo_db)
 
     def sync_mysql_to_mongo(self, backup_type="completo", tables_to_sync=None):
         """Eco de Respaldo Enterprise: Crea un Snapshot NoSQL con lógica avanzada."""

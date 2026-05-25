@@ -246,5 +246,13 @@ def get_ml_decision_tree(manager_id: int = None):
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
     return engine.predict_classification(manager_id)
 
+@app.get("/api/analytics/ml/prospecting")
+def get_ml_prospecting():
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    return engine.get_venue_prospecting_leads()
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8007)
+
+

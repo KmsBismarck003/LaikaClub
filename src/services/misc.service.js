@@ -125,5 +125,9 @@ export const analyticsAPI = {
     scrapeCustomURL: async (url) => {
         const response = await axios.get(`${ANALYTICS_URL}/scrape/custom`, { params: { url } });
         return response.data;
+    },
+    getProspectingML: async () => {
+        const response = await axios.get(`${ANALYTICS_URL}/ml/prospecting`);
+        return response.data;
     }
 }

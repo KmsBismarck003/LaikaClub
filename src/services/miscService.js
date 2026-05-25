@@ -114,5 +114,9 @@ export const analyticsAPI = {
         if (managerId) params.manager_id = managerId;
         const response = await axios.get(`${ANALYTICS_URL}/ml/decision-tree`, { params });
         return response.data;
+    },
+    getProspectingML: async () => {
+        const response = await axios.get(`${ANALYTICS_URL}/ml/prospecting`);
+        return response.data;
     }
 }
