@@ -201,20 +201,9 @@ const EventDetail = () => {
   const [merchAttributes, setMerchAttributes] = useState({});
   const [merchQty, setMerchQty] = useState(1);
 
-  // Parallax Hero
+  // Hero static (sin desvanecido/zoom al hacer scroll)
   const heroRef = useRef(null);
   const videoRef = useRef(null);
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!heroRef.current) return;
-      const scrollY = window.scrollY;
-      const opacity = Math.max(0, 1 - scrollY / 400);
-      heroRef.current.style.opacity = opacity;
-      heroRef.current.style.transform = `translateY(${scrollY * 0.5}px) scale(${1 + scrollY * 0.0005})`;
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   if (loading) {
     return (

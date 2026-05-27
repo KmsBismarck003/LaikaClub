@@ -24,11 +24,11 @@ const CartModal = () => {
         <div
             onClick={closeCart}
             style={{
-                position: 'fixed', inset: 0, zIndex: 9000,
-                background: 'rgba(0,0,0,.5)',
-                backdropFilter: 'blur(10px)',
+                position: 'fixed', inset: 0, zIndex: 12050,
+                background: 'rgba(0,0,0,.46)',
+                backdropFilter: 'blur(1.25px)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                padding: '2rem 1rem',
+                padding: '5.5rem 1rem 1.25rem',
                 overflowY: 'auto'
             }}
         >
@@ -75,16 +75,16 @@ const CartModal = () => {
                         title="Cerrar Carrito"
                         style={{
                             width: '36px', height: '36px', borderRadius: '50%',
-                            background: 'rgba(255,255,255,.12)',
-                            border: '1px solid rgba(255,255,255,.2)',
+                            background: 'rgba(19,22,30,0.92)',
+                            border: '1px solid rgba(255,255,255,.25)',
                             color: '#fff', display: 'flex', alignItems: 'center',
                             justifyContent: 'center', cursor: 'pointer', transition: 'all .2s',
-                            boxShadow: '0 0 15px rgba(255,255,255,0.1)'
+                            boxShadow: '0 10px 25px rgba(0,0,0,0.28)'
                         }}
-                        onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,.2)'}
-                        onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.12)'}
+                        onMouseOver={e => { e.currentTarget.style.background = 'rgba(35,40,52,0.96)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                        onMouseOut={e => { e.currentTarget.style.background = 'rgba(19,22,30,0.92)'; e.currentTarget.style.transform = 'translateY(0)'; }}
                     >
-                        <Icon name="close" size={16} />
+                        <Icon name="close" size={16} style={{ color: '#ffffff' }} />
                     </button>
                 </div>
 
@@ -101,15 +101,14 @@ const CartModal = () => {
                     to   { opacity: 1; transform: scale(1)  translateY(0); }
                 }
                 .glass-card {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    backdrop-filter: blur(11px) !important;
-                    -webkit-backdrop-filter: blur(11px) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                    background: rgba(9, 11, 17, 0.996) !important;
+                    backdrop-filter: blur(3px) !important;
+                    -webkit-backdrop-filter: blur(3px) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
                     box-shadow: 
-                        0 8px 32px rgba(0, 0, 0, 0.1),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                        inset 0 -1px 0 rgba(255, 255, 255, 0.08),
-                        inset 0 0 8px 4px rgba(255, 255, 255, 0.15) !important;
+                        0 26px 60px rgba(0, 0, 0, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                        inset 0 -1px 0 rgba(255, 255, 255, 0.05) !important;
                     position: relative;
                     overflow: hidden;
                 }
