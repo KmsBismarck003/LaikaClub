@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGO_URI = os.getenv("MONGO_URI") # User will provide this
+MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB = os.getenv("MONGO_DB", "laika_analytics")
 
 client = None
@@ -15,31 +15,40 @@ def get_mongo_db():
     global client, db
     if client is None and MONGO_URI:
         try:
-            client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
+            client = motor.motor_asyncio.AsyncIOMotorClient(
+                MONGO_URI,
+                serverSelectionTimeoutMS=5000,  # Timeout rápido para no bloquear
+                connectTimeoutMS=5000,
+                socketTimeoutMS=5000,
+                tlsAllowInvalidCertificates=True,
+            )
             db = client[MONGO_DB]
-            print(f"[MONGO SYNC] Connected to MongoDB Atlas: {MONGO_DB}")
+            print(f"[MONGO SYNC] Configured MongoDB client for: {MONGO_DB}")
         except Exception as e:
-            print(f"[MONGO SYNC] Error connecting to MongoDB: {e}")
+            print(f"[MONGO SYNC] Error configuring MongoDB client: {e}")
+            client = None
             return None
     return db
 
 async def sync_purchase_to_mongo(purchase_data: dict):
     """
-    Sincroniza un evento de compra o pago a MongoDB Atlas para análisis.
+    Sincroniza un evento de compra a MongoDB Atlas para análisis.
+    Función fire-and-forget: nunca lanza excepción al caller.
     """
-    mongo_db = get_mongo_db()
-    if mongo_db is None:
-        return False
-        
     try:
-        # Añadir timestamp de sincronización si no existe
+        mongo_db = get_mongo_db()
+        if mongo_db is None:
+            print("[MONGO SYNC] Skipping sync: no connection configured.")
+            return False
+
         if "synced_at" not in purchase_data:
             purchase_data["synced_at"] = datetime.now().isoformat()
-            
+
         collection = mongo_db["purchases"]
         result = await collection.insert_one(purchase_data)
         print(f"[MONGO SYNC] Data synced with ID: {result.inserted_id}")
         return True
     except Exception as e:
-        print(f"[MONGO SYNC] Failed to sync data: {e}")
+        # Siempre silencioso: el fallo de analytics NO debe bloquear la compra
+        print(f"[MONGO SYNC] Failed to sync data (non-critical): {e}")
         return False

@@ -5,11 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import Optional
+from pydantic import BaseModel
 from .database import get_db
 from .security import get_current_user
 from . import controller
 from . import venues_controller
 from . import venues_schemas
+from . import presale as presale_service
+
 app = FastAPI(title="Laika Event Service", version="1.0.0")
 
 app.add_middleware(
@@ -172,6 +175,39 @@ def get_event_tickets(event_id: int, db: Session = Depends(get_db)):
 @app.get("/manager/events/{event_id}/revenue")
 def get_event_revenue(event_id: int, db: Session = Depends(get_db)):
     return controller.get_event_revenue_analytics(db, event_id)
+
+# --- PRESALE ROUTES ---
+
+@app.get("/presale/{event_id}/info")
+def get_presale_info(event_id: int, db: Session = Depends(get_db)):
+    """Devuelve el estado de preventa de un evento (sin exponer datos sensibles)."""
+    event = controller.get_event_by_id(db, event_id)
+    return presale_service.get_presale_info(event)
+
+
+class BinValidationRequest(BaseModel):
+    card_number: str  # Solo los primeros 6+ dígitos; no se almacena
+
+@app.post("/presale/{event_id}/validate-bin")
+def validate_presale_bin(event_id: int, body: BinValidationRequest, db: Session = Depends(get_db)):
+    """Valida si el BIN de una tarjeta tiene acceso a la preventa del evento."""
+    event = controller.get_event_by_id(db, event_id)
+
+    if not presale_service.is_presale_active(event):
+        # Si la preventa no está activa, permitir acceso libre
+        return {"valid": True, "message": "Venta general activa"}
+
+    is_valid = presale_service.validate_bin(body.card_number, event.get("presale_bins"))
+    bank_name = event.get("presale_bank_name") or "el banco patrocinador"
+
+    if is_valid:
+        return {"valid": True, "message": f"Tarjeta {bank_name} válida para preventa"}
+
+    return {
+        "valid": False,
+        "message": f"Esta tarjeta no corresponde a la preventa exclusiva de {bank_name}."
+    }
+
 
 @app.get("/{event_id}")
 @app.get("/manager/events/{event_id}")

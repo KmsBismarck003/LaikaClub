@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../../context/CartContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -6,24 +6,58 @@ import { useNotification } from '../../../context/NotificationContext';
 import { ticketAPI, paymentAPI } from '../../../services/api';
 import { merchService } from '../../../services/merch.service';
 
+// Costos de envío por método
+const SHIPPING_COSTS = {
+    digital: 0,    // Boleto digital - sin costo
+    tienda: 0,     // Recoger en tienda - sin costo
+    standard: 99,
+    recoleccion: 99,
+    express: 129,
+};
+
 export const useCheckoutFlow = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const { success, error, info } = useNotification();
-    const { 
-        cart, total, serviceFee, discount, finalTotal, 
-        appliedCoupon, clearCart, consumeAppliedCoupon, addCard
+    const {
+        cart, total, serviceFee, discount, finalTotal,
+        appliedCoupon, clearCart, consumeAppliedCoupon, addCard, savedCards, removeCard
     } = useCart();
 
-    // 1. Step Logic
-    const [step, setStep] = useState(() => {
-        const saved = localStorage.getItem('checkout_step');
-        return saved ? parseInt(saved) : 1;
+    // Clasificación de items
+    const ticketItems = cart.filter(item => item.sectionId !== 'MERCH');
+    const merchItems  = cart.filter(item => item.sectionId === 'MERCH');
+    const hasMerch    = merchItems.length > 0;
+
+    // Estado del flujo (1=pago, 2=éxito)
+    const [step, setStep] = useState(1);
+    const [checkoutError, setCheckoutError] = useState(null);
+
+    // Método de entrega: 'digital' para boletos electrónicos, otros requieren dirección
+    const [deliveryType, setDeliveryType] = useState('digital');
+
+    // Solo mostrar formulario de envío si hay merch O si escoge entrega física
+    const needsShippingForm = hasMerch || (deliveryType !== 'digital');
+    const shippingCost = SHIPPING_COSTS[deliveryType] ?? 0;
+
+    // Método de pago
+    const [paymentMethod, setPaymentMethod] = useState('card');
+    const [processing, setProcessing] = useState(false);
+
+    // Datos de tarjeta
+    const [cardData, setCardData] = useState({
+        number: '',
+        name: '',
+        expiry: '',
+        cvv: '',
+        saveCard: false,
+        selectedSavedCard: null,
+        lastReference: '',
     });
 
-    // 2. Form States
-    const [formData, setFormData] = useState(() => {
-        const saved = localStorage.getItem('checkout_form');
+    // Datos de envío (solo requeridos si needsShippingForm)
+    const [shippingData, setShippingData] = useState(() => {
+        const saved = localStorage.getItem('checkout_shipping');
         if (saved) return JSON.parse(saved);
         return {
             nombre: user?.name || '',
@@ -37,108 +71,100 @@ export const useCheckoutFlow = () => {
             email: user?.email || '',
             telefono: '',
             observaciones: '',
-            newsletter: false
         };
     });
 
-    const [shippingMethod, setShippingMethod] = useState('tienda');
-    const [shippingCost, setShippingCost] = useState(0);
-    const [paymentMethod, setPaymentMethod] = useState('card');
-    const [processing, setProcessing] = useState(false);
-    
-    const [cardData, setCardData] = useState({
-        number: '',
-        name: '',
-        expiry: '',
-        cvv: '',
-        lastReference: ''
-    });
-
-    // 3. Cart & Step Sync
+    // Persistencia del formulario de envío
     useEffect(() => {
-        if (cart.length === 0 && step !== 4) {
+        if (step < 2) {
+            localStorage.setItem('checkout_shipping', JSON.stringify(shippingData));
+        }
+    }, [shippingData, step]);
+
+    // Redirigir si carrito vacío
+    useEffect(() => {
+        if (cart.length === 0 && step !== 2) {
             navigate('/cart');
         }
     }, [cart, step, navigate]);
 
-    useEffect(() => {
-        if (step < 4) {
-            localStorage.setItem('checkout_form', JSON.stringify(formData));
-            localStorage.setItem('checkout_step', step.toString());
-        }
-    }, [formData, step]);
-
-    useEffect(() => {
-        const costs = { tienda: 0, standard: 99, recoleccion: 99, express: 129 };
-        setShippingCost(costs[shippingMethod] || 0);
-    }, [shippingMethod]);
-
-    // 4. Handlers
-    const handleInputChange = useCallback((e) => {
+    const handleShippingChange = useCallback((e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
+        setShippingData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: type === 'checkbox' ? checked : value,
         }));
     }, []);
 
-    const handleCardChange = useCallback((e) => {
-        const { name, value } = e.target;
-        setCardData(prev => ({ ...prev, [name]: value }));
+    const handleCardChange = useCallback((field, value) => {
+        setCardData(prev => ({ ...prev, [field]: value }));
     }, []);
 
-    const nextStep = useCallback(() => {
-        if (step === 1) {
-            if (!formData.nombre || !formData.calle || !formData.codigoPostal || !formData.email) {
-                error('Por favor completa los campos obligatorios (*)');
-                return;
-            }
+    // Validación del formulario de envío
+    const validateShipping = () => {
+        if (!needsShippingForm) return true;
+        const { nombre, calle, codigoPostal, email, ciudad } = shippingData;
+        if (!nombre || !calle || !codigoPostal || !email || !ciudad) {
+            error('Por favor completa todos los campos de envío obligatorios (*)');
+            return false;
         }
-        setStep(prev => prev + 1);
-        window.scrollTo(0, 0);
-    }, [step, formData, error]);
+        return true;
+    };
 
-    const prevStep = useCallback(() => {
-        setStep(prev => prev - 1);
-        window.scrollTo(0, 0);
-    }, []);
+    // Validación del método de pago
+    const validatePayment = () => {
+        if (paymentMethod !== 'card') return true;
+        if (cardData.selectedSavedCard) return true;
 
-    // 5. THE BRAIN: handleFinalPayment (Orchestration)
+        const num = (cardData.number || '').replace(/\s/g, '');
+        const exp = (cardData.expiry || '').trim();
+        const cvv = (cardData.cvv || '').trim();
+        const name = (cardData.name || '').trim();
+
+        if (num.length < 15 || !exp.includes('/') || cvv.length < 3 || name.length < 3) {
+            error('Por favor ingresa los datos completos de tu tarjeta');
+            return false;
+        }
+        return true;
+    };
+
     const handleFinalPayment = async () => {
-        if (paymentMethod === 'card') {
-            if (!cardData.selectedSavedCard && (!cardData.number || !cardData.cvv)) {
-                error('Por favor ingresa los datos de tu tarjeta');
-                return;
-            }
-        }
+        if (!validateShipping()) return;
+        if (!validatePayment()) return;
 
+        setCheckoutError(null);
         setProcessing(true);
         info('Iniciando transacción segura...');
 
         try {
-            const ticketItems = cart.filter(item => item.type === 'ticket');
-            const merchItems = cart.filter(item => item.type === 'merch');
             const amount = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0) + shippingCost;
-            
-            // 1. Create Payment Intent
             const eventId = cart.find(item => item.eventId)?.eventId || 1;
-            const intentResp = await paymentAPI.createIntent({
-                amount: amount,
-                method: paymentMethod,
-                eventId: eventId,
-                event_id: eventId
-            });
 
+            // 1. Crear intención de pago
+            const intentResp = await paymentAPI.createIntent({
+                amount,
+                method: paymentMethod,
+                eventId,
+                event_id: eventId,
+            });
             const paymentId = intentResp.payment_id || intentResp.reference;
-            
-            // 2. Simulation for Cards
+
+            // 2. Confirmar pago con tarjeta
             if (paymentMethod === 'card') {
                 info('Validando con el banco...');
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 await paymentAPI.confirm(paymentId);
+
+                if (!cardData.selectedSavedCard && cardData.saveCard) {
+                    addCard({
+                        number: cardData.number,
+                        holder: cardData.name || shippingData.nombre,
+                        expiry: cardData.expiry,
+                    });
+                }
             }
 
-            // 3. Purchase Tickets
+            // 3. Comprar boletos
             if (ticketItems.length > 0) {
                 const purchaseItems = [];
                 for (const item of ticketItems) {
@@ -151,7 +177,7 @@ export const useCheckoutFlow = () => {
                                 sectionId: item.sectionId,
                                 sectionName: item.sectionName,
                                 price: item.price,
-                                seatId: seat
+                                seatId: seat,
                             });
                         }
                     } else {
@@ -163,56 +189,51 @@ export const useCheckoutFlow = () => {
                                 sectionId: item.sectionId,
                                 sectionName: item.sectionName,
                                 price: item.price,
-                                seatId: null
+                                seatId: null,
                             });
                         }
                     }
                 }
-
                 await ticketAPI.purchase({
                     items: purchaseItems,
                     paymentMethod,
                     paymentId,
-                    shippingInfo: formData,
-                    shippingMethod
+                    shippingInfo: needsShippingForm ? shippingData : null,
+                    shippingMethod: deliveryType,
                 });
             }
 
-            // 4. Create Merch Order
+            // 4. Procesar merch
             if (merchItems.length > 0) {
                 await merchService.createOrder({
                     manager_id: 1,
-                    customer_name: `${formData.nombre} ${formData.apellidos}`,
-                    customer_email: formData.email,
+                    customer_name: `${shippingData.nombre} ${shippingData.apellidos}`.trim(),
+                    customer_email: shippingData.email,
                     total_amount: merchItems.reduce((acc, item) => acc + (item.price * item.quantity), 0),
                     items: merchItems.map(item => ({
                         merchandise_id: item.merchId,
                         variant_id: item.variantId,
                         quantity: item.quantity,
-                        price_at_purchase: item.price
-                    }))
+                        price_at_purchase: item.price,
+                    })),
                 });
             }
-            
+
             if (appliedCoupon) await consumeAppliedCoupon();
-            
+
             if (paymentMethod === 'oxxo') {
                 setCardData(prev => ({ ...prev, lastReference: paymentId }));
-            }
-            
-            if (paymentMethod === 'card' && cardData.saveCard) {
-                addCard(cardData);
-                info('Tarjeta guardada exitosamente.');
             }
 
             success('¡Transacción completada con éxito!');
             clearCart();
-            localStorage.removeItem('checkout_form');
-            localStorage.removeItem('checkout_step');
-            setStep(4);
+            localStorage.removeItem('checkout_shipping');
+            setStep(2);
         } catch (err) {
             console.error('[Checkout Flow Error]', err);
-            error(err.response?.data?.detail || 'Error en el procesamiento del pago.');
+            const errMsg = err.message || (typeof err === 'string' ? err : 'Error en el procesamiento del pago.');
+            setCheckoutError(errMsg);
+            error(errMsg);
         } finally {
             setProcessing(false);
         }
@@ -221,25 +242,45 @@ export const useCheckoutFlow = () => {
     const grandTotal = finalTotal + shippingCost;
 
     return {
-        // State
-        step,
-        formData,
-        shippingMethod,
+        // Cart items
+        cart,
+        ticketItems,
+        merchItems,
+        hasMerch,
+
+        // Totals
+        total,
+        serviceFee,
+        discount,
+        finalTotal,
         shippingCost,
+        grandTotal,
+
+        // Step
+        step,
+        setStep,
+        checkoutError,
+        setCheckoutError,
+
+        // Delivery
+        deliveryType,
+        setDeliveryType,
+        needsShippingForm,
+
+        // Payment
         paymentMethod,
+        setPaymentMethod,
         processing,
         cardData,
-        grandTotal,
-        cart,
-        
-        // Handlers
-        setStep,
-        setShippingMethod,
-        setPaymentMethod,
-        handleInputChange,
         handleCardChange,
-        nextStep,
-        prevStep,
-        handleFinalPayment
+        savedCards,
+        removeCard,
+
+        // Shipping form
+        shippingData,
+        handleShippingChange,
+
+        // Actions
+        handleFinalPayment,
     };
 };

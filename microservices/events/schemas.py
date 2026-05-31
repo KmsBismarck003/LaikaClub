@@ -54,6 +54,13 @@ class EventCreate(BaseModel):
     assigned_manager_id: Optional[int] = None
     municipality_id: Optional[int] = None
 
+    # Preventa exclusiva por banco (BIN validation)
+    presale_enabled: Optional[bool] = False
+    presale_bank_name: Optional[str] = None
+    presale_bins: Optional[str] = None
+    presale_start: Optional[str] = None
+    presale_end: Optional[str] = None
+
 class EventTicketSectionUpdate(BaseModel):
     id: Optional[int] = None
     name: Optional[str] = None
@@ -101,3 +108,10 @@ class EventUpdate(BaseModel):
     metrics_enabled: Optional[bool] = None
     assigned_manager_id: Optional[int] = None
     municipality_id: Optional[int] = None
+
+    # Preventa exclusiva por banco (BIN validation)
+    presale_enabled: Optional[bool] = None
+    presale_bank_name: Optional[str] = None
+    presale_bins: Optional[str] = None
+    presale_start: Optional[str] = None
+    presale_end: Optional[str] = None

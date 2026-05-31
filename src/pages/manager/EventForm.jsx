@@ -7,6 +7,7 @@ import api, { venueAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 import EventCardPreview from './EventCardPreview';
+import { PresaleSection } from '../../features/presale';
 
 const formatTime = (time) => {
     if (!time) return '';
@@ -53,7 +54,13 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
         ads_enabled: false,
         max_ads: 5,
         merch_enabled: false,
-        metrics_enabled: false
+        metrics_enabled: false,
+        // Preventa exclusiva
+        presale_enabled: false,
+        presale_bank_name: '',
+        presale_bins: '',
+        presale_start: '',
+        presale_end: '',
     });
 
     const [showAdvanced, setShowAdvanced] = useState(false);
@@ -200,7 +207,13 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
                 ads_enabled: !!event.ads_enabled,
                 max_ads: event.max_ads || 5,
                 merch_enabled: !!event.merch_enabled,
-                metrics_enabled: !!event.metrics_enabled
+                metrics_enabled: !!event.metrics_enabled,
+                // Preventa exclusiva
+                presale_enabled: !!event.presale_enabled,
+                presale_bank_name: event.presale_bank_name || '',
+                presale_bins: event.presale_bins || '',
+                presale_start: event.presale_start || '',
+                presale_end: event.presale_end || '',
             });
 
             if (event.venue_id) {
@@ -766,6 +779,20 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
                                 </div>
                             </div>
                         )}
+
+                        {/* --- PREVENTA EXCLUSIVA --- */}
+                        <PresaleSection
+                            presaleData={{
+                                presale_enabled: formData.presale_enabled,
+                                presale_bank_name: formData.presale_bank_name,
+                                presale_bins: formData.presale_bins,
+                                presale_start: formData.presale_start,
+                                presale_end: formData.presale_end,
+                            }}
+                            onChange={(field, value) =>
+                                setFormData(prev => ({ ...prev, [field]: value }))
+                            }
+                        />
 
                         {/* --- ENABLED FEATURES (READ ONLY FOR MANAGER) --- */}
                         <div className="form-group mb-6 p-4 border rounded bg-purple-50" style={{ border: '1px solid #e9d5ff', background: '#f5f3ff', borderRadius: '8px', padding: '1rem' }}>

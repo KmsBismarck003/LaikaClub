@@ -1,0 +1,48 @@
+/* PresaleBadge.css */
+
+.presale-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(168, 85, 247, 0.12));
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  border-radius: 100px;
+  padding: 0.28rem 0.75rem;
+  width: fit-content;
+}
+
+.presale-badge--sm {
+  padding: 0.18rem 0.55rem;
+}
+
+.presale-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #818cf8;
+  animation: presaleBadgePulse 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.presale-badge--sm .presale-badge-dot {
+  width: 5px;
+  height: 5px;
+}
+
+@keyframes presaleBadgePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.presale-badge-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #a5b4fc;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.presale-badge--sm .presale-badge-label {
+  font-size: 0.56rem;
+}

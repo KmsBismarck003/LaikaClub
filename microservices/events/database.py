@@ -402,6 +402,12 @@ def run_migrations(engine):
                 ("events", "assigned_manager_id", "INTEGER"),
                 ("events", "municipality_id", "INTEGER"),
                 ("ads", "event_id", "INTEGER"),
+                # --- PRESALE: Preventas exclusivas por banco ---
+                ("events", "presale_enabled", "BOOLEAN DEFAULT 0"),
+                ("events", "presale_bank_name", "VARCHAR(100)"),
+                ("events", "presale_bins", "TEXT"),
+                ("events", "presale_start", "VARCHAR(50)"),
+                ("events", "presale_end", "VARCHAR(50)"),
             ]
             
             for table, col, col_type in cols:

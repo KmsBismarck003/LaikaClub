@@ -26,6 +26,7 @@ import EventPoster from "./components/EventPoster/EventPoster";
 import EventDescription from "./components/EventDescription/EventDescription";
 
 import { LoadingScreen, AdCarousel } from "../../components";
+import { usePresale, PresaleGate, PresaleBadge } from "../../features/presale";
 import "./EventDetail.css";
 
 const EventDetail = () => {
@@ -70,6 +71,9 @@ const EventDetail = () => {
   // 2. Ticket Engine Hook
   const ticketEngine = useTicketEngine(event, id, user, navigate, location, { success, error }, addToCart, zones);
   const { isEventSeating } = ticketEngine;
+
+  // 3. Presale Hook — determina si necesitamos mostrar el gate de preventa
+  const presale = usePresale(event);
 
   // 3. Venue Map Hook
   const venueMap = useVenueMap();
@@ -239,6 +243,17 @@ const EventDetail = () => {
 
   return (
     <div className="event-detail-page" style={{ "--event-bg": `url(${imageUrl})` }}>
+      {/* PRESALE GATE — bloquea acceso al contenido si la preventa está activa */}
+      {presale.needsPresaleGate && (
+        <PresaleGate
+          presaleState={presale.presaleState}
+          binInput={presale.binInput}
+          onBinChange={presale.handleBinChange}
+          validationError={presale.validationError}
+          isValidating={presale.isValidating}
+          onSubmit={presale.attemptUnlock}
+        />
+      )}
       <div className="event-detail-container">
         {/* HERO SECTION */}
         <EventHero
