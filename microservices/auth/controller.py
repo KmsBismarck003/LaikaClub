@@ -296,27 +296,45 @@ def get_auth_logs(db: Session, limit: int = 100, role: str = None, event_type: s
 
 # ── FUNCIONES DE ADMINISTRACIÓN ──
 
-def get_users(db: Session, search: str = None, role: str = None, status: str = None):
-    query_str = "SELECT id, first_name, last_name, email, phone, role, status, lockout_until, last_login, created_at FROM users WHERE 1=1"
+def get_users(db: Session, search: str = None, role: str = None, status: str = None, page: int = 1, limit: int = 20):
+    # Evitar valores negativos o inválidos para paginación
+    if page < 1:
+        page = 1
+    if limit < 1:
+        limit = 20
+
+    # Primero obtener el conteo total
+    count_query_str = "SELECT COUNT(*) FROM users WHERE 1=1"
     params = {}
     
+    filter_str = ""
     if search:
-        query_str += " AND (first_name LIKE :search OR last_name LIKE :search OR email LIKE :search)"
+        filter_str += " AND (first_name LIKE :search OR last_name LIKE :search OR email LIKE :search)"
         params["search"] = f"%{search}%"
     
     if role:
-        query_str += " AND role = :role"
+        filter_str += " AND role = :role"
         params["role"] = role
         
     if status:
-        query_str += " AND status = :status"
+        filter_str += " AND status = :status"
         params["status"] = status
 
+    total = db.execute(text(count_query_str + filter_str), params).scalar()
+
+    # Ahora obtener los registros paginados
+    query_str = "SELECT id, first_name, last_name, email, phone, role, status, lockout_until, last_login, created_at FROM users WHERE 1=1"
+    query_str += filter_str
     query_str += " ORDER BY id DESC"
+    
+    offset = (page - 1) * limit
+    query_str += " LIMIT :limit OFFSET :offset"
+    params["limit"] = limit
+    params["offset"] = offset
     
     result = db.execute(text(query_str), params).mappings()
     users = [dict(row) for row in result.fetchall()]
-    return {"users": users, "total": len(users)}
+    return {"users": users, "total": total}
 
 def update_user_status(db: Session, user_id: int, new_status: str):
     # PROTECCIÓN DEL REY: No permitir deshabilitar al admin

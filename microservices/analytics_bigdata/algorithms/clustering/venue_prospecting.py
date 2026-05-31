@@ -157,6 +157,7 @@ def run_venue_prospecting(mysql_params, mongo_uri, mongo_db_name):
             user=mysql_params.get("user", "root"),
             password=mysql_params.get("password", ""),
             database=mysql_params.get("database", "laika_club"),
+            charset="utf8mb4",
             cursorclass=pymysql.cursors.DictCursor
         )
         with conn.cursor() as cur:

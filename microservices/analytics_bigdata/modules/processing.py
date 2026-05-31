@@ -120,7 +120,7 @@ class ProcessingModule:
     def get_artist_suggestions(self):
         try:
             if self.resilience_mode:
-                conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+                conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
                 cursor = conn.cursor()
                 cursor.execute("SELECT DISTINCT name FROM events")
                 res = [row[0] for row in cursor.fetchall()]

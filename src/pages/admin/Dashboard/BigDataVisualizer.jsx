@@ -497,11 +497,11 @@ const BigDataVisualizer = ({ managerId = null }) => {
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     <div style={{ background: 'var(--bg-primary)', border: '1px solid #E5E7EB', padding: '6px', display: 'flex', gap: '4px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
                         {[
-                            { id: '3D_EXPLORATION', label: 'EXPLORACIÓN 3D', icon: <Layers size={14} /> },
-                            { id: 'ML_REGRESSION', label: 'REGRESIÓN ML', icon: <Activity size={14} /> },
-                            { id: 'ML_DECISION_TREE', label: 'ÁRBOL DE DECISIÓN', icon: <Terminal size={14} /> },
-                            { id: 'CLASS_KDD', label: 'ESTADÍSTICA & KDD', icon: <DatabaseIcon size={14} /> },
-                            { id: 'B2B_PROSPECTING', label: 'PROSPECCIÓN B2B', icon: <Search size={14} /> }
+                            { id: '3D_EXPLORATION', label: 'EXPLORACIÓN 3D', icon: <span key="icon-3d"><Layers size={14} /></span> },
+                            { id: 'ML_REGRESSION', label: 'REGRESIÓN ML', icon: <span key="icon-reg"><Activity size={14} /></span> },
+                            { id: 'ML_DECISION_TREE', label: 'ÁRBOL DE DECISIÓN', icon: <span key="icon-tree"><Terminal size={14} /></span> },
+                            { id: 'CLASS_KDD', label: 'ESTADÍSTICA & KDD', icon: <span key="icon-kdd"><DatabaseIcon size={14} /></span> },
+                            { id: 'B2B_PROSPECTING', label: 'PROSPECCIÓN B2B', icon: <span key="icon-b2b"><Search size={14} /></span> }
                         ].map(mode => (
                             <button 
                                 key={mode.id}
@@ -744,7 +744,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
                             </div>
                         </div>
                         
-                        <div style={{ minHeight: '520px', height: analysisMode === 'CLASS_KDD' ? 'auto' : '520px', background: '#f8fafc', position: 'relative' }}>
+                        <div style={{ minHeight: '520px', height: (analysisMode === 'CLASS_KDD' || analysisMode === 'B2B_PROSPECTING') ? 'auto' : '520px', background: '#f8fafc', position: 'relative' }}>
                             {/* CAJA DE LEYENDA PARA LOS CUADRADITOS DE COLORES */}
                             {colorMode === 'solid' && analysisMode === '3D_EXPLORATION' && (
                                 <div style={{ 
@@ -774,30 +774,32 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                 </div>
                             )}
                             
-                            {analysisMode === '3D_EXPLORATION' ? (
-                                <Plot 
-                                    data={render3DPlot()}
-                                    layout={{
-                                        autosize: true, height: 520, margin: { l: 0, r: 0, b: 0, t: 0 },
-                                        paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-                                        scene: {
-                                            xaxis: { showgrid: true, gridcolor: '#D1D5DB', gridwidth: 1, zeroline: false, showticklabels: false, title: '' },
-                                            yaxis: { showgrid: true, gridcolor: '#D1D5DB', gridwidth: 1, zeroline: false, showticklabels: false, title: '' },
-                                            zaxis: { showgrid: true, gridcolor: '#D1D5DB', gridwidth: 1, zeroline: false, title: '' },
-                                            camera: { eye: { x: 1.5, y: 1.5, z: 1.2 } },
-                                            aspectratio: { x: 1, y: 1, z: 0.7 }
-                                        },
-                                        showlegend: false
-                                    }}
-                                    style={{ width: '100%', opacity: (loading || mlLoading) ? 0.3 : 1, transition: 'opacity 0.3s' }}
-                                    config={{ responsive: true, displaylogo: false }}
-                                />
+                            <div key="active-panel-wrapper" style={{ width: '100%', height: '100%' }}>
+                                {analysisMode === '3D_EXPLORATION' ? (
+                                <div key="plot-container-3d" style={{ width: '100%' }}>
+                                    <Plot 
+                                        data={render3DPlot()}
+                                        layout={{
+                                            autosize: true, height: 520, margin: { l: 0, r: 0, b: 0, t: 0 },
+                                            paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+                                            scene: {
+                                                xaxis: { showgrid: true, gridcolor: '#D1D5DB', gridwidth: 1, zeroline: false, showticklabels: false, title: '' },
+                                                yaxis: { showgrid: true, gridcolor: '#D1D5DB', gridwidth: 1, zeroline: false, showticklabels: false, title: '' },
+                                                zaxis: { showgrid: true, gridcolor: '#D1D5DB', gridwidth: 1, zeroline: false, title: '' },
+                                                camera: { eye: { x: 1.5, y: 1.5, z: 1.2 } },
+                                                aspectratio: { x: 1, y: 1, z: 0.7 }
+                                            },
+                                            showlegend: false
+                                        }}
+                                        style={{ width: '100%', opacity: (loading || mlLoading) ? 0.3 : 1, transition: 'opacity 0.3s' }}
+                                        config={{ responsive: true, displaylogo: false }}
+                                    />
+                                </div>
                             ) : analysisMode === 'ML_REGRESSION' ? (
-                                <div className="ml-panel-content" style={{ maxHeight: '520px', overflowY: 'auto' }}>
+                                <div key="ml-regression-container" className="ml-panel-content" style={{ maxHeight: '520px', overflowY: 'auto' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '12px' }}>
                                         <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <Activity size={18} color="#000000"/> 
-                                            {simpleView ? 'Evaluación de Modelos de Predicción' : 'COMPARATIVA DE MODELOS (R²)'}
+                                            <span key="title-icon-activity"><Activity size={18} color="#000000"/></span>                                            {simpleView ? 'Evaluación de Modelos de Predicción' : 'COMPARATIVA DE MODELOS (R²)'}
                                         </h2>
                                         <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
                                             <button 
@@ -1066,11 +1068,10 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     ) : <div className="ml-placeholder">Esperando datos del motor de inferencia...</div>}
                                 </div>
                             ) : analysisMode === 'ML_DECISION_TREE' ? (
-                                <div className="ml-panel-content">
+                                <div key="ml-decision-tree-container" className="ml-panel-content">
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '12px' }}>
                                         <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <Terminal size={18} color="#000000"/> 
-                                            {simpleView ? 'Reglas de Clasificación de Eventos' : 'ÁRBOL DE DECISIÓN GENERADO'}
+                                            <span key="title-icon-terminal"><Terminal size={18} color="#000000"/></span>                                            {simpleView ? 'Reglas de Clasificación de Eventos' : 'ÁRBOL DE DECISIÓN GENERADO'}
                                         </h2>
                                         <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
                                             <button 
@@ -1247,15 +1248,24 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                      )}
                                  </div>
                              ) : analysisMode === 'B2B_PROSPECTING' ? (
-                                <div style={{ padding: '1.8rem', background: '#ffffff', borderRadius: '24px' }}>
+                                <div 
+                                    key="b2b-prospecting-container" 
+                                    className="b2b-scrollable-container" 
+                                    style={{ 
+                                        padding: '1.8rem', 
+                                        background: '#ffffff', 
+                                        borderRadius: '24px', 
+                                        maxHeight: '650px', 
+                                        overflowY: 'auto' 
+                                    }}
+                                >
                                     <B2BProspecting />
                                 </div>
                             ) : (
-                                <div className="kdd-panel-content" style={{ padding: '1.8rem', color: '#1e293b', background: '#ffffff' }}>
+                                <div key="class-kdd-container" className="kdd-panel-content" style={{ padding: '1.8rem', color: '#1e293b', background: '#ffffff' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', flexWrap: 'wrap', gap: '12px' }}>
                                         <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <DatabaseIcon size={22} style={{ color: '#4f46e5' }} /> 
-                                            {simpleView ? 'Descubrimiento de Información y Estadísticas' : 'PROCESO DE DESCUBRIMIENTO KDD & ESTADÍSTICA DE CLASE'}
+                                            <span key="title-icon-database"><DatabaseIcon size={22} style={{ color: '#4f46e5' }} /></span>                                            {simpleView ? 'Descubrimiento de Información y Estadísticas' : 'PROCESO DE DESCUBRIMIENTO KDD & ESTADÍSTICA DE CLASE'}
                                         </h2>
                                         <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
                                             <button 
@@ -1347,10 +1357,18 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                                         : `En esta fase extraemos las muestras de datos desde la base de datos relacional MySQL (${selectedTable.toUpperCase()}) hacia nuestro motor analítico Spark.`
                                                     }
                                                 </p>
-                                                <div style={{ marginTop: '14px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', color: '#334155' }}>
-                                                    <b>{simpleView ? 'Datos seleccionados:' : 'Dataset Jalado:'}</b> {simpleView ? `Tabla de ${selectedTable}` : `laika_club.${selectedTable}`} <br/>
-                                                    <b>{simpleView ? 'Cantidad de registros encontrados:' : 'Registros Muestreados:'}</b> {canonicalData.length} registros en total.<br/>
-                                                    {!simpleView && descriptiveStats && <span><b>Esquema detectado:</b> {descriptiveStats.numeric_field} (Numérico) | {descriptiveStats.categorical_field} (Categoría)</span>}
+                                                <div style={{ marginTop: '14px', background: '#ffffff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '0.8rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                    <div>
+                                                        <b>{simpleView ? 'Datos seleccionados:' : 'Dataset Jalado:'}</b> {simpleView ? `Tabla de ${selectedTable}` : `laika_club.${selectedTable}`}
+                                                    </div>
+                                                    <div>
+                                                        <b>{simpleView ? 'Cantidad de registros encontrados:' : 'Registros Muestreados:'}</b> {canonicalData.length} registros en total.
+                                                    </div>
+                                                    {!simpleView && descriptiveStats && (
+                                                        <div>
+                                                            <b>Esquema detectado:</b> {descriptiveStats.numeric_field} (Numérico) | {descriptiveStats.categorical_field} (Categoría)
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
@@ -1500,10 +1518,18 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                                             : `σ = ${descriptiveStats.dispersion.standard_deviation.toLocaleString()}`
                                                         }
                                                     </div>
-                                                    <div style={{ fontSize: '0.75rem', color: '#b45309', opacity: 0.95, marginTop: '6px', lineHeight: '1.4' }}>
-                                                        {!simpleView && <span>Varianza (σ²): {descriptiveStats.dispersion.variance.toLocaleString()}<br/></span>}
-                                                        Rango de precios: {descriptiveStats.dispersion.range ? `$${descriptiveStats.dispersion.range}` : 'N/A'}<br/>
-                                                        Mínimo: ${descriptiveStats.dispersion.min} | Máximo: ${descriptiveStats.dispersion.max}
+                                                    <div style={{ fontSize: '0.75rem', color: '#b45309', opacity: 0.95, marginTop: '6px', lineHeight: '1.4', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                        {!simpleView && (
+                                                            <div>
+                                                                Varianza (σ²): {descriptiveStats.dispersion.variance.toLocaleString()}
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            Rango de precios: {descriptiveStats.dispersion.range ? `$${descriptiveStats.dispersion.range}` : 'N/A'}
+                                                        </div>
+                                                        <div>
+                                                            Mínimo: ${descriptiveStats.dispersion.min} | Máximo: ${descriptiveStats.dispersion.max}
+                                                        </div>
                                                     </div>
                                                     <p style={{ fontSize: '0.7rem', color: '#b45309', opacity: 0.8, margin: '8px 0 0 0', lineHeight: '1.4' }}>
                                                         {simpleView
@@ -1554,6 +1580,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     </div>
                                 </div>
                             )}
+                            </div>
                         </div>
                     </Card>
 
@@ -1721,6 +1748,11 @@ const BigDataVisualizer = ({ managerId = null }) => {
                 
                 .ml-panel-content { padding: 2.5rem; height: 100%; box-sizing: border-box; overflow-y: auto; }
                 .ml-placeholder { background: rgba(0,0,0,0.05); border: 2px dashed rgba(0,0,0,0.05); color: #000000; padding: 3rem; text-align: center; border-radius: 20px; font-weight: 600; font-size: 1rem; }
+                
+                .b2b-scrollable-container::-webkit-scrollbar { width: 6px; }
+                .b2b-scrollable-container::-webkit-scrollbar-track { background: transparent; }
+                .b2b-scrollable-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+                .b2b-scrollable-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
                 
                 .loader-overlay-premium { position: absolute; inset: 0; background: rgba(255,255,255,0.7); backdrop-filter: blur(4px); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; }
                 .spinner { width: 40px; height: 40px; border: 3px solid rgba(0,0,0,0.05); border-radius: 50%; border-top-color: #000000; animation: spin 1s infinite linear; }

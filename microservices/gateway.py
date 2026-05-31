@@ -71,6 +71,7 @@ async def proxy_middleware(request: Request, call_next):
                 user=db_user,
                 password=db_pass,
                 database=db_name,
+                charset="utf8mb4",
                 cursorclass=pymysql.cursors.DictCursor
             )
             with conn.cursor() as cursor:

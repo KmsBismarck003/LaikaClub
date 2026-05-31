@@ -12,15 +12,20 @@ const useAdminUsers = () => {
   const [users, setUsers] = useState([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [filters, setFilters] = useState({ search: '', role: '', status: '' })
+  const [filters, setFilters] = useState({ search: '', role: '', status: '', page: 1, limit: 15 })
 
   // ── Fetch con filtros ──
   const fetchUsers = useCallback(async (overrideFilters) => {
     setLoading(true)
     try {
-      const params = { ...(overrideFilters || filters), limit: 200 }
-      // Limpiar vacíos
-      Object.keys(params).forEach(k => { if (!params[k]) delete params[k] })
+      const activeFilters = overrideFilters || filters
+      const params = { ...activeFilters }
+      // Limpiar vacíos e indefinidos, pero conservar valores numéricos
+      Object.keys(params).forEach(k => { 
+        if (params[k] === undefined || params[k] === null || params[k] === '') {
+          delete params[k] 
+        }
+      })
 
       const res = await api.adminUsers.getAll(params)
       setUsers(res.users || [])
@@ -29,6 +34,7 @@ const useAdminUsers = () => {
       console.error('❌ Error al cargar usuarios:', err)
       showError(err?.message || 'Error al cargar usuarios')
       setUsers([])
+      setTotal(0)
     } finally {
       setLoading(false)
     }
@@ -87,17 +93,28 @@ const useAdminUsers = () => {
   }
 
   // ── Actualizar filtros y recargar ──
-  const updateFilters = (newFilters) => {
-    const merged = { ...filters, ...newFilters }
-    setFilters(merged)
-    fetchUsers(merged)
-  }
+  const updateFilters = useCallback((newFilters) => {
+    setFilters(prev => {
+      const merged = { ...prev, ...newFilters }
+      
+      const searchChanged = newFilters.search !== undefined && newFilters.search !== prev.search
+      const roleChanged = newFilters.role !== undefined && newFilters.role !== prev.role
+      const statusChanged = newFilters.status !== undefined && newFilters.status !== prev.status
+      
+      if ((searchChanged || roleChanged || statusChanged) && newFilters.page === undefined) {
+        merged.page = 1
+      }
+      
+      fetchUsers(merged)
+      return merged
+    })
+  }, [fetchUsers])
 
-  const clearFilters = () => {
-    const empty = { search: '', role: '', status: '' }
+  const clearFilters = useCallback(() => {
+    const empty = { search: '', role: '', status: '', page: 1, limit: 15 }
     setFilters(empty)
     fetchUsers(empty)
-  }
+  }, [fetchUsers])
 
   // ── Actualizar usuario integral ──
   const updateUser = async (userId, data) => {

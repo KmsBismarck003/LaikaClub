@@ -773,11 +773,19 @@ async def upload_ad_image(file: UploadFile = File(...)):
         if ext not in [".jpg", ".jpeg", ".png", ".webp", ".gif"]:
             raise HTTPException(400, "Formato de imagen no permitido")
             
-        filename = f"{uuid.uuid4().hex}{ext}"
-        filepath = ADS_UPLOAD_DIR / filename
+        contents = await file.read()
         
-        with open(filepath, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        if ext == ".gif":
+            filename = f"{uuid.uuid4().hex}{ext}"
+            filepath = ADS_UPLOAD_DIR / filename
+            with open(filepath, "wb") as buffer:
+                buffer.write(contents)
+        else:
+            from microservices.common.image_utils import save_image_as_webp
+            filename = save_image_as_webp(
+                file_contents=contents,
+                destination_dir=ADS_UPLOAD_DIR
+            )
             
         return {"url": f"/api/admin/uploads/ads/{filename}", "message": "Imagen subida correctamente"}
     except Exception as e:

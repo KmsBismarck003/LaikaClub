@@ -45,7 +45,7 @@ class VaultModule:
     def _sync_lightweight(self, backup_type, tables, snapshot_id):
         results = {}
         try:
-            mysql_conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, cursorclass=pymysql.cursors.DictCursor)
+            mysql_conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4", cursorclass=pymysql.cursors.DictCursor)
             client = MongoClient(self.mongo_uri, tlsAllowInvalidCertificates=True)
             mongo_db = client[self.mongo_db]
             
@@ -124,7 +124,7 @@ class VaultModule:
         try:
             client = MongoClient(self.mongo_uri, tlsAllowInvalidCertificates=True)
             mongo_db = client[self.mongo_db]
-            mysql_conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+            mysql_conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
             data = list(mongo_db[snapshot_id].find({}, {"_id": 0}))
             if not data: return {"status": "error", "message": "Snapshot vacío o no encontrado"}
             

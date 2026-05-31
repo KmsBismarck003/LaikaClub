@@ -23,8 +23,12 @@ from .algorithms.clustering.k_means import train_k_means
 from .algorithms.clustering.pca import run_pca
 from .algorithms.clustering.venue_prospecting import run_venue_prospecting
 
+# Importación de módulos mixin
+from .modules.clustering_pca import ClusteringModule
+from .modules.neural_network import NeuralNetworkModule
 
-class AnalyticsEngine:
+
+class AnalyticsEngine(ClusteringModule, NeuralNetworkModule):
     def __init__(self):
         self.spark = None
         self.resilience_mode = True # Iniciar en modo resiliencia (ligero) hasta que Spark despierte
@@ -90,7 +94,7 @@ class AnalyticsEngine:
     def _run_analysis_sql(self, table_name, filters=None):
         """SQL Directo para cuando Spark no está disponible."""
         try:
-            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             
             where_clauses = []
@@ -246,7 +250,7 @@ class AnalyticsEngine:
     def _run_3d_sql(self, table_name, filters=None):
         """Generar datos 3D vía SQL Directo para modo resiliencia."""
         try:
-            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             
             where_clauses = []
@@ -336,7 +340,7 @@ class AnalyticsEngine:
         """Extrae nombres únicos de eventos para autocompletado."""
         try:
             if self.resilience_mode:
-                conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+                conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
                 cursor = conn.cursor()
                 cursor.execute("SELECT DISTINCT name FROM events")
                 res = [row[0] for row in cursor.fetchall()]
@@ -634,7 +638,7 @@ class AnalyticsEngine:
         # Obtener eventos del gestor y calcular predicciones con el modelo lineal
         event_predictions = []
         try:
-            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             
             if manager_id:
@@ -707,7 +711,8 @@ class AnalyticsEngine:
                 host=self.mysql_host,
                 user=self.mysql_user,
                 password=self.mysql_pass,
-                database=self.mysql_db
+                database=self.mysql_db,
+                charset="utf8mb4"
             )
             cursor = mysql_conn.cursor(pymysql.cursors.DictCursor)
             
@@ -924,6 +929,7 @@ class AnalyticsEngine:
                 user=self.mysql_user,
                 password=self.mysql_pass,
                 database=self.mysql_db,
+                charset="utf8mb4",
                 cursorclass=pymysql.cursors.DictCursor
             )
             
@@ -1036,7 +1042,7 @@ class AnalyticsEngine:
         Fase KDD: Pre-procesamiento y Preparación de datos (Limpieza, eliminar duplicados, imputación).
         """
         try:
-            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             
             # 1. Obtener cantidad de registros antes de limpiar
@@ -1158,7 +1164,7 @@ class AnalyticsEngine:
         cat_col = meta["categorical_col"]
         
         try:
-            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             
             where_clauses = []
@@ -1331,7 +1337,8 @@ class AnalyticsEngine:
                 host=self.mysql_host,
                 user=self.mysql_user,
                 password=self.mysql_pass,
-                database=self.mysql_db
+                database=self.mysql_db,
+                charset="utf8mb4"
             )
             
             # Obtener datos de Mongo

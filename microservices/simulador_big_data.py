@@ -20,6 +20,7 @@ def connect():
         user=DB_USER,
         password=DB_PASS,
         database=DB_NAME,
+        charset="utf8mb4",
         autocommit=True,
         cursorclass=pymysql.cursors.DictCursor
     )

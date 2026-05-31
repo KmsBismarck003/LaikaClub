@@ -26,7 +26,7 @@ def ingest_table(csv_name, table_name, column_mapping):
     # Manejar NaNs
     df = df.where(pd.notnull(df), None)
 
-    conn = pymysql.connect(host=MYSQL_HOST, user=MYSQL_USER, password=MYSQL_PASS, database=MYSQL_DB)
+    conn = pymysql.connect(host=MYSQL_HOST, user=MYSQL_USER, password=MYSQL_PASS, database=MYSQL_DB, charset="utf8mb4")
     cursor = conn.cursor()
 
     try:

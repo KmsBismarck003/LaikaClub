@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Badge, Button, Input, Icon, SkeletonRow } from '../../../components'
+import { Card, Table, Badge, Button, Input, Icon, SkeletonRow, Pagination } from '../../../components'
 import Skeleton from '../../../components/Skeleton/Skeleton';
 import { useNotification } from '../../../context/NotificationContext'
 import useAdminUsers from '../../../hooks/useAdminUsers'
@@ -356,21 +356,32 @@ const Users = () => {
             <tbody>{Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} columns={6} />)}</tbody>
           </table>
         ) : (
-          <Table 
-            columns={columns} 
-            data={users} 
-            sortable 
-            rowPriority={(row) => {
-              const priorities = {
-                admin: 100,
-                gestor: 90,
-                operador: 80,
-                usuario: 70
-              }
-              return priorities[row.role] || 0
-            }}
-            rowClassName={(row) => `user-row--${row.role}`}
-          />
+          <>
+            <Table 
+              columns={columns} 
+              data={users} 
+              sortable 
+              rowPriority={(row) => {
+                const priorities = {
+                  admin: 100,
+                  gestor: 90,
+                  operador: 80,
+                  usuario: 70
+                }
+                return priorities[row.role] || 0
+              }}
+              rowClassName={(row) => `user-row--${row.role}`}
+            />
+            {total > (filters.limit || 15) && (
+              <div style={{ padding: '0.75rem', display: 'flex', justifyContent: 'center', borderTop: '1px solid var(--border-color)' }}>
+                <Pagination 
+                  currentPage={filters.page || 1}
+                  totalPages={Math.ceil(total / (filters.limit || 15))}
+                  onPageChange={(page) => updateFilters({ page })}
+                />
+              </div>
+            )}
+          </>
         )}
       </Card>
 

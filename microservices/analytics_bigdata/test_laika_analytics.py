@@ -1,12 +1,14 @@
 import sys
 import os
 
-# Asegurar que podemos importar los módulos locales
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Asegurar que el directorio raíz del proyecto esté en sys.path para importaciones de paquetes
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
 
 try:
-    from engine import AnalyticsEngine
-    print("[TEST] Importación de AnalyticsEngine: EXITOSA")
+    from microservices.analytics_bigdata.engine import AnalyticsEngine
+    print("[TEST] Importación de AnalyticsEngine (absoluta): EXITOSA")
 except Exception as e:
     print(f"[TEST] Error al importar AnalyticsEngine: {e}")
     sys.exit(1)

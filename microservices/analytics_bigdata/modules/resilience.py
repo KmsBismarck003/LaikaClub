@@ -7,7 +7,7 @@ class ResilienceModule:
     
     def _run_analysis_sql(self, table_name, filters=None):
         try:
-            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             
             where_clauses = []
@@ -111,7 +111,7 @@ class ResilienceModule:
 
     def _run_3d_sql(self, table_name, filters=None):
         try:
-            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db)
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             
             where_clauses = []

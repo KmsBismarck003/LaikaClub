@@ -136,11 +136,13 @@ async def upload_avatar(
         if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
             raise HTTPException(status_code=400, detail="Formato no soportado")
             
-        filename = f"user_{current_user['user_id']}_{uuid.uuid4().hex[:8]}{ext}"
-        filepath = AVATARS_DIR / filename
-        
-        with open(filepath, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        contents = await file.read()
+        from microservices.common.image_utils import save_image_as_webp
+        filename = save_image_as_webp(
+            file_contents=contents,
+            destination_dir=AVATARS_DIR,
+            filename_prefix=f"user_{current_user['user_id']}"
+        )
             
         avatar_url = f"/api/auth/uploads/avatars/{filename}"
         return controller.update_user_avatar(db, current_user['user_id'], avatar_url)
@@ -154,13 +156,15 @@ def get_admin_users(
     search: str = None, 
     role: str = None, 
     status: str = None, 
+    page: int = 1,
+    limit: int = 20,
     db: Session = Depends(get_db), 
     current_user: dict = Depends(get_current_user)
 ):
     # Verificación ruda de admin
     if current_user.get('role') != 'admin':
         raise HTTPException(status_code=403, detail="No tienes permisos de administrador")
-    return controller.get_users(db, search, role, status)
+    return controller.get_users(db, search=search, role=role, status=status, page=page, limit=limit)
 
 @app.patch("/admin/users/{user_id}/status")
 def patch_user_status(

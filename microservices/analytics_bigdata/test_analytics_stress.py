@@ -3,13 +3,15 @@ import sys
 import os
 from datetime import datetime
 
-# Asegurar que podemos importar los módulos locales
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Asegurar que el directorio raíz del proyecto esté en sys.path para importaciones de paquetes
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
 
 try:
-    from engine import AnalyticsEngine
-except ImportError:
-    print("[ERROR] No se pudo cargar el motor. Asegúrate de estar en el directorio correcto.")
+    from microservices.analytics_bigdata.engine import AnalyticsEngine
+except Exception as e:
+    print(f"[ERROR] No se pudo cargar el motor: {e}")
     sys.exit(1)
 
 def benchmark_feature(name, func, *args, **kwargs):
