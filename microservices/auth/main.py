@@ -247,6 +247,47 @@ def get_user_permissions(user_id: int, db: Session = Depends(get_db), current_us
 def update_user_permissions(user_id: int, data: dict, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     return controller.update_user_permissions(db, user_id, data.get('role'), data.get('permissions'))
 
+from pydantic import BaseModel
+
+class VerifyPasswordRequest(BaseModel):
+    user_id: int
+    password: str
+
+@app.post("/verify-password")
+@app.post("/api/auth/verify-password")
+def verify_user_password(request: VerifyPasswordRequest, db: Session = Depends(get_db)):
+    from sqlalchemy import text
+    from .security import verify_password
+    
+    result = db.execute(
+        text("SELECT password_hash FROM users WHERE id = :uid"),
+        {"uid": request.user_id}
+    ).fetchone()
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        
+    hashed_password = result[0]
+    if not verify_password(request.password, hashed_password):
+        raise HTTPException(status_code=401, detail="Contraseña incorrecta")
+        
+    return {"valid": True}
+
+@app.get("/users/{user_id}/public")
+@app.get("/api/auth/users/{user_id}/public")
+def get_user_public_profile(user_id: int, db: Session = Depends(get_db)):
+    user = controller.get_user_by_id(db, user_id)
+    full_name = f"{user['firstName']} {user['lastName']}".strip()
+    if not full_name:
+        full_name = user['email'].split('@')[0]
+    return {
+        "id": user['id'],
+        "name": full_name,
+        "full_name": full_name,
+        "role": user['role']
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+

@@ -82,9 +82,20 @@ export default function TicketV4({ ticket, onClose }) {
             
             {/* Header info */}
             <div>
-              <p style={{ margin: 0, fontSize: '0.7rem', color: '#fde047', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>
-                LAIKA TOUR
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.3rem' }}>
+                <img
+                  src="/logob.png"
+                  alt="LAIKA Club Logo"
+                  style={{
+                    height: '14px',
+                    width: 'auto',
+                    opacity: 0.95,
+                    pointerEvents: 'none',
+                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+                  }}
+                />
+                <span style={{ fontSize: '0.65rem', color: '#fde047', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>TOUR</span>
+              </div>
               <h2 style={{ 
                 margin: '0.2rem 0', fontSize: '2.2rem', fontWeight: 900, textTransform: 'uppercase', 
                 letterSpacing: '1px', lineHeight: 1.1,

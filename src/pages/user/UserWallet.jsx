@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
-import Icon from '../../components/Icons/Icons';
-import { formatDate, formatTime, getSeatLabel } from '../EventDetail/utils/helpers';
 import TicketModal from './components/Wallet/TicketModal';
+import TransferModal from '../../components/Transfer/TransferModal';
+import { useTicketTransfer } from '../../hooks/useTicketTransfer';
+import { useNotification } from '../../context/NotificationContext';
 
 /* ── Accent colors per index ─────────────────────────────────── */
 const ACCENTS = [
@@ -35,7 +36,6 @@ function getEventImageUrl(url, idx = 0) {
   const host = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000'
     : `http://${window.location.hostname}:8000`;
-  
   if (url.startsWith('/')) {
     return `${host}${url}`;
   }
@@ -46,8 +46,10 @@ export default function UserWallet() {
   const [tickets,  setTickets]  = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [tab,      setTab]      = useState('upcoming');
-  const [qrModal,  setQrModal]  = useState(null); // ticket object
+  const [qrModal,  setQrModal]  = useState(null);
   const navigate = useNavigate();
+  const { success, error } = useNotification();
+  const transfer = useTicketTransfer({ success, error });
 
   useEffect(() => {
     (async () => {
@@ -67,7 +69,6 @@ export default function UserWallet() {
 
   const upcoming = tickets.filter(isUpcoming);
   const past     = tickets.filter(t => !isUpcoming(t));
-  const shown    = tab === 'upcoming' ? upcoming : [];
 
   if (loading) return (
     <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
@@ -83,11 +84,10 @@ export default function UserWallet() {
         <span style={{ fontSize:'.65rem', fontWeight:900, textTransform:'uppercase',
           letterSpacing:'4px', color:'#666' }}>MIS BOLETOS</span>
 
-        {/* Pill tabs — exactly like the mockup */}
         <div style={{ display:'flex', background:'rgba(255,255,255,.06)',
           border:'1px solid rgba(255,255,255,.1)', borderRadius:'99px', padding:'4px' }}>
           {[
-            { id:'upcoming', label:'PRÓXIMOS' },
+            { id:'upcoming', label:'PROXIMOS' },
             { id:'past',     label:'PASADOS'  },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
@@ -101,7 +101,7 @@ export default function UserWallet() {
         </div>
       </div>
 
-      {/* ── UPCOMING / SELECTED TAB CARDS ───────────────────────── */}
+      {/* ── UPCOMING ────────────────────────────────────────────── */}
       {tab === 'upcoming' && (
         upcoming.length === 0 ? (
           <Empty onExplore={() => navigate('/')} />
@@ -109,12 +109,14 @@ export default function UserWallet() {
           <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
             {upcoming.map((t, i) => (
               <BigTicketCard key={t.id||i} ticket={t} idx={i}
-                onQr={() => setQrModal(t)} />
+                onQr={() => setQrModal(t)}
+                onTransfer={transfer.openTransfer} />
             ))}
           </div>
         )
       )}
 
+      {/* ── PAST ───────────────────────────────────────────────── */}
       {tab === 'past' && (
         past.length === 0 ? (
           <Empty msg="Sin eventos pasados" />
@@ -122,7 +124,8 @@ export default function UserWallet() {
           <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
             {past.map((t, i) => (
               <BigTicketCard key={t.id||i} ticket={t} idx={i}
-                isPast onQr={() => setQrModal(t)} />
+                isPast onQr={() => setQrModal(t)}
+                onTransfer={transfer.openTransfer} />
             ))}
           </div>
         )
@@ -154,12 +157,27 @@ export default function UserWallet() {
           <TicketModal ticket={qrModal} onClose={() => setQrModal(null)} />
         </div>
       )}
+
+      {/* ── TRANSFER MODAL ───────────────────────────────────────── */}
+      <TransferModal
+        phase={transfer.phase}
+        ticket={transfer.ticket}
+        password={transfer.password}
+        setPassword={transfer.setPassword}
+        tokenData={transfer.tokenData}
+        claimUrl={transfer.claimUrl}
+        secondsLeft={transfer.secondsLeft}
+        errorMsg={transfer.errorMsg}
+        loading={transfer.loading}
+        onConfirm={transfer.confirmAndGenerate}
+        onCancel={transfer.cancelTransfer}
+      />
     </div>
   );
 }
 
-/* ── BIG TICKET CARD (Próximos + Pasados full) ──────────────── */
-function BigTicketCard({ ticket, idx, isPast, onQr }) {
+/* ── BIG TICKET CARD (Proximos + Pasados full) ───────────────── */
+function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer }) {
   const acc     = ACCENTS[idx % ACCENTS.length];
   const code    = ticket.ticket_code || ticket.ticketCode || `TKT-${String(ticket.id||idx).padStart(6,'0')}`;
   const name    = ticket.event?.name || ticket.eventName || 'Evento LAIKA';
@@ -180,102 +198,144 @@ function BigTicketCard({ ticket, idx, isPast, onQr }) {
   };
   const badgeDef = badgeMap[status] || badgeMap.confirmed;
 
-  // For "próximo" (upcoming but not yet confirmed as a status)
   const badgeFinal = (status==='confirmed' && dateRaw && new Date(dateRaw) > new Date())
-    ? { label:'PRÓXIMO', color:'#fff', bg:'#3b82f6' }
+    ? { label:'PROXIMO', color:'#fff', bg:'#3b82f6' }
     : badgeDef;
+
+  const canTransfer = (status === 'active' || status === 'confirmed') && !isPast;
 
   return (
     <div style={{
-      display:'flex',
+      display:'flex', flexDirection:'column',
       background: isPast ? 'rgba(255,255,255,.03)' : '#111115',
       border:`1px solid ${isPast ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.1)'}`,
       borderRadius:'18px', overflow:'hidden',
       filter: isPast ? 'grayscale(.7) opacity(.7)' : 'none',
       boxShadow: isPast ? 'none' : `0 6px 32px rgba(0,0,0,.4)`,
-      height: '130px'
     }}>
 
-      {/* ── LEFT COLORED PANEL ─── */}
-      <div style={{
-        width: '130px', flexShrink:0, position:'relative',
-        background: `linear-gradient(135deg, ${acc.from} 0%, ${acc.to} 100%)`,
-        overflow:'hidden'
-      }}>
-        {/* Glow orb */}
-        <div style={{ position:'absolute', inset:0,
-          background:`radial-gradient(circle at 40% 50%, ${acc.line}40 0%, transparent 70%)` }}/>
-        {/* Event image */}
-        <img src={imgUrl} alt="" style={{
-          position:'absolute', inset:0, width:'100%', height:'100%',
-          objectFit:'cover', opacity:.55, mixBlendMode:'luminosity'
-        }}/>
-        {/* Foreground image square */}
+      {/* Main ticket row */}
+      <div style={{ display:'flex', height:'130px' }}>
+
+        {/* LEFT COLORED PANEL */}
         <div style={{
-          position:'absolute', inset:0,
-          display:'flex', alignItems:'center', justifyContent:'center'
+          width: '130px', flexShrink:0, position:'relative',
+          background: `linear-gradient(135deg, ${acc.from} 0%, ${acc.to} 100%)`,
+          overflow:'hidden'
         }}>
+          <div style={{ position:'absolute', inset:0,
+            background:`radial-gradient(circle at 40% 50%, ${acc.line}40 0%, transparent 70%)` }}/>
           <img src={imgUrl} alt="" style={{
-            width:'76px', height:'76px', borderRadius:'12px',
-            objectFit:'cover', boxShadow:'0 4px 16px rgba(0,0,0,.5)',
-            border:'2px solid rgba(255,255,255,.15)', position:'relative', zIndex:1
+            position:'absolute', inset:0, width:'100%', height:'100%',
+            objectFit:'cover', opacity:.55, mixBlendMode:'luminosity'
           }}/>
+          <div style={{
+            position:'absolute', inset:0,
+            display:'flex', alignItems:'center', justifyContent:'center'
+          }}>
+            <img src={imgUrl} alt="" style={{
+              width:'76px', height:'76px', borderRadius:'12px',
+              objectFit:'cover', boxShadow:'0 4px 16px rgba(0,0,0,.5)',
+              border:'2px solid rgba(255,255,255,.15)', position:'relative', zIndex:1
+            }}/>
+          </div>
         </div>
-      </div>
 
-      {/* ── CENTER: INFO ─────── */}
-      <div style={{
-        flex:1, padding:'1.1rem 1.25rem',
-        display:'flex', flexDirection:'column', justifyContent:'space-between',
-        minWidth:0
-      }}>
-        <div>
-          <h3 style={{ margin:'0 0 .25rem', fontSize:'1.1rem', fontWeight:900, color:'#fff',
-            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-            textTransform:'uppercase', letterSpacing:'.5px' }}>
-            {name}
-          </h3>
-          <p style={{ margin:'0 0 .18rem', fontSize:'.7rem', color:'#666', fontWeight:600,
-            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-            {ticket.ticket_type ? `${ticket.ticket_type}, ` : ''}{venue}
+        {/* CENTER INFO */}
+        <div style={{
+          flex:1, padding:'1.1rem 1.25rem',
+          display:'flex', flexDirection:'column', justifyContent:'space-between',
+          minWidth:0
+        }}>
+          <div>
+            <h3 style={{ margin:'0 0 .25rem', fontSize:'1.1rem', fontWeight:900, color:'#fff',
+              overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+              textTransform:'uppercase', letterSpacing:'.5px' }}>
+              {name}
+            </h3>
+            <p style={{ margin:'0 0 .18rem', fontSize:'.7rem', color:'#666', fontWeight:600,
+              overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+              {ticket.ticket_type ? `${ticket.ticket_type}, ` : ''}{venue}
+            </p>
+            <p style={{ margin:0, fontSize:'.68rem', color:'#555', fontWeight:600 }}>{fmtDate}</p>
+          </div>
+          <div style={{ display:'flex', justifyContent:'flex-end' }}>
+            <span style={{
+              background: badgeFinal.bg, color: badgeFinal.color,
+              fontSize:'.58rem', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase',
+              padding:'.3rem .85rem', borderRadius:'99px', alignSelf:'flex-end'
+            }}>{badgeFinal.label}</span>
+          </div>
+        </div>
+
+        {/* PERFORATION */}
+        <div style={{ width:'1px', background:'transparent',
+          borderLeft:'2px dashed rgba(255,255,255,.08)',
+          margin:'12px 0', flexShrink:0 }}/>
+
+        {/* RIGHT QR */}
+        <div onClick={e => { e.stopPropagation(); onQr(); }}
+          style={{
+            width:'120px', flexShrink:0,
+            display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+            gap:'.5rem', padding:'0 1rem', cursor:'pointer',
+            transition:'background .2s'
+          }}
+          onMouseOver={e => e.currentTarget.style.background='rgba(255,255,255,.03)'}
+          onMouseOut={e => e.currentTarget.style.background='transparent'}
+        >
+          <div style={{ width:'72px', height:'72px', borderRadius:'8px', overflow:'hidden',
+            border:'1px solid rgba(255,255,255,.1)', background:'#111' }}>
+            <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%' }}/>
+          </div>
+          <p style={{ margin:0, fontFamily:'monospace', fontSize:'.48rem',
+            color:'#555', letterSpacing:'1px', textAlign:'center',
+            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>
+            {code}
           </p>
-          <p style={{ margin:0, fontSize:'.68rem', color:'#555', fontWeight:600 }}>{fmtDate}</p>
-        </div>
-        <div style={{ display:'flex', justifyContent:'flex-end' }}>
-          <span style={{
-            background: badgeFinal.bg, color: badgeFinal.color,
-            fontSize:'.58rem', fontWeight:900, letterSpacing:'1.5px', textTransform:'uppercase',
-            padding:'.3rem .85rem', borderRadius:'99px', alignSelf:'flex-end'
-          }}>{badgeFinal.label}</span>
         </div>
       </div>
 
-      {/* ── PERFORATION ──────── */}
-      <div style={{ width:'1px', background:'transparent',
-        borderLeft:'2px dashed rgba(255,255,255,.08)',
-        margin:'12px 0', flexShrink:0 }}/>
-
-      {/* ── RIGHT: QR ────────── */}
-      <div onClick={e => { e.stopPropagation(); onQr(); }}
-        style={{
-          width:'120px', flexShrink:0,
-          display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-          gap:'.5rem', padding:'0 1rem', cursor:'pointer',
-          transition:'background .2s'
-        }}
-        onMouseOver={e => e.currentTarget.style.background='rgba(255,255,255,.03)'}
-        onMouseOut={e => e.currentTarget.style.background='transparent'}
-      >
-        <div style={{ width:'72px', height:'72px', borderRadius:'8px', overflow:'hidden',
-          border:'1px solid rgba(255,255,255,.1)', background:'#111' }}>
-          <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%' }}/>
+      {/* TRANSFER BUTTON — visible only for active tickets */}
+      {canTransfer && (
+        <div style={{ borderTop:'1px solid rgba(255,255,255,.05)', padding:'.6rem 1rem' }}>
+          <button
+            id={`transfer-btn-${ticket.id || idx}`}
+            onClick={e => { e.stopPropagation(); onTransfer(ticket); }}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '.55rem 1rem',
+              background: 'rgba(121,40,202,.08)',
+              border: '1px solid rgba(121,40,202,.18)',
+              borderRadius: '10px',
+              color: '#a78bfa',
+              fontSize: '.62rem',
+              fontWeight: 800,
+              letterSpacing: '.08em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              transition: 'all .2s',
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.background = 'rgba(121,40,202,.16)';
+              e.currentTarget.style.borderColor = 'rgba(121,40,202,.32)';
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.background = 'rgba(121,40,202,.08)';
+              e.currentTarget.style.borderColor = 'rgba(121,40,202,.18)';
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Transferir Boleto
+          </button>
         </div>
-        <p style={{ margin:0, fontFamily:'monospace', fontSize:'.48rem',
-          color:'#555', letterSpacing:'1px', textAlign:'center',
-          overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>
-          {code}
-        </p>
-      </div>
+      )}
     </div>
   );
 }
@@ -298,21 +358,18 @@ function SmallTicketCard({ ticket, idx, onQr }) {
       borderRadius:'14px', overflow:'hidden',
       filter:'grayscale(.65) opacity(.75)'
     }}>
-      {/* Left tiny color band + image */}
       <div style={{ width:'72px', flexShrink:0, position:'relative',
         background:`linear-gradient(135deg, ${acc.from} 0%, ${acc.to} 100%)` }}>
         <img src={imgUrl} alt="" style={{ position:'absolute', inset:0,
           width:'100%', height:'100%', objectFit:'cover', opacity:.5 }}/>
       </div>
 
-      {/* Info */}
       <div style={{ flex:1, padding:'.65rem .75rem', display:'flex', flexDirection:'column', justifyContent:'center', minWidth:0 }}>
         <h4 style={{ margin:'0 0 .15rem', fontSize:'.72rem', fontWeight:900, color:'#fff',
           overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{name}</h4>
         <p style={{ margin:0, fontSize:'.6rem', color:'#555', fontWeight:600 }}>{venue && `${venue}, `}{fmtDate}</p>
       </div>
 
-      {/* QR small */}
       <div onClick={e => { e.stopPropagation(); onQr(); }} style={{
         width:'72px', flexShrink:0, position:'relative',
         display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
@@ -321,7 +378,6 @@ function SmallTicketCard({ ticket, idx, onQr }) {
         <div style={{ width:'42px', height:'42px', overflow:'hidden', borderRadius:'6px', background:'#111' }}>
           <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%' }}/>
         </div>
-        {/* USADO badge over QR */}
         <span style={{
           fontSize:'.45rem', fontWeight:900, textTransform:'uppercase', letterSpacing:'1px',
           background:'rgba(60,60,60,.9)', color:'#888', padding:'.18rem .5rem', borderRadius:'99px',
@@ -332,18 +388,17 @@ function SmallTicketCard({ ticket, idx, onQr }) {
   );
 }
 
-/* ── QR MODAL DEPRECATED (Moved to modular TicketModal.jsx) ─── */
-
-
 /* ── EMPTY STATE ────────────────────────────────────────────── */
 function Empty({ onExplore, msg }) {
   return (
     <div style={{ textAlign:'center', padding:'4rem 2rem',
       background:'rgba(255,255,255,.02)', border:'1px dashed rgba(255,255,255,.07)',
       borderRadius:'20px' }}>
-      <div style={{ fontSize:'3rem', marginBottom:'1rem' }}>🎟</div>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom:'1rem', display:'block', margin:'0 auto 1rem' }}>
+        <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
+      </svg>
       <p style={{ margin:'0 0 1.25rem', fontSize:'.8rem', color:'#555' }}>
-        {msg || 'No tienes próximos eventos'}
+        {msg || 'No tienes proximos eventos'}
       </p>
       {onExplore && (
         <button onClick={onExplore} style={{

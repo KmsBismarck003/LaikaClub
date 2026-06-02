@@ -5,6 +5,8 @@
   "python.defaultInterpreterPath": "C:\\Users\\redja\\miniconda3\\envs\\laika\\python.exe",
   "python.analysis.extraPaths": [
     "./microservices",
-    "./src"
+    "./src",
+    "C:\\Users\\redja\\miniconda3\\envs\\laika\\Lib\\site-packages",
+    "${workspaceFolder}/.venv/Lib/site-packages"
   ]
 }

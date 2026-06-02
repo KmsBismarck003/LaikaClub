@@ -15,15 +15,17 @@ def get_mongo_db():
     global client, db
     if client is None and MONGO_URI:
         try:
+            sanitized_uri = MONGO_URI.strip('"').strip("'")
+            sanitized_db = MONGO_DB.strip('"').strip("'")
             client = motor.motor_asyncio.AsyncIOMotorClient(
-                MONGO_URI,
+                sanitized_uri,
                 serverSelectionTimeoutMS=5000,  # Timeout rápido para no bloquear
                 connectTimeoutMS=5000,
                 socketTimeoutMS=5000,
                 tlsAllowInvalidCertificates=True,
             )
-            db = client[MONGO_DB]
-            print(f"[MONGO SYNC] Configured MongoDB client for: {MONGO_DB}")
+            db = client[sanitized_db]
+            print(f"[MONGO SYNC] Configured MongoDB client for: {sanitized_db}")
         except Exception as e:
             print(f"[MONGO SYNC] Error configuring MongoDB client: {e}")
             client = None

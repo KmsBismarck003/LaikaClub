@@ -13,6 +13,7 @@ import { useLuckySeat } from "./hooks/useLuckySeat";
 import { useVenueMap } from "./hooks/useVenueMap";
 import { useSeatLock } from "./hooks/useSeatLock";
 import { cleanPrice, formatDate, formatTime } from "./utils/helpers";
+import { useFreeEventFlow } from "../../hooks/useFreeEventFlow";
 
 import EventHero from "./components/EventHero/EventHero";
 import TicketSelectionPanel from "./components/TicketSelection/TicketSelectionPanel";
@@ -99,6 +100,17 @@ const EventDetail = () => {
     ticketEngine.selectedSeats,
     ticketEngine.setSelectedSeats,
     error
+  );
+
+  // 6. Free Event Hook — cortocircuita carrito/pagos para precio 0
+  const freeFlow = useFreeEventFlow(
+    event,
+    ticketEngine.selectedSection,
+    { success, error },
+    (result) => {
+      success('Entrada registrada en tu Wallet');
+      navigate('/user/tickets');
+    }
   );
 
   // Direct Purchase Flow overrides
@@ -362,6 +374,9 @@ const EventDetail = () => {
                 handleLuckySeat={() => requireAuth(luckySeat.handleLuckySeat)}
                 isRouletteActive={luckySeat.isRouletteActive}
                 setShowProbModal={luckySeat.setShowProbModal}
+                isFreeEvent={freeFlow.isFreeEvent}
+                onClaimFree={() => requireAuth(() => freeFlow.claimFreeTicket({ functionId: ticketEngine.selectedFunction?.id }))}
+                isClaimingFree={freeFlow.loading}
               />
              {event.ads_enabled && (
                <div className="event-detail-ad-wrapper right-sidebar mt-4">

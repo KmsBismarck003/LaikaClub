@@ -1,0 +1,722 @@
+/* ============================================================
+   LAIKA CLUB — Ticket Phygital System
+   Separación de responsabilidades: estilos aislados del componente
+   Naming convention: BEM con prefijo tk- (ticket)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&family=JetBrains+Mono:wght@500;700&display=swap');
+
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --tk-black:       #0a0a0a;
+  --tk-ink:         #111111;
+  --tk-charcoal:    #1e1e1e;
+  --tk-slate:       #2d2d2d;
+  --tk-mist:        #f5f4f0;
+  --tk-paper:       #fdfcf8;
+  --tk-cream:       #f8f6f0;
+  --tk-rule:        rgba(0,0,0,0.09);
+  --tk-rule-light:  rgba(0,0,0,0.05);
+  --tk-gold:        #c9a84c;
+  --tk-gold-light:  #e8d08a;
+  --tk-gold-dark:   #8b6914;
+  --tk-accent:      #d4a843;
+  --tk-green:       #16a34a;
+  --tk-green-bg:    #f0fdf4;
+  --tk-green-border:#bbf7d0;
+  --tk-red:         #dc2626;
+  --tk-red-bg:      #fef2f2;
+  --tk-red-border:  #fecaca;
+  --tk-gray-bg:     #f9f9f7;
+  --tk-gray-border: #e0ddd5;
+  --tk-font-display:'Bebas Neue', 'Inter', sans-serif;
+  --tk-font-body:   'Inter', system-ui, sans-serif;
+  --tk-font-mono:   'JetBrains Mono', 'Courier New', monospace;
+  --tk-shadow-card:
+    0 2px 4px rgba(0,0,0,0.04),
+    0 8px 24px rgba(0,0,0,0.08),
+    0 32px 64px rgba(0,0,0,0.12),
+    0 0 0 1px rgba(0,0,0,0.06);
+  --tk-shadow-hover:
+    0 4px 8px rgba(0,0,0,0.06),
+    0 16px 48px rgba(0,0,0,0.14),
+    0 48px 96px rgba(0,0,0,0.18),
+    0 0 0 1px rgba(0,0,0,0.07);
+  --tk-radius-card: 16px;
+  --tk-transition:  all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Wrapper ───────────────────────────────────────────────── */
+.tk-wrapper {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: var(--tk-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Card Principal ────────────────────────────────────────── */
+.tk-card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  height: 290px;
+  background: var(--tk-paper);
+  border-radius: var(--tk-radius-card);
+  overflow: hidden;
+  box-shadow: var(--tk-shadow-card);
+  transition: var(--tk-transition);
+  isolation: isolate;
+}
+
+.tk-card:hover {
+  transform: translateY(-6px) scale(1.005);
+  box-shadow: var(--tk-shadow-hover);
+}
+
+/* Textura de papel sutil */
+.tk-card__paper-texture {
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Sello de agua */
+.tk-card__watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-family: var(--tk-font-display);
+  font-size: 9rem;
+  letter-spacing: 0.2em;
+  color: rgba(0,0,0,0.022);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  white-space: nowrap;
+}
+
+/* ── Columna Imagen ────────────────────────────────────────── */
+.tk-card__image-col {
+  position: relative;
+  width: 38%;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--tk-black);
+  z-index: 2;
+}
+
+.tk-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  filter: brightness(0.92) contrast(1.08) saturate(1.1);
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tk-card:hover .tk-card__image {
+  transform: scale(1.06);
+}
+
+.tk-card__image-vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    transparent 60%,
+    rgba(253, 252, 248, 0.95) 100%
+  );
+  pointer-events: none;
+}
+
+.tk-card__edition-label {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  padding: 4px 10px;
+}
+
+.tk-card__edition-text {
+  font-family: var(--tk-font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Die-Cut Separator ─────────────────────────────────────── */
+.tk-card__die-cut {
+  position: relative;
+  width: 24px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 3;
+  background: var(--tk-paper);
+}
+
+.tk-card__die-cut-line {
+  flex: 1;
+  width: 1px;
+  margin: 0 auto;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--tk-rule) 0px,
+    var(--tk-rule) 5px,
+    transparent 5px,
+    transparent 10px
+  );
+}
+
+.tk-card__die-notch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--tk-black);
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.tk-card__die-notch--top  { margin-top: -10px;    }
+.tk-card__die-notch--bottom { margin-bottom: -10px; }
+
+/* ── Info Section ──────────────────────────────────────────── */
+.tk-info-section {
+  flex: 1;
+  min-width: 0;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--tk-paper);
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* Header */
+.tk-info__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.tk-info__brand {
+  font-family: var(--tk-font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  color: var(--tk-gold-dark);
+  text-transform: uppercase;
+}
+
+.tk-info__order-num {
+  font-family: var(--tk-font-mono);
+  font-size: 0.6rem;
+  color: rgba(0,0,0,0.35);
+  letter-spacing: 0.05em;
+}
+
+/* Título editorial */
+.tk-info__title-block { margin: 0; }
+
+.tk-info__event-name {
+  font-family: var(--tk-font-display);
+  font-size: 1.65rem;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  color: var(--tk-ink);
+  text-transform: uppercase;
+  margin: 0 0 3px 0;
+  background: linear-gradient(135deg, var(--tk-ink) 0%, #3a3a3a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tk-info__event-subtitle {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: rgba(0,0,0,0.38);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Fecha/Hora */
+.tk-info__datetime-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.04));
+  border-left: 3px solid var(--tk-gold);
+  border-radius: 0 6px 6px 0;
+  margin: 2px 0;
+}
+
+.tk-info__date-day {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tk-info__date-number {
+  font-family: var(--tk-font-display);
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--tk-gold-dark);
+}
+
+.tk-info__date-separator {
+  width: 1px;
+  height: 22px;
+  background: var(--tk-gold);
+  opacity: 0.4;
+}
+
+.tk-info__date-month {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--tk-gold-dark);
+  text-transform: uppercase;
+}
+
+.tk-info__date-time {
+  font-family: var(--tk-font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--tk-gold-dark);
+  opacity: 0.85;
+  letter-spacing: 0.05em;
+}
+
+.tk-info__date-tbd {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(0,0,0,0.35);
+  text-transform: uppercase;
+}
+
+/* Venue */
+.tk-info__venue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(0,0,0,0.55);
+}
+
+.tk-info__venue-icon { display: flex; align-items: center; flex-shrink: 0; opacity: 0.6; }
+.tk-info__venue-text {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Divider */
+.tk-info__divider {
+  display: flex;
+  align-items: center;
+  margin: 2px 0;
+}
+
+.tk-info__divider-line {
+  flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--tk-rule) 0px,
+    var(--tk-rule) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+/* Data Grid */
+.tk-info__data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 16px;
+  margin: 0;
+}
+
+.tk-info__data-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tk-info__data-label {
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(0,0,0,0.35);
+  text-transform: uppercase;
+}
+
+.tk-info__data-value {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--tk-ink);
+  text-transform: uppercase;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tk-info__data-value--accent {
+  color: var(--tk-gold-dark);
+}
+
+/* Legal footer */
+.tk-info__legal {
+  font-size: 0.54rem;
+  color: rgba(0,0,0,0.28);
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  margin-top: auto;
+  border-top: 1px solid var(--tk-rule-light);
+  padding-top: 6px;
+}
+
+/* ── QR Section ────────────────────────────────────────────── */
+.tk-qr-section {
+  position: relative;
+  width: 180px;
+  flex-shrink: 0;
+  background: var(--tk-cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  border-left: 1px solid var(--tk-rule);
+}
+
+.tk-qr__perforation-top,
+.tk-qr__perforation-bottom {
+  width: 100%;
+  height: 12px;
+  background: repeating-linear-gradient(
+    to right,
+    transparent,
+    transparent 8px,
+    var(--tk-rule) 8px,
+    var(--tk-rule) 9px
+  );
+  flex-shrink: 0;
+}
+
+.tk-qr__inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  width: 100%;
+}
+
+.tk-qr__label {
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: rgba(0,0,0,0.35);
+  text-transform: uppercase;
+}
+
+/* QR Frame con esquinas troqueladas */
+.tk-qr__frame {
+  position: relative;
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05);
+}
+
+.tk-qr__corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--tk-gold);
+  border-style: solid;
+  z-index: 1;
+}
+.tk-qr__corner--tl { top: 3px; left: 3px;   border-width: 2px 0 0 2px; }
+.tk-qr__corner--tr { top: 3px; right: 3px;  border-width: 2px 2px 0 0; }
+.tk-qr__corner--bl { bottom: 3px; left: 3px;  border-width: 0 0 2px 2px; }
+.tk-qr__corner--br { bottom: 3px; right: 3px; border-width: 0 2px 2px 0; }
+
+.tk-qr__image {
+  display: block;
+  width: 120px;
+  height: 120px;
+  border-radius: 4px;
+}
+
+/* Código alfanumérico */
+.tk-qr__code-block {
+  width: 100%;
+  padding: 5px 8px;
+  background: #ffffff;
+  border-radius: 5px;
+  border: 1px solid var(--tk-rule);
+  text-align: center;
+}
+
+.tk-qr__code-text {
+  font-family: var(--tk-font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--tk-charcoal);
+  letter-spacing: 0.06em;
+  word-break: break-all;
+}
+
+/* Status Badge */
+.tk-qr__status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tk-qr__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.tk-qr__status-dot--pulse {
+  animation: tk-pulse 2s infinite;
+}
+
+@keyframes tk-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.tk-qr__status-text { line-height: 1; }
+
+/* Status variants */
+.status--active {
+  background: var(--tk-green-bg);
+  color: var(--tk-green);
+  border: 1px solid var(--tk-green-border);
+}
+.status--used {
+  background: var(--tk-red-bg);
+  color: var(--tk-red);
+  border: 1px solid var(--tk-red-border);
+}
+.status--expired {
+  background: #fef9ee;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+.status--cancelled {
+  background: #f5f5f5;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+.status--pending {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+/* ── Action Buttons ────────────────────────────────────────── */
+.tk-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+}
+
+.tk-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--tk-font-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--tk-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.tk-actions__btn--primary {
+  background: linear-gradient(135deg, var(--tk-gold-dark), var(--tk-gold));
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(201,168,76,0.35);
+}
+
+.tk-actions__btn--primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.55s ease;
+}
+
+.tk-actions__btn--primary:hover::before { transform: translateX(100%); }
+.tk-actions__btn--primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(201,168,76,0.45);
+}
+
+.tk-actions__btn--secondary {
+  background: var(--tk-paper);
+  color: var(--tk-charcoal);
+  border: 2px solid var(--tk-gray-border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.tk-actions__btn--secondary:hover {
+  background: var(--tk-mist);
+  border-color: rgba(0,0,0,0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.tk-actions__icon { flex-shrink: 0; }
+
+/* ── Footer Note ───────────────────────────────────────────── */
+.tk-note {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 0.76rem;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .tk-card {
+    flex-direction: column;
+    height: auto;
+  }
+  .tk-card__image-col {
+    width: 100%;
+    height: 220px;
+  }
+  .tk-card__image-vignette {
+    background: linear-gradient(to bottom, transparent 60%, rgba(253,252,248,0.95) 100%);
+  }
+  .tk-card__die-cut {
+    width: 100%;
+    height: 20px;
+    flex-direction: row;
+  }
+  .tk-card__die-cut-line {
+    width: 100%;
+    height: 1px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--tk-rule) 0px,
+      var(--tk-rule) 5px,
+      transparent 5px,
+      transparent 10px
+    );
+  }
+  .tk-card__die-notch--top    { margin-top: 0; margin-left: -10px; }
+  .tk-card__die-notch--bottom { margin-bottom: 0; margin-right: -10px; }
+  .tk-qr-section {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 16px 24px;
+    gap: 20px;
+  }
+  .tk-qr__perforation-top,
+  .tk-qr__perforation-bottom { display: none; }
+  .tk-qr__inner {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .tk-wrapper { padding: 0 12px; margin: 20px auto; }
+  .tk-info__event-name { font-size: 1.35rem; }
+  .tk-info-section { padding: 16px 18px; }
+  .tk-qr__image { width: 100px; height: 100px; }
+  .tk-actions { flex-direction: column; }
+  .tk-actions__btn { width: 100%; justify-content: center; }
+  .tk-info__data-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Print Media Query ─────────────────────────────────────── */
+@media print {
+  @page {
+    size: 260mm 100mm landscape;
+    margin: 0;
+  }
+
+  body * { visibility: hidden; }
+
+  .tk-wrapper,
+  .tk-wrapper * { visibility: visible; }
+
+  .tk-wrapper {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .tk-card {
+    height: 100mm;
+    box-shadow: none;
+    border: 0.5pt solid #ccc;
+    border-radius: 0;
+    transform: none !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .tk-card:hover { transform: none; }
+  .tk-card__watermark { color: rgba(0,0,0,0.03); }
+  .tk-card__image { filter: none; }
+
+  .tk-actions,
+  .tk-note { display: none !important; }
+
+  .tk-qr__status-dot--pulse { animation: none; }
+}

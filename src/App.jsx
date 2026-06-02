@@ -46,6 +46,7 @@ import { LoadingScreen } from './components'
 // Estilos globales movidos a index.js para control de precedencia
 
 const EventDetail = lazy(() => import('./pages/EventDetail/EventDetail'))
+const ClaimTicketPage = lazy(() => import('./pages/ClaimTicket/ClaimTicketPage'))
 
 function AppContent() {
   const { loading, loggingOut } = useAuth()
@@ -85,6 +86,7 @@ function AppContent() {
 
                   {/* Specific routes not in publicRoutes config yet */}
                   <Route path='/event/:id' element={<EventDetail />} />
+                  <Route path='/ticket/claim/:token' element={<ClaimTicketPage />} />
                   <Route path='/checkout' element={<Checkout />} />
                   <Route path='/cart' element={<UserCart />} />
                 </Route>

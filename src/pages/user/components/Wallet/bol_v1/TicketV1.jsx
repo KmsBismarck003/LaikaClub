@@ -49,6 +49,16 @@ export default function TicketV1({ ticket, onClose }) {
 
       {/* Cabecera */}
       <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'0.25rem', zIndex:1, textAlign:'center' }}>
+        <img
+          src="/logob.png"
+          alt="LAIKA Club Logo"
+          style={{
+            height: '20px',
+            width: 'auto',
+            marginBottom: '0.4rem',
+            pointerEvents: 'none',
+          }}
+        />
         <span style={{
           fontSize:'0.62rem', fontWeight:900, textTransform:'uppercase',
           letterSpacing:'5px', color:'#A855F7',

@@ -62,18 +62,34 @@ export default function TicketV2({ ticket, onClose }) {
           position:'absolute', top:0, left:0, right:0,
           padding:'1rem 1.2rem',
           background:'linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, transparent 100%)',
-          display:'flex', flexDirection:'column', gap:'0.15rem',
+          display:'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          zIndex: 2,
         }}>
-          <span style={{
-            fontSize:'0.58rem', fontWeight:900, textTransform:'uppercase',
-            letterSpacing:'5px', color:'#C084FC',
-            textShadow:'0 0 12px rgba(192,132,252,0.5)',
-          }}>BOLETO DIGITAL</span>
-          <h2 style={{
-            margin:0, fontSize:'1.25rem', fontWeight:900, color:'#fff',
-            lineHeight:1.1, textTransform:'uppercase', letterSpacing:'0.5px',
-            textShadow:'0 2px 12px rgba(0,0,0,0.8)',
-          }}>{name}</h2>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.15rem' }}>
+            <span style={{
+              fontSize:'0.58rem', fontWeight:900, textTransform:'uppercase',
+              letterSpacing:'5px', color:'#C084FC',
+              textShadow:'0 0 12px rgba(192,132,252,0.5)',
+            }}>BOLETO DIGITAL</span>
+            <h2 style={{
+              margin:0, fontSize:'1.25rem', fontWeight:900, color:'#fff',
+              lineHeight:1.1, textTransform:'uppercase', letterSpacing:'0.5px',
+              textShadow:'0 2px 12px rgba(0,0,0,0.8)',
+            }}>{name}</h2>
+          </div>
+          <img
+            src="/logob.png"
+            alt="LAIKA Club Logo"
+            style={{
+              height: '18px',
+              width: 'auto',
+              opacity: 0.9,
+              pointerEvents: 'none',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+            }}
+          />
         </div>
 
         {/* Sello EDICIÓN DE COLECCIONISTA — esquina inferior derecha */}

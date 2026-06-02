@@ -55,6 +55,21 @@ export default function TicketV3({ ticket, onClose }) {
           background:`linear-gradient(135deg, ${acc.from} 0%, ${acc.to} 100%)`,
           overflow:'hidden',
         }}>
+          {/* Logo overlay */}
+          <img
+            src="/logob.png"
+            alt="LAIKA Club Logo"
+            style={{
+              position: 'absolute',
+              top: '12px',
+              left: '12px',
+              height: '14px',
+              width: 'auto',
+              zIndex: 2,
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+              pointerEvents: 'none',
+            }}
+          />
           {/* Glow */}
           <div style={{
             position:'absolute', inset:0,
