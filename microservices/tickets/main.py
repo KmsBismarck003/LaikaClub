@@ -170,6 +170,28 @@ async def claim_free_ticket(
     result = await controller.purchase_tickets(db, user['id'], items, payment_method="free")
     return {"status": "success", "message": "Entrada gratuita registrada", "tickets": result}
 
+@app.get("/internal/purchases")
+def get_internal_purchases(db: Session = Depends(get_db)):
+    from sqlalchemy import text
+    result = db.execute(text("""
+        SELECT user_id, COUNT(id) as total_tickets, MAX(purchase_date) as last_purchase 
+        FROM tickets 
+        WHERE status != 'refunded'
+        GROUP BY user_id
+    """)).fetchall()
+    return [{"user_id": r[0], "total_tickets": r[1], "last_purchase": r[2]} for r in result]
+
+@app.get("/internal/purchases/{user_id}")
+def get_internal_purchases_by_user(user_id: int, db: Session = Depends(get_db)):
+    from sqlalchemy import text
+    row = db.execute(text("""
+        SELECT COUNT(id) as total_tickets, MAX(purchase_date) as last_purchase 
+        FROM tickets 
+        WHERE user_id = :uid AND status != 'refunded'
+    """), {"uid": user_id}).fetchone()
+    return {"user_id": user_id, "total_tickets": row[0] or 0, "last_purchase": row[1]}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8003)
+

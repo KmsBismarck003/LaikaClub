@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Badge, Button, Input, Icon, SkeletonRow, Pagination } from '../../../components'
+import { Card, Table, Badge, Button, Input, Icon, SkeletonRow, Pagination, Modal } from '../../../components'
 import Skeleton from '../../../components/Skeleton/Skeleton';
 import { useNotification } from '../../../context/NotificationContext'
 import useAdminUsers from '../../../hooks/useAdminUsers'
 import { useSkeletonContext } from '../../../context/SkeletonContext'
 import { getImageUrl } from '../../../utils/imageUtils'
+import { achievementsAPI } from '../../../services/miscService'
 
 // Modales Advanced
 import UserPermissionsModal from '../../../components/Modals/UserPermissionsModal/UserPermissionsModal'
@@ -41,6 +42,26 @@ const Users = () => {
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [showPermissionsModal, setShowPermissionsModal] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [showCampaignModal, setShowCampaignModal] = useState(false)
+  const [campaignRunning, setCampaignRunning] = useState(false)
+  const [campaignResult, setCampaignResult] = useState(null)
+
+  const handleRunCampaign = async (testMode = false) => {
+    setCampaignRunning(true)
+    setCampaignResult(null)
+    try {
+      const res = await achievementsAPI.runIncentives(testMode)
+      setCampaignResult(res)
+      success(`Campaña de fidelización ejecutada con éxito. Se crearon ${res.incentives_created_count} cupones.`)
+    } catch (e) {
+      console.error(e)
+      const errorMsg = e.response?.data?.detail || e.message || 'Error al ejecutar campaña'
+      notifyError(errorMsg)
+    } finally {
+      setCampaignRunning(false)
+    }
+  }
+
   const [confirmConfig, setConfirmConfig] = useState({
     title: '',
     message: '',
@@ -280,6 +301,9 @@ const Users = () => {
           <Button variant="secondary" size="small" onClick={() => fetchUsers()} style={{ height: '30px', padding: '0 12px', fontSize: '0.8rem' }}>
             Refrescar
           </Button>
+          <Button variant="warning" size="small" onClick={() => setShowCampaignModal(true)} style={{ height: '30px', padding: '0 12px', fontSize: '0.8rem' }}>
+            <Icon name="tag" size={12} className="mr-1" /> Campañas
+          </Button>
           <Button variant="primary" size="small" onClick={() => setShowCreateModal(true)} style={{ height: '30px', padding: '0 12px', fontSize: '0.8rem' }}>
             <Icon name="plus" size={12} className="mr-1" /> Nuevo
           </Button>
@@ -391,6 +415,90 @@ const Users = () => {
         onClose={() => setShowCreateModal(false)}
         onSubmit={createUser}
       />
+
+      <Modal 
+        isOpen={showCampaignModal} 
+        onClose={() => setShowCampaignModal(false)} 
+        title="Campañas de Reactivación" 
+        size="medium"
+        footer={
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <Button 
+              variant="secondary" 
+              onClick={() => handleRunCampaign(true)} 
+              disabled={campaignRunning}
+            >
+              {campaignRunning ? 'Ejecutando...' : 'Ejecutar Prueba (1 min)'}
+            </Button>
+            <Button 
+              variant="primary" 
+              onClick={() => handleRunCampaign(false)} 
+              disabled={campaignRunning}
+            >
+              {campaignRunning ? 'Ejecutando...' : 'Ejecutar Campaña (90 días)'}
+            </Button>
+          </div>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <p style={{ fontSize: '0.85rem', opacity: 0.7, lineHeight: 1.5, margin: 0, color: 'var(--text-secondary)' }}>
+            Ejecuta el escáner de inactividad de usuarios. El sistema analizará el historial de compras y actividad de todos los usuarios registrados y generará incentivos de manera automática en sus centros de cupones.
+          </p>
+          
+          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', borderRadius: '4px' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <Badge variant="danger" style={{ marginTop: '2px' }}>REGRESO TRIUNFAL</Badge>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                <strong>Inactividad de Compra (90 días):</strong> Clientes que han comprado boletos en el pasado pero no en los últimos 90 días. Reciben un cupón del <strong>15% de descuento</strong>.
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <Badge variant="warning" style={{ marginTop: '2px' }}>PRIMER PASO</Badge>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                <strong>Registro sin Compras (30 días):</strong> Usuarios registrados hace más de 30 días que nunca han comprado un boleto. Reciben <strong>100% de descuento en el cargo por servicio</strong>.
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <Badge variant="info" style={{ marginTop: '2px' }}>DESPIERTA CUENTA</Badge>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                <strong>Inactividad de Acceso (60 días):</strong> Usuarios que no han iniciado sesión en los últimos 60 días. Reciben un cupón de <strong>$200 de descuento directo</strong>.
+              </div>
+            </div>
+          </div>
+
+          {campaignResult && (
+            <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid rgba(0,255,0,0.2)', background: 'rgba(0,255,0,0.03)', padding: '1rem', borderRadius: '4px', fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-secondary)' }}>
+              <div style={{ color: '#4ade80', fontWeight: 'bold', marginBottom: '8px' }}>
+                ✓ Campaña completada con éxito.
+              </div>
+              <div style={{ marginBottom: '4px' }}>Usuarios procesados: {campaignResult.processed_users}</div>
+              <div style={{ marginBottom: '8px' }}>Nuevos cupones creados: {campaignResult.incentives_created_count}</div>
+              {campaignResult.incentives && campaignResult.incentives.length > 0 ? (
+                <table style={{ width: '100%', marginTop: '8px', borderCollapse: 'collapse', fontSize: '0.7rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left' }}>
+                      <th style={{ padding: '4px' }}>Email</th>
+                      <th style={{ padding: '4px' }}>Campaña</th>
+                      <th style={{ padding: '4px' }}>Código</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {campaignResult.incentives.map((inc, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '4px', opacity: 0.8 }}>{inc.email}</td>
+                        <td style={{ padding: '4px', opacity: 0.8 }}>{inc.campaign}</td>
+                        <td style={{ padding: '4px', color: 'var(--primary)', fontWeight: 'bold' }}>{inc.code}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div style={{ opacity: 0.5 }}>Ningún usuario cumplió con los criterios en esta ejecución.</div>
+              )}
+            </div>
+          )}
+        </div>
+      </Modal>
 
       {selectedUser && (
         <>

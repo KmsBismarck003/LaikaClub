@@ -252,6 +252,18 @@ def get_ml_prospecting():
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
     return engine.get_venue_prospecting_leads()
 
+@app.get("/api/analytics/ml/user-behavior")
+def get_ml_user_behavior(manager_id: int = None):
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    return engine.get_user_behavior_analytics(manager_id)
+
+@app.get("/api/analytics/ml/demand-prediction")
+def get_ml_demand_prediction(manager_id: int = None):
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    return engine.get_demand_prediction_analytics(manager_id)
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8007)
 

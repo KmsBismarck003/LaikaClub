@@ -167,11 +167,11 @@ const UserCart = () => {
                                             {availableCoupons.map(coupon => (
                                                 <button
                                                     key={coupon.id}
-                                                    onClick={() => applyCoupon(coupon.coupon_code)}
+                                                    onClick={() => applyCoupon(coupon.code || coupon.coupon_code)}
                                                     className="w-full flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-lg hover:border-blue-500/50 hover:bg-blue-500/10 transition-all"
                                                 >
                                                     <div className="text-[9px] font-black tracking-widest uppercase">
-                                                        {coupon.coupon_code}
+                                                        {coupon.code || coupon.coupon_code}
                                                     </div>
                                                     <span className="text-[8px] font-black text-blue-500">APLICAR</span>
                                                 </button>

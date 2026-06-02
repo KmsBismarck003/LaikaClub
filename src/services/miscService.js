@@ -30,7 +30,8 @@ export const achievementsAPI = {
             subtotal,
             service_fee_percent: feePercent
         }),
-    hasPremiumTicket: () => apiClient.get('/achievements/has-premium-ticket')
+    hasPremiumTicket: () => apiClient.get('/achievements/has-premium-ticket'),
+    runIncentives: (testMode = false) => apiClient.post(`/achievements/run-incentives?test_mode=${testMode}`)
 }
 
 const ANALYTICS_URL = 'http://127.0.0.1:8000/api/analytics';
@@ -117,6 +118,18 @@ export const analyticsAPI = {
     },
     getProspectingML: async () => {
         const response = await axios.get(`${ANALYTICS_URL}/ml/prospecting`);
+        return response.data;
+    },
+    getUserBehaviorML: async (managerId = null) => {
+        const params = {};
+        if (managerId) params.manager_id = managerId;
+        const response = await axios.get(`${ANALYTICS_URL}/ml/user-behavior`, { params });
+        return response.data;
+    },
+    getDemandPredictionML: async (managerId = null) => {
+        const params = {};
+        if (managerId) params.manager_id = managerId;
+        const response = await axios.get(`${ANALYTICS_URL}/ml/demand-prediction`, { params });
         return response.data;
     }
 }

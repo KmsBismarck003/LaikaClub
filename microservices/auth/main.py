@@ -287,7 +287,25 @@ def get_user_public_profile(user_id: int, db: Session = Depends(get_db)):
         "role": user['role']
     }
 
+@app.get("/internal/users")
+def get_internal_users(db: Session = Depends(get_db)):
+    from sqlalchemy import text
+    result = db.execute(text("SELECT id, email, created_at, last_login FROM users")).fetchall()
+    return [{"id": r[0], "email": r[1], "created_at": r[2], "last_login": r[3]} for r in result]
+
+@app.get("/internal/users/{user_id}")
+def get_internal_user_by_id(user_id: int, db: Session = Depends(get_db)):
+    from sqlalchemy import text
+    row = db.execute(
+        text("SELECT id, email, created_at, last_login FROM users WHERE id = :uid"),
+        {"uid": user_id}
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"id": row[0], "email": row[1], "created_at": row[2], "last_login": row[3]}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
 

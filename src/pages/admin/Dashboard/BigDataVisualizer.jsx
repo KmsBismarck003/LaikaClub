@@ -5,6 +5,7 @@ import { Card } from '../../../components';
 import Skeleton from '../../../components/Skeleton/Skeleton';
 import Plot from 'react-plotly.js';
 import B2BProspecting from './components/B2BProspecting';
+import UserDemandAnalytics from './components/UserDemandAnalytics';
 import { 
   Activity, 
   Settings, 
@@ -25,8 +26,10 @@ import {
   Check,
   X,
   HelpCircle,
-  BookOpen
+  BookOpen,
+  Users
 } from 'lucide-react';
+
 
 const BigDataVisualizer = ({ managerId = null }) => {
     const [errorDismissed, setErrorDismissed] = useState(false);
@@ -501,7 +504,8 @@ const BigDataVisualizer = ({ managerId = null }) => {
                             { id: 'ML_REGRESSION', label: 'REGRESIÓN ML', icon: <span key="icon-reg"><Activity size={14} /></span> },
                             { id: 'ML_DECISION_TREE', label: 'ÁRBOL DE DECISIÓN', icon: <span key="icon-tree"><Terminal size={14} /></span> },
                             { id: 'CLASS_KDD', label: 'ESTADÍSTICA & KDD', icon: <span key="icon-kdd"><DatabaseIcon size={14} /></span> },
-                            { id: 'B2B_PROSPECTING', label: 'PROSPECCIÓN B2B', icon: <span key="icon-b2b"><Search size={14} /></span> }
+                            { id: 'B2B_PROSPECTING', label: 'PROSPECCIÓN B2B', icon: <span key="icon-b2b"><Search size={14} /></span> },
+                            { id: 'ML_USER_DEMAND', label: 'USUARIOS Y DEMANDA', icon: <span key="icon-ud"><Users size={14} /></span> }
                         ].map(mode => (
                             <button 
                                 key={mode.id}
@@ -1260,6 +1264,20 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     }}
                                 >
                                     <B2BProspecting />
+                                </div>
+                            ) : analysisMode === 'ML_USER_DEMAND' ? (
+                                <div 
+                                    key="ml-user-demand-container" 
+                                    className="b2b-scrollable-container" 
+                                    style={{ 
+                                        padding: '1.8rem', 
+                                        background: '#ffffff', 
+                                        borderRadius: '24px', 
+                                        maxHeight: '650px', 
+                                        overflowY: 'auto' 
+                                    }}
+                                >
+                                    <UserDemandAnalytics managerId={managerId} />
                                 </div>
                             ) : (
                                 <div key="class-kdd-container" className="kdd-panel-content" style={{ padding: '1.8rem', color: '#1e293b', background: '#ffffff' }}>

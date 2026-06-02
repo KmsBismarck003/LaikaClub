@@ -40,6 +40,7 @@ class UserCoupon(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)
     code = Column(String(50), unique=True, index=True)
+    coupon_type = Column(String(50), default="")
     discount_type = Column(String(20)) # 'percentage', 'fixed', 'service_fee'
     discount_value = Column(Float)
     description = Column(String(255))
