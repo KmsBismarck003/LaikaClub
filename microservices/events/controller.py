@@ -7,12 +7,24 @@ import traceback
 
 def get_public_events(db: Session, category: Optional[str] = None, limit: int = 100):
     try:
-        query = "SELECT * FROM events WHERE status = 'published'"
+        query = """
+            SELECT e.*, 
+                   v.name as venue_name,
+                   m.id as municipality_id_val, m.name as municipality_name,
+                   s.id as state_id, s.name as state_name,
+                   c.id as country_id, c.name as country_name
+            FROM events e
+            LEFT JOIN venues v ON e.venue_id = v.id
+            LEFT JOIN municipalities m ON v.municipality_id = m.id
+            LEFT JOIN states s ON m.state_id = s.id
+            LEFT JOIN countries c ON s.country_id = c.id
+            WHERE e.status = 'published'
+        """
         params = {"limit": limit}
         if category:
-            query += " AND category = :category"
+            query += " AND e.category = :category"
             params['category'] = category
-        query += " ORDER BY grid_position_y ASC, grid_position_x ASC, event_date ASC LIMIT :limit"
+        query += " ORDER BY e.grid_position_y ASC, e.grid_position_x ASC, e.event_date ASC LIMIT :limit"
         
         result = db.execute(text(query), params)
         return [dict(row._mapping) for row in result.fetchall()]
@@ -90,10 +102,13 @@ def get_event_by_id(db: Session, event_id: int):
         res['rules'] = [dict(r._mapping) for r in rules_db]
 
         functions_query = text("""
-            SELECT ef.*, v.name AS venue_name, v.city AS venue_city, vr.name AS room_name
+            SELECT ef.*, v.name AS venue_name, v.city AS venue_city, vr.name AS room_name,
+                   m.name AS venue_municipality, s.name AS venue_state
             FROM event_functions ef
             LEFT JOIN venues v ON ef.venue_id = v.id
             LEFT JOIN venue_rooms vr ON ef.room_id = vr.id
+            LEFT JOIN municipalities m ON v.municipality_id = m.id
+            LEFT JOIN states s ON m.state_id = s.id
             WHERE ef.event_id = :event_id
         """)
         functions_db = db.execute(functions_query, {"event_id": event_id}).fetchall()

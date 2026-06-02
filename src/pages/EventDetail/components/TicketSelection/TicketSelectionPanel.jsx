@@ -39,18 +39,97 @@ export default function TicketSelectionPanel({
   const unitPrice = cleanPrice(selectedSection?.price || event?.price || 0);
   const total = (seatCount * unitPrice).toFixed(2);
 
-  const uniqueDates = React.useMemo(() => {
+  const [selectedState, setSelectedState] = React.useState(() => {
+    const savedState = localStorage.getItem('laika_preferred_state');
+    if (savedState) return savedState;
+    // Fallback to home search location if it matches a state
+    const homeLoc = localStorage.getItem('laika_search_location') || '';
+    if (homeLoc && homeLoc !== 'Todo México') {
+      return homeLoc;
+    }
+    return '';
+  });
+
+  const [selectedMunicipality, setSelectedMunicipality] = React.useState(() => {
+    return localStorage.getItem('laika_preferred_municipality') || '';
+  });
+
+  // Reset preferred municipality if state changes
+  const handleStateChange = (e) => {
+    const val = e.target.value;
+    setSelectedState(val);
+    setSelectedMunicipality('');
+    localStorage.setItem('laika_preferred_state', val);
+    localStorage.removeItem('laika_preferred_municipality');
+  };
+
+  const handleMunicipalityChange = (e) => {
+    const val = e.target.value;
+    setSelectedMunicipality(val);
+    localStorage.setItem('laika_preferred_municipality', val);
+  };
+
+  // Get unique states from functions
+  const availableStates = React.useMemo(() => {
     if (!event?.functions) return [];
-    const dates = event.functions.map(f => f.date);
-    return Array.from(new Set(dates)).sort();
+    const statesSet = new Set();
+    event.functions.forEach(f => {
+      if (f.venue_state) statesSet.add(f.venue_state);
+      else if (f.venue_city) statesSet.add(f.venue_city);
+    });
+    return Array.from(statesSet).sort();
   }, [event?.functions]);
+
+  // Get unique municipalities for selected state
+  const availableMunicipalities = React.useMemo(() => {
+    if (!event?.functions || !selectedState) return [];
+    const munSet = new Set();
+    event.functions.forEach(f => {
+      if (f.venue_state === selectedState || (!f.venue_state && f.venue_city === selectedState)) {
+        if (f.venue_municipality) munSet.add(f.venue_municipality);
+        else if (f.venue_city) munSet.add(f.venue_city);
+      }
+    });
+    return Array.from(munSet).sort();
+  }, [event?.functions, selectedState]);
+
+  // Filter functions by state and municipality
+  const filteredFunctions = React.useMemo(() => {
+    if (!event?.functions) return [];
+    return event.functions.filter(f => {
+      if (selectedState && f.venue_state !== selectedState && f.venue_city !== selectedState) {
+        return false;
+      }
+      if (selectedMunicipality && f.venue_municipality !== selectedMunicipality && f.venue_city !== selectedMunicipality) {
+        return false;
+      }
+      return true;
+    });
+  }, [event?.functions, selectedState, selectedMunicipality]);
+
+  const uniqueDates = React.useMemo(() => {
+    const dates = filteredFunctions.map(f => f.date);
+    return Array.from(new Set(dates)).sort();
+  }, [filteredFunctions]);
 
   const selectedDate = selectedFunction?.date || uniqueDates[0] || null;
 
   const functionsForSelectedDate = React.useMemo(() => {
-    if (!event?.functions || !selectedDate) return [];
-    return event.functions.filter(f => f.date === selectedDate);
-  }, [event?.functions, selectedDate]);
+    if (!selectedDate) return [];
+    return filteredFunctions.filter(f => f.date === selectedDate);
+  }, [filteredFunctions, selectedDate]);
+
+  // Auto-select first function when filters or functions change
+  React.useEffect(() => {
+    if (filteredFunctions.length > 0) {
+      const isStillValid = filteredFunctions.some(f => f.id === selectedFunction?.id);
+      if (!isStillValid) {
+        setSelectedFunction(filteredFunctions[0]);
+      }
+    } else {
+      setSelectedFunction(null);
+    }
+  }, [filteredFunctions, selectedFunction, setSelectedFunction]);
 
   return (
     <div className="ticket-selection-panel">
@@ -58,45 +137,96 @@ export default function TicketSelectionPanel({
       {/* ── Selector de Fecha/Funcion ── */}
       {hasFunctions && (
         <div className="tsp-header" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          
+          {/* Geographic Filter */}
           <div>
-            <p className="tsp-section-label">Selecciona el dia</p>
-            <div className="function-chips">
-              {uniqueDates.map(d => (
-                <div
-                  key={d}
-                  className={`function-chip ${selectedDate === d ? 'active' : ''}`}
-                  onClick={() => {
-                    const firstFuncForDate = event.functions.find(f => f.date === d);
-                    if (firstFuncForDate) setSelectedFunction(firstFuncForDate);
-                  }}
+            <p className="tsp-section-label">📍 Filtrar por ubicación</p>
+            <div className="geo-filter-row" style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+              <div style={{ flex: 1 }}>
+                <select
+                  className="laika-select"
+                  style={{ width: '100%', fontSize: '0.72rem', padding: '6px 20px 6px 8px', height: '34px' }}
+                  value={selectedState}
+                  onChange={handleStateChange}
                 >
-                  {formatDate(d)}
-                </div>
-              ))}
+                  <option value="">Todos los Estados</option>
+                  {availableStates.map(state => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ flex: 1 }}>
+                <select
+                  className="laika-select"
+                  style={{ width: '100%', fontSize: '0.72rem', padding: '6px 20px 6px 8px', height: '34px' }}
+                  value={selectedMunicipality}
+                  onChange={handleMunicipalityChange}
+                  disabled={!selectedState}
+                >
+                  <option value="">Todos los Municipios</option>
+                  {availableMunicipalities.map(mun => (
+                    <option key={mun} value={mun}>{mun}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
-          {functionsForSelectedDate.length > 0 && (
-            <div>
-              <p className="tsp-section-label">Selecciona el horario y lugar</p>
-              <div className="function-chips" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '100%' }}>
-                {functionsForSelectedDate.map(f => (
-                  <div
-                    key={f.id}
-                    className={`function-chip ${selectedFunction?.id === f.id ? 'active' : ''}`}
-                    onClick={() => setSelectedFunction(f)}
-                    style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-                      padding: '8px 12px', width: '100%', textTransform: 'none', letterSpacing: 'normal'
-                    }}
-                  >
-                    <span style={{ fontWeight: 800, fontSize: '0.75rem' }}>{formatTime(f.time)} HRS</span>
-                    <span style={{ fontSize: '0.62rem', opacity: 0.8, marginTop: '2px', textAlign: 'left' }}>
-                      {f.venue_name || 'Recinto'} — {f.room_name || 'Sala'}
-                    </span>
-                  </div>
-                ))}
+          {filteredFunctions.length > 0 ? (
+            <>
+              <div>
+                <p className="tsp-section-label">Selecciona el dia</p>
+                <div className="function-chips">
+                  {uniqueDates.map(d => (
+                    <div
+                      key={d}
+                      className={`function-chip ${selectedDate === d ? 'active' : ''}`}
+                      onClick={() => {
+                        const firstFuncForDate = filteredFunctions.find(f => f.date === d);
+                        if (firstFuncForDate) setSelectedFunction(firstFuncForDate);
+                      }}
+                    >
+                      {formatDate(d)}
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {functionsForSelectedDate.length > 0 && (
+                <div>
+                  <p className="tsp-section-label">Selecciona el horario y lugar</p>
+                  <div className="function-chips" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '100%' }}>
+                    {functionsForSelectedDate.map(f => (
+                      <div
+                        key={f.id}
+                        className={`function-chip ${selectedFunction?.id === f.id ? 'active' : ''}`}
+                        onClick={() => setSelectedFunction(f)}
+                        style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                          padding: '8px 12px', width: '100%', textTransform: 'none', letterSpacing: 'normal'
+                        }}
+                      >
+                        <span style={{ fontWeight: 800, fontSize: '0.75rem' }}>{formatTime(f.time)} HRS</span>
+                        <span style={{ fontSize: '0.62rem', opacity: 0.8, marginTop: '2px', textAlign: 'left' }}>
+                          {f.venue_name || 'Recinto'} — {f.room_name || 'Sala'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ 
+              padding: '1rem', 
+              textAlign: 'center', 
+              color: 'rgba(255, 255, 255, 0.4)', 
+              fontSize: '0.72rem', 
+              border: '1px dashed rgba(255, 255, 255, 0.08)',
+              borderRadius: '8px',
+              background: 'rgba(255, 255, 255, 0.02)'
+            }}>
+              📍 No hay funciones disponibles en la ubicación seleccionada.
             </div>
           )}
         </div>

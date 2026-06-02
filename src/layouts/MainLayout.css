@@ -1049,3 +1049,46 @@
   height: 32px;
   background: #f0f0f0;
 }
+
+/* ============================================
+   VALUE DROPDOWN FIXES (Navbar Search Dropdowns)
+   ============================================ */
+.value-dropdown {
+  width: 100%;
+  position: relative;
+}
+
+.value-dropdown .dropdown__menu {
+  top: calc(100% + 14px) !important;
+  left: -20px !important;
+  min-width: 240px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+  background: #ffffff !important;
+  border: 1px solid #e5e5e5 !important;
+  z-index: 12000 !important; /* Force render on top of the Hero */
+}
+
+.value-dropdown .dropdown__item {
+  color: #222222 !important; /* High contrast dark text for light menu */
+  font-weight: 700 !important;
+}
+
+.value-dropdown .dropdown__item:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #000000 !important;
+}
+
+[data-theme='dark'] .value-dropdown .dropdown__menu {
+  background: #18181b !important;
+  border-color: #27272a !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme='dark'] .value-dropdown .dropdown__item {
+  color: #fafafa !important;
+}
+
+[data-theme='dark'] .value-dropdown .dropdown__item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}

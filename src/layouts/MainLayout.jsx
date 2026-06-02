@@ -8,6 +8,7 @@ import ThemeToggle from '../components/ThemeToggle/ThemeToggle'
 import LaikaAgent from '../components/LaikaAgent/LaikaAgent'
 import Icon from '../components/Icons/Icons'
 import { useSkeletonContext } from '../context/SkeletonContext'
+import { venueAPI } from '../services/managerService'
 import './MainLayout.css'
 
 const MainLayout = () => {
@@ -20,9 +21,43 @@ const MainLayout = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [showUserDropdown, setShowUserDropdown] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchLocation, setSearchLocation] = useState('Todo México')
+  const [searchLocation, setSearchLocation] = useState(() => {
+    return localStorage.getItem('laika_search_location') || 'Todo México';
+  })
   const [searchDate, setSearchDate] = useState('Todas las fechas')
   const userDropdownRef = useRef(null)
+  const [availableLocations, setAvailableLocations] = useState(['Todo México'])
+
+  useEffect(() => {
+    localStorage.setItem('laika_search_location', searchLocation);
+  }, [searchLocation]);
+
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const res = await venueAPI.getStates(1)
+        if (res && Array.isArray(res)) {
+          const names = res.map(s => s.name).sort()
+          setAvailableLocations(['Todo México', ...names])
+        }
+      } catch (err) {
+        console.error('Error fetching states for navbar dropdown:', err)
+        setAvailableLocations([
+          'Todo México',
+          'Ciudad de México',
+          'Jalisco',
+          'Nuevo León',
+          'Querétaro',
+          'Puebla',
+          'Aguascalientes',
+          'Guanajuato',
+          'Morelos',
+          'Yucatán'
+        ])
+      }
+    }
+    fetchStates()
+  }, [])
 
   const isHome = location.pathname === '/'
 
@@ -236,14 +271,14 @@ const MainLayout = () => {
                   <div className="section-content">
                     <span className="label">UBICACIÓN</span>
                     <Dropdown
-                      triggerOnHover
                       className="value-dropdown"
                       trigger={<span className="value">{searchLocation}</span>}
                     >
-                      <Dropdown.Item onClick={() => setSearchLocation('Todo México')}>Todo México</Dropdown.Item>
-                      <Dropdown.Item onClick={() => setSearchLocation('CDMX')}>CDMX</Dropdown.Item>
-                      <Dropdown.Item onClick={() => setSearchLocation('Guadalajara')}>Guadalajara</Dropdown.Item>
-                      <Dropdown.Item onClick={() => setSearchLocation('Monterrey')}>Monterrey</Dropdown.Item>
+                      {availableLocations.map(loc => (
+                        <Dropdown.Item key={loc} onClick={() => setSearchLocation(loc)}>
+                          {loc}
+                        </Dropdown.Item>
+                      ))}
                     </Dropdown>
                   </div>
                 </div>
@@ -253,7 +288,6 @@ const MainLayout = () => {
                   <div className="section-content">
                     <span className="label">FECHAS</span>
                     <Dropdown
-                      triggerOnHover
                       className="value-dropdown"
                       trigger={<span className="value">{searchDate}</span>}
                     >

@@ -124,7 +124,10 @@ const Home = () => {
       filtered = filtered.filter(event =>
         event.name.toLowerCase().includes(term) ||
         event.description?.toLowerCase().includes(term) ||
-        event.location?.toLowerCase().includes(term)
+        event.location?.toLowerCase().includes(term) ||
+        event.venue?.toLowerCase().includes(term) ||
+        event.state_name?.toLowerCase().includes(term) ||
+        event.municipality_name?.toLowerCase().includes(term)
       )
     }
 
@@ -133,7 +136,9 @@ const Home = () => {
       const city = cityParam.toLowerCase()
       filtered = filtered.filter(event =>
         event.location?.toLowerCase().includes(city) ||
-        event.venue?.toLowerCase().includes(city)
+        event.venue?.toLowerCase().includes(city) ||
+        event.state_name?.toLowerCase().includes(city) ||
+        event.municipality_name?.toLowerCase().includes(city)
       )
     }
 
