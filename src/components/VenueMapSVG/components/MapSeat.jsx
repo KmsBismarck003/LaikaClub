@@ -129,8 +129,7 @@ const MapSeat = memo(({
                 strokeWidth={isSelected || isScanning || isWinner ? 0.25 : 0.08}
                 className="seat-rect"
                 style={{ 
-                    filter: isSelected ? `drop-shadow(0 0 2px #3B82F6)` 
-                           : (isScanning || isWinner) ? `drop-shadow(0 0 3px #fff)` 
+                    filter: (isScanning || isWinner) ? `drop-shadow(0 0 3px #fff)` 
                            : 'none',
                     opacity,
                     transition: 'all 0.15s ease'

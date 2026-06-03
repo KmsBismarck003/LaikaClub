@@ -9,7 +9,7 @@ const RestoreDetailReport = ({ selectedEvent, onBack }) => {
 
   return (
     <div className="ra-detail-sections">
-      <button className="ra-btn ra-btn-secondary" onClick={onBack} style={{ alignSelf: 'flex-start' }}>
+      <button className="ra-btn ra-btn-back" onClick={onBack} style={{ alignSelf: 'flex-start' }}>
         <span><Icon name="arrowLeft" size={14} className="mr-2" /> Volver al Historial</span>
       </button>
 

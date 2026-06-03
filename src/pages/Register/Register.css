@@ -16,7 +16,7 @@
 .register-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  max-width: 880px;
+  max-width: 720px;
   width: 100%;
   background: #ffffff;
   border: 1px solid var(--border-color);
@@ -40,7 +40,7 @@
 }
 
 .register-card {
-  padding: 1.5rem 3.5rem;
+  padding: 1.5rem 2.5rem;
   /* Aggressively reduced padding to remove scroll */
   position: relative;
   background: #ffffff;
@@ -79,7 +79,7 @@
 }
 
 .register-title {
-  font-size: 2rem;
+  font-size: 1.75rem;
   /* Slightly smaller */
   font-weight: 950;
   color: #000000;

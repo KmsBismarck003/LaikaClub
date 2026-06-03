@@ -1,13 +1,68 @@
+/* Grupo flotante que envuelve botones + pastilla */
+.laika-floating-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+/* Botones extra (modo oscuro + subir) */
+.laika-extra-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 6px;
+    align-items: flex-end;
+}
+
+.laika-extra-btn {
+    width: 50px;
+    height: 32px;
+    border-radius: 9999px;
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(15px) saturate(1.5);
+    -webkit-backdrop-filter: blur(15px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.laika-extra-btn:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.laika-extra-btn:active {
+    transform: scale(0.95);
+}
+
+.laika-extra-btn--hidden {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+    pointer-events: none;
+}
+
 /* LaikaAgent.css - Estilo de Plantilla Redondeada Industrial Premium */
 
 .laika-agent-container {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+    bottom: 1rem;
+    right: 1rem;
     z-index: 10000;
     pointer-events: none;
     max-width: fit-content;
 }
+
+
 
 .laika-agent-container * {
     pointer-events: all;
@@ -15,82 +70,67 @@
 
 /* El Botón Flotante (Pastilla Dinámica) */
 .laika-agent-pill-wrapper {
-    width: auto;
-    min-width: 180px;
-    height: 60px;
-    background: rgba(0, 0, 0, 0.9);
-    /* Contenedor Negro casi puro */
-    backdrop-filter: blur(15px);
-    /* Efecto Blur Oscuro */
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 30px;
+    width: 170px;
+    height: 38px;
+    background: rgba(10, 10, 10, 0.85) !important;
+    backdrop-filter: blur(15px) saturate(1.5);
+    -webkit-backdrop-filter: blur(15px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 19px;
     display: flex;
     align-items: center;
     cursor: pointer;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
     padding: 0 10px;
     position: relative;
     z-index: 10001;
-}
-
-/* Animación de expansión lateral (Automática, sin cursor) */
-.laika-agent-pill-wrapper:not(.active) {
-    animation: pill-lateral-flow 12s infinite ease-in-out;
-}
-
-@keyframes pill-lateral-flow {
-
-    0%,
-    10%,
-    90%,
-    100% {
-        max-width: 180px;
-    }
-
-    20%,
-    80% {
-        max-width: 500px;
-    }
+    overflow: visible;
+    pointer-events: auto;
 }
 
 .laika-pill-content {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 6px;
     white-space: nowrap;
     width: 100%;
-    padding-left: 2px;
-}
-
-.laika-logo-box {
-    width: 42px;
-    height: 42px;
-    background: #000;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
 }
 
 .laika-mini-logo {
-    width: 28px;
-    height: 28px;
+    width: 18px;
+    height: 18px;
     object-fit: contain;
+    flex-shrink: 0;
 }
 
 .laika-typing-box {
     display: flex;
     align-items: center;
-    gap: 6px;
     color: #FFFFFF;
     font-weight: 500;
-    font-size: 0.95rem;
-    padding-right: 25px;
+    font-size: 0.75rem;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.laika-ticker-container {
+    display: flex;
+    white-space: nowrap;
+    gap: 4rem;
+    animation: laika-ticker-scroll 20s linear infinite;
+}
+
+.laika-ticker-container span {
+    flex-shrink: 0;
+}
+
+@keyframes laika-ticker-scroll {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
 }
 
 .typing-text {
@@ -105,27 +145,18 @@
 }
 
 @keyframes blink-cursor {
-
-    from,
-    to {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0;
-    }
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
 }
 
-/* Eliminando transformaciones de escala por cursor */
 .laika-agent-pill-wrapper:hover {
     border-color: rgba(255, 255, 255, 0.3);
     box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
 }
 
 .laika-agent-pill-wrapper.active {
-    min-width: 140px;
-    max-width: 140px;
-    background: #000;
+    min-width: 100px;
+    background: rgba(0, 0, 0, 0.8) !important;
     border-color: var(--primary);
     justify-content: center;
 }
@@ -151,13 +182,11 @@
 
 /* El Panel "Plantilla" (Bordes Redondeados) */
 .laika-agent-panel {
-    width: 350px;
+    width: 300px;
     max-width: calc(100vw - 4rem);
-    /* Ensure it stays in body */
-    height: 500px;
+    height: 420px;
     max-height: calc(100vh - 120px);
     background: rgba(0, 0, 0, 0.85);
-    /* Negro con transparencia */
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 24px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
@@ -165,6 +194,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    position: relative;
     transform-origin: bottom right;
     animation: panel-appear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     backdrop-filter: blur(25px);
@@ -212,17 +242,17 @@
 }
 
 .laika-agent-header {
-    padding: 20px;
+    padding: 10px 14px;
     background: #000000;
     color: #FFFFFF;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .laika-avatar {
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
     background: var(--primary);
     border-radius: 50%;
     display: flex;
@@ -230,7 +260,7 @@
     justify-content: center;
     color: #000000;
     font-weight: 900;
-    font-size: 1.2rem;
+    font-size: 0.9rem;
 }
 
 .laika-header-info,
@@ -238,22 +268,22 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 2px;
+    gap: 1px;
 }
 
 .laika-title {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
     font-weight: 800;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     color: #FFFFFF;
 }
 
 .laika-status {
-    font-size: 0.65rem;
+    font-size: 0.55rem;
     color: var(--primary);
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     opacity: 0.8;
 }
@@ -274,20 +304,20 @@
 
 .laika-messages {
     flex: 1;
-    padding: 20px;
+    padding: 10px 12px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 /* Burbujas de Chat */
 .chat-bubble {
     max-width: 85%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 0.9rem;
-    line-height: 1.4;
+    padding: 8px 12px;
+    border-radius: 14px;
+    font-size: 0.78rem;
+    line-height: 1.3;
     position: relative;
     animation: bubble-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -306,9 +336,9 @@
 
 .chat-bubble-group {
     display: flex;
-    gap: 10px;
-    max-width: 90%;
-    margin-bottom: 5px;
+    gap: 6px;
+    max-width: 95%;
+    margin-bottom: 4px;
 }
 
 .chat-bubble-group.laika,
@@ -324,13 +354,13 @@
 
 .laika-avatar-bubble,
 .user-avatar-bubble {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
     margin-top: auto;
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
     background: #000;
     transition: transform 0.2s ease;
 }
@@ -490,11 +520,11 @@
 }
 
 .laika-agent-footer {
-    padding: 12px 20px;
+    padding: 8px 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     background: #000000;
 }
 
@@ -516,22 +546,28 @@
 }
 
 .laika-send-btn {
-    background: var(--primary);
+    background: #ffffff;
     border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #000;
+    color: #000000;
     cursor: pointer;
     transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .laika-send-btn:hover:not(:disabled) {
-    background: #fff;
+    background: #e0e0e0;
     transform: scale(1.05);
+}
+
+.laika-send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 /* Scrollbar para el chat */
@@ -682,3 +718,389 @@ input:checked+.laika-slider {
 input:checked+.laika-slider:before {
     transform: translateX(24px);
 }
+
+@media (max-width: 768px) {
+    .laika-agent-container {
+        bottom: 1rem !important;
+    right: 0.75rem !important;
+    }
+
+    .laika-agent-pill-wrapper {
+        width: 120px !important;
+        min-width: 120px !important;
+        max-width: 120px !important;
+        height: 38px !important;
+        border-radius: 19px !important;
+        padding: 0 14px !important;
+        justify-content: flex-start !important;
+        animation: none !important;
+    }
+
+    .laika-pill-content {
+        padding-left: 0 !important;
+        justify-content: flex-start !important;
+        gap: 6px !important;
+        width: 100% !important;
+    }
+
+    .laika-typing-box {
+        display: block !important;
+    }
+
+    .laika-mini-logo {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .laika-agent-panel {
+        width: 260px !important;
+        height: 50vh !important;
+        max-height: 400px !important;
+        border-radius: 14px !important;
+    }
+}
+
+/* ---- Header action buttons ---- */
+.laika-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+}
+
+.laika-action-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.laika-action-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ---- Attachment buttons & preview ---- */
+.laika-input-row {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.laika-input-row:focus-within {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.laika-input-row .laika-input {
+    flex: 1;
+    background: none !important;
+    border: none !important;
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    color: #FFFFFF;
+    outline: none;
+}
+
+.laika-attach-btns {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding-right: 4px;
+}
+
+.laika-attach-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.laika-attach-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.laika-attachment-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px 0;
+}
+
+.laika-attachment-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.laika-attachment-name {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.laika-attachment-remove {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.laika-attachment-remove:hover {
+    background: rgba(239, 68, 68, 0.5);
+}
+
+/* ---- Skeleton loading ---- */
+.skeleton-pulse {
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0.08) 8%, rgba(255, 255, 255, 0.14) 18%, rgba(255, 255, 255, 0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+}
+
+@keyframes diagonalMove {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-message {
+    padding: 8px 12px !important;
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.skeleton-line {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0.08) 8%, rgba(255, 255, 255, 0.14) 18%, rgba(255, 255, 255, 0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+}
+
+.skeleton-line--short {
+    width: 50%;
+}
+
+.skeleton-line--xshort {
+    width: 35%;
+}
+
+.skeleton-line--medium {
+    width: 75%;
+}
+
+.skeleton-line--long {
+    width: 90%;
+}
+
+/* Full panel skeleton overlay */
+.laika-skeleton-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    z-index: 100;
+    border-radius: inherit;
+    overflow: hidden;
+}
+
+.laika-skeleton-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #000;
+}
+
+.laika-skeleton-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(110deg, rgba(255,255,255,0.08) 8%, rgba(255,255,255,0.14) 18%, rgba(255,255,255,0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+    flex-shrink: 0;
+}
+
+.laika-skeleton-header-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.laika-skeleton-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.skeleton-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(110deg, rgba(255,255,255,0.08) 8%, rgba(255,255,255,0.14) 18%, rgba(255,255,255,0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+}
+
+.laika-skeleton-body {
+    flex: 1;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.laika-skeleton-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: #000;
+}
+
+.laika-skeleton-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #000;
+}
+
+.laika-skeleton-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(110deg, rgba(255,255,255,0.08) 8%, rgba(255,255,255,0.14) 18%, rgba(255,255,255,0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+    flex-shrink: 0;
+}
+
+.laika-skeleton-header-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.laika-skeleton-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.skeleton-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(110deg, rgba(255,255,255,0.08) 8%, rgba(255,255,255,0.14) 18%, rgba(255,255,255,0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+}
+
+.laika-skeleton-body {
+    flex: 1;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.laika-skeleton-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: #000;
+}
+
+.skeleton-input {
+    flex: 1;
+    height: 30px;
+    border-radius: 10px;
+    background: linear-gradient(110deg, rgba(255,255,255,0.08) 8%, rgba(255,255,255,0.14) 18%, rgba(255,255,255,0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+}
+
+.skeleton-send {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(110deg, rgba(255,255,255,0.08) 8%, rgba(255,255,255,0.14) 18%, rgba(255,255,255,0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+    flex-shrink: 0;
+}
+
+.laika-avatar-bubble.skeleton-pulse {
+    background: linear-gradient(110deg, rgba(255,255,255,0.08) 8%, rgba(255,255,255,0.14) 18%, rgba(255,255,255,0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+    border: none;
+}
+
+.user-avatar-bubble.skeleton-pulse {
+    background: linear-gradient(110deg, rgba(255,255,255,0.08) 8%, rgba(255,255,255,0.14) 18%, rgba(255,255,255,0.08) 33%);
+    background-size: 200% 100%;
+    animation: diagonalMove 1.5s linear infinite;
+    border: none;
+}
+
+.laika-extra-btn--skeleton {
+    width: 50px !important;
+    height: 32px !important;
+    border-radius: 9999px !important;
+    background: linear-gradient(110deg, rgba(255,255,255,0.06) 8%, rgba(255,255,255,0.12) 18%, rgba(255,255,255,0.06) 33%) !important;
+    background-size: 200% 100% !important;
+    animation: diagonalMove 1.5s linear infinite !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+.laika-agent-pill-wrapper--skeleton {
+    width: 170px !important;
+    height: 38px !important;
+    border-radius: 19px !important;
+    background: linear-gradient(110deg, rgba(255,255,255,0.06) 8%, rgba(255,255,255,0.12) 18%, rgba(255,255,255,0.06) 33%) !important;
+    background-size: 200% 100% !important;
+    animation: diagonalMove 1.5s linear infinite !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    pointer-events: none !important;
+    cursor: default !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+

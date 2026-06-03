@@ -8,12 +8,16 @@
 
 /* Override de accordions para tener el estilo oscuro glass */
 .event-rules-container .laika-accordion {
-  background: rgba(8, 8, 8, 0.88);
+  background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 14px;
   overflow: hidden;
   margin-bottom: 0;
   transition: border-color 0.2s ease;
+}
+
+[data-theme='dark'] .event-rules-container .laika-accordion {
+  background: var(--glass-bg);
 }
 
 .event-rules-container .laika-accordion:hover {

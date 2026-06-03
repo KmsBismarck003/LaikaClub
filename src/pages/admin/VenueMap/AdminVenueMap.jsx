@@ -437,93 +437,109 @@ const AdminVenueMap = () => {
 
       <div className="avm-body">
         {/* TOOLBOX */}
-        <Toolbox
-          activeTool={activeTool}
-          setActiveTool={setActiveTool}
-          components={components}
-          selectedId={selectedId}
-          onSelectComponent={id => { setSelectedId(id); setSelectedSeats([]); }}
-        />
+        <section className="avm-surface avm-surface-side">
+          <div className="avm-surface-head">
+            <h3>Herramientas</h3>
+          </div>
+          <Toolbox
+            activeTool={activeTool}
+            setActiveTool={setActiveTool}
+            components={components}
+            selectedId={selectedId}
+            onSelectComponent={id => { setSelectedId(id); setSelectedSeats([]); }}
+          />
+        </section>
 
         {/* CANVAS */}
-        <div className="avm-canvas-area">
-          <div className="avm-canvas-bg" />
-          {loading ? (
-            <div className="avm-loading-overlay">
-              <div className="avm-loading-spinner" />
-              <div className="avm-loading-text">Cargando mapa…</div>
-            </div>
-          ) : (
-            <SeatCanvas
-              components={components}
-              selectedId={selectedId}
-              selectedSeats={selectedSeats}
-              activeTool={activeTool}
-              viewBox={viewBox}
-              setViewBox={setViewBox}
-              onCanvasClick={handleCanvasClick}
-              onSelectComponent={(id) => { setSelectedId(id); setSelectedSeats([]); }}
-              onMoveComponent={(id, dx, dy) => { snapshot(); moveComponent(id, dx, dy); }}
-              onToggleSeat={(seatId) => {
-                setSelectedSeats(prev =>
-                  prev.includes(seatId) ? prev.filter(s => s !== seatId) : [...prev, seatId]
-                );
-              }}
-              onSelectBlock={(seatIds) => setSelectedSeats(seatIds)}
-            />
-          )}
-
-          {/* Selection action bar */}
-          {selectedSeats.length > 0 && (
-            <div className="avm-selection-bar" key="avm-selection-bar">
-              <span className="avm-selection-count">{selectedSeats.length}</span>
-              <span className="avm-selection-text">asientos seleccionados</span>
-              <button className="avm-sel-btn" onClick={() => changeSeatType('normal')}>Normal</button>
-              <button className="avm-sel-btn" onClick={() => changeSeatType('vip')} style={{ color: '#a855f7' }}>VIP</button>
-              <button className="avm-sel-btn" onClick={() => changeSeatType('accessible')} style={{ color: '#06b6d4' }}>♿</button>
-              <div className="avm-sep" />
-              <button className="avm-sel-btn danger" onClick={deleteSelectedSeats}>Eliminar</button>
-              <button className="avm-sel-btn" onClick={() => setSelectedSeats([])}>✕</button>
-            </div>
-          )}
-
-          {/* Capacity badge */}
-          {totalCapacity > 0 && (
-            <div className="avm-capacity-badge">
-              <div className="avm-cap-row">
-                <span className="avm-cap-label">Asientos</span>
-                <span className="avm-cap-value">{`${totalSeats} / ${totalCapacity}`}</span>
-              </div>
-              <div className="avm-cap-bar">
-                <div
-                  className={`avm-cap-fill${totalSeats > totalCapacity ? ' over' : ''}`}
-                  style={{ width: `${Math.min(100, (totalSeats / totalCapacity) * 100)}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Zoom controls */}
-          <div className="avm-zoom-controls">
-            <button className="avm-zoom-btn" onClick={() => setViewBox(v => ({ ...v, zoom: Math.min(v.zoom + 0.15, 4) }))} title="Aumentar zoom">＋</button>
-            <div className="avm-zoom-pct">{Math.round(viewBox.zoom * 100)}%</div>
-            <button className="avm-zoom-btn" onClick={() => setViewBox(v => ({ ...v, zoom: Math.max(v.zoom - 0.15, 0.3) }))} title="Disminuir zoom">－</button>
-            <button className="avm-zoom-btn" onClick={fitToScreen} title="Ajustar y centrar vista">⊡</button>
+        <section className="avm-surface avm-surface-main">
+          <div className="avm-surface-head">
+            <h3>Mapa Interactivo</h3>
+            <div className="avm-surface-meta">Editor de sala en tiempo real</div>
           </div>
-        </div>
+          <div className="avm-canvas-area">
+            <div className="avm-canvas-bg" />
+            {loading ? (
+              <div className="avm-loading-overlay">
+                <div className="avm-loading-spinner" />
+                <div className="avm-loading-text">Cargando mapa…</div>
+              </div>
+            ) : (
+              <SeatCanvas
+                components={components}
+                selectedId={selectedId}
+                selectedSeats={selectedSeats}
+                activeTool={activeTool}
+                viewBox={viewBox}
+                setViewBox={setViewBox}
+                onCanvasClick={handleCanvasClick}
+                onSelectComponent={(id) => { setSelectedId(id); setSelectedSeats([]); }}
+                onMoveComponent={(id, dx, dy) => { snapshot(); moveComponent(id, dx, dy); }}
+                onToggleSeat={(seatId) => {
+                  setSelectedSeats(prev =>
+                    prev.includes(seatId) ? prev.filter(s => s !== seatId) : [...prev, seatId]
+                  );
+                }}
+                onSelectBlock={(seatIds) => setSelectedSeats(seatIds)}
+              />
+            )}
+
+            {/* Selection action bar */}
+            {selectedSeats.length > 0 && (
+              <div className="avm-selection-bar" key="avm-selection-bar">
+                <span className="avm-selection-count">{selectedSeats.length}</span>
+                <span className="avm-selection-text">asientos seleccionados</span>
+                <button className="avm-sel-btn" onClick={() => changeSeatType('normal')}>Normal</button>
+                <button className="avm-sel-btn" onClick={() => changeSeatType('vip')} style={{ color: '#a855f7' }}>VIP</button>
+                <button className="avm-sel-btn" onClick={() => changeSeatType('accessible')} style={{ color: '#06b6d4' }}>Acc</button>
+                <div className="avm-sep" />
+                <button className="avm-sel-btn danger" onClick={deleteSelectedSeats}>Eliminar</button>
+                <button className="avm-sel-btn" onClick={() => setSelectedSeats([])}>X</button>
+              </div>
+            )}
+
+            {/* Capacity badge */}
+            {totalCapacity > 0 && (
+              <div className="avm-capacity-badge">
+                <div className="avm-cap-row">
+                  <span className="avm-cap-label">Asientos</span>
+                  <span className="avm-cap-value">{`${totalSeats} / ${totalCapacity}`}</span>
+                </div>
+                <div className="avm-cap-bar">
+                  <div
+                    className={`avm-cap-fill${totalSeats > totalCapacity ? ' over' : ''}`}
+                    style={{ width: `${Math.min(100, (totalSeats / totalCapacity) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Zoom controls */}
+            <div className="avm-zoom-controls">
+              <button className="avm-zoom-btn" onClick={() => setViewBox(v => ({ ...v, zoom: Math.min(v.zoom + 0.15, 4) }))} title="Aumentar zoom">＋</button>
+              <div className="avm-zoom-pct">{Math.round(viewBox.zoom * 100)}%</div>
+              <button className="avm-zoom-btn" onClick={() => setViewBox(v => ({ ...v, zoom: Math.max(v.zoom - 0.15, 0.3) }))} title="Disminuir zoom">－</button>
+              <button className="avm-zoom-btn" onClick={fitToScreen} title="Ajustar y centrar vista">⊡</button>
+            </div>
+          </div>
+        </section>
 
         {/* PROPERTIES PANEL */}
-        <PropsPanel
-          selected={selected}
-          selectedSeats={selectedSeats}
-          onUpdate={(updates) => selected && updateComponent(selected.id, updates)}
-          onDelete={() => selected && deleteComponent(selected.id)}
-          onDuplicate={() => selected && duplicateComponent(selected.id)}
-          onAddSeat={() => selected && addSeatToComponent(selected.id)}
-          onChangeSeatType={changeSeatType}
-          onDeleteSeats={deleteSelectedSeats}
-          onClearSelection={() => setSelectedSeats([])}
-        />
+        <section className="avm-surface avm-surface-side">
+          <div className="avm-surface-head">
+            <h3>Propiedades</h3>
+          </div>
+          <PropsPanel
+            selected={selected}
+            selectedSeats={selectedSeats}
+            onUpdate={(updates) => selected && updateComponent(selected.id, updates)}
+            onDelete={() => selected && deleteComponent(selected.id)}
+            onDuplicate={() => selected && duplicateComponent(selected.id)}
+            onAddSeat={() => selected && addSeatToComponent(selected.id)}
+            onChangeSeatType={changeSeatType}
+            onDeleteSeats={deleteSelectedSeats}
+            onClearSelection={() => setSelectedSeats([])}
+          />
+        </section>
       </div>
 
       {/* WIZARD MODAL */}

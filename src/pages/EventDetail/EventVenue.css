@@ -45,7 +45,7 @@
 .seat-map-wrapper {
   width: 100%;
   height: 400px; /* Reducido de 550px a petición del usuario */
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--glass-bg);
   border: none !important;
   position: relative;
   overflow: hidden;
@@ -54,6 +54,10 @@
   align-items: center;
   cursor: grab;
   box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='light'] .seat-map-wrapper {
+  background: var(--glass-bg);
 }
 
 .seat-map-wrapper.dragging {
@@ -237,4 +241,17 @@
 @keyframes cloudAppear {
   from { opacity: 0; transform: translate(-50%, -80%) scale(0.9); }
   to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+
+/* ── RESPONSIVE: Reduce map height on mobile ──────────────── */
+@media (max-width: 1024px) {
+  .seat-map-wrapper {
+    height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .seat-map-wrapper {
+    height: 260px;
+  }
 }

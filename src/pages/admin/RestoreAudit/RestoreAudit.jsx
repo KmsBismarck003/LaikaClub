@@ -634,7 +634,7 @@ const RestoreAudit = () => {
 
     return (
       <div className="ra-detail-sections">
-        <button className="ra-btn ra-btn-secondary" onClick={() => { setSelectedEvent(null); setActiveTab('history') }} style={{ alignSelf: 'flex-start' }}>
+        <button className="ra-btn ra-btn-back" onClick={() => { setSelectedEvent(null); setActiveTab('history') }} style={{ alignSelf: 'flex-start' }}>
           <span><Icon name="arrowLeft" className="mr-2 inline-block" /> Volver al Historial</span>
         </button>
 

@@ -132,8 +132,8 @@
 }
 
 .admin-table th {
-  background: var(--bg-sidebar);
-  color: var(--text-sidebar);
+  background: #000 !important;
+  color: #fff !important;
   padding: 0.8rem 1rem;
   font-size: 0.7rem;
   font-weight: 900;

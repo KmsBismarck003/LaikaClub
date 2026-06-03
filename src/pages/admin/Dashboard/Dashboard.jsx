@@ -209,8 +209,9 @@ const Dashboard = () => {
               size="small"
               onClick={handleResetOrder}
               className="premium-reset-btn"
+              title="Restablecer orden"
             >
-              <span style={{ marginLeft: '6px' }}>Reset Order</span>
+              <Icon name="refresh" size={14} />
             </Button>
           )}
         </div>
@@ -395,7 +396,7 @@ const Dashboard = () => {
       <style>{`
         .metric-card {
           background: var(--bg-card);
-          border-radius: 0px; /* Sharp corners */
+          border-radius: 13px;
           padding: 1.5rem;
           border: var(--laika-border-light);
           box-shadow: 0 10px 25px -10px rgba(0,0,0,0.2) !important;
@@ -475,10 +476,12 @@ const Dashboard = () => {
           flex-wrap: wrap;
         }
         .metric-card {
-          width: 380px; /* Fixed width so they aren't stretched */
-          max-width: 100%; /* Responsive fallback */
-        .premium-reset-btn { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid #eee !important; padding: 2px 8px !important; }
-        .premium-reset-btn:hover { background: #000 !important; color: #fff !important; border-color: var(--text-primary) !important; }
+          width: 380px;
+          max-width: 100%;
+        }
+        .premium-reset-btn { height: 32px; padding: 0 12px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: #000 !important; border: 1px solid #000 !important; }
+        .premium-reset-btn svg { stroke: #fff !important; }
+        .premium-reset-btn:hover { background: #000 !important; border-color: #000 !important; opacity: 0.8; }
       `}</style>
 
 

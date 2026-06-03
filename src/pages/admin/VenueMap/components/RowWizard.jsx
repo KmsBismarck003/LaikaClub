@@ -23,7 +23,7 @@ const RowWizard = ({ x, y, onConfirm, onCancel }) => {
   return (
     <div className="avm-wizard-overlay" onClick={e => e.target === e.currentTarget && onCancel()}>
       <div className="avm-wizard-box">
-        <div className="avm-wizard-title">🪑 Configurar Bloque de Asientos</div>
+        <div className="avm-wizard-title">Configurar Bloque de Asientos</div>
         <div className="avm-wizard-sub">Define las filas y columnas antes de colocar el bloque.</div>
 
         {/* PREVIEW */}
@@ -97,7 +97,7 @@ const RowWizard = ({ x, y, onConfirm, onCancel }) => {
             >
               <option value="normal">Normal</option>
               <option value="vip">VIP</option>
-              <option value="accessible">♿ Accesible</option>
+              <option value="accessible">Accesible</option>
             </select>
           </div>
         </div>
@@ -125,7 +125,7 @@ const RowWizard = ({ x, y, onConfirm, onCancel }) => {
           fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)'
         }}>
           {`Total: `}
-          <strong style={{ color: '#eab308' }}>{numRows * seatsPerRow}</strong>
+          <strong style={{ color: '#ffffff' }}>{numRows * seatsPerRow}</strong>
           {` asientos en `}
           <strong style={{ color: '#fff' }}>{numRows}</strong>
           {` fila${numRows !== 1 ? 's' : ''} × `}

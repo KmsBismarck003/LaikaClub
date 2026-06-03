@@ -1,13 +1,17 @@
 .location-section-glass {
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08); /* Rim light interno */
+  border: 1px solid var(--glass-border);
   padding: 1.5rem;
   border-radius: 20px;
   margin-top: 1.5rem;
   margin-bottom: 2.5rem; /* Espacio extra hacia abajo */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .location-section-glass {
+  background: var(--glass-bg);
 }
 
 .location-header {
@@ -37,7 +41,7 @@
 }
 
 .map-wrapper-premium {
-  height: 350px;
+  height: 260px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);

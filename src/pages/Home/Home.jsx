@@ -39,7 +39,6 @@ const Home = () => {
   const { addToCart, addMerchToCart } = useCart()
   const { showSkeleton: loading, startLoading, stopLoading } = useSkeletonContext()
   const eventsSectionRef = useRef(null)
-
   const [searchParams] = useSearchParams()
   const [events, setEvents] = useState([])
   const [ads, setAds] = useState([])
@@ -206,22 +205,7 @@ const Home = () => {
 
   return (
     <div className="home">
-      {loading ? (
-        <SkeletonHero />
-      ) : (
-        <section className="hero">
-          <div className="hero-bg">
-            <img src="/117.png" alt="" className="hero-bg-image" loading="eager" />
-            <div className="hero-bg-overlay" />
-          </div>
-          <div className="hero-content">
-            <h1 className="hero-title">
-              Descubre Eventos <span className="hero-title-accent">Increíbles</span>
-            </h1>
-            <p className="hero-subtitle">Conciertos, deportes, teatro y festivales. Tu próxima experiencia inolvidable está aquí.</p>
-          </div>
-        </section>
-      )}
+      {loading ? <SkeletonHero /> : <AdCarousel position="main" isLoading={loading} preloadedAds={ads} />}
 
       <div className="home-layout">
         <aside className={`home-sidebar home-sidebar--left ${loading ? 'loading' : ''}`}>
@@ -229,9 +213,6 @@ const Home = () => {
         </aside>
 
         <main className="home-main">
-          <div className="home-banner">
-            <AdCarousel position="main" isLoading={loading} preloadedAds={ads} />
-          </div>
 
           {loading ? (
             <div className="events-sections">
@@ -356,6 +337,9 @@ const Home = () => {
                 </section>
               )}
 
+              {/* INLINE AD CAROUSEL 1 */}
+              <AdCarousel position="inline_1" isLoading={loading} preloadedAds={ads} />
+
               {/* DISCOVERY SECTIONS - INSIDE HOME-MAIN TO PRESERVE SIDEBAR */}
               <section className="discovery-container">
                 {/* 1. VISTOS RECIENTEMENTE */}
@@ -403,6 +387,9 @@ const Home = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* INLINE AD CAROUSEL 2 */}
+                <AdCarousel position="inline_2" isLoading={loading} preloadedAds={ads} />
 
                 <hr className="discovery-divider" />
 

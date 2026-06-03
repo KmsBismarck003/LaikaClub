@@ -1,15 +1,16 @@
 import React from 'react';
+import { MousePointer, Grid3x3, Monitor, Minus, Users, Square } from 'lucide-react';
 
 const TOOLS = [
-  { id: 'select',     icon: '↖', label: 'Selec.' },
-  { id: 'add-seats',  icon: '🪑', label: 'Asientos' },
-  { id: 'add-stage',  icon: '🎸', label: 'Escenario' },
-  { id: 'add-screen', icon: '🖥', label: 'Pantalla' },
-  { id: 'add-aisle',  icon: '⟺', label: 'Pasillo' },
-  { id: 'add-ga',     icon: '👥', label: 'General' },
+  { id: 'select',     icon: <MousePointer size={20} />, label: 'Selec.' },
+  { id: 'add-seats',  icon: <Grid3x3 size={20} />, label: 'Asientos' },
+  { id: 'add-stage',  icon: <Square size={20} />, label: 'Escenario' },
+  { id: 'add-screen', icon: <Monitor size={20} />, label: 'Pantalla' },
+  { id: 'add-aisle',  icon: <Minus size={20} />, label: 'Pasillo' },
+  { id: 'add-ga',     icon: <Users size={20} />, label: 'General' },
 ];
 
-const TYPE_COLORS = { seats: '#eab308', stage: '#475569', screen: '#1e3a8a', aisle: '#27272a', ga: '#14532d' };
+const TYPE_COLORS = { seats: '#ffffff', stage: '#475569', screen: '#1e3a8a', aisle: '#27272a', ga: '#14532d' };
 
 const getInstruction = (tool) => {
   switch (tool) {
@@ -37,7 +38,7 @@ const Toolbox = ({ activeTool, setActiveTool, components, selectedId, onSelectCo
               onClick={() => setActiveTool(t.id)}
               title={t.label}
             >
-              <span style={{ fontSize: '1.1rem' }}>{t.icon}</span>
+              {t.icon}
               <span className="avm-tool-label">{t.label}</span>
             </button>
           ))}
@@ -64,7 +65,7 @@ const Toolbox = ({ activeTool, setActiveTool, components, selectedId, onSelectCo
             ['Scroll', 'Zoom'],
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', padding: '3px 0' }}>
-              <code style={{ color: '#eab308', background: 'rgba(234,179,8,0.1)', padding: '1px 5px', borderRadius: 4 }}>{k}</code>
+              <code style={{ color: '#ffffff', background: 'rgba(255,255,255,0.1)', padding: '1px 5px', borderRadius: 4 }}>{k}</code>
               <span style={{ color: 'rgba(255,255,255,0.3)' }}>{v}</span>
             </div>
           ))}
@@ -96,7 +97,7 @@ const Toolbox = ({ activeTool, setActiveTool, components, selectedId, onSelectCo
                 />
                 <span className="avm-comp-item-name">{c.name}</span>
                 {seatCount !== null && (
-                  <span className="avm-comp-item-count">{seatCount}🪑</span>
+                  <span className="avm-comp-item-count">{seatCount}</span>
                 )}
               </div>
             );

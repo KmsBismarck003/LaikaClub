@@ -290,15 +290,11 @@ export default function TicketSelectionPanel({
           ) : !isFreeEvent ? (
             <div className="quantity-selector-compact">
               <label>Cantidad</label>
-              <select
-                className="laika-select"
-                value={quantity}
-                onChange={e => setQuantity(parseInt(e.target.value))}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
+              <div className="qty-buttons">
+                <button className="qty-btn" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>−</button>
+                <span className="qty-value">{quantity}</span>
+                <button className="qty-btn" onClick={() => setQuantity(Math.min(20, quantity + 1))} disabled={quantity >= 20}>+</button>
+              </div>
             </div>
           ) : null}
 

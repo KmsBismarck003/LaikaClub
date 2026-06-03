@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from '../../../../components/Icons/Icons';
 import './SeatMapLegend.css';
 
 /**
@@ -18,13 +19,13 @@ const SeatMapLegend = ({ showVip = false, showWheelchair = false, className = ''
             type: 'available', 
             label: 'Disponible', 
             color: '#D1D5DB',
-            icon: null
+            icon: <Icon name="check" size={12} />
         },
         { 
             type: 'occupied', 
             label: 'Ocupado', 
-            color: null,
-            icon: '👤'
+            color: '#1f2937',
+            icon: null
         },
     ];
 
@@ -33,7 +34,7 @@ const SeatMapLegend = ({ showVip = false, showWheelchair = false, className = ''
             type: 'vip',
             label: 'VIP',
             color: '#EAB308',
-            icon: null
+            icon: <Icon name="star" size={12} />
         });
     }
 
@@ -42,7 +43,7 @@ const SeatMapLegend = ({ showVip = false, showWheelchair = false, className = ''
             type: 'wheelchair',
             label: 'Silla de ruedas',
             color: '#6B7280',
-            icon: '♿'
+            icon: null
         });
     }
 

@@ -124,7 +124,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                 </p>
                 <button
                     onClick={() => { if (isModal && closeCart) closeCart(); navigate('/'); }}
-                    className="bg-white text-black px-10 py-4 text-[11px] font-black uppercase tracking-widest hover:opacity-80 transition-all rounded-full"
+                    className="cart-empty-cta"
                 >
                     EXPLORAR CARTELERA
                 </button>

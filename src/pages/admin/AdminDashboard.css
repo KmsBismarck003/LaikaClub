@@ -14,7 +14,7 @@
 .stat-card {
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 0px;
+  border-radius: 13px;
   padding: var(--spacing-6);
   position: relative;
   overflow: hidden;
@@ -83,7 +83,7 @@
 .card {
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 0px;
+  border-radius: 13px;
   padding: var(--spacing-8);
   position: relative;
   overflow: hidden;
@@ -93,7 +93,7 @@
 .card-title {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
-  color: #000;
+  color: #333;
   margin: 0 0 var(--spacing-6) 0;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -124,7 +124,7 @@
 }
 
 .table-container thead {
-  background: var(--bg-tertiary);
+  background: #000 !important;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -135,10 +135,10 @@
   text-align: left;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
-  color: var(--text-secondary);
+  color: #fff !important;
+  background: #000 !important;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  border-bottom: 2px solid var(--border-color);
   white-space: nowrap;
 }
 

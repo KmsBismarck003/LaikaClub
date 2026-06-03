@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './LoginIncentiveModal.css';
 
-export default function LoginIncentiveModal({ isOpen, onClose }) {
+export default function LoginIncentiveModal({ isOpen, onClose, onLater }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,7 +31,7 @@ export default function LoginIncentiveModal({ isOpen, onClose }) {
         </button>
         <div className="auth-incentive-content">
           <div className="auth-incentive-icon-wrapper">
-            <span className="auth-incentive-sparkle">✨</span>
+            <span className="auth-incentive-sparkle"></span>
           </div>
           <h2 className="auth-incentive-title">¡Sólo Faltas Tú!</h2>
           <p className="auth-incentive-text">
@@ -52,7 +52,7 @@ export default function LoginIncentiveModal({ isOpen, onClose }) {
             </button>
             <button 
               className="auth-incentive-btn-close"
-              onClick={onClose}
+              onClick={onLater || onClose}
             >
               Tal vez más tarde
             </button>

@@ -2,8 +2,9 @@
 
 /* ── CONTENEDOR PRINCIPAL DEL MAPA ─────────────────────────── */
 .venue-map-outer {
-  background: rgba(8, 8, 8, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
@@ -11,10 +12,15 @@
   flex-direction: column;
 }
 
+[data-theme='dark'] .venue-map-outer {
+  background: var(--glass-bg);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
 /* ── ÁREA INTERACTIVA DEL MAPA ─────────────────────────────── */
 .venue-map-interactive-area {
   width: 100%;
-  height: 600px;           /* GRANDE para poder interactuar */
+  height: 450px;           /* Reducido */
   background: radial-gradient(circle at center, rgba(16,24,48,0.45) 0%, rgba(5,5,5,0.92) 100%);
   position: relative;
   overflow: hidden;
@@ -105,4 +111,17 @@
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
   transform: scale(1.08);
+}
+
+/* ── RESPONSIVE: Reduce map height on mobile ──────────────── */
+@media (max-width: 1024px) {
+  .venue-map-interactive-area {
+    height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .venue-map-interactive-area {
+    height: 220px;
+  }
 }

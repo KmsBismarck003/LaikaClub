@@ -4,7 +4,7 @@ const SEAT_R = 10.5; // Slightly larger for better mobile/desktop click targets
 
 const SEAT_COLORS = {
   normal:     { base: '#2a2a2a', stroke: '#555',    hover: '#3f3f46', busy: '#450a0a', busyStroke: '#7f1d1d' },
-  vip:        { base: '#1a1a2e', stroke: '#9333ea', hover: '#2e1065', busy: '#450a0a', busyStroke: '#7f1d1d' },
+  vip:        { base: '#2a2a2a', stroke: '#ffffff', hover: '#3f3f46', busy: '#450a0a', busyStroke: '#7f1d1d' },
   accessible: { base: '#0f2027', stroke: '#06b6d4', hover: '#164e63', busy: '#450a0a', busyStroke: '#7f1d1d' },
 };
 
@@ -35,7 +35,7 @@ function SeatDot({ seat, isBusy, isSelected, isWinner, onToggle }) {
           transformBox: 'fill-box',
           transformOrigin: 'center',
           transform: hovered && !isBusy ? 'scale(1.3)' : 'scale(1)',
-          filter: hovered && !isBusy ? 'drop-shadow(0 0 6px rgba(255,255,255,0.45))' : (isSelected ? 'drop-shadow(0 0 4px rgba(59,130,246,0.5))' : 'none')
+          filter: hovered && !isBusy ? 'drop-shadow(0 0 6px rgba(255,255,255,0.45))' : 'none'
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}

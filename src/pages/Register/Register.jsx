@@ -19,7 +19,7 @@ const Register = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from || null
-  const { loginGoogle } = useAuth()
+  const { loginGoogle, register: authRegister } = useAuth()
   const { error: showError } = useNotification()
   const [formData, setFormData] = useState({
     email: '',
@@ -72,16 +72,15 @@ const Register = () => {
     setLoading(true)
     setAlert(null)
     try {
-      // Simplificado: solo email y password
-      const response = await api.auth.register({
+      const result = await authRegister({
         email: formData.email,
         password: formData.password
       })
-      if (response.token && response.user) {
-        localStorage.setItem('token', response.token)
-        localStorage.setItem('user', JSON.stringify(response.user))
+      if (result.success) {
         setAlert({ type: 'success', message: '¡Bienvenido a LAIKA Club!' })
         setTimeout(() => navigate(from || '/'), 1500)
+      } else {
+        setAlert({ type: 'error', message: result.error || 'Error en el registro' })
       }
     } catch (error) {
       setAlert({ type: 'error', message: error.message || 'Error en el registro' })
