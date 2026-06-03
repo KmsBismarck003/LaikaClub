@@ -7,6 +7,7 @@ const Register = lazy(() => import('../pages/Register/Register'))
 const UserProfile = lazy(() => import('../pages/UserProfile/UserProfile'))
 const EventDetail = lazy(() => import('../pages/EventDetail/EventDetail'))
 const Maintenance = lazy(() => import('../pages/Maintenance/Maintenance'))
+const Shop = lazy(() => import('../pages/Shop/Shop'))
 
 // Dashboard de Organizador
 const EventManagerDashboard = lazy(() => import('../pages/EventManagerDashboard/EventManagerDashboard'))
@@ -78,6 +79,12 @@ export const publicRoutes = [
     element: Home,
     layout: 'main',
     title: 'Inicio'
+  },
+  {
+    path: '/shop',
+    element: Shop,
+    layout: 'main',
+    title: 'Tienda'
   },
   {
     path: '/login',

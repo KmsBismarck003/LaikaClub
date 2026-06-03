@@ -8,6 +8,7 @@ import { useNotification } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { useSkeletonContext } from '../../context/SkeletonContext'
+import ProductModal from '../Shop/components/ProductModal/ProductModal'
 import './Home.css'
 
 // Category configuration with icons
@@ -33,9 +34,9 @@ const ITEMS_PER_PAGE = 4 // 2x2 Grid per page
 
 const Home = () => {
   const navigate = useNavigate()
-  const { error: showError } = useNotification()
+  const { error: showError, showNotification } = useNotification()
   const { user, isGuestPreview } = useAuth()
-  const { addToCart } = useCart()
+  const { addToCart, addMerchToCart } = useCart()
   const { showSkeleton: loading, startLoading, stopLoading } = useSkeletonContext()
   const eventsSectionRef = useRef(null)
 
@@ -47,6 +48,8 @@ const Home = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [error, setError] = useState(null)
   const [recentlyViewed, setRecentlyViewed] = useState([])
+  const [merchItems, setMerchItems] = useState([])
+  const [selectedProduct, setSelectedProduct] = useState(null)
 
   // Sync with URL params
   useEffect(() => {
@@ -62,14 +65,18 @@ const Home = () => {
   const fetchInitialData = useCallback(async (background = false) => {
     if (!background) startLoading('home_data')
     try {
-      // Parallel fetch for events and ads
-      const [eventsResponse, adsResponse] = await Promise.all([
+      const [eventsResponse, adsResponse, merchResponse] = await Promise.all([
         api.event.getPublic({ limit: 50 }),
-        api.ads.getPublic()
+        api.ads.getPublic(),
+        api.merch.getAllMerchandise(null, 'published').catch(err => {
+          console.error('Error fetching merchandise for home:', err)
+          return []
+        })
       ])
       
       setEvents(eventsResponse || [])
       setAds(adsResponse || [])
+      setMerchItems(Array.isArray(merchResponse) ? merchResponse.slice(0, 4) : [])
       setError(null)
     } catch (err) {
       console.error('Error al cargar datos de Inicio:', err)
@@ -77,11 +84,23 @@ const Home = () => {
         setError('No se pudieron cargar los datos. Verifica tu conexión.')
         setEvents([])
         setAds([])
+        setMerchItems([])
       }
     } finally {
       if (!background) stopLoading('home_data')
     }
   }, [startLoading, stopLoading])
+
+  const handleAddToCart = (e, product, variant) => {
+    if (e) e.stopPropagation();
+    if (!variant) {
+      showNotification('Atencion', 'Selecciona una opcion (talla/color)', 'warning');
+      return;
+    }
+    addMerchToCart(product, variant, 1);
+    showNotification('Exito', `${product.name} añadido al carrito`, 'success');
+    navigate('/cart');
+  };
 
   useEffect(() => {
     fetchInitialData()
@@ -295,6 +314,48 @@ const Home = () => {
                 </div>
               )}
 
+              {/* LAIKA SHOP SECTION */}
+              {merchItems.length > 0 && (
+                <section className="home-shop-section">
+                  <header className="section-header">
+                    <h2 className="section-title">LAIKA SHOP</h2>
+                    <div className="header-line"></div>
+                  </header>
+                  <div className="home-shop-grid">
+                    {merchItems.map(item => {
+                      const allVariantsOutOfStock = !item.variants || item.variants.length === 0 || item.variants.every(v => v.stock <= 0);
+                      const defaultVariant = item.variants?.[0];
+                      const firstImageUrl = item.image_url?.split(',')[0];
+                      
+                      return (
+                        <div key={item.id} className="home-shop-card" onClick={() => setSelectedProduct(item)}>
+                          <div className="home-shop-card-image">
+                            {allVariantsOutOfStock ? (
+                              <span className="home-shop-card-badge agotado">Agotado</span>
+                            ) : (
+                              item.is_official && <span className="home-shop-card-badge">Oficial</span>
+                            )}
+                            <img src={firstImageUrl} alt={item.name} loading="lazy" />
+                          </div>
+                          <div className="home-shop-card-body">
+                            <span className="home-shop-card-category">{item.category}</span>
+                            <h3 className="home-shop-card-title">{item.name}</h3>
+                            <div className="home-shop-card-price">
+                              ${defaultVariant ? (parseFloat(defaultVariant.price) || 0).toFixed(2) : '0.00'}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="home-shop-actions">
+                    <button className="home-shop-view-all-btn" onClick={() => navigate('/shop')} type="button">
+                      Ver Toda la Tienda
+                    </button>
+                  </div>
+                </section>
+              )}
+
               {/* DISCOVERY SECTIONS - INSIDE HOME-MAIN TO PRESERVE SIDEBAR */}
               <section className="discovery-container">
                 {/* 1. VISTOS RECIENTEMENTE */}
@@ -411,6 +472,12 @@ const Home = () => {
           <AdCarousel position="side_right" isLoading={loading} preloadedAds={ads} />
         </aside>
       </div>
+
+      <ProductModal 
+        selectedProduct={selectedProduct}
+        setSelectedProduct={setSelectedProduct}
+        handleAddToCart={handleAddToCart}
+      />
     </div>
   )
 }

@@ -8,7 +8,8 @@ import {
   NotificationProvider,
   CartProvider,
   SystemProvider,
-  SkeletonProvider
+  SkeletonProvider,
+  FavoritesProvider
 } from './context'
 import { MainLayout, AuthLayout, DashboardLayout } from './layouts'
 import {
@@ -212,7 +213,9 @@ function App() {
         <SystemProvider>
           <NotificationProvider>
             <CartProvider>
-              <AppContent />
+              <FavoritesProvider>
+                <AppContent />
+              </FavoritesProvider>
             </CartProvider>
           </NotificationProvider>
         </SystemProvider>

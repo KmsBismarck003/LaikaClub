@@ -4,3 +4,4 @@ export { NotificationProvider, useNotification } from './NotificationContext';
 export { CartProvider, useCart } from './CartContext';
 export { SystemProvider, useSystem } from './SystemContext';
 export { SkeletonProvider, useSkeletonContext } from './SkeletonContext';
+export { FavoritesProvider, useFavorites } from './FavoritesContext';

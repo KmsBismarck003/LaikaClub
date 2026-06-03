@@ -110,6 +110,21 @@ export const NotificationProvider = ({ children }) => {
   const warning = useCallback((message, options = {}) => addNotification({ type: 'warning', message, ...options }), [addNotification]);
   const info = useCallback((message, options = {}) => addNotification({ type: 'info', message, ...options }), [addNotification]);
 
+  const showNotification = useCallback((first, second, third) => {
+    if (third !== undefined) {
+      addNotification({ title: first, message: second, type: third });
+    } else if (second !== undefined) {
+      const isType = ['success', 'error', 'warning', 'info'].includes(second);
+      if (isType) {
+        addNotification({ title: 'Aviso', message: first, type: second });
+      } else {
+        addNotification({ title: first, message: second, type: 'info' });
+      }
+    } else {
+      addNotification({ title: 'Aviso', message: first, type: 'info' });
+    }
+  }, [addNotification]);
+
   const value = {
     notifications,
     history: filteredHistory,
@@ -125,7 +140,8 @@ export const NotificationProvider = ({ children }) => {
     success,
     error,
     warning,
-    info
+    info,
+    showNotification
   };
 
   return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;

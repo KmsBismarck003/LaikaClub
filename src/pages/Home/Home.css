@@ -1200,3 +1200,143 @@
     height: 360px;
   }
 }
+
+/* ============================================
+   LAIKA SHOP HOMEPAGE SECTION
+   ============================================ */
+.home-shop-section {
+  margin: 4rem 0;
+  width: 100%;
+}
+
+.home-shop-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .home-shop-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .home-shop-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.home-shop-card {
+  background: var(--bg-secondary, #18181b);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 13px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.home-shop-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(255, 60, 0, 0.15);
+  border-color: #ff3c00;
+}
+
+.home-shop-card-image {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #111;
+}
+
+.home-shop-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.home-shop-card:hover .home-shop-card-image img {
+  transform: scale(1.06);
+}
+
+.home-shop-card-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: #ff3c00;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.home-shop-card-badge.agotado {
+  background: #555;
+}
+
+.home-shop-card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.5rem;
+}
+
+.home-shop-card-category {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #71717a;
+  text-transform: uppercase;
+}
+
+.home-shop-card-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary, #fff);
+  line-height: 1.3;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.home-shop-card-price {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #ff3c00;
+  margin-top: auto;
+}
+
+.home-shop-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.home-shop-view-all-btn {
+  background: transparent;
+  color: #ff3c00;
+  border: 1px solid #ff3c00;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.home-shop-view-all-btn:hover {
+  background: #ff3c00;
+  color: #fff;
+}

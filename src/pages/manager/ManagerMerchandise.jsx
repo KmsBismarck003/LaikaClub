@@ -26,10 +26,14 @@ const ManagerMerchandise = () => {
         event_id: '',
         max_per_person: '5',
         delivery_pickup: true,
-        delivery_home: false,
-        attributes_name: '',
-        attributes_values: ''
+        delivery_home: false
     });
+    
+    // Dynamic attributes state: [{ name: 'talla', values: 'S, M, L' }]
+    const [formAttributes, setFormAttributes] = useState([{ name: '', values: '' }]);
+    // Dynamic variants state: [{ sku: '', price: '', stock: '', attributes: { talla: 'S' } }]
+    const [variants, setVariants] = useState([]);
+
     const [uploadType, setUploadType] = useState('file');
     const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -43,24 +47,21 @@ const ManagerMerchandise = () => {
         setLoading(true);
         setSettingsLoading(true);
         try {
-            // Fetch events to know which events the manager owns
             const events = await api.manager.getMyEvents();
             setMyEvents(events || []);
 
-            // Check settings for manager
             try {
-                const sett = await merchService.getSettings(1); // fallback manager_id
+                const sett = await merchService.getSettings(1);
                 setSettings(sett);
             } catch (e) {
                 console.warn('Could not fetch merch settings', e);
             }
 
-            // Get all merchandise for this manager
             const items = await merchService.getAllMerchandise(null, null, null, null);
             setMerchItems(items || []);
         } catch (error) {
             console.error('Error fetching manager merch data:', error);
-            showError('Error al cargar la información de mercancía');
+            showError('Error al cargar la informacion de mercancia');
         } finally {
             setLoading(false);
             setSettingsLoading(false);
@@ -89,6 +90,103 @@ const ManagerMerchandise = () => {
         }
     };
 
+    const generateCartesian = (attributesList) => {
+        const filtered = attributesList.filter(a => a.name.trim() && a.values.trim());
+        if (filtered.length === 0) return [];
+        
+        let results = [{}];
+        for (const attr of filtered) {
+            const nextResults = [];
+            const valuesArray = attr.values.split(',').map(v => v.trim()).filter(Boolean);
+            for (const res of results) {
+                for (const val of valuesArray) {
+                    nextResults.push({
+                        ...res,
+                        [attr.name.toLowerCase().trim()]: val
+                    });
+                }
+            }
+            results = nextResults;
+        }
+        return results;
+    };
+
+    const handleGenerateVariants = () => {
+        const combinations = generateCartesian(formAttributes);
+        if (combinations.length === 0) {
+            showError('Por favor define al menos un atributo con valores.');
+            return;
+        }
+
+        const newVariants = combinations.map((combo, idx) => {
+            const comboKeyStr = JSON.stringify(combo);
+            const existing = variants.find(v => JSON.stringify(v.attributes) === comboKeyStr);
+            
+            return {
+                id: existing?.id || null,
+                sku: existing?.sku || `${formData.name.substring(0, 3).toUpperCase().replace(/[^A-Z0-9]/g, '') || 'PROD'}-${Object.values(combo).join('-').toUpperCase().replace(/[^A-Z0-9-]/g, '')}-${Date.now() + idx}`,
+                price: existing?.price || formData.price || '0',
+                stock: existing?.stock || formData.stock || '0',
+                attributes: combo
+            };
+        });
+        setVariants(newVariants);
+        success(`Se generaron ${newVariants.length} variantes basadas en las opciones.`);
+    };
+
+    const handleAddManualVariant = () => {
+        const attrObj = {};
+        formAttributes.forEach(a => {
+            if (a.name.trim()) {
+                attrObj[a.name.toLowerCase().trim()] = '';
+            }
+        });
+        setVariants(prev => [
+            ...prev,
+            {
+                sku: `SKU-${Date.now()}-${prev.length}`,
+                price: formData.price || '0',
+                stock: formData.stock || '0',
+                attributes: attrObj
+            }
+        ]);
+    };
+
+    const handleRemoveVariant = (index) => {
+        setVariants(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleVariantChange = (index, field, value) => {
+        setVariants(prev => prev.map((v, i) => i === index ? { ...v, [field]: value } : v));
+    };
+
+    const handleVariantAttrChange = (index, attrName, value) => {
+        setVariants(prev => prev.map((v, i) => {
+            if (i === index) {
+                return {
+                    ...v,
+                    attributes: {
+                        ...v.attributes,
+                        [attrName.toLowerCase().trim()]: value
+                    }
+                };
+            }
+            return v;
+        }));
+    };
+
+    const handleAddAttributeRow = () => {
+        setFormAttributes(prev => [...prev, { name: '', values: '' }]);
+    };
+
+    const handleRemoveAttributeRow = (idx) => {
+        setFormAttributes(prev => prev.filter((_, i) => i !== idx));
+    };
+
+    const handleAttributeRowChange = (idx, field, value) => {
+        setFormAttributes(prev => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item));
+    };
+
     const handleCreateMerch = async (e) => {
         e.preventDefault();
         if (submitting) return;
@@ -102,17 +200,41 @@ const ManagerMerchandise = () => {
             const selectedEvent = myEvents.find(ev => ev.id === parseInt(formData.event_id));
             const isEventAllowed = selectedEvent?.merch_enabled;
             if (!settings?.is_enabled && !isEventAllowed) {
-                showError('La herramienta de mercancía no está habilitada para este evento o cuenta.');
+                showError('La herramienta de mercancia no esta habilitada para este evento.');
                 return;
             }
 
             setSubmitting(true);
 
+            // Parse attributes schema
             let parsedAttributes = null;
-            if (formData.attributes_name && formData.attributes_values) {
-                parsedAttributes = {
-                    [formData.attributes_name]: formData.attributes_values.split(',').map(v => v.trim()).filter(Boolean)
-                };
+            const validAttrs = formAttributes.filter(a => a.name.trim() && a.values.trim());
+            if (validAttrs.length > 0) {
+                parsedAttributes = {};
+                validAttrs.forEach(a => {
+                    parsedAttributes[a.name.toLowerCase().trim()] = a.values.split(',').map(v => v.trim()).filter(Boolean);
+                });
+            }
+
+            // Build variants payload
+            let payloadVariants = [];
+            if (variants.length > 0) {
+                payloadVariants = variants.map(v => ({
+                    ...(v.id ? { id: v.id } : {}),
+                    sku: v.sku || `SKU-${Date.now()}`,
+                    price: parseFloat(v.price) || 0,
+                    stock: parseInt(v.stock) || 0,
+                    attributes: v.attributes && Object.keys(v.attributes).length > 0 ? v.attributes : null
+                }));
+            } else {
+                payloadVariants = [
+                    {
+                        sku: `SKU-${Date.now()}`,
+                        price: parseFloat(formData.price) || 0,
+                        stock: parseInt(formData.stock) || 0,
+                        attributes: null
+                    }
+                ];
             }
 
             const dMethods = [];
@@ -128,58 +250,79 @@ const ManagerMerchandise = () => {
                 max_per_person: parseInt(formData.max_per_person) || 5,
                 delivery_methods: dMethods,
                 attributes_schema: parsedAttributes,
-                variants: [
-                    {
-                        ...(formData.variant_id ? { id: formData.variant_id } : {}),
-                        sku: formData.sku || `SKU-${Date.now()}`,
-                        price: parseFloat(formData.price),
-                        stock: parseInt(formData.stock),
-                        attributes: parsedAttributes ? { [formData.attributes_name]: formData.attributes_values.split(',').map(v=>v.trim())[0] } : null
-                    }
-                ]
+                variants: payloadVariants
             };
 
             if (editingId) {
                 await merchService.updateMerchandise(editingId, payload);
-                success('Mercancía actualizada con éxito');
+                success('Mercancia actualizada con exito');
             } else {
                 await merchService.createMerchandise(payload);
-                success('Mercancía enviada para revisión');
+                success('Mercancia enviada para revision');
             }
 
             setShowModal(false);
             setEditingId(null);
-            setFormData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', event_id: '', variant_id: '', sku: '', max_per_person: '5', delivery_pickup: true, delivery_home: false, attributes_name: '', attributes_values: '' });
+            resetForm();
             loadInitialData();
         } catch (error) {
             console.error(error);
-            showError(editingId ? 'Error al actualizar mercancía' : 'Error al crear mercancía');
+            showError(editingId ? 'Error al actualizar mercancia' : 'Error al crear mercancia');
         } finally {
             setSubmitting(false);
         }
     };
 
+    const resetForm = () => {
+        setFormData({
+            name: '',
+            description: '',
+            price: '',
+            stock: '',
+            category: '',
+            image_url: '',
+            event_id: '',
+            max_per_person: '5',
+            delivery_pickup: true,
+            delivery_home: false
+        });
+        setFormAttributes([{ name: '', values: '' }]);
+        setVariants([]);
+    };
+
     const handleEditClick = (item) => {
         setEditingId(item.id);
-        const attrKeys = item.attributes_schema ? Object.keys(item.attributes_schema) : [];
-        const attrName = attrKeys.length > 0 ? attrKeys[0] : '';
-        const attrValues = attrName ? item.attributes_schema[attrName].join(', ') : '';
+        
+        // Load attributes
+        const attrs = [];
+        if (item.attributes_schema) {
+            Object.entries(item.attributes_schema).forEach(([name, values]) => {
+                attrs.push({ name, values: values.join(', ') });
+            });
+        }
+        setFormAttributes(attrs.length > 0 ? attrs : [{ name: '', values: '' }]);
+
+        // Load variants
+        const populatedVariants = item.variants ? item.variants.map(v => ({
+            id: v.id,
+            sku: v.sku,
+            price: v.price.toString(),
+            stock: v.stock.toString(),
+            attributes: v.attributes || {}
+        })) : [];
+        setVariants(populatedVariants);
 
         setFormData({
             name: item.name,
             description: item.description,
-            price: item.variants?.[0]?.price || '',
-            stock: item.variants?.[0]?.stock || '',
+            price: item.variants?.[0]?.price?.toString() || '',
+            stock: item.variants?.[0]?.stock?.toString() || '',
             category: item.category || '',
             image_url: item.image_url || '',
-            event_id: item.event_id || '',
-            variant_id: item.variants?.[0]?.id || '',
-            sku: item.variants?.[0]?.sku || '',
-            max_per_person: item.max_per_person || '5',
+            event_id: item.event_id?.toString() || '',
+            max_per_person: item.max_per_person?.toString() || '5',
             delivery_pickup: item.delivery_methods?.includes('PICKUP_AT_EVENT') || false,
-            delivery_home: item.delivery_methods?.includes('HOME_DELIVERY') || false,
-            attributes_name: attrName,
-            attributes_values: attrValues
+            delivery_home: item.delivery_methods?.includes('HOME_DELIVERY') || false
         });
         setUploadType(item.image_url ? 'url' : 'file');
         setShowModal(true);
@@ -210,8 +353,8 @@ const ManagerMerchandise = () => {
     if (!isAllowed) {
         return (
             <div className="p-8 text-center text-gray-400 border border-dashed border-gray-700 rounded-lg mt-8 bg-gray-900 max-w-2xl mx-auto">
-                <h3 className="font-bold text-xl mb-2 text-white">Módulo de Mercancía Desactivado</h3>
-                <p className="mb-4">Tu cuenta no tiene habilitada la venta de mercancía o no tienes eventos con esta función desbloqueada.</p>
+                <h3 className="font-bold text-xl mb-2 text-white">Modulo de Mercancia Desactivado</h3>
+                <p className="mb-4">Tu cuenta no tiene habilitada la venta de mercancia o no tienes eventos con esta funcion desbloqueada.</p>
                 <p>Por favor contacta al administrador del sistema.</p>
             </div>
         );
@@ -222,11 +365,11 @@ const ManagerMerchandise = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-                        Constructor de Mercancía
+                        Constructor de Mercancia
                     </h1>
                     <p className="text-gray-400 mt-1">Crea y administra los productos oficiales de todos tus eventos en un solo lugar.</p>
                 </div>
-                <Button variant="primary" onClick={() => setShowModal(true)} className="flex items-center gap-2">
+                <Button variant="primary" onClick={() => { resetForm(); setShowModal(true); }} className="flex items-center gap-2">
                     <Plus size={16} /> Crear Producto
                 </Button>
             </div>
@@ -237,20 +380,20 @@ const ManagerMerchandise = () => {
                     <div>
                         <h4 className="font-bold text-white mb-0.5">Acceso Parcial por Evento</h4>
                         <p className="text-sm text-purple-300">
-                            Tu cuenta no tiene habilitado el módulo de mercancía general, pero el administrador ha desbloqueado esta función para eventos específicos. Podrás crear y gestionar productos únicamente para esos eventos autorizados.
+                            Tu cuenta no tiene habilitado el modulo de mercancia general, pero el administrador ha desbloqueado esta funcion para eventos especificos. Podras crear y gestionar productos unicamente para esos eventos autorizados.
                         </p>
                     </div>
                 </div>
             )}
 
             {loading ? (
-                <div className="text-center py-12 text-gray-400">Cargando catálogo...</div>
+                <div className="text-center py-12 text-gray-400">Cargando catalogo...</div>
             ) : merchItems.length === 0 ? (
                 <Card className="text-center py-16 border border-dashed border-gray-700 bg-gray-900 rounded-xl flex flex-col items-center justify-center">
                     <ShoppingBag size={48} className="text-purple-500 mb-4" />
-                    <h3 className="text-lg font-bold mb-2">No tienes productos en tu catálogo</h3>
+                    <h3 className="text-lg font-bold mb-2">No tienes productos en tu catalogo</h3>
                     <p className="text-gray-400 mb-6 max-w-sm mx-auto">Empieza agregando tu primer playera, gorra, hoodie o accesorio para tus eventos.</p>
-                    <Button variant="primary" onClick={() => setShowModal(true)}>Agregar Producto</Button>
+                    <Button variant="primary" onClick={() => { resetForm(); setShowModal(true); }}>Agregar Producto</Button>
                 </Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -268,7 +411,7 @@ const ManagerMerchandise = () => {
                                     </span>
                                     <div>
                                         {item.admin_status === 'approved' && <span className="text-xs font-bold px-2 py-1 bg-green-900/40 text-green-400 border border-green-800 rounded">Aprobado</span>}
-                                        {item.admin_status === 'pending_review' && <span className="text-xs font-bold px-2 py-1 bg-yellow-900/40 text-yellow-400 border border-yellow-800 rounded">En Revisión</span>}
+                                        {item.admin_status === 'pending_review' && <span className="text-xs font-bold px-2 py-1 bg-yellow-900/40 text-yellow-400 border border-yellow-800 rounded">En Revision</span>}
                                         {item.admin_status === 'rejected' && <span className="text-xs font-bold px-2 py-1 bg-red-900/40 text-red-400 border border-red-800 rounded">Rechazado</span>}
                                     </div>
                                 </div>
@@ -286,11 +429,17 @@ const ManagerMerchandise = () => {
                                 <div className="flex justify-between items-center border-t border-gray-800 pt-4 mt-auto">
                                     <div>
                                         <span className="text-xs text-gray-400 block">Precio</span>
-                                        <span className="font-extrabold text-xl text-white">${item.variants?.[0]?.price || '0.00'}</span>
+                                        <span className="font-extrabold text-xl text-white">
+                                            ${item.variants && item.variants.length > 0 
+                                                ? Math.min(...item.variants.map(v => parseFloat(v.price) || 0)).toFixed(2) 
+                                                : '0.00'}
+                                        </span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-xs text-gray-400 block">Stock</span>
-                                        <span className="font-bold text-gray-200">{item.variants?.[0]?.stock || 0} pzas</span>
+                                        <span className="text-xs text-gray-400 block">Total Stock</span>
+                                        <span className="font-bold text-gray-200">
+                                            {item.variants ? item.variants.reduce((acc, v) => acc + (v.stock || 0), 0) : 0} pzas
+                                        </span>
                                     </div>
                                 </div>
 
@@ -334,96 +483,223 @@ const ManagerMerchandise = () => {
                 onClose={() => {
                     setShowModal(false);
                     setEditingId(null);
-                    setFormData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', event_id: '', variant_id: '', sku: '', max_per_person: '5', delivery_pickup: true, delivery_home: false, attributes_name: '', attributes_values: '' });
+                    resetForm();
                 }} 
-                title={editingId ? "Editar Mercancía" : "Añadir Mercancía"} 
-                size="medium"
+                title={editingId ? "Editar Mercancia" : "Añadir Mercancia"} 
+                size="large"
             >
-                <form onSubmit={handleCreateMerch} className="space-y-4 text-gray-900">
-                    <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700">Seleccionar Evento</label>
-                        <select
-                            className="w-full p-2 border border-gray-300 rounded bg-white text-gray-900"
-                            value={formData.event_id}
-                            onChange={(e) => setFormData({...formData, event_id: e.target.value})}
-                            required
-                        >
-                            <option value="">-- Elige un Evento --</option>
-                            {myEvents.filter(ev => settings?.is_enabled || ev.merch_enabled).map(ev => (
-                                <option key={ev.id} value={ev.id}>{ev.name}</option>
-                            ))}
-                        </select>
+                <form onSubmit={handleCreateMerch} className="space-y-4 text-gray-900 max-h-[80vh] overflow-y-auto px-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Seleccionar Evento</label>
+                            <select
+                                className="w-full p-2 border border-gray-300 rounded bg-white text-gray-900"
+                                value={formData.event_id}
+                                onChange={(e) => setFormData({...formData, event_id: e.target.value})}
+                                required
+                            >
+                                <option value="">-- Elige un Evento --</option>
+                                {myEvents.filter(ev => settings?.is_enabled || ev.merch_enabled).map(ev => (
+                                    <option key={ev.id} value={ev.id}>{ev.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Nombre del Producto</label>
+                            <Input 
+                                value={formData.name}
+                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                required
+                            />
+                        </div>
                     </div>
+
                     <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700">Nombre del Producto</label>
-                        <Input 
-                            value={formData.name}
-                            onChange={(e) => setFormData({...formData, name: e.target.value})}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700">Descripción</label>
+                        <label className="block text-sm font-medium mb-1 text-gray-700">Descripcion</label>
                         <textarea 
                             className="w-full p-2 border border-gray-300 rounded text-gray-900 bg-white"
-                            rows="3"
+                            rows="2"
                             value={formData.description}
                             onChange={(e) => setFormData({...formData, description: e.target.value})}
                             required
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Precio ($)</label>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Categoria</label>
+                            <Input 
+                                value={formData.category}
+                                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                                placeholder="Ej. Playeras, Gorras"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Precio Base ($)</label>
                             <Input 
                                 type="number" 
                                 min="0" 
                                 step="0.01"
                                 value={formData.price}
                                 onChange={(e) => setFormData({...formData, price: e.target.value})}
-                                required
+                                required={variants.length === 0}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Stock / Cantidad</label>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Stock Base</label>
                             <Input 
                                 type="number" 
-                                min="1"
+                                min="0"
                                 value={formData.stock}
                                 onChange={(e) => setFormData({...formData, stock: e.target.value})}
-                                required
+                                required={variants.length === 0}
                             />
                         </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700">Categoría</label>
-                        <Input 
-                            value={formData.category}
-                            onChange={(e) => setFormData({...formData, category: e.target.value})}
-                            placeholder="Ej. Playeras, Tazas, etc."
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Opción Dinámica (Ej. Talla)</label>
-                            <Input 
-                                value={formData.attributes_name}
-                                onChange={(e) => setFormData({...formData, attributes_name: e.target.value})}
-                                placeholder="Nombre de opción (Opcional)"
-                            />
+
+                    {/* DYNAMIC ATTRIBUTED CONFIGURATION */}
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
+                        <div className="flex justify-between items-center">
+                            <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Definicion de Opciones (Tallas/Colores/Modelos)</h4>
+                            <button
+                                type="button"
+                                className="px-3 py-1 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded text-xs font-bold transition-all"
+                                onClick={handleAddAttributeRow}
+                            >
+                                + Agregar Atributo
+                            </button>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Valores (separados por coma)</label>
-                            <Input 
-                                value={formData.attributes_values}
-                                onChange={(e) => setFormData({...formData, attributes_values: e.target.value})}
-                                placeholder="Ej. S, M, L, XL"
-                            />
-                        </div>
+                        
+                        {formAttributes.map((attr, idx) => (
+                            <div key={idx} className="flex gap-2 items-center">
+                                <input
+                                    type="text"
+                                    className="flex-1 p-2 border border-gray-300 rounded bg-white text-gray-900 text-sm"
+                                    placeholder="Nombre: Ej. talla, color"
+                                    value={attr.name}
+                                    onChange={(e) => handleAttributeRowChange(idx, 'name', e.target.value)}
+                                />
+                                <input
+                                    type="text"
+                                    className="flex-[2] p-2 border border-gray-300 rounded bg-white text-gray-900 text-sm"
+                                    placeholder="Valores: Ej. S, M, L (Separados por coma)"
+                                    value={attr.values}
+                                    onChange={(e) => handleAttributeRowChange(idx, 'values', e.target.value)}
+                                />
+                                <button
+                                    type="button"
+                                    className="p-2 text-red-500 hover:bg-red-50 rounded"
+                                    onClick={() => handleRemoveAttributeRow(idx)}
+                                >
+                                    <Trash size={16} />
+                                </button>
+                            </div>
+                        ))}
                     </div>
-                    <div className="grid grid-cols-2 gap-4 border-t border-gray-200 pt-3">
+
+                    {/* DYNAMIC VARIANTS GENERATION AND EDITING */}
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                                <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Variantes del Producto</h4>
+                                <p className="text-xs text-gray-500">Define stock y precio especifico por combinacion de atributos.</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold transition-all"
+                                    onClick={handleGenerateVariants}
+                                >
+                                    Generar Variantes
+                                </button>
+                                <button
+                                    type="button"
+                                    className="px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs font-bold transition-all"
+                                    onClick={handleAddManualVariant}
+                                >
+                                    Agregar Manual
+                                </button>
+                            </div>
+                        </div>
+
+                        {variants.length > 0 ? (
+                            <div className="border border-gray-200 rounded overflow-hidden max-h-60 overflow-y-auto">
+                                <table className="w-full text-left border-collapse text-xs text-gray-700 bg-white">
+                                    <thead>
+                                        <tr className="bg-gray-100 border-b border-gray-200 font-bold">
+                                            <th className="p-2">Atributos</th>
+                                            <th className="p-2">SKU</th>
+                                            <th className="p-2 w-24">Precio ($)</th>
+                                            <th className="p-2 w-20">Stock</th>
+                                            <th className="p-2 w-10 text-center">Accion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {variants.map((v, idx) => (
+                                            <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
+                                                <td className="p-2 font-medium">
+                                                    {v.attributes && Object.keys(v.attributes).length > 0 ? (
+                                                        Object.entries(v.attributes).map(([key, val]) => (
+                                                            <div key={key} className="inline-block bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded mr-1">
+                                                                {key}: <strong>{val || 'sin definir'}</strong>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-gray-400">Estandar</span>
+                                                    )}
+                                                </td>
+                                                <td className="p-2">
+                                                    <input
+                                                        type="text"
+                                                        value={v.sku}
+                                                        onChange={(e) => handleVariantChange(idx, 'sku', e.target.value)}
+                                                        className="w-full p-1 border border-gray-300 rounded text-gray-900 bg-white text-xs font-mono"
+                                                    />
+                                                </td>
+                                                <td className="p-2">
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        value={v.price}
+                                                        onChange={(e) => handleVariantChange(idx, 'price', e.target.value)}
+                                                        className="w-full p-1 border border-gray-300 rounded text-gray-900 bg-white text-xs"
+                                                    />
+                                                </td>
+                                                <td className="p-2">
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        value={v.stock}
+                                                        onChange={(e) => handleVariantChange(idx, 'stock', e.target.value)}
+                                                        className="w-full p-1 border border-gray-300 rounded text-gray-900 bg-white text-xs"
+                                                    />
+                                                </td>
+                                                <td className="p-2 text-center">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveVariant(idx)}
+                                                        className="text-red-500 hover:text-red-700 p-1"
+                                                    >
+                                                        <Trash size={14} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="text-center py-6 text-xs text-gray-500 border border-dashed border-gray-200 bg-white rounded">
+                                Sin variantes definidas. Se usara el Precio y Stock Base de arriba.
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 pt-3">
                         <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700">Límite por persona</label>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">Limite por persona</label>
                             <Input 
                                 type="number" 
                                 min="1"
@@ -432,7 +708,7 @@ const ManagerMerchandise = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-2 text-gray-700">Métodos de Entrega</label>
+                            <label className="block text-sm font-medium mb-2 text-gray-700">Metodos de Entrega</label>
                             <div className="flex flex-col gap-2">
                                 <label className="flex items-center gap-2 text-sm text-gray-800">
                                     <input type="checkbox" checked={formData.delivery_pickup} onChange={(e) => setFormData({...formData, delivery_pickup: e.target.checked})} />
@@ -440,11 +716,12 @@ const ManagerMerchandise = () => {
                                 </label>
                                 <label className="flex items-center gap-2 text-sm text-gray-800">
                                     <input type="checkbox" checked={formData.delivery_home} onChange={(e) => setFormData({...formData, delivery_home: e.target.checked})} />
-                                    Envío a Domicilio
+                                    Envio a Domicilio
                                 </label>
                             </div>
                         </div>
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium mb-1 text-gray-700">Imagen del Producto</label>
                         <div className="flex gap-2 mb-2">
@@ -479,18 +756,19 @@ const ManagerMerchandise = () => {
                                 <span className="text-purple-600 font-bold block mb-1">
                                     {uploading ? 'Subiendo...' : 'Añadir nueva imagen'}
                                 </span>
-                                <span className="text-xs text-gray-500 block">Puedes subir múltiples imágenes una por una para el carrusel</span>
+                                <span className="text-xs text-gray-500 block">Puedes subir multiples imagenes una por una para el carrusel</span>
                             </label>
                         ) : (
                             <div className="flex gap-2">
-                                <Input 
+                                <input
                                     type="url"
                                     id="url-input-temp"
                                     placeholder="https://ejemplo.com/imagen.jpg"
+                                    className="flex-1 p-2 border border-gray-300 rounded bg-white text-gray-900 text-sm"
                                 />
                                 <Button type="button" onClick={() => {
                                     const input = document.getElementById('url-input-temp');
-                                    if(input.value) {
+                                    if(input && input.value) {
                                         const currentImages = formData.image_url ? formData.image_url.split(',') : [];
                                         currentImages.push(input.value);
                                         setFormData(prev => ({ ...prev, image_url: currentImages.join(',') }));
@@ -502,7 +780,7 @@ const ManagerMerchandise = () => {
                         
                         {formData.image_url && (
                             <div className="mt-4">
-                                <p className="text-xs font-bold text-gray-500 mb-2 uppercase">Imágenes en el carrusel ({formData.image_url.split(',').length})</p>
+                                <p className="text-xs font-bold text-gray-500 mb-2 uppercase">Imagenes en el carrusel ({formData.image_url.split(',').length})</p>
                                 <div className="flex gap-2 overflow-x-auto pb-2">
                                     {formData.image_url.split(',').map((url, idx) => (
                                         <div key={idx} className="relative shrink-0 border border-gray-200 rounded p-1 bg-white">
@@ -523,20 +801,21 @@ const ManagerMerchandise = () => {
                             </div>
                         )}
                     </div>
-                    <div className="pt-4 flex justify-end gap-2">
+
+                    <div className="pt-4 flex justify-end gap-2 border-t border-gray-200">
                         <Button 
                             type="button" 
                             variant="ghost" 
                             onClick={() => {
                                 setShowModal(false);
                                 setEditingId(null);
-                                setFormData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', event_id: '', variant_id: '', sku: '', max_per_person: '5', delivery_pickup: true, delivery_home: false, attributes_name: '', attributes_values: '' });
+                                resetForm();
                             }}
                         >
                             Cancelar
                         </Button>
                         <Button type="submit" variant="primary" disabled={submitting || uploading}>
-                            {submitting ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Enviar a Revisión'}
+                            {submitting ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Enviar a Revision'}
                         </Button>
                     </div>
                 </form>

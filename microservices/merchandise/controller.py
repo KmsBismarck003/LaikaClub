@@ -94,6 +94,13 @@ def update_merchandise(db: Session, merch_id: int, item_update: MerchandiseItemU
         
     # Actualizar o Crear Variantes si se enviaron
     if variants_data is not None:
+        # Delete variants that were removed in the frontend
+        sent_ids = [v_data['id'] for v_data in variants_data if v_data.get('id')]
+        delete_query = db.query(MerchandiseVariant).filter(MerchandiseVariant.item_id == db_item.id)
+        if sent_ids:
+            delete_query = delete_query.filter(~MerchandiseVariant.id.in_(sent_ids))
+        delete_query.delete(synchronize_session=False)
+
         for v_data in variants_data:
             if v_data.get('id'):
                 # Actualizar existente

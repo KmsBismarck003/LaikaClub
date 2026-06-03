@@ -12,8 +12,8 @@ import {
     SkeletonNewsTicker 
 } from '../../components/Skeleton/Skeleton';
 import HeroSection from '../Home/components/HeroSection/HeroSection';
+import api from '../../services/api';
 
-import { getOfficialMerch, COMMERCIAL_ADS } from './constants/mockData';
 import FilterBar from './components/FilterBar/FilterBar';
 import ProductGrid from './components/ProductGrid/ProductGrid';
 import ProductModal from './components/ProductModal/ProductModal';
@@ -28,9 +28,8 @@ const Shop = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('all');
     const [selectedArtist, setSelectedArtist] = useState('all');
-    const [priceRange, setPriceRange] = useState(100);
+    const [priceRange, setPriceRange] = useState(5000); // Default to a higher range to show premium products
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [selectedVariant, setSelectedVariant] = useState(null);
     const [ads, setAds] = useState([]);
     
     // PAGINATION STATE
@@ -50,24 +49,22 @@ const Shop = () => {
 
         // 1. ADS FETCHING (COMMERCIAL POOL)
         try {
-            setAds(COMMERCIAL_ADS);
+            const adsData = await api.ads.getPublic();
+            setAds(Array.isArray(adsData) ? adsData : []);
         } catch (adError) {
             console.error("Ad loading failed:", adError);
         }
 
         // 2. MERCHANDISE FETCHING
-        const internalCatalog = getOfficialMerch();
-        
         try {
             const merchData = await merchService.getAllMerchandise(null, 'published');
             const safeMerch = Array.isArray(merchData) ? merchData : [];
-            const unifiedCatalog = [...internalCatalog, ...safeMerch];
-            setProducts(unifiedCatalog);
-            setFilteredProducts(unifiedCatalog);
+            setProducts(safeMerch);
+            setFilteredProducts(safeMerch);
         } catch (merchError) {
-            console.error("Merchandise loading failed (MySQL corruption?):", merchError);
-            setProducts(internalCatalog); 
-            setFilteredProducts(internalCatalog);
+            console.error("Merchandise loading failed:", merchError);
+            setProducts([]); 
+            setFilteredProducts([]);
         } finally {
             setLoading(false);
         }
@@ -92,8 +89,11 @@ const Shop = () => {
             const matchesCategory = activeCategory === 'all' || p.category?.toLowerCase() === activeCategory.toLowerCase();
             const matchesArtist = selectedArtist === 'all' || p.brand?.toLowerCase() === selectedArtist.toLowerCase();
             
-            const price = p.variants?.[0]?.price || 0;
-            const matchesPrice = price <= priceRange;
+            // Find lowest price among active variants
+            const lowestPrice = p.variants && p.variants.length > 0 
+                ? Math.min(...p.variants.map(v => parseFloat(v.price) || 0)) 
+                : 0;
+            const matchesPrice = lowestPrice <= priceRange;
 
             return matchesSearch && matchesCategory && matchesArtist && matchesPrice;
         });
@@ -102,26 +102,20 @@ const Shop = () => {
 
     const handleQuickView = (product) => {
         setSelectedProduct(product);
-        if (product.variants && product.variants.length > 0) {
-            setSelectedVariant(product.variants[0]);
-        } else {
-            setSelectedVariant(null);
-        }
     };
 
     const handleAddToCart = (e, product, variant) => {
         if (e) e.stopPropagation();
-        const targetVariant = variant || (product.variants && product.variants[0]);
         
-        if (!targetVariant) {
-            showNotification('Atención', 'Selecciona una opción (talla/color)', 'warning');
+        if (!variant) {
+            showNotification('Atencion', 'Selecciona una opcion (talla/color)', 'warning');
             return;
         }
         
-        addMerchToCart(product, targetVariant, 1);
-        showNotification('Éxito', `${product.name} añadido al carrito`, 'success');
+        addMerchToCart(product, variant, 1);
+        showNotification('Exito', `${product.name} añadido al carrito`, 'success');
         
-        // Redirigir directamente al carrito como solicitó el usuario
+        // Redirect to cart
         navigate('/cart');
     };
 
@@ -129,7 +123,7 @@ const Shop = () => {
         setSearchTerm('');
         setActiveCategory('all');
         setSelectedArtist('all');
-        setPriceRange(500);
+        setPriceRange(5000);
     };
 
     if (loading) {
@@ -177,16 +171,13 @@ const Shop = () => {
     return (
         <div className="laika-shop-container professional-redesign">
             <NewsTicker settings={{
-                text: '🔥 50% OFF EN TODA LA COLECCIÓN DE HOODIES • ⚡ NUEVO DROP: BAD BUNNY CHROME COLLECTION • ✨ ENVÍO GRATIS EN COMPRAS MAYORES A $100 •',
-                backgroundColor: '#ff0000',
-                textColor: '#ffffff',
-                speed: 30
+                text: '50% OFF EN TODA LA COLECION DE HOODIES - NUEVO DROP: BAD BUNNY CHROME COLLECTION - ENVIO GRATIS EN COMPRAS MAYORES A $1000 -',
+                speed: 40
             }} />
 
             <HeroSection 
-                title="COMPRA TUS PRODUCTOS" 
-                accentText="OFICIALES" 
-                subtitle="De tus artistas favoritos. Calidad industrial, edición limitada."
+                title="LAIKA SHOP" 
+                subtitle="EQUIPO OFICIAL Y EDICIONES LIMITADAS DE ARTISTAS" 
                 backgroundImage="/assets/shop_hero.png"
             />
 
@@ -230,9 +221,7 @@ const Shop = () => {
 
             <ProductModal 
                 selectedProduct={selectedProduct}
-                selectedVariant={selectedVariant}
                 setSelectedProduct={setSelectedProduct}
-                setSelectedVariant={setSelectedVariant}
                 handleAddToCart={handleAddToCart}
             />
         </div>
