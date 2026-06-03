@@ -114,7 +114,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
             .map(d => ({
                 ...d,
                 producto: d.producto || d.name || 'SIN_CLASIFICAR', 
-                val_num: d.ingreso_total || d.z_ingreso || 0
+                val_num: d.ingreso_total || d.z_ingreso || d.y_volumen || d.cantidad_total || 0
             }))
             .sort((a, b) => b.val_num - a.val_num);
     }, [data3D]);
@@ -330,7 +330,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
                 const gx = (i % gridWidth) * 0.7;
                 const gy = Math.floor(i / gridWidth) * 0.7;
                 const shapeFunc = buildingShape === 'pyramid' ? makePyramid : makeBox;
-                plotData.push(shapeFunc(gx, gx, d.val_num, normalizedZ, d.producto, i));
+                plotData.push(shapeFunc(gx, gy, d.val_num, normalizedZ, d.producto, i));
             });
         }
         return plotData;
@@ -365,31 +365,39 @@ const BigDataVisualizer = ({ managerId = null }) => {
                     </div>
                 </header>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 300px) 1fr minmax(260px, 280px)', gap: '1.5rem' }}>
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: analysisMode === '3D_EXPLORATION' 
+                        ? 'minmax(280px, 300px) 1fr minmax(260px, 280px)' 
+                        : '1fr', 
+                    gap: '1.5rem' 
+                }}>
                     
                     {/* PANEL IZQUIERDO MOCK (Filtros exactos) */}
-                    <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        <Card style={{ padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                                <Skeleton style={{ height: '16px', width: '16px', borderRadius: '3px' }} animate />
-                                <Skeleton style={{ height: '14px', width: '120px' }} animate />
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                                {[2, 1, 1, 1, 1, 2, 1].map((items, i) => (
-                                    <div key={i}>
-                                        <Skeleton style={{ height: '8px', width: '40%', marginBottom: '6px' }} animate />
-                                        <div style={{ display: 'flex', gap: '6px' }}>
-                                            {[...Array(items)].map((_, j) => (
-                                                <Skeleton key={j} style={{ height: '35px', flex: 1, borderRadius: '12px' }} animate />
-                                            ))}
+                    {analysisMode === '3D_EXPLORATION' && (
+                        <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <Card style={{ padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                                    <Skeleton style={{ height: '16px', width: '16px', borderRadius: '3px' }} animate />
+                                    <Skeleton style={{ height: '14px', width: '120px' }} animate />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                                    {[2, 1, 1, 1, 1, 2, 1].map((items, i) => (
+                                        <div key={i}>
+                                            <Skeleton style={{ height: '8px', width: '40%', marginBottom: '6px' }} animate />
+                                            <div style={{ display: 'flex', gap: '6px' }}>
+                                                {[...Array(items)].map((_, j) => (
+                                                    <Skeleton key={j} style={{ height: '35px', flex: 1, borderRadius: '12px' }} animate />
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                                <Skeleton style={{ height: '38px', width: '100%', borderRadius: '12px', marginTop: '0.5rem' }} animate />
-                                <Skeleton style={{ height: '38px', width: '100%', borderRadius: '12px', background: '#e2f5e9' }} animate />
-                            </div>
-                        </Card>
-                    </aside>
+                                    ))}
+                                    <Skeleton style={{ height: '38px', width: '100%', borderRadius: '12px', marginTop: '0.5rem' }} animate />
+                                    <Skeleton style={{ height: '38px', width: '100%', borderRadius: '12px', background: '#e2f5e9' }} animate />
+                                </div>
+                            </Card>
+                        </aside>
+                    )}
 
                     {/* PANEL CENTRAL MOCK (Gráfico 3D Simulado) */}
                     <main style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -435,41 +443,43 @@ const BigDataVisualizer = ({ managerId = null }) => {
                     </main>
 
                     {/* PANEL DERECHO MOCK (Slidres y log exactos) */}
-                    <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        <Card style={{ padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.2rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                                <Skeleton style={{ height: '16px', width: '16px', borderRadius: '4px' }} animate />
-                                <Skeleton style={{ height: '14px', width: '130px' }} animate />
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                                {[...Array(5)].map((_, i) => (
-                                    <div key={i}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                                            <Skeleton style={{ height: '8px', width: '50%' }} animate />
-                                            <Skeleton style={{ height: '8px', width: '20px' }} animate />
+                    {analysisMode === '3D_EXPLORATION' && (
+                        <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <Card style={{ padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.2rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                                    <Skeleton style={{ height: '16px', width: '16px', borderRadius: '4px' }} animate />
+                                    <Skeleton style={{ height: '14px', width: '130px' }} animate />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                                    {[...Array(5)].map((_, i) => (
+                                        <div key={i}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                                <Skeleton style={{ height: '8px', width: '50%' }} animate />
+                                                <Skeleton style={{ height: '8px', width: '20px' }} animate />
+                                            </div>
+                                            <Skeleton style={{ height: '6px', width: '100%', borderRadius: '3px' }} animate />
                                         </div>
-                                        <Skeleton style={{ height: '6px', width: '100%', borderRadius: '3px' }} animate />
-                                    </div>
-                                ))}
-                            </div>
-                        </Card>
+                                    ))}
+                                </div>
+                            </Card>
 
-                        <Card style={{ padding: 0, borderRadius: '24px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                            <div style={{ padding: '1.2rem', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Skeleton style={{ height: '14px', width: '14px', borderRadius: '3px' }} animate />
-                                <Skeleton style={{ height: '12px', width: '150px' }} animate />
-                            </div>
-                            <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {[...Array(8)].map((_, i) => (
-                                    <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                        <Skeleton style={{ height: '12px', width: '18px' }} animate />
-                                        <Skeleton style={{ height: '12px', flex: 1 }} animate />
-                                        <Skeleton style={{ height: '12px', width: '50px' }} animate />
-                                    </div>
-                                ))}
-                            </div>
-                        </Card>
-                    </aside>
+                            <Card style={{ padding: 0, borderRadius: '24px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                                <div style={{ padding: '1.2rem', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Skeleton style={{ height: '14px', width: '14px', borderRadius: '3px' }} animate />
+                                    <Skeleton style={{ height: '12px', width: '150px' }} animate />
+                                </div>
+                                <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {[...Array(8)].map((_, i) => (
+                                        <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                            <Skeleton style={{ height: '12px', width: '18px' }} animate />
+                                            <Skeleton style={{ height: '12px', flex: 1 }} animate />
+                                            <Skeleton style={{ height: '12px', width: '50px' }} animate />
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+                        </aside>
+                    )}
 
                 </div>
             </div>
@@ -624,10 +634,17 @@ const BigDataVisualizer = ({ managerId = null }) => {
                 </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 300px) 1fr minmax(260px, 280px)', gap: '1.5rem' }}>
+            <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: analysisMode === '3D_EXPLORATION' 
+                    ? 'minmax(280px, 300px) 1fr minmax(260px, 280px)' 
+                    : '1fr', 
+                gap: '1.5rem' 
+            }}>
                 
                 {/* PANEL IZQUIERDO: FILTROS */}
-                <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {analysisMode === '3D_EXPLORATION' && (
+                    <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     <Card style={{ padding: '1.5rem', background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', backdropFilter: 'blur(20px)', border: '1px solid var(--border-color)', borderRadius: '24px', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                             <Filter size={16} color="#000000" />
@@ -733,6 +750,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
                         </div>
                     </Card>
                 </aside>
+                )}
 
                 {/* PANEL CENTRAL: MONITOR 3D Y MÉTRICAS */}
                 <main style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -853,30 +871,6 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                                 </div>
 
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem' }}>
-                                                 <div style={{ gridColumn: 'span 2', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px', fontSize: '0.8rem', color: '#475569' }}>
-                                                     <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                                                         <HelpCircle size={16} style={{ color: '#4f46e5' }} /> ¿Qué es el Score R²?
-                                                     </div>
-                                                     <p style={{ margin: 0, lineHeight: '1.4' }}>
-                                                         Es el <b>Coeficiente de Determinación</b>. Mide de 0.00 a 1.00 qué tan preciso es el modelo para estimar tus ingresos según las entradas vendidas. Por ejemplo, <b>0.88 representa un 88% de precisión histórica</b>. Entre más cercano a 1.00, más confiable es la predicción.
-                                                     </p>
-                                                 </div>
-                                                 <div style={{ gridColumn: 'span 2', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px', fontSize: '0.8rem', color: '#475569' }}>
-                                                     <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                                                         <HelpCircle size={16} style={{ color: '#4f46e5' }} /> ¿Qué es el Score R²?
-                                                     </div>
-                                                     <p style={{ margin: 0, lineHeight: '1.4' }}>
-                                                         Es el <b>Coeficiente de Determinación</b>. Mide de 0.00 a 1.00 qué tan preciso es el modelo para estimar tus ingresos según las entradas vendidas. Por ejemplo, <b>0.88 representa un 88% de precisión histórica</b>. Entre más cercano a 1.00, más confiable es la predicción.
-                                                     </p>
-                                                 </div>
-                                                 <div style={{ gridColumn: 'span 2', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px', fontSize: '0.8rem', color: '#475569' }}>
-                                                     <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                                                         <HelpCircle size={16} style={{ color: '#4f46e5' }} /> ¿Qué es el Score R²?
-                                                     </div>
-                                                     <p style={{ margin: 0, lineHeight: '1.4' }}>
-                                                         Es el <b>Coeficiente de Determinación</b>. Mide de 0.00 a 1.00 qué tan preciso es el modelo para estimar tus ingresos según las entradas vendidas. Por ejemplo, <b>0.88 representa un 88% de precisión histórica</b>. Entre más cercano a 1.00, más confiable es la predicción.
-                                                     </p>
-                                                 </div>
                                                  <div style={{ gridColumn: 'span 2', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px', fontSize: '0.8rem', color: '#475569' }}>
                                                      <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                                                          <HelpCircle size={16} style={{ color: '#4f46e5' }} /> ¿Qué es el Score R²?
@@ -1634,87 +1628,89 @@ const BigDataVisualizer = ({ managerId = null }) => {
                 </main>
 
                 {/* PANEL DERECHO: HERRAMIENTAS Y LOG */}
-                <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <Card style={{ padding: '1.5rem', background: 'var(--bg-card)', border: '1px solid var(--border-color)', backdropFilter: 'blur(20px)', borderRadius: '24px', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.2rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                            <Settings size={16} color="#475569" />
-                            <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>METRÍAS PROYECCIÓN</h3>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                            <div className="slider-group">
-                                <div className="slider-header">
-                                    <label>Multiplicador de Altura</label>
-                                    <span className="slider-val">{hMult}x</span>
+                {analysisMode === '3D_EXPLORATION' && (
+                    <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <Card style={{ padding: '1.5rem', background: 'var(--bg-card)', border: '1px solid var(--border-color)', backdropFilter: 'blur(20px)', borderRadius: '24px', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.2rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                                <Settings size={16} color="#475569" />
+                                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>METRÍAS PROYECCIÓN</h3>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                                <div className="slider-group">
+                                    <div className="slider-header">
+                                        <label>Multiplicador de Altura</label>
+                                        <span className="slider-val">{hMult}x</span>
+                                    </div>
+                                    <input type="range" min="0.5" max="5" step="0.1" value={hMult} onChange={(e)=>setHMult(parseFloat(e.target.value))} className="slider-premium" />
                                 </div>
-                                <input type="range" min="0.5" max="5" step="0.1" value={hMult} onChange={(e)=>setHMult(parseFloat(e.target.value))} className="slider-premium" />
-                            </div>
-                            <div className="slider-group">
-                                <div className="slider-header">
-                                    <label>Grosor de Celda</label>
-                                    <span className="slider-val">{barWidth}</span>
+                                <div className="slider-group">
+                                    <div className="slider-header">
+                                        <label>Grosor de Celda</label>
+                                        <span className="slider-val">{barWidth}</span>
+                                    </div>
+                                    <input type="range" min="0.05" max="0.5" step="0.01" value={barWidth} onChange={(e)=>setBarWidth(parseFloat(e.target.value))} className="slider-premium" />
                                 </div>
-                                <input type="range" min="0.05" max="0.5" step="0.01" value={barWidth} onChange={(e)=>setBarWidth(parseFloat(e.target.value))} className="slider-premium" />
-                            </div>
-                            <div className="slider-group">
-                                <div className="slider-header">
-                                    <label>Grosor de Puntos (Scatter)</label>
-                                    <span className="slider-val">{markerSize}px</span>
+                                <div className="slider-group">
+                                    <div className="slider-header">
+                                        <label>Grosor de Puntos (Scatter)</label>
+                                        <span className="slider-val">{markerSize}px</span>
+                                    </div>
+                                    <input type="range" min="4" max="24" step="1" value={markerSize} onChange={(e)=>setMarkerSize(parseInt(e.target.value))} className="slider-premium" />
                                 </div>
-                                <input type="range" min="4" max="24" step="1" value={markerSize} onChange={(e)=>setMarkerSize(parseInt(e.target.value))} className="slider-premium" />
-                            </div>
-                            <div className="slider-group">
-                                <div className="slider-header">
-                                    <label>Color Personalizado (Paleta Custom)</label>
-                                    <input type="color" value={customColor} onChange={(e)=>setCustomColor(e.target.value)} style={{ padding: 0, border: 'none', width: '30px', height: '18px', cursor: 'pointer', background: 'transparent' }} />
+                                <div className="slider-group">
+                                    <div className="slider-header">
+                                        <label>Color Personalizado (Paleta Custom)</label>
+                                        <input type="color" value={customColor} onChange={(e)=>setCustomColor(e.target.value)} style={{ padding: 0, border: 'none', width: '30px', height: '18px', cursor: 'pointer', background: 'transparent' }} />
+                                    </div>
+                                </div>
+                                <div className="slider-group">
+                                    <div className="slider-header">
+                                        <label>Opacidad Base</label>
+                                        <span className="slider-val">{Math.round(opacity*100)}%</span>
+                                    </div>
+                                    <input type="range" min="0.1" max="1" step="0.05" value={opacity} onChange={(e)=>setOpacity(parseFloat(e.target.value))} className="slider-premium" />
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '8px', marginTop: '0.5rem' }}>
+                                    <select 
+                                        className="select-premium" 
+                                        value={buildingShape} 
+                                        onChange={(e) => setBuildingShape(e.target.value)}
+                                        style={{ padding: '8px' }}
+                                    >
+                                        <option value="cube">Cubos</option>
+                                        <option value="pyramid">Pirámides</option>
+                                        <option value="points">Puntos</option>
+                                    </select>
+                                    <button 
+                                        onClick={()=>setIsWireframe(!isWireframe)} 
+                                        className={`btn-wireframe ${isWireframe ? 'active' : ''}`}
+                                    >
+                                        <Eye size={12}/> {isWireframe ? 'Boceto' : 'Sólido'}
+                                    </button>
                                 </div>
                             </div>
-                            <div className="slider-group">
-                                <div className="slider-header">
-                                    <label>Opacidad Base</label>
-                                    <span className="slider-val">{Math.round(opacity*100)}%</span>
-                                </div>
-                                <input type="range" min="0.1" max="1" step="0.05" value={opacity} onChange={(e)=>setOpacity(parseFloat(e.target.value))} className="slider-premium" />
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '8px', marginTop: '0.5rem' }}>
-                                <select 
-                                    className="select-premium" 
-                                    value={buildingShape} 
-                                    onChange={(e) => setBuildingShape(e.target.value)}
-                                    style={{ padding: '8px' }}
-                                >
-                                    <option value="cube">Cubos</option>
-                                    <option value="pyramid">Pirámides</option>
-                                    <option value="points">Puntos</option>
-                                </select>
-                                <button 
-                                    onClick={()=>setIsWireframe(!isWireframe)} 
-                                    className={`btn-wireframe ${isWireframe ? 'active' : ''}`}
-                                >
-                                    <Eye size={12}/> {isWireframe ? 'Boceto' : 'Sólido'}
-                                </button>
-                            </div>
-                        </div>
-                    </Card>
+                        </Card>
 
-                    <Card style={{ padding: '0', background: 'var(--bg-card)', border: '1px solid var(--border-color)', backdropFilter: 'blur(20px)', borderRadius: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
-                        <div style={{ padding: '1.2rem', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-primary)' }}>
-                            <DatabaseIcon size={14} color="#64748b" />
-                            <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>LOG DE CAUDA TECTÓNICO</h3>
-                        </div>
-                        <div className="log-container-premium">
-                            {canonicalData.slice(0, 20).map((d, i) => (
-                                <div key={i} className="log-row-premium">
-                                    <span className="log-rank">{(i+1).toString().padStart(2, '0')}</span>
-                                    <span className="log-name" title={d.producto}>{d.producto}</span>
-                                    <span className="log-val">${d.val_num.toLocaleString()}</span>
-                                </div>
-                            ))}
-                            {canonicalData.length === 0 && (
-                                <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem' }}>Sin datos coincidentes</div>
-                            )}
-                        </div>
-                    </Card>
-                </aside>
+                        <Card style={{ padding: '0', background: 'var(--bg-card)', border: '1px solid var(--border-color)', backdropFilter: 'blur(20px)', borderRadius: '24px', display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
+                            <div style={{ padding: '1.2rem', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-primary)' }}>
+                                <DatabaseIcon size={14} color="#64748b" />
+                                <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>LOG DE CAUDA TECTÓNICO</h3>
+                            </div>
+                            <div className="log-container-premium">
+                                {canonicalData.slice(0, 20).map((d, i) => (
+                                    <div key={i} className="log-row-premium">
+                                        <span className="log-rank">{(i+1).toString().padStart(2, '0')}</span>
+                                        <span className="log-name" title={d.producto}>{d.producto}</span>
+                                        <span className="log-val">${d.val_num.toLocaleString()}</span>
+                                    </div>
+                                ))}
+                                {canonicalData.length === 0 && (
+                                    <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem' }}>Sin datos coincidentes</div>
+                                )}
+                            </div>
+                        </Card>
+                    </aside>
+                )}
             </div>
 
             {error && !errorDismissed && (

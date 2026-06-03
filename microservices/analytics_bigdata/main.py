@@ -80,7 +80,12 @@ def get_mapreduce(
     category: str = None,
     role: str = None,
     manager_id: int = None,
-    event_id: int = None
+    event_id: int = None,
+    payment_method: str = None,
+    hour_range: str = None,
+    status: str = None,
+    min_price: float = None,
+    max_price: float = None
 ):
     if not engine:
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
@@ -91,7 +96,12 @@ def get_mapreduce(
         "category": category,
         "role": role,
         "manager_id": manager_id,
-        "event_id": event_id
+        "event_id": event_id,
+        "payment_method": payment_method,
+        "hour_range": hour_range,
+        "status": status,
+        "min_price": min_price,
+        "max_price": max_price
     }
     filters = {k: v for k, v in filters.items() if v is not None}
     
@@ -113,7 +123,12 @@ def get_3d_stats(
     category: str = None,
     role: str = None,
     manager_id: int = None,
-    event_id: int = None
+    event_id: int = None,
+    payment_method: str = None,
+    hour_range: str = None,
+    status: str = None,
+    min_price: float = None,
+    max_price: float = None
 ):
     if not engine:
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
@@ -124,7 +139,12 @@ def get_3d_stats(
         "category": category,
         "role": role,
         "manager_id": manager_id,
-        "event_id": event_id
+        "event_id": event_id,
+        "payment_method": payment_method,
+        "hour_range": hour_range,
+        "status": status,
+        "min_price": min_price,
+        "max_price": max_price
     }
     filters = {k: v for k, v in filters.items() if v is not None}
     

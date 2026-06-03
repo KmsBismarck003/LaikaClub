@@ -103,6 +103,52 @@ class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalytics
                 col_prefix = "t." if table_name == "tickets" else ""
                 if filters.get("date_from"): where_clauses.append(f"{col_prefix}created_at >= '{filters['date_from']}'")
                 if filters.get("date_to"): where_clauses.append(f"{col_prefix}created_at <= '{filters['date_to']}'")
+                if filters.get("category") and table_name == "tickets": 
+                    where_clauses.append(f"{col_prefix}ticket_type = '{filters['category']}'")
+                if filters.get("role") and table_name == "users":
+                    where_clauses.append(f"role = '{filters['role']}'")
+                if filters.get("payment_method"):
+                    where_clauses.append(f"payment_method = '{filters['payment_method']}'")
+                if filters.get("hour_range"):
+                    hr = filters["hour_range"]
+                    hour_col = f"HOUR({col_prefix}created_at)"
+                    if hr == "morning": where_clauses.append(f"{hour_col} >= 6 AND {hour_col} < 12")
+                    elif hr == "afternoon": where_clauses.append(f"{hour_col} >= 12 AND {hour_col} < 18")
+                    elif hr == "night": where_clauses.append(f"{hour_col} >= 18 AND {hour_col} <= 23")
+                    elif hr == "late_night": where_clauses.append(f"{hour_col} >= 0 AND {hour_col} < 6")
+                if filters.get("event_id"):
+                    event_id_val = int(filters["event_id"])
+                    if table_name == "tickets":
+                        where_clauses.append(f"t.event_id = {event_id_val}")
+                    elif table_name == "events":
+                        where_clauses.append(f"id = {event_id_val}")
+                    elif table_name == "payments":
+                        where_clauses.append(f"event_id = {event_id_val}")
+                if filters.get("status"):
+                    if table_name == "tickets":
+                        where_clauses.append(f"{col_prefix}status = '{filters['status']}'")
+                    elif table_name == "payments":
+                        where_clauses.append(f"status = '{filters['status']}'")
+                    elif table_name == "events":
+                        where_clauses.append(f"status = '{filters['status']}'")
+                    elif table_name == "users":
+                        where_clauses.append(f"status = '{filters['status']}'")
+                if filters.get("min_price"):
+                    price_val = float(filters["min_price"])
+                    if table_name == "tickets":
+                        where_clauses.append(f"{col_prefix}price >= {price_val}")
+                    elif table_name == "payments":
+                        where_clauses.append(f"amount >= {price_val}")
+                    elif table_name == "events":
+                        where_clauses.append(f"price >= {price_val}")
+                if filters.get("max_price"):
+                    price_val = float(filters["max_price"])
+                    if table_name == "tickets":
+                        where_clauses.append(f"{col_prefix}price <= {price_val}")
+                    elif table_name == "payments":
+                        where_clauses.append(f"amount <= {price_val}")
+                    elif table_name == "events":
+                        where_clauses.append(f"price <= {price_val}")
                 if filters.get("manager_id"):
                     manager_id_val = int(filters["manager_id"])
                     if table_name == "tickets":
@@ -184,6 +230,22 @@ class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalytics
                 df = df.filter(df.id == event_id_val)
             elif table_name == "payments" and "event_id" in df.columns:
                 df = df.filter(df.event_id == event_id_val)
+
+        if filters.get("status"):
+            if "status" in df.columns:
+                df = df.filter(df.status == filters["status"])
+        if filters.get("min_price"):
+            price_val = float(filters["min_price"])
+            if "price" in df.columns:
+                df = df.filter(df.price >= price_val)
+            elif "amount" in df.columns:
+                df = df.filter(df.amount >= price_val)
+        if filters.get("max_price"):
+            price_val = float(filters["max_price"])
+            if "price" in df.columns:
+                df = df.filter(df.price <= price_val)
+            elif "amount" in df.columns:
+                df = df.filter(df.amount <= price_val)
 
         if filters.get("manager_id"):
             manager_id_val = int(filters["manager_id"])
@@ -285,6 +347,32 @@ class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalytics
                         where_clauses.append(f"id = {event_id_val}")
                     elif table_name == "payments":
                         where_clauses.append(f"event_id = {event_id_val}")
+                
+                if filters.get("status"):
+                    if table_name == "tickets":
+                        where_clauses.append(f"{col_prefix}status = '{filters['status']}'")
+                    elif table_name == "payments":
+                        where_clauses.append(f"status = '{filters['status']}'")
+                    elif table_name == "events":
+                        where_clauses.append(f"status = '{filters['status']}'")
+                    elif table_name == "users":
+                        where_clauses.append(f"status = '{filters['status']}'")
+                if filters.get("min_price"):
+                    price_val = float(filters["min_price"])
+                    if table_name == "tickets":
+                        where_clauses.append(f"{col_prefix}price >= {price_val}")
+                    elif table_name == "payments":
+                        where_clauses.append(f"amount >= {price_val}")
+                    elif table_name == "events":
+                        where_clauses.append(f"price >= {price_val}")
+                if filters.get("max_price"):
+                    price_val = float(filters["max_price"])
+                    if table_name == "tickets":
+                        where_clauses.append(f"{col_prefix}price <= {price_val}")
+                    elif table_name == "payments":
+                        where_clauses.append(f"amount <= {price_val}")
+                    elif table_name == "events":
+                        where_clauses.append(f"price <= {price_val}")
                 
                 if filters.get("manager_id"):
                     manager_id_val = int(filters["manager_id"])
