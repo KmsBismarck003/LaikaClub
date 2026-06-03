@@ -1710,7 +1710,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     </button>
                                 </div>
                             </div>
-                        </div>)}
+                        )}
                     </Card>
 
                     <Card style={{ padding: openLogPanel ? '0' : '0.45rem 0.75rem', height: openLogPanel ? 'auto' : '44px', maxHeight: openLogPanel ? '190px' : '44px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', backdropFilter: 'blur(20px)', borderRadius: '16px', display: 'flex', flexDirection: 'column', flexGrow: 0, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.04)', transition: 'all 0.18s ease' }}>
