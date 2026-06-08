@@ -113,6 +113,33 @@ from sqlalchemy.orm import Session
 BACKUP_DIR = Path("backups")
 BACKUP_DIR.mkdir(exist_ok=True)
 
+def get_db_tool_path(env_var_name: str, default_tool_name: str) -> str:
+    """
+    Obtiene la ruta de la herramienta de base de datos (mysql, mysqldump, mysqladmin).
+    Si la ruta configurada en la variable de entorno no existe en el sistema actual,
+    o si estamos en Linux/Docker y la ruta parece de Windows (o viceversa),
+    retorna simplemente el nombre por defecto del comando (ej: 'mysqldump').
+    """
+    path = os.getenv(env_var_name)
+    if not path:
+        return default_tool_name
+        
+    path = path.strip('"\'')
+    
+    # Si la ruta es de Windows (contiene contrabarra o letra de unidad) y estamos en Linux/Docker
+    if os.name == 'posix' and ('\\' in path or path.startswith(('C:', 'D:', 'E:'))):
+        return default_tool_name
+        
+    # Si la ruta es de Linux (contiene barra /) y estamos en Windows
+    if os.name == 'nt' and '/' in path and not path.startswith('\\\\'):
+        return default_tool_name
+        
+    # Si la ruta especifica un path absoluto pero no existe
+    if ('/' in path or '\\' in path) and not os.path.exists(path):
+        return default_tool_name
+        
+    return path
+
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 ADS_UPLOAD_DIR = UPLOAD_DIR / "ads"
@@ -195,9 +222,9 @@ def _do_backup(backup_id: str, backup_type: str, db: Session, tables: List[str] 
         user = os.getenv('MYSQL_USER', 'root')
         pwd  = os.getenv('MYSQL_PASSWORD', '')
         dbname = os.getenv('MYSQL_DATABASE', 'laika_club')
-        mysqldump_path = os.getenv('MYSQLDUMP_PATH', 'mysqldump')
+        mysqldump_path = get_db_tool_path('MYSQLDUMP_PATH', 'mysqldump')
 
-        cmd = [mysqldump_path, f"--host={host}", f"--user={user}"]
+        cmd = [mysqldump_path, f"--host={host}", f"--user={user}", "--skip-ssl"]
         if pwd:
             cmd.append(f"--password={pwd}")
         
@@ -207,8 +234,8 @@ def _do_backup(backup_id: str, backup_type: str, db: Session, tables: List[str] 
         else:
             cmd += ["--single-transaction", "--routines", "--triggers", dbname]
 
-        with open(outfile, "w", encoding="utf-8") as f:
-            result = subprocess.run(cmd, stdout=f, stderr=subprocess.PIPE, text=True)
+        with open(outfile, "wb") as f:
+            result = subprocess.run(cmd, stdout=f, stderr=subprocess.PIPE)
 
         if result.returncode == 0:
             size_mb = outfile.stat().st_size / (1024*1024)
@@ -217,10 +244,11 @@ def _do_backup(backup_id: str, backup_type: str, db: Session, tables: List[str] 
                 WHERE backup_id=:bid
             """), {"sz": round(size_mb, 2), "bid": backup_id})
         else:
+            err_msg = result.stderr.decode('utf-8', errors='ignore') if result.stderr else "Unknown error"
             db2.execute(text("""
                 UPDATE backup_history SET status='failed', completed_at=CURRENT_TIMESTAMP, error_message=:err
                 WHERE backup_id=:bid
-            """), {"err": result.stderr[:500], "bid": backup_id})
+            """), {"err": err_msg[:500], "bid": backup_id})
         db2.commit()
     except Exception as e:
         try:
@@ -535,27 +563,30 @@ async def restore_backup(payload: dict, db: Session = Depends(get_db)):
                     
             return {"success": True, "message": f"MongoDB restaurada con éxito desde {file_path.name}"}
 
-        # RESTAURAR MYSQL (Código Original)
+        # RESTAURAR MYSQL (Código Original moderno y multiplataforma)
         host = os.getenv('MYSQL_HOST', 'localhost')
         user = os.getenv('MYSQL_USER', 'root')
         pwd  = os.getenv('MYSQL_PASSWORD', '')
         dbname = os.getenv('MYSQL_DATABASE', 'laika_club')
-        mysql_exe = os.getenv('MYSQL_EXE_PATH', 'mysql')
-        mysqladmin_exe = os.getenv('MYSQLADMIN_EXE_PATH', 'mysqladmin')
+        mysql_exe = get_db_tool_path('MYSQL_EXE_PATH', 'mysql')
+        mysqladmin_exe = get_db_tool_path('MYSQLADMIN_EXE_PATH', 'mysqladmin')
 
-        # Comando para restaurar usando el cliente mysql
-        cmd = f'"{mysql_exe}" -h {host} -u {user}'
+        # Recrear la base si no existe
+        create_db_cmd = [mysqladmin_exe, "-h", host, "-u", user, "--skip-ssl"]
         if pwd:
-            cmd += f' -p{pwd}'
-        cmd += f' {dbname} < "{str(file_path)}"'
-
-        # IMPORTANTE: Recrear la base si no existe
-        create_db_cmd = f'"{mysqladmin_exe}" -h {host} -u {user} '
-        if pwd: create_db_cmd += f'-p{pwd} '
-        create_db_cmd += f'create {dbname}'
+            create_db_cmd.append(f"-p{pwd}")
+        create_db_cmd.extend(["create", dbname])
         
-        subprocess.run(create_db_cmd, shell=True, capture_output=True)
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        subprocess.run(create_db_cmd, capture_output=True)
+
+        # Restaurar usando stdin
+        cmd = [mysql_exe, "-h", host, "-u", user, "--skip-ssl"]
+        if pwd:
+            cmd.append(f"-p{pwd}")
+        cmd.append(dbname)
+
+        with open(file_path, "rb") as f:
+            result = subprocess.run(cmd, stdin=f, capture_output=True, text=True)
 
         if result.returncode == 0:
             return {"success": True, "message": f"Base de datos {dbname} restaurada con éxito desde {file_path.name}"}

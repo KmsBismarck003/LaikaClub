@@ -3,16 +3,26 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from microservices.merchandise.database import engine, Base, get_db
 from microservices.merchandise.models import MerchandiseItem, MerchandiseVariant, MerchandiseSettings, MerchandiseOrder, MerchandiseOrderItem
-from microservices.merchandise.schemas import MerchandiseItemCreate, MerchandiseItemUpdate, MerchandiseItemResponse, MerchandiseSettingsBase, MerchandiseSettingsResponse, OrderCreate, OrderResponse
+from microservices.merchandise.schemas import MerchandiseItemCreate, MerchandiseItemUpdate, MerchandiseItemResponse, MerchandiseSettingsBase, MerchandiseSettingsResponse, OrderCreate, OrderResponse, MerchandiseReviewCreate, MerchandiseReviewResponse
 import microservices.merchandise.controller as controller
 
 # Crear tablas
 import os
 import jwt
 from dotenv import load_dotenv
+from sqlalchemy import text
 load_dotenv()
 
 Base.metadata.create_all(bind=engine)
+
+# Dynamic DB Migration for Idempotency Key
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE merchandise_orders ADD COLUMN idempotency_key VARCHAR(255)"))
+        conn.commit()
+        print("[DB] Added idempotency_key column to merchandise_orders table.")
+except Exception as e:
+    print(f"[DB] Column idempotency_key already exists or could not be added: {e}")
 
 app = FastAPI(title="Laika Merchandise Service", version="2.0.0")
 
@@ -137,3 +147,24 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+# --- Reviews ---
+@app.post("/reviews/", response_model=MerchandiseReviewResponse)
+def create_review(review: MerchandiseReviewCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id), authorization: Optional[str] = Header(None)):
+    user_name = "Usuario"
+    payload = get_token_payload(authorization)
+    if payload:
+        first = payload.get('firstName') or payload.get('first_name') or ""
+        last = payload.get('lastName') or payload.get('last_name') or ""
+        fullName = f"{first} {last}".strip()
+        user_name = fullName if fullName else payload.get('email', 'Usuario').split('@')[0]
+    return controller.create_review(db=db, review_data=review, user_id=user_id, user_name=user_name)
+
+@app.get("/{merch_id}/purchased", response_model=dict)
+def check_purchased(merch_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    from microservices.merchandise.models import MerchandiseOrder, MerchandiseOrderItem, MerchandiseVariant
+    purchased = db.query(MerchandiseOrderItem).join(MerchandiseVariant).join(MerchandiseOrder).filter(
+        MerchandiseOrder.user_id == user_id,
+        MerchandiseVariant.item_id == merch_id
+    ).first()
+    return {"purchased": purchased is not None}

@@ -542,3 +542,150 @@
     font-size: 1.15rem;
   }
 }
+
+/* ============================================
+   LAIKA SHOP CTA BANNER
+   ============================================ */
+
+.home-shop-cta-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  padding: 2.5rem 2rem;
+  margin-top: 1rem;
+  border: 1px solid rgba(255, 77, 0, 0.2);
+}
+
+[data-theme='dark'] .home-shop-cta-banner {
+  background: linear-gradient(135deg, #09090b 0%, #18181b 50%, #09090b 100%);
+  border-color: rgba(255, 77, 0, 0.15);
+}
+
+.home-shop-cta-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.home-shop-cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.home-shop-cta-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+  color: #ff6a25;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.home-shop-cta-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-family: 'Inter', sans-serif;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.home-shop-cta-description {
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  color: #94a3b8;
+  max-width: 380px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.home-shop-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #ff4d00;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 0.9rem 1.75rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.home-shop-cta-btn:hover {
+  background: #e63e00;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(255, 77, 0, 0.4);
+}
+
+/* Decorative circles */
+.home-shop-cta-decoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 77, 0, 0.07);
+}
+
+.deco-circle--1 {
+  width: 280px;
+  height: 280px;
+  top: -80px;
+  right: -60px;
+}
+
+.deco-circle--2 {
+  width: 160px;
+  height: 160px;
+  bottom: -40px;
+  right: 120px;
+  background: rgba(255, 77, 0, 0.05);
+}
+
+.deco-circle--3 {
+  width: 80px;
+  height: 80px;
+  top: 20px;
+  right: 200px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+@media (max-width: 600px) {
+  .home-shop-cta-banner {
+    padding: 1.75rem 1.25rem;
+  }
+  .home-shop-cta-title {
+    font-size: 1.2rem;
+  }
+  .home-shop-cta-description {
+    display: none;
+  }
+  .home-shop-cta-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .home-shop-cta-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

@@ -284,6 +284,19 @@ def get_ml_demand_prediction(manager_id: int = None):
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
     return engine.get_demand_prediction_analytics(manager_id)
 
+@app.get("/api/analytics/merch/sales-insights")
+def get_merch_sales_insights(date_from: str = None, date_to: str = None):
+    """
+    Analiza las ventas de mercancía y genera recomendaciones estratégicas
+    en lenguaje simple y accionable para el administrador.
+    """
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    result = engine.get_sales_insights(date_from=date_from, date_to=date_to)
+    if result.get("status") == "error":
+        raise HTTPException(status_code=500, detail=result.get("error", "Error desconocido"))
+    return result
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8007)
 

@@ -45,7 +45,7 @@ class MerchandiseItemBase(BaseModel):
     image_url: Optional[str] = None
     category: Optional[str] = None
     is_official: bool = True
-    rating: float = 4.5
+    rating: float = 0.0
     status: str = 'draft'
     admin_status: str = 'pending_review'
     event_id: Optional[int] = None
@@ -68,11 +68,28 @@ class MerchandiseItemUpdate(BaseModel):
     max_per_person: Optional[int] = None
     variants: Optional[List[MerchandiseVariantUpdate]] = None
 
+# ====== REVIEWS ======
+class MerchandiseReviewBase(BaseModel):
+    rating: int
+    comment: Optional[str] = None
+
+class MerchandiseReviewCreate(MerchandiseReviewBase):
+    item_id: int
+
+class MerchandiseReviewResponse(MerchandiseReviewBase):
+    id: int
+    item_id: int
+    user_id: int
+    user_name: str
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
 class MerchandiseItemResponse(MerchandiseItemBase):
     id: int
     manager_id: int
     created_at: datetime
     variants: List[MerchandiseVariantResponse] = []
+    reviews: List[MerchandiseReviewResponse] = []
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -85,6 +102,7 @@ class OrderCreate(BaseModel):
     items: List[OrderItemCreate]
     user_id: int
     payment_method: str = 'card'
+    idempotency_key: Optional[str] = None
 
 class OrderResponse(BaseModel):
     id: int

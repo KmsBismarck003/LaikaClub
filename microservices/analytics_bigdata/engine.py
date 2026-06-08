@@ -27,9 +27,10 @@ from .algorithms.clustering.venue_prospecting import run_venue_prospecting
 from .modules.clustering_pca import ClusteringModule
 from .modules.neural_network import NeuralNetworkModule
 from .modules.user_demand_analytics import UserDemandAnalyticsModule
+from .modules.merchandise_analytics import MerchandiseAnalyticsModule
 
 
-class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalyticsModule):
+class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalyticsModule, MerchandiseAnalyticsModule):
     def __init__(self):
         self.spark = None
         self.resilience_mode = True # Iniciar en modo resiliencia (ligero) hasta que Spark despierte

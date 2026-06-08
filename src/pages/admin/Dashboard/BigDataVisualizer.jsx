@@ -6,6 +6,7 @@ import Skeleton from '../../../components/Skeleton/Skeleton';
 import Plot from 'react-plotly.js';
 import B2BProspecting from './components/B2BProspecting';
 import UserDemandAnalytics from './components/UserDemandAnalytics';
+import MerchandiseSalesInsights from './components/MerchandiseSalesInsights';
 import { 
   Activity, 
   Settings, 
@@ -581,7 +582,8 @@ const BigDataVisualizer = ({ managerId = null }) => {
                             { id: 'ML_DECISION_TREE', label: 'ESTRATEGIA DE PRECIOS', icon: <span key="icon-tree"><Terminal size={14} /></span> },
                             { id: 'CLASS_KDD', label: 'PASOS Y ESTADÍSTICAS', icon: <span key="icon-kdd"><DatabaseIcon size={14} /></span> },
                             { id: 'B2B_PROSPECTING', label: 'RECOMENDADOR DE EMPRESAS', icon: <span key="icon-b2b"><Search size={14} /></span> },
-                            { id: 'ML_USER_DEMAND', label: 'PREFERENCIAS DE CLIENTES', icon: <span key="icon-ud"><Users size={14} /></span> }
+                            { id: 'ML_USER_DEMAND', label: 'PREFERENCIAS DE CLIENTES', icon: <span key="icon-ud"><Users size={14} /></span> },
+                            { id: 'MERCH_INSIGHTS', label: 'VENTAS DE MERCANCÍA', icon: <span key="icon-merch"><BarChart3 size={14} /></span> }
                         ].map(mode => (
                             <button 
                                 key={mode.id}
@@ -835,7 +837,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
                             </div>
                         </div>
                         
-                        <div style={{ minHeight: '416px', height: (analysisMode === 'CLASS_KDD' || analysisMode === 'B2B_PROSPECTING' || analysisMode === 'ML_USER_DEMAND') ? 'auto' : '416px', background: '#f8fafc', position: 'relative' }}>
+                        <div style={{ minHeight: '416px', height: (analysisMode === 'CLASS_KDD' || analysisMode === 'B2B_PROSPECTING' || analysisMode === 'ML_USER_DEMAND' || analysisMode === 'MERCH_INSIGHTS') ? 'auto' : '416px', background: '#f8fafc', position: 'relative' }}>
                             {/* CAJA DE LEYENDA PARA LOS CUADRADITOS DE COLORES */}
                             {colorMode === 'solid' && analysisMode === '3D_EXPLORATION' && (
                                 <div style={{ 
@@ -1375,6 +1377,20 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     }}
                                 >
                                     <UserDemandAnalytics managerId={managerId} />
+                                </div>
+                            ) : analysisMode === 'MERCH_INSIGHTS' ? (
+                                <div
+                                    key="merch-insights-container"
+                                    className="b2b-scrollable-container"
+                                    style={{
+                                        padding: '1.8rem',
+                                        background: '#ffffff',
+                                        borderRadius: '24px',
+                                        maxHeight: '700px',
+                                        overflowY: 'auto'
+                                    }}
+                                >
+                                    <MerchandiseSalesInsights />
                                 </div>
                             ) : (
                                 <div key="class-kdd-container" className="kdd-panel-content" style={{ padding: '1.8rem', color: '#1e293b', background: '#ffffff' }}>

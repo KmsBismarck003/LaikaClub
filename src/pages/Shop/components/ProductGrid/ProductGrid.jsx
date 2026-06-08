@@ -1,8 +1,28 @@
-import React from 'react';
-import { Search, Heart, ShoppingBag } from 'lucide-react';
-import { useFavorites } from '../../../../context/FavoritesContext';
+import React, { memo } from 'react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import ProductCard from '../ProductCard/ProductCard';
+import './ProductGrid.css';
 
-const ProductGrid = ({
+const EmptyState = ({ onResetFilters }) => (
+    <div className="product-grid__empty">
+        <div className="empty-icon-wrap">
+            <Search size={40} strokeWidth={1.5} />
+        </div>
+        <h3 className="empty-title">Sin resultados</h3>
+        <p className="empty-description">
+            No encontramos productos que coincidan con tu búsqueda o filtros actuales.
+        </p>
+        <button
+            className="empty-reset-btn"
+            onClick={onResetFilters}
+            type="button"
+        >
+            Limpiar filtros
+        </button>
+    </div>
+);
+
+const ProductGrid = memo(({
     currentProducts,
     totalProductsCount,
     handleQuickView,
@@ -10,135 +30,88 @@ const ProductGrid = ({
     onResetFilters,
     currentPage,
     totalPages,
-    handlePageChange
+    handlePageChange,
 }) => {
-    const { toggleFavorite, isFavorite } = useFavorites();
+    if (totalProductsCount === 0) {
+        return <EmptyState onResetFilters={onResetFilters} />;
+    }
 
-    const formatVariantName = (variant) => {
-        if (!variant.attributes || Object.keys(variant.attributes).length === 0) {
-            return `SKU: ${variant.sku || 'Estandar'}`;
+    // Generate page numbers with ellipsis
+    const getPageNumbers = () => {
+        if (totalPages <= 7) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
         }
-        return Object.entries(variant.attributes)
-            .map(([key, val]) => `${key.toUpperCase()}: ${val}`)
-            .join(' | ');
+        const pages = [];
+        if (currentPage <= 4) {
+            pages.push(1, 2, 3, 4, 5, '...', totalPages);
+        } else if (currentPage >= totalPages - 3) {
+            pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        } else {
+            pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+        }
+        return pages;
     };
 
     return (
-        <div className="product-results-v2">
-            <div className="grid-dense-v2">
-                {currentProducts.map(p => {
-                    const allVariantsOutOfStock = !p.variants || p.variants.length === 0 || p.variants.every(v => v.stock <= 0);
-                    const defaultVariant = p.variants?.[0];
-
-                    return (
-                        <div key={p.id} className="pro-card-v2" onClick={() => handleQuickView(p)}>
-                            <div className="p-card-image">
-                                {p.is_official && <span className="brand-tag">OFICIAL LAIKA</span>}
-                                {allVariantsOutOfStock && <span className="p-new-badge" style={{ background: '#555' }}>AGOTADO</span>}
-                                <div 
-                                    className={`p-wishlist-btn ${isFavorite(p.id) ? 'active' : ''}`} 
-                                    onClick={(e) => { e.stopPropagation(); toggleFavorite(p); }}
-                                    style={{ 
-                                        color: isFavorite(p.id) ? '#ff3c00' : 'white',
-                                        background: isFavorite(p.id) ? 'rgba(255, 60, 0, 0.1)' : 'rgba(0,0,0,0.3)'
-                                    }}
-                                >
-                                    <Heart size={18} fill={isFavorite(p.id) ? '#ff3c00' : 'none'} />
-                                </div>
-                                <img src={p.image_url?.split(',')[0]} alt={p.name} />
-                                
-                                <div className="p-card-overlay">
-                                    <button className="quick-btn" onClick={(e) => { e.stopPropagation(); handleQuickView(p); }} type="button">
-                                        Ver Detalle
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="p-card-body">
-                                <h4 className="p-title">{p.name}</h4>
-                                <div className="p-price">
-                                    ${defaultVariant ? (parseFloat(defaultVariant.price) || 0).toFixed(2) : '0.00'}
-                                </div>
-                                
-                                <div className="p-variants-quick">
-                                    <select onClick={e => e.stopPropagation()} defaultValue="" disabled={allVariantsOutOfStock}>
-                                        {allVariantsOutOfStock ? (
-                                            <option value="">Agotado</option>
-                                        ) : (
-                                            <>
-                                                <option value="" disabled>Seleccionar Opcion</option>
-                                                {p.variants?.map(v => (
-                                                    <option key={v.id} value={v.id} disabled={v.stock <= 0}>
-                                                        {formatVariantName(v)} {v.stock <= 0 ? '(Agotado)' : ''}
-                                                    </option>
-                                                ))}
-                                            </>
-                                        )}
-                                    </select>
-                                </div>
-
-                                <button 
-                                    className={`add-to-cart-outline-btn secondary-premium ${allVariantsOutOfStock ? 'disabled-btn' : ''}`}
-                                    onClick={(e) => {
-                                        if (allVariantsOutOfStock) return;
-                                        handleAddToCart(e, p, defaultVariant);
-                                    }}
-                                    disabled={allVariantsOutOfStock}
-                                    type="button"
-                                >
-                                    <ShoppingBag size={14} />
-                                    {allVariantsOutOfStock ? 'AGOTADO' : 'AGREGAR AL CARRITO'}
-                                </button>
-                            </div>
-                        </div>
-                    );
-                })}
+        <div className="product-grid">
+            <div className="product-grid__items">
+                {currentProducts.map(product => (
+                    <ProductCard
+                        key={product.id}
+                        product={product}
+                        onQuickView={handleQuickView}
+                        onAddToCart={handleAddToCart}
+                    />
+                ))}
             </div>
 
-            {totalProductsCount === 0 && (
-                <div className="no-res-v2">
-                    <Search size={48} />
-                    <h3>No se encontraron productos</h3>
-                    <button className="laika-btn secondary" onClick={onResetFilters} type="button">RESETEAR FILTROS</button>
-                </div>
-            )}
-
-            {/* PAGINATION UI */}
+            {/* PAGINATION */}
             {totalPages > 1 && (
-                <div className="shop-pagination-v2">
-                    <button 
+                <nav className="product-grid__pagination" aria-label="Navegación de páginas">
+                    <button
+                        className="pagination-nav-btn"
                         disabled={currentPage === 1}
                         onClick={() => handlePageChange(currentPage - 1)}
-                        className="pag-btn side-nav"
+                        aria-label="Página anterior"
                         type="button"
                     >
-                        &larr; ANTERIOR
+                        <ChevronLeft size={18} />
                     </button>
-                    
-                    <div className="pag-nums">
-                        {[...Array(totalPages)].map((_, i) => (
-                            <button
-                                key={i + 1}
-                                onClick={() => handlePageChange(i + 1)}
-                                className={`pag-btn num ${currentPage === i + 1 ? 'active' : ''}`}
-                                type="button"
-                            >
-                                {String(i + 1).padStart(2, '0')}
-                            </button>
+
+                    <div className="pagination-pages">
+                        {getPageNumbers().map((page, i) => (
+                            page === '...' ? (
+                                <span key={`ellipsis-${i}`} className="pagination-ellipsis">…</span>
+                            ) : (
+                                <button
+                                    key={page}
+                                    className={`pagination-page-btn ${currentPage === page ? 'active' : ''}`}
+                                    onClick={() => handlePageChange(page)}
+                                    type="button"
+                                    aria-label={`Ir a página ${page}`}
+                                    aria-current={currentPage === page ? 'page' : undefined}
+                                >
+                                    {page}
+                                </button>
+                            )
                         ))}
                     </div>
 
-                    <button 
+                    <button
+                        className="pagination-nav-btn"
                         disabled={currentPage === totalPages}
                         onClick={() => handlePageChange(currentPage + 1)}
-                        className="pag-btn side-nav"
+                        aria-label="Página siguiente"
                         type="button"
                     >
-                        SIGUIENTE &rarr;
+                        <ChevronRight size={18} />
                     </button>
-                </div>
+                </nav>
             )}
         </div>
     );
-};
+});
+
+ProductGrid.displayName = 'ProductGrid';
 
 export default ProductGrid;

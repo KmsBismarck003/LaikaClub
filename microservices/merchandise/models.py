@@ -21,7 +21,7 @@ class MerchandiseItem(Base):
     manager_id = Column(Integer, nullable=False, index=True)
     category = Column(String(100), nullable=True) # playeras, sudaderas, stickers, etc.
     is_official = Column(Boolean, default=True) # True = Premium, False = Bazar/AliExpress
-    rating = Column(Float, default=4.5) # Para el estilo marketplace
+    rating = Column(Float, default=0.0) # Para el estilo marketplace
     status = Column(Enum('draft','published','hidden'), default='draft')
     admin_status = Column(String(50), default='pending_review') # 'pending_review', 'approved', 'rejected'
     event_id = Column(Integer, nullable=True, index=True)
@@ -32,6 +32,7 @@ class MerchandiseItem(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     variants = relationship("MerchandiseVariant", back_populates="item", cascade="all, delete-orphan")
+    reviews = relationship("MerchandiseReview", back_populates="item", cascade="all, delete-orphan")
 
 class MerchandiseVariant(Base):
     __tablename__ = "merchandise_variants"
@@ -56,6 +57,7 @@ class MerchandiseOrder(Base):
     net_amount = Column(Numeric(10, 2), nullable=False)
     status = Column(String(50), default='completed')
     payment_method = Column(String(50), default='card')
+    idempotency_key = Column(String(255), nullable=True, unique=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class MerchandiseOrderItem(Base):
@@ -65,3 +67,15 @@ class MerchandiseOrderItem(Base):
     variant_id = Column(Integer, ForeignKey('merchandise_variants.id'), nullable=False)
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Numeric(10, 2), nullable=False)
+
+class MerchandiseReview(Base):
+    __tablename__ = "merchandise_reviews"
+    id = Column(Integer, primary_key=True, index=True)
+    item_id = Column(Integer, ForeignKey('merchandise_items.id'), nullable=False)
+    user_id = Column(Integer, nullable=False)
+    user_name = Column(String(255), nullable=False)
+    rating = Column(Integer, nullable=False)
+    comment = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    item = relationship("MerchandiseItem", back_populates="reviews")

@@ -131,5 +131,12 @@ export const analyticsAPI = {
         if (managerId) params.manager_id = managerId;
         const response = await axios.get(`${ANALYTICS_URL}/ml/demand-prediction`, { params });
         return response.data;
+    },
+    getMerchSalesInsights: async (dateFrom = null, dateTo = null) => {
+        const params = {};
+        if (dateFrom) params.date_from = dateFrom;
+        if (dateTo) params.date_to = dateTo;
+        const response = await axios.get(`${ANALYTICS_URL}/merch/sales-insights`, { params });
+        return response.data;
     }
 }

@@ -19,7 +19,7 @@ def run_migrations(engine):
                 columns_to_add = [
                     ("merchandise_items", "category", "VARCHAR(100) NULL"),
                     ("merchandise_items", "is_official", "TINYINT(1) DEFAULT 1"),
-                    ("merchandise_items", "rating", "FLOAT DEFAULT 4.5"),
+                    ("merchandise_items", "rating", "FLOAT DEFAULT 0.0"),
                     ("merchandise_items", "status", "VARCHAR(50) DEFAULT 'draft'"),
                     ("merchandise_items", "admin_status", "VARCHAR(50) DEFAULT 'pending_review'"),
                     ("merchandise_items", "event_id", "INT NULL"),
@@ -49,7 +49,7 @@ def run_migrations(engine):
                 columns_to_add_sqlite = [
                     ("merchandise_items", "category", "TEXT NULL"),
                     ("merchandise_items", "is_official", "BOOLEAN DEFAULT 1"),
-                    ("merchandise_items", "rating", "FLOAT DEFAULT 4.5"),
+                    ("merchandise_items", "rating", "FLOAT DEFAULT 0.0"),
                     ("merchandise_items", "status", "TEXT DEFAULT 'draft'"),
                     ("merchandise_items", "admin_status", "TEXT DEFAULT 'pending_review'"),
                     ("merchandise_items", "event_id", "INTEGER NULL"),

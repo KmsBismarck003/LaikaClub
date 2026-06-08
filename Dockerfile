@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
     libmariadb-dev \
+    mariadb-client \
     gcc \
     default-jre-headless \
     && rm -rf /var/lib/apt/lists/*

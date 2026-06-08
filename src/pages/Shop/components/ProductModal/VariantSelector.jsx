@@ -53,6 +53,31 @@ const VariantSelector = ({ product, onVariantSelected }) => {
         }));
     };
 
+    const getOptionStock = (key, val) => {
+        if (!variants || variants.length === 0) return 0;
+        
+        // Find variant matching the option for the current key
+        // and matching the currently selected options for all other keys
+        const match = variants.find(v => {
+            if (!v.attributes) return false;
+            
+            // Check if the variant attribute matches this option
+            const varVal = v.attributes[key]?.toString().toLowerCase();
+            const optionVal = val.toString().toLowerCase();
+            if (varVal !== optionVal) return false;
+            
+            // Check all other keys against current selections
+            return schemaKeys.every(k => {
+                if (k === key) return true;
+                const selVal = selections[k]?.toString().toLowerCase();
+                const vVal = v.attributes[k]?.toString().toLowerCase();
+                return selVal === vVal;
+            });
+        });
+        
+        return match ? (parseInt(match.stock, 10) || 0) : 0;
+    };
+
     if (schemaKeys.length === 0) {
         // No schema, but let's show status of the single variant
         const singleVariant = variants[0];
@@ -75,16 +100,23 @@ const VariantSelector = ({ product, onVariantSelected }) => {
                         <div key={key} className="selector-group">
                             <label className="selector-label">{key.toUpperCase()}</label>
                             <div className="selector-options">
-                                {options.map(opt => (
-                                    <button
-                                        key={opt}
-                                        className={`selector-option-btn ${selections[key] === opt ? 'active' : ''}`}
-                                        onClick={() => handleSelectChange(key, opt)}
-                                        type="button"
-                                    >
-                                        {opt}
-                                    </button>
-                                ))}
+                                {options.map(opt => {
+                                    const stock = getOptionStock(key, opt);
+                                    const isOptOutOfStock = stock <= 0;
+                                    return (
+                                        <button
+                                            key={opt}
+                                            className={`selector-option-btn ${selections[key] === opt ? 'active' : ''} ${isOptOutOfStock ? 'out-of-stock' : ''}`}
+                                            onClick={() => handleSelectChange(key, opt)}
+                                            type="button"
+                                        >
+                                            <span className="option-name">{opt}</span>
+                                            <span className="option-stock-sub">
+                                                {stock > 0 ? `${stock} pzas` : 'Agotado'}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     );
@@ -110,3 +142,4 @@ const VariantSelector = ({ product, onVariantSelected }) => {
 };
 
 export default VariantSelector;
+

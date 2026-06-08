@@ -1,4 +1,4 @@
-/* LAIKA SHOP - PROFESSIONAL SKETCH REDESIGN (B&W INDUSTRIAL) */
+/* LAIKA SHOP - PROFESSIONAL REDESIGN v2 */
 :root {
     --color-black: #000000;
     --color-white: #ffffff;
@@ -7,6 +7,24 @@
     --color-indust-gray: #1a1a1a;
     --primary-font: 'Inter', sans-serif;
     --heading-font: 'Playfair Display', serif;
+
+    /* Shop Design Tokens (light) */
+    --shop-card-bg: #ffffff;
+    --shop-border: #e8edf3;
+    --shop-text: #1a1a1b;
+    --shop-text-muted: #64748b;
+    --shop-bg-soft: #f8fafc;
+    --shop-accent: #ff4d00;
+}
+
+/* Dark mode tokens */
+[data-theme="dark"] {
+    --shop-card-bg: #1e2330;
+    --shop-border: #2d3748;
+    --shop-text: #f1f5f9;
+    --shop-text-muted: #94a3b8;
+    --shop-bg-soft: #252d3d;
+    --shop-accent: #ff6a25;
 }
 
 .laika-shop-container.professional-redesign {
@@ -302,6 +320,11 @@
     max-width: 1400px;
     margin: 2rem auto;
     padding: 0 1rem;
+}
+
+/* SHOP TOOLBAR (search + filters strip) */
+.shop-toolbar {
+    margin-bottom: 1.25rem;
 }
 
 /* HORIZONTAL FILTERS - PREMIUM CHIPS */
@@ -981,4 +1004,84 @@
         max-height: 90vh;
         overflow-y: auto;
     }
+}
+
+/* === RECENTLY VIEWED PRODUCTS SECTION === */
+.recently-viewed-section {
+    margin-top: 5rem;
+    padding: 3rem 0;
+    border-top: 1px solid var(--shop-border, #e2e8f0);
+}
+
+.recently-viewed-title {
+    font-size: 1.25rem;
+    font-weight: 850;
+    color: var(--shop-text, #1a1a1b);
+    margin: 0 0 2rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: var(--primary-font);
+}
+
+.recently-viewed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+}
+
+.recently-viewed-card {
+    background: var(--shop-card-bg, #fff);
+    border: 1px solid var(--shop-border, #e2e8f0);
+    border-radius: 16px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.recently-viewed-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    border-color: var(--shop-accent, #ff4d00);
+}
+
+.recently-viewed-img-wrapper {
+    height: 140px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border: 1px solid var(--shop-border, #e2e8f0);
+}
+
+.recently-viewed-img-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.recently-viewed-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.recently-viewed-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--shop-text, #1a1a1b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recently-viewed-price {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--shop-accent, #ff4d00);
 }

@@ -84,6 +84,12 @@ const BigDataAnalytics = () => {
                   Identifica posibles socios o patrocinadores comerciales analizando el rendimiento de tus recintos actuales.
                 </p>
               </div>
+              <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '0.85rem', fontWeight: 800, color: '#1e293b' }}>Ventas de Mercancía</h4>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b', lineHeight: '1.4' }}>
+                  Análisis de qué productos de tu tienda se venden más, cuáles no se mueven y recomendaciones concretas en lenguaje simple para saber qué traer más, qué promocionar y qué descontinuar.
+                </p>
+              </div>
               <div>
                 <h4 style={{ margin: '0 0 4px 0', fontSize: '0.85rem', fontWeight: 800, color: '#1e293b' }}>Preferencias de Clientes</h4>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b', lineHeight: '1.4' }}>

@@ -103,6 +103,27 @@ export const merchService = {
       console.error('Error creating merch order:', error);
       throw error;
     }
+  },
+
+  // --- Reviews ---
+  createReview: async (reviewData) => {
+    try {
+      const response = await api.post(`${MERCH_URL}/reviews/`, reviewData);
+      return response;
+    } catch (error) {
+      console.error('Error creating product review:', error);
+      throw error;
+    }
+  },
+
+  checkPurchased: async (itemId) => {
+    try {
+      const response = await api.get(`${MERCH_URL}/${itemId}/purchased`);
+      return response;
+    } catch (error) {
+      console.error('Error checking product purchase status:', error);
+      throw error;
+    }
   }
 };
 

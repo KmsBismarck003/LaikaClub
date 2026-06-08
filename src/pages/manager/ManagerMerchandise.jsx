@@ -187,6 +187,77 @@ const ManagerMerchandise = () => {
         setFormAttributes(prev => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item));
     };
 
+    const handleSizeCheckboxChange = (size, checked) => {
+        if (!checked) {
+            const updatedVariants = variants.filter(v => 
+                !(v.attributes && v.attributes.talla && v.attributes.talla.toUpperCase() === size.toUpperCase())
+            );
+            setVariants(updatedVariants);
+
+            setFormAttributes(prev => {
+                const existingTallaIdx = prev.findIndex(a => a.name.toLowerCase().trim() === 'talla');
+                if (existingTallaIdx !== -1) {
+                    const currentValues = prev[existingTallaIdx].values
+                        .split(',')
+                        .map(v => v.trim())
+                        .filter(Boolean)
+                        .filter(v => v.toUpperCase() !== size.toUpperCase());
+                    
+                    if (currentValues.length === 0) {
+                        return prev.filter((_, idx) => idx !== existingTallaIdx);
+                    } else {
+                        return prev.map((item, idx) => 
+                            idx === existingTallaIdx ? { ...item, values: currentValues.join(', ') } : item
+                        );
+                    }
+                }
+                return prev;
+            });
+        } else {
+            const cleanName = (formData.name || 'PROD').substring(0, 3).toUpperCase().replace(/[^A-Z0-9]/g, '') || 'PROD';
+            const skuVal = `${cleanName}-${size.toUpperCase()}-${Date.now()}`;
+            const newVar = {
+                id: null,
+                sku: skuVal,
+                price: formData.price || '0',
+                stock: '0',
+                attributes: { talla: size }
+            };
+            const updatedVariants = [...variants, newVar];
+            setVariants(updatedVariants);
+
+            setFormAttributes(prev => {
+                const existingTallaIdx = prev.findIndex(a => a.name.toLowerCase().trim() === 'talla');
+                if (existingTallaIdx !== -1) {
+                    const currentValues = prev[existingTallaIdx].values
+                        .split(',')
+                        .map(v => v.trim())
+                        .filter(Boolean);
+                    if (!currentValues.some(v => v.toUpperCase() === size.toUpperCase())) {
+                        currentValues.push(size);
+                    }
+                    return prev.map((item, idx) => 
+                        idx === existingTallaIdx ? { ...item, values: currentValues.join(', ') } : item
+                    );
+                } else {
+                    if (prev.length === 1 && !prev[0].name.trim()) {
+                        return [{ name: 'talla', values: size }];
+                    }
+                    return [...prev, { name: 'talla', values: size }];
+                }
+            });
+        }
+    };
+
+    const handleSizeStockChange = (size, stock) => {
+        setVariants(prev => prev.map(v => {
+            if (v.attributes && v.attributes.talla && v.attributes.talla.toUpperCase() === size.toUpperCase()) {
+                return { ...v, stock: stock };
+            }
+            return v;
+        }));
+    };
+
     const handleCreateMerch = async (e) => {
         e.preventDefault();
         if (submitting) return;
@@ -555,6 +626,48 @@ const ManagerMerchandise = () => {
                                 onChange={(e) => setFormData({...formData, stock: e.target.value})}
                                 required={variants.length === 0}
                             />
+                        </div>
+                    </div>
+
+                    {/* CONFIGURACIÓN RÁPIDA DE TALLAS */}
+                    <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 space-y-3">
+                        <h4 className="text-sm font-bold text-purple-900 uppercase tracking-wider">Asistente Rápido de Tallas</h4>
+                        <p className="text-xs text-purple-700">Activa las tallas disponibles y define el número de unidades en stock para cada una.</p>
+                        
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                            {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => {
+                                const isChecked = variants.some(v => v.attributes && v.attributes.talla && v.attributes.talla.toUpperCase() === size.toUpperCase());
+                                const matchedVar = variants.find(v => v.attributes && v.attributes.talla && v.attributes.talla.toUpperCase() === size.toUpperCase());
+                                const stockVal = matchedVar ? matchedVar.stock : '';
+                                
+                                return (
+                                    <div key={size} className="flex flex-col p-2 bg-white rounded border border-purple-100 hover:border-purple-300 transition-all">
+                                        <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-gray-800 mb-1">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={isChecked} 
+                                                onChange={(e) => handleSizeCheckboxChange(size, e.target.checked)}
+                                                className="rounded border-purple-300 text-purple-600 focus:ring-purple-500"
+                                            />
+                                            Talla {size}
+                                        </label>
+                                        {isChecked && (
+                                            <div className="mt-1">
+                                                <span className="text-[10px] text-gray-500 block">Unidades</span>
+                                                <input 
+                                                    type="number"
+                                                    min="0"
+                                                    placeholder="Ej. 10"
+                                                    value={stockVal}
+                                                    onChange={(e) => handleSizeStockChange(size, e.target.value)}
+                                                    className="w-full p-1 border border-gray-300 rounded text-xs text-gray-900 bg-white"
+                                                    required
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 

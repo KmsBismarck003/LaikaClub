@@ -151,6 +151,13 @@ def update_settings(db: Session, manager_id: int, settings_update: MerchandiseSe
     return db_settings
 
 def create_order(db: Session, order: OrderCreate):
+    # Idempotency Check
+    if order.idempotency_key:
+        existing_order = db.query(MerchandiseOrder).filter(MerchandiseOrder.idempotency_key == order.idempotency_key).first()
+        if existing_order:
+            print(f"[IDEMPOTENCY] Order {existing_order.id} already processed for key {order.idempotency_key}")
+            return existing_order
+
     total_amount = Decimal("0.00")
     total_commission = Decimal("0.00")
     net_amount = Decimal("0.00")
@@ -158,7 +165,8 @@ def create_order(db: Session, order: OrderCreate):
     order_items = []
     
     for item in order.items:
-        variant = db.query(MerchandiseVariant).filter(MerchandiseVariant.id == item.variant_id).first()
+        # Use pessimistic locking with_for_update() to prevent race conditions on stock deduction
+        variant = db.query(MerchandiseVariant).filter(MerchandiseVariant.id == item.variant_id).with_for_update().first()
         if not variant:
             raise HTTPException(status_code=404, detail=f"Variant {item.variant_id} not found.")
         if variant.stock < item.quantity:
@@ -218,7 +226,8 @@ def create_order(db: Session, order: OrderCreate):
         total_commission=total_commission,
         net_amount=net_amount,
         status="completed",
-        payment_method=order.payment_method
+        payment_method=order.payment_method,
+        idempotency_key=order.idempotency_key
     )
     
     db.add(db_order)
@@ -254,3 +263,40 @@ def create_order(db: Session, order: OrderCreate):
         print(f"[MONGO-SYNC] Error scheduling merchandise order for Mongo sync: {mongo_ex}")
     
     return db_order
+
+def create_review(db: Session, review_data, user_id: int, user_name: str):
+    from microservices.merchandise.models import MerchandiseReview, MerchandiseOrder, MerchandiseOrderItem, MerchandiseVariant
+    # Check if item exists
+    item = db.query(MerchandiseItem).filter(MerchandiseItem.id == review_data.item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Product not found")
+        
+    # Check if user has purchased this product
+    purchased = db.query(MerchandiseOrderItem).join(MerchandiseVariant).join(MerchandiseOrder).filter(
+        MerchandiseOrder.user_id == user_id,
+        MerchandiseVariant.item_id == review_data.item_id
+    ).first()
+    
+    if not purchased:
+        raise HTTPException(status_code=400, detail="Debes comprar este producto para poder calificarlo.")
+        
+    db_review = MerchandiseReview(
+        item_id=review_data.item_id,
+        user_id=user_id,
+        user_name=user_name,
+        rating=review_data.rating,
+        comment=review_data.comment
+    )
+    db.add(db_review)
+    db.commit()
+    db.refresh(db_review)
+    
+    # Recalculate product average rating
+    reviews = db.query(MerchandiseReview).filter(MerchandiseReview.item_id == review_data.item_id).all()
+    if reviews:
+        avg_rating = sum(r.rating for r in reviews) / len(reviews)
+        item.rating = round(avg_rating, 1)
+        db.commit()
+        db.refresh(item)
+        
+    return db_review

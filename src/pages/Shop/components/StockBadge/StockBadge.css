@@ -1,0 +1,84 @@
+/* === STOCK BADGE === */
+.stock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    padding: 0.3rem 0.7rem;
+    border-radius: 30px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.stock-badge__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* IN STOCK */
+.stock-badge--in_stock {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.stock-badge--in_stock .stock-badge__dot {
+    background: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    animation: stock-pulse 2s ease infinite;
+}
+
+/* LOW STOCK */
+.stock-badge--low_stock {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.stock-badge--low_stock .stock-badge__dot {
+    background: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    animation: stock-pulse 1s ease infinite;
+}
+
+/* OUT OF STOCK */
+.stock-badge--out_of_stock {
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.stock-badge--out_of_stock .stock-badge__dot {
+    background: #ef4444;
+}
+
+/* COMPACT */
+.stock-badge--compact {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+}
+
+@keyframes stock-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* DARK MODE */
+[data-theme="dark"] .stock-badge--in_stock {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+}
+
+[data-theme="dark"] .stock-badge--low_stock {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+}
+
+[data-theme="dark"] .stock-badge--out_of_stock {
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
+}

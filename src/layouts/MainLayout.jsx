@@ -188,6 +188,7 @@ const MainLayout = () => {
                   <button className='main-nav-link' onClick={() => navigate('/?category=family')}>Familiares</button>
                   <button className='main-nav-link' onClick={() => navigate('/?category=other')}>Especiales</button>
                   <button className='main-nav-link' onClick={() => navigate('/?city=CDMX')}>Ciudades</button>
+                  <button className='main-nav-link shop-nav-link' onClick={() => navigate('/shop')} style={{ color: '#ff6a25', fontWeight: '900', borderBottom: '2px solid transparent' }}>LAIKA SHOP</button>
                 </nav>
               </div>
 
@@ -348,6 +349,9 @@ const MainLayout = () => {
           </button>
         </div>
         <nav className='main-mobile-nav-items'>
+          <button className='main-mobile-nav-link' onClick={() => { navigate('/shop'); setIsMobileMenuOpen(false); }} style={{ color: '#ff6a25', fontWeight: '900' }}>
+            <span>LAIKA SHOP</span>
+          </button>
           <button className='main-mobile-nav-link' onClick={() => { navigate('/?category=concert'); setIsMobileMenuOpen(false); }}>
             <span>Conciertos y Festivales</span>
           </button>

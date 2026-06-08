@@ -8,8 +8,7 @@ import { useNotification } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { useSkeletonContext } from '../../context/SkeletonContext'
-import ProductModal from '../Shop/components/ProductModal/ProductModal'
-import HomeShopSection from './components/HomeShopSection/HomeShopSection'
+import { ShopCtaBanner } from './components/HomeShopSection/HomeShopSection'
 import './Home.css'
 
 // Category configuration with icons
@@ -48,8 +47,6 @@ const Home = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [error, setError] = useState(null)
   const [recentlyViewed, setRecentlyViewed] = useState([])
-  const [merchItems, setMerchItems] = useState([])
-  const [selectedProduct, setSelectedProduct] = useState(null)
 
   // Sync with URL params
   useEffect(() => {
@@ -65,18 +62,13 @@ const Home = () => {
   const fetchInitialData = useCallback(async (background = false) => {
     if (!background) startLoading('home_data')
     try {
-      const [eventsResponse, adsResponse, merchResponse] = await Promise.all([
+      const [eventsResponse, adsResponse] = await Promise.all([
         api.event.getPublic({ limit: 50 }),
-        api.ads.getPublic(),
-        api.merch.getAllMerchandise(null, 'published').catch(err => {
-          console.error('Error fetching merchandise for home:', err)
-          return []
-        })
+        api.ads.getPublic()
       ])
       
       setEvents(eventsResponse || [])
       setAds(adsResponse || [])
-      setMerchItems(Array.isArray(merchResponse) ? merchResponse : [])
       setError(null)
     } catch (err) {
       console.error('Error al cargar datos de Inicio:', err)
@@ -84,23 +76,12 @@ const Home = () => {
         setError('No se pudieron cargar los datos. Verifica tu conexión.')
         setEvents([])
         setAds([])
-        setMerchItems([])
       }
     } finally {
       if (!background) stopLoading('home_data')
     }
   }, [startLoading, stopLoading])
 
-  const handleAddToCart = (e, product, variant) => {
-    if (e) e.stopPropagation();
-    if (!variant) {
-      showNotification('Atencion', 'Selecciona una opcion (talla/color)', 'warning');
-      return;
-    }
-    addMerchToCart(product, variant, 1);
-    showNotification('Exito', `${product.name} añadido al carrito`, 'success');
-    navigate('/cart');
-  };
 
   useEffect(() => {
     fetchInitialData()
@@ -301,14 +282,8 @@ const Home = () => {
                 </div>
               )}
 
-              {/* LAIKA SHOP SECTION (Amazon style) */}
-              {merchItems.length > 0 && (
-                <HomeShopSection 
-                  products={merchItems}
-                  onProductClick={setSelectedProduct}
-                  onAddToCart={handleAddToCart}
-                />
-              )}
+              {/* LAIKA SHOP CTA BANNER */}
+              <ShopCtaBanner onNavigate={() => navigate('/shop')} />
 
               {/* INLINE AD CAROUSEL 1 */}
               <AdCarousel position="inline_1" isLoading={loading} preloadedAds={ads} />
@@ -424,20 +399,15 @@ const Home = () => {
                   </div>
                 </div>
               </section>
-            </div>
+            </>
           )}
+
         </main>
 
         <aside className={`home-sidebar home-sidebar--right ${loading ? 'loading' : ''}`}>
           <AdCarousel position="side_right" isLoading={loading} preloadedAds={ads} />
         </aside>
       </div>
-
-      <ProductModal 
-        selectedProduct={selectedProduct}
-        setSelectedProduct={setSelectedProduct}
-        handleAddToCart={handleAddToCart}
-      />
     </div>
   )
 }
