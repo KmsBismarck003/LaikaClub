@@ -22,10 +22,12 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
 
   // Initialize selected function
   useEffect(() => {
-    if (event?.functions?.length > 0 && !selectedFunction) {
+    if (event?.functions?.length > 0) {
       setSelectedFunction(event.functions[0]);
+    } else {
+      setSelectedFunction(null);
     }
-  }, [event, selectedFunction]);
+  }, [event]);
 
   const isEventSeating = useMemo(() => {
     const hasMapData = (event?.room?.layout_json?.components?.length > 0) ||
@@ -59,7 +61,7 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
 
   // Derive the active selected section object dynamically from sortedSections (recalculates immediately when event/price loads!)
   const selectedSection = useMemo(() => {
-    return sortedSections.find(s => s.id === selectedSectionId) || sortedSections[0] || null;
+    return sortedSections.find(s => String(s?.id || '') === String(selectedSectionId || '')) || sortedSections[0] || null;
   }, [sortedSections, selectedSectionId]);
 
   // Backward compatibility setter
@@ -73,12 +75,20 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
       
       // Auto-detect and select the matching section/zone on seat toggle
       if (nextSeats.length > 0) {
-        const matched = sortedSections.find(s => 
-          seatId.toLowerCase().startsWith(s.id.toLowerCase()) || 
-          seatId.toLowerCase().startsWith(s.name.toLowerCase().replace(/\s+/g, '-')) ||
-          s.id.toLowerCase().startsWith(seatId.split('-')[0].toLowerCase())
-        );
-        if (matched && selectedSectionId !== matched.id) {
+        const matched = sortedSections.find(s => {
+          if (!s) return false;
+          const sIdStr = String(s.id || '').toLowerCase();
+          const sNameStr = String(s.name || '').toLowerCase().replace(/\s+/g, '-');
+          const seatIdStr = String(seatId || '').toLowerCase();
+          const seatIdFirstPart = seatIdStr.split('-')[0] || '';
+          
+          return (
+            (sIdStr && seatIdStr.startsWith(sIdStr)) || 
+            (sNameStr && seatIdStr.startsWith(sNameStr)) ||
+            (sIdStr && sIdStr.startsWith(seatIdFirstPart))
+          );
+        });
+        if (matched && String(selectedSectionId) !== String(matched.id)) {
           setSelectedSectionId(matched.id);
         } else if (!matched && sortedSections.length === 1) {
           setSelectedSectionId(sortedSections[0].id);

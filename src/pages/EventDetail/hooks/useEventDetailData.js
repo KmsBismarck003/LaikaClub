@@ -75,10 +75,15 @@ export function useEventDetailData(id, api, venueAPI, errorNotification, navigat
         };
       }
 
-      const matched = sortedSections?.find(s => 
-        s.name.toLowerCase() === z.name.toLowerCase() || 
-        s.id === z.id
-      );
+      const matched = sortedSections?.find(s => {
+        if (!s) return false;
+        const sNameLower = s.name ? String(s.name).toLowerCase() : '';
+        const zNameLower = z.name ? String(z.name).toLowerCase() : '';
+        return (
+          (sNameLower && sNameLower === zNameLower) || 
+          String(s.id) === String(z.id)
+        );
+      });
       if (matched) {
         return {
           ...z,

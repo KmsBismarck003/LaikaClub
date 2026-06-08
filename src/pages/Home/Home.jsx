@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { useSkeletonContext } from '../../context/SkeletonContext'
 import ProductModal from '../Shop/components/ProductModal/ProductModal'
+import HomeShopSection from './components/HomeShopSection/HomeShopSection'
 import './Home.css'
 
 // Category configuration with icons
@@ -75,7 +76,7 @@ const Home = () => {
       
       setEvents(eventsResponse || [])
       setAds(adsResponse || [])
-      setMerchItems(Array.isArray(merchResponse) ? merchResponse.slice(0, 4) : [])
+      setMerchItems(Array.isArray(merchResponse) ? merchResponse : [])
       setError(null)
     } catch (err) {
       console.error('Error al cargar datos de Inicio:', err)
@@ -235,106 +236,78 @@ const Home = () => {
                 <Button variant="secondary" size="large" onClick={handleGoBack}>REGRESAR</Button>
               </div>
             </div>
-          ) : filteredEvents.length === 0 ? (
-            <div className="events-empty">
-              <Icon name="searchEmpty" size={64} className="events-empty-icon" />
-              <h3 className="events-empty-title">NO SE ENCONTRARON EVENTOS</h3>
-              <Button onClick={() => { setSearchTerm(''); setSelectedCategory('all'); }}>LIMPIAR FILTROS</Button>
-            </div>
           ) : (
-            <div className="events-sections" ref={eventsSectionRef}>
-              <header className="events-header">
-                <h2 className="events-title">{selectedCategory === 'all' ? 'TODOS LOS EVENTOS' : getCategoryInfo(selectedCategory).name.toUpperCase()}</h2>
-                <span className="events-count">{filteredEvents.length} EVENTOS</span>
-              </header>
-              <div className="events-grid">
-                {paginatedEvents.map(event => (
-                  <Card
-                    key={event.id}
-                    className="event-card-container"
-                    onClick={() => navigate(`/event/${event.id}`)}
-                  >
-                    <div className="event-primary-card">
-                      <div className="event-card-image">
-                        <img src={getImageUrl(event.image_url || event.image)} alt={event.name} loading="lazy" />
-                        <div className="event-card-badge">
-                          <Badge variant={BADGE_VARIANTS[event.category] || 'secondary'}>
-                            {getCategoryInfo(event.category).name}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="event-card-content">
-                        <div className="event-card-venue">
-                          <Icon name="mapPin" size={12} />
-                          <span>{event.venue || event.location || 'RECINTO POR CONFIRMAR'}</span>
-                        </div>
-                        <h3 className="event-card-title">{event.name}</h3>
-                        <div className="event-card-date">
-                          <span>{formatDate(event.event_date || event.date)}</span>
-                          <span className="date-separator">•</span>
-                          <span>{formatTime(event.start_time || event.time)} HRS</span>
-                        </div>
-                        <div className="event-card-price-tm">
-                          DESDE {formatPrice(event.min_price || 250)}
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-              {totalPages > 1 && (
-                <div className="events-pagination">
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={(page) => {
-                      setCurrentPage(page);
-                      window.scrollTo({ top: eventsSectionRef.current?.offsetTop - 100, behavior: 'smooth' });
-                    }}
-                  />
+            <>
+              {/* Event Section (shows events or empty state) */}
+              {filteredEvents.length === 0 ? (
+                <div className="events-empty">
+                  <Icon name="searchEmpty" size={64} className="events-empty-icon" />
+                  <h3 className="events-empty-title">NO SE ENCONTRARON EVENTOS</h3>
+                  <Button onClick={() => { setSearchTerm(''); setSelectedCategory('all'); }}>LIMPIAR FILTROS</Button>
                 </div>
-              )}
-
-              {/* LAIKA SHOP SECTION */}
-              {merchItems.length > 0 && (
-                <section className="home-shop-section">
-                  <header className="section-header">
-                    <h2 className="section-title">LAIKA SHOP</h2>
-                    <div className="header-line"></div>
+              ) : (
+                <div className="events-sections" ref={eventsSectionRef}>
+                  <header className="events-header">
+                    <h2 className="events-title">{selectedCategory === 'all' ? 'TODOS LOS EVENTOS' : getCategoryInfo(selectedCategory).name.toUpperCase()}</h2>
+                    <span className="events-count">{filteredEvents.length} EVENTOS</span>
                   </header>
-                  <div className="home-shop-grid">
-                    {merchItems.map(item => {
-                      const allVariantsOutOfStock = !item.variants || item.variants.length === 0 || item.variants.every(v => v.stock <= 0);
-                      const defaultVariant = item.variants?.[0];
-                      const firstImageUrl = item.image_url?.split(',')[0];
-                      
-                      return (
-                        <div key={item.id} className="home-shop-card" onClick={() => setSelectedProduct(item)}>
-                          <div className="home-shop-card-image">
-                            {allVariantsOutOfStock ? (
-                              <span className="home-shop-card-badge agotado">Agotado</span>
-                            ) : (
-                              item.is_official && <span className="home-shop-card-badge">Oficial</span>
-                            )}
-                            <img src={firstImageUrl} alt={item.name} loading="lazy" />
+                  <div className="events-grid">
+                    {paginatedEvents.map(event => (
+                      <Card
+                        key={event.id}
+                        className="event-card-container"
+                        onClick={() => navigate(`/event/${event.id}`)}
+                      >
+                        <div className="event-primary-card">
+                          <div className="event-card-image">
+                            <img src={getImageUrl(event.image_url || event.image)} alt={event.name} loading="lazy" />
+                            <div className="event-card-badge">
+                              <Badge variant={BADGE_VARIANTS[event.category] || 'secondary'}>
+                                {getCategoryInfo(event.category).name}
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="home-shop-card-body">
-                            <span className="home-shop-card-category">{item.category}</span>
-                            <h3 className="home-shop-card-title">{item.name}</h3>
-                            <div className="home-shop-card-price">
-                              ${defaultVariant ? (parseFloat(defaultVariant.price) || 0).toFixed(2) : '0.00'}
+                          <div className="event-card-content">
+                            <div className="event-card-venue">
+                              <Icon name="mapPin" size={12} />
+                              <span>{event.venue || event.location || 'RECINTO POR CONFIRMAR'}</span>
+                            </div>
+                            <h3 className="event-card-title">{event.name}</h3>
+                            <div className="event-card-date">
+                              <span>{formatDate(event.event_date || event.date)}</span>
+                              <span className="date-separator">•</span>
+                              <span>{formatTime(event.start_time || event.time)} HRS</span>
+                            </div>
+                            <div className="event-card-price-tm">
+                              DESDE {formatPrice(event.min_price || 250)}
                             </div>
                           </div>
                         </div>
-                      );
-                    })}
+                      </Card>
+                    ))}
                   </div>
-                  <div className="home-shop-actions">
-                    <button className="home-shop-view-all-btn" onClick={() => navigate('/shop')} type="button">
-                      Ver Toda la Tienda
-                    </button>
-                  </div>
-                </section>
+                  {totalPages > 1 && (
+                    <div className="events-pagination">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={(page) => {
+                          setCurrentPage(page);
+                          window.scrollTo({ top: eventsSectionRef.current?.offsetTop - 100, behavior: 'smooth' });
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* LAIKA SHOP SECTION (Amazon style) */}
+              {merchItems.length > 0 && (
+                <HomeShopSection 
+                  products={merchItems}
+                  onProductClick={setSelectedProduct}
+                  onAddToCart={handleAddToCart}
+                />
               )}
 
               {/* INLINE AD CAROUSEL 1 */}

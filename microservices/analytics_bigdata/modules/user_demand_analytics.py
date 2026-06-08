@@ -216,7 +216,7 @@ class UserDemandAnalyticsModule:
                 .otherwise(0.0)
             )
             
-            events_rows = df_events_stats.select("id", "name", "total_tickets", "tickets_sold", "attendance_rate", "price", "event_date", "event_time").collect()
+            events_rows = df_events_stats.select("id", "name", "category", "total_tickets", "tickets_sold", "attendance_rate", "price", "event_date", "event_time").collect()
             
             events_attendance = []
             for r in events_rows:
@@ -235,6 +235,7 @@ class UserDemandAnalyticsModule:
                 events_attendance.append({
                     "id": r.id,
                     "name": r.name,
+                    "category": r.category if hasattr(r, "category") and r.category else "General",
                     "total_tickets": int(r.total_tickets),
                     "tickets_sold": int(r.tickets_sold),
                     "current_attendance_pct": round(current_rate * 100, 1),
@@ -296,7 +297,7 @@ class UserDemandAnalyticsModule:
                 manager_filter = f"AND (e.created_by = {int(manager_id)} OR e.assigned_manager_id = {int(manager_id)})"
             
             query_events = f"""
-                SELECT e.id, e.name, e.total_tickets, e.price, e.event_date, e.event_time,
+                SELECT e.id, e.name, e.category, e.total_tickets, e.price, e.event_date, e.event_time,
                        COUNT(t.id) as tickets_sold
                 FROM events e
                 LEFT JOIN tickets t ON e.id = t.event_id AND t.status != 'cancelled'
@@ -324,6 +325,7 @@ class UserDemandAnalyticsModule:
                 events_attendance.append({
                     "id": r["id"],
                     "name": r["name"],
+                    "category": r["category"] if r.get("category") else "General",
                     "total_tickets": int(total_tickets),
                     "tickets_sold": int(tickets_sold),
                     "current_attendance_pct": round(current_rate * 100, 1),

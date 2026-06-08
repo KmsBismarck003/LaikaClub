@@ -349,7 +349,7 @@ export const adminRoutes = [
     element: BigDataAnalytics,
     layout: 'dashboard',
     allowedRoles: ['admin'],
-    title: 'Análisis Big Data'
+    title: 'Análisis y Predicciones'
   },
   {
     path: '/admin/merchandise',

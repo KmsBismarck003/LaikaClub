@@ -37,12 +37,13 @@ const InteractiveVenueMap = ({
   // Admin
   isAdminView = false,
 }) => {
-  // Determine what data to pass to VenueMapSVG
-  const resolvedMapData = mapData || [];
+  // Determine what data to pass to VenueMapSVG with memoization to keep the reference stable
+  const finalMapData = React.useMemo(() => {
+    const resolvedMapData = mapData || [];
+    if (resolvedMapData.length) return resolvedMapData;
 
-  // Si no hay nuevo formato pero sí zonas legacy, convertirlas
-  const legacyConverted = (!mapData || !mapData.length) && synchronizedZones?.length
-    ? synchronizedZones.map(zone => ({
+    if (synchronizedZones?.length) {
+      return synchronizedZones.map(zone => ({
         id: zone.id || zone.frontend_id,
         type: 'seats',
         name: zone.name,
@@ -62,10 +63,11 @@ const InteractiveVenueMap = ({
             y: s.y_pos || 0,
           })) || []
         })) || []
-      }))
-    : null;
+      }));
+    }
 
-  const finalMapData = resolvedMapData.length ? resolvedMapData : (legacyConverted || []);
+    return [];
+  }, [mapData, synchronizedZones]);
 
   return (
     <VenueMapSVG

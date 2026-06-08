@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { analyticsAPI } from '../../../../services/miscService';
-import { Card } from '../../../../components';
+import { Card, Modal } from '../../../../components';
+import { getB2BDecisionRecommendation } from '../utils/decisionHelper';
 import { 
-  Search, 
   MapPin, 
   Mail, 
   Phone, 
@@ -16,11 +16,36 @@ import {
   HelpCircle
 } from 'lucide-react';
 
+const cleanEncoding = (str) => {
+    if (typeof str !== 'string') return str;
+    return str
+        .replace(/M\|-®xico/g, 'México')
+        .replace(/M├®xico/g, 'México')
+        .replace(/MÃ©xico/g, 'México')
+        .replace(/\|-®/g, 'é')
+        .replace(/├®/g, 'é')
+        .replace(/Ã©/g, 'é')
+        .replace(/\|-¡/g, 'í')
+        .replace(/├¡/g, 'í')
+        .replace(/Ã­/g, 'í')
+        .replace(/\|-³/g, 'ó')
+        .replace(/├³/g, 'ó')
+        .replace(/Ã³/g, 'ó')
+        .replace(/├║/g, 'ú')
+        .replace(/Ãº/g, 'ú')
+        .replace(/├▒/g, 'ñ')
+        .replace(/Ã±/g, 'ñ')
+        .replace(/├í/g, 'á')
+        .replace(/Ã¡/g, 'á')
+        .replace(/\|-±/g, 'ñ');
+};
+
 const B2BProspecting = () => {
     const [loading, setLoading] = useState(false);
     const [leadsData, setLeadsData] = useState(null);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('all'); // all, high, medium
+    const [showHelpModal, setShowHelpModal] = useState(false);
 
     const fetchProspectingData = async () => {
         setLoading(true);
@@ -54,6 +79,11 @@ const B2BProspecting = () => {
         }
         return leadsData.leads;
     }, [leadsData, activeTab]);
+
+    const decisionRecommendation = React.useMemo(() => {
+        if (!leadsData) return null;
+        return getB2BDecisionRecommendation(leadsData.market_recommendation, leadsData.leads || []);
+    }, [leadsData]);
 
     if (loading) {
         return (
@@ -91,94 +121,124 @@ const B2BProspecting = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
-            {/* EXPLICACIÓN SIMPLE */}
-            <div style={{ background: 'linear-gradient(135deg, #eef2ff, #faf5ff)', border: '1px solid #e0e7ff', padding: '1.5rem', borderRadius: '24px', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                    <div style={{ background: '#4f46e5', color: '#fff', padding: '10px', borderRadius: '12px' }}>
-                        <Sparkles size={20} />
-                    </div>
-                    <div>
-                        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0' }}>
-                            Modelado de Semejantes B2B (Lookalike Modeling)
-                        </h2>
-                        <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: '1.6', margin: 0 }}>
-                            <b>¿Cómo funciona esto?</b> Analizamos el rendimiento comercial (ventas, tickets e ingresos) de los recintos donde ya vendes boletos en LaikaClub y creamos "patrones de éxito" (clústeres). Luego, comparamos de forma cruzada esos patrones con la lista de prospectos guardada en <b>MongoDB</b> para recomendarte a qué nuevos negocios ofrecerles el servicio con base en una afinidad estadística matemática.
-                        </p>
-                    </div>
-                </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                    Recomendador de Empresas y Socios
+                </h2>
+                <button 
+                    onClick={() => setShowHelpModal(true)}
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
+                    title="¿Qué es este apartado?"
+                >
+                    <HelpCircle size={18} />
+                </button>
             </div>
 
-            {/* DEDUCCIÓN DE OPORTUNIDAD DE MERCADO */}
-            {leadsData.market_recommendation && (
+            {/* NOTA DE DATOS REALES */}
+            <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '14px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px', color: '#047857', fontSize: '0.78rem', marginBottom: '0.5rem' }}>
+                <CheckCircle size={16} style={{ flexShrink: 0, color: '#10b981' }} />
+                <span><b>Datos Reales Garantizados:</b> Esta recomendación se genera analizando el historial real de tus eventos e ingresos, cruzando datos de patrocinadores y sedes similares. No son simulaciones ni datos falsos.</span>
+            </div>
+
+            {/* RECOMENDACIÓN TÁCTICA Y DECISIONES DE EXPANSIÓN */}
+            {decisionRecommendation && (
                 <div style={{ 
-                    background: 'linear-gradient(135deg, #fffbeb, #fffbeb)', 
-                    border: '1px solid #fde68a', 
+                    background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', 
+                    border: '1px solid #cbd5e1', 
                     padding: '1.5rem', 
                     borderRadius: '24px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)',
+                    borderLeft: '4px solid #4f46e5'
                 }}>
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                        <div style={{ background: '#d97706', color: '#fff', padding: '10px', borderRadius: '12px', flexShrink: 0 }}>
-                            <TrendingUp size={20} />
+                        <div style={{ background: '#4f46e5', color: '#fff', padding: '10px', borderRadius: '12px', flexShrink: 0 }}>
+                            <Sparkles size={20} />
                         </div>
                         <div style={{ flex: 1 }}>
-                            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#78350f', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                💡 Deducción de Expansión de Mercado Más Conveniente
-                                <span style={{ background: '#d97706', color: '#fff', fontSize: '0.65rem', padding: '3px 8px', borderRadius: '12px', fontWeight: 800, textTransform: 'uppercase' }}>
-                                    Recomendación Big Data
+                            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                Decisiones de Negocio y Expansión Recomendada
+                                <span style={{ background: '#4f46e5', color: '#fff', fontSize: '0.65rem', padding: '3px 8px', borderRadius: '12px', fontWeight: 800, textTransform: 'uppercase' }}>
+                                    Análisis y Decisiones Inteligentes
                                 </span>
                             </h2>
                             <p 
-                                style={{ fontSize: '0.85rem', color: '#92400e', lineHeight: '1.6', margin: 0 }}
-                                dangerouslySetInnerHTML={{ __html: leadsData.market_recommendation.reasoning.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}
+                                style={{ fontSize: '0.85rem', color: '#334155', lineHeight: '1.6', margin: 0 }}
+                                dangerouslySetInnerHTML={{ __html: cleanEncoding(decisionRecommendation) }}
                             />
                         </div>
                     </div>
                 </div>
             )}
 
+            <Modal
+                isOpen={showHelpModal}
+                onClose={() => setShowHelpModal(false)}
+                title="Ayuda - Recomendador de Empresas"
+                size="medium"
+            >
+                <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        Analiza el rendimiento comercial real (ventas, tickets e ingresos de tus bases de datos relacionales y de MongoDB) de los recintos donde ya vendes boletos en LaikaClub.
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        Luego, compara de forma cruzada esos patrones reales con la lista de prospectos comerciales en Spark para recomendarte a qué nuevos patrocinadores y empresas asociadas ofrecerles el servicio con base en una afinidad estadística real.
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#047857', fontWeight: 600 }}>
+                        ✓ Toda la información mostrada es real y se calcula al instante consultando las bases de datos de tu club.
+                    </p>
+                </div>
+            </Modal>
+
             {/* MÉTRICAS DE RESUMEN */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-                <Card style={{ padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '18px' }}>
-                    <div style={{ background: '#e0f2fe', color: '#0369a1', padding: '8px', borderRadius: '10px' }}>
-                        <Building size={20} />
-                    </div>
-                    <div>
-                        <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Leads Evaluados</span>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>{leadsData.total_leads_analyzed}</div>
-                    </div>
-                </Card>
-
-                <Card style={{ padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '18px' }}>
-                    <div style={{ background: '#f0fdf4', color: '#166534', padding: '8px', borderRadius: '10px' }}>
-                        <Activity size={20} />
-                    </div>
-                    <div>
-                        <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Patrones Activos</span>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>{leadsData.active_patterns_count}</div>
-                    </div>
-                </Card>
-
-                <Card style={{ padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px', background: '#faf5ff', border: '1px solid #f3e8ff', borderRadius: '18px' }}>
-                    <div style={{ background: '#f3e8ff', color: '#6b21a8', padding: '8px', borderRadius: '10px' }}>
-                        <TrendingUp size={20} />
-                    </div>
-                    <div>
-                        <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Coincidencia Máxima</span>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#6b21a8' }}>
-                            {leadsData.leads?.[0]?.match_score || 0}%
+                <Card style={{ padding: '1.2rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ background: '#e0f2fe', color: '#0369a1', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Building size={20} />
+                        </div>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Leads Evaluados</span>
+                            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>{leadsData.total_leads_analyzed}</div>
                         </div>
                     </div>
                 </Card>
 
-                <Card style={{ padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px', background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '18px' }}>
-                    <div style={{ background: '#fef3c7', color: '#b45309', padding: '8px', borderRadius: '10px' }}>
-                        <Users size={20} />
+                <Card style={{ padding: '1.2rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ background: '#f0fdf4', color: '#166534', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Activity size={20} />
+                        </div>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Patrones Activos</span>
+                            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a' }}>{leadsData.active_patterns_count}</div>
+                        </div>
                     </div>
-                    <div>
-                        <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Alta Recomendación</span>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#b45309' }}>
-                            {leadsData.leads?.filter(l => l.match_score >= 85).length || 0}
+                </Card>
+
+                <Card style={{ padding: '1.2rem', background: '#faf5ff', border: '1px solid #f3e8ff', borderRadius: '18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ background: '#f3e8ff', color: '#6b21a8', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <TrendingUp size={20} />
+                        </div>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Coincidencia Máxima</span>
+                            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#6b21a8' }}>
+                                {leadsData.leads?.[0]?.match_score || 0}%
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+
+                <Card style={{ padding: '1.2rem', background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ background: '#fef3c7', color: '#b45309', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Users size={20} />
+                        </div>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>Alta Recomendación</span>
+                            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#b45309' }}>
+                                {leadsData.leads?.filter(l => l.match_score >= 85).length || 0}
+                            </div>
                         </div>
                     </div>
                 </Card>
@@ -292,18 +352,18 @@ const B2BProspecting = () => {
                             {/* Detalle del Lead */}
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>{lead.name}</h3>
+                                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>{cleanEncoding(lead.name)}</h3>
                                     <span style={{ background: '#f1f5f9', color: '#475569', fontSize: '0.7rem', padding: '3px 8px', borderRadius: '20px', fontWeight: 700 }}>
-                                        {lead.category}
+                                        {cleanEncoding(lead.category)}
                                     </span>
                                     <span style={{ background: `${lead.priority_color}15`, color: lead.priority_color, fontSize: '0.7rem', padding: '3px 8px', borderRadius: '20px', fontWeight: 700 }}>
-                                        {lead.prospecting_priority}
+                                        {cleanEncoding(lead.prospecting_priority)}
                                     </span>
                                 </div>
 
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.75rem', color: '#64748b' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <MapPin size={12} /> {lead.location}
+                                        <MapPin size={12} /> {cleanEncoding(lead.location)}
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                         <Users size={12} /> Capacidad: <strong>{lead.capacity.toLocaleString()}</strong>
@@ -322,7 +382,7 @@ const B2BProspecting = () => {
                                         borderRadius: '12px',
                                         borderLeft: `3px solid ${lead.priority_color}`
                                     }}
-                                    dangerouslySetInnerHTML={{ __html: lead.explanation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}
+                                    dangerouslySetInnerHTML={{ __html: cleanEncoding(lead.explanation).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}
                                 />
                             </div>
 
@@ -341,7 +401,7 @@ const B2BProspecting = () => {
 
                                 <button
                                     onClick={() => {
-                                        navigator.clipboard.writeText(`Nombre: ${lead.name}\nContacto: ${lead.contact.email} / ${lead.contact.phone}\nAfinidad: ${lead.match_score}%`);
+                                        navigator.clipboard.writeText(`Nombre: ${cleanEncoding(lead.name)}\nContacto: ${lead.contact.email} / ${lead.contact.phone}\nAfinidad: ${lead.match_score}%`);
                                         alert('Datos de contacto copiados al portapapeles.');
                                     }}
                                     style={{

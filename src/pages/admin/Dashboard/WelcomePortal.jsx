@@ -32,15 +32,15 @@ const WelcomePortal = () => {
             title: 'USUARIOS',
             icon: 'users',
             path: '/admin/users',
-            description: 'Gestión integral de usuarios y permisos críticos'
+            description: 'Administrar usuarios y sus permisos en el sistema'
         },
         {
             id: 'events',
-            label: 'DESPLIEGUE OPERATIVO',
+            label: 'GESTIÓN DE EVENTOS',
             title: 'EVENTOS',
             icon: 'calendar',
             path: '/admin/events',
-            description: 'Gestión de recintos, fechas y logística de staff'
+            description: 'Organizar recintos, fechas y personal de apoyo'
         },
         {
             id: 'monitoring',
@@ -48,63 +48,63 @@ const WelcomePortal = () => {
             title: 'MONITOREO',
             icon: 'monitor',
             path: '/admin/monitoring',
-            description: 'Monitoreo realtime de infraestructura y servicios'
+            description: 'Revisar el funcionamiento de la plataforma en vivo'
         },
         {
             id: 'bigdata',
-            label: 'INTELIGENCIA DE DATOS',
-            title: 'BIG DATA',
+            label: 'PREDICCIONES Y TENDENCIAS',
+            title: 'TENDENCIAS',
             icon: 'chart',
             path: '/admin/big-data',
-            description: 'Análisis Spark, tendencias y volumetría 3D'
+            description: 'Predicción de ingresos y comportamiento de los clientes'
         },
         {
             id: 'sales',
-            label: 'BALANCE FINANCIERO',
+            label: 'REPORTES DE VENTAS',
             title: 'VENTAS',
             icon: 'dollarSign',
             path: '/admin/sales',
-            description: 'Reportes de ingresos, tickets y métricas'
+            description: 'Resumen de dinero recaudado y boletos vendidos'
         },
         {
             id: 'venues',
-            label: 'INFRAESTRUCTURA FÍSICA',
+            label: 'LUGARES Y SEDES',
             title: 'RECINTOS',
             icon: 'map',
             path: '/admin/venues',
-            description: 'Gestión de estadios, teatros y mapas'
+            description: 'Configurar estadios, teatros y sus ubicaciones'
         },
         {
             id: 'ads',
-            label: 'ALCANCE COMERCIAL',
-            title: 'PUBLICIDAD',
+            label: 'PUBLICIDAD Y ANUNCIOS',
+            title: 'ANUNCIOS',
             icon: 'megaphone',
             path: '/admin/ads',
-            description: 'Campañas, banners y gestión de anuncios'
+            description: 'Diseñar campañas de banners y anuncios promocionales'
         },
         {
             id: 'audit',
-            label: 'SEGURIDAD Y AUDITORÍA',
-            title: 'ACCESOS',
+            label: 'REGISTRO DE ACCESOS',
+            title: 'SEGURIDAD',
             icon: 'shieldCheck',
             path: '/admin/auth-audit',
-            description: 'Historial de ingresos y protección de datos'
+            description: 'Ver quién y cuándo ha ingresado al sistema'
         },
         {
             id: 'logs',
-            label: 'TRAZABILIDAD TÉCNICA',
-            title: 'LOGS',
+            label: 'HISTORIAL DE ACTIVIDAD',
+            title: 'ACTIVIDAD',
             icon: 'fileText',
             path: '/admin/logs',
-            description: 'Depuración y eventos del servidor en tiempo real'
+            description: 'Registro de cambios realizados por el sistema en tiempo real'
         },
         {
             id: 'database',
-            label: 'NÚCLEO DE DATOS',
-            title: 'ESTRUCTURA',
+            label: 'COPIAS DE SEGURIDAD',
+            title: 'RESPALDOS',
             icon: 'database',
             path: '/admin/database',
-            description: 'Mantenimiento de DB, backups y seguridad'
+            description: 'Guardar y restaurar copias de la información del club'
         },
         {
             id: 'config',
@@ -135,19 +135,19 @@ const WelcomePortal = () => {
         },
         {
             id: 'g_stats',
-            label: 'RENDIMIENTO',
-            title: 'ANALÍTICAS',
+            label: 'PREDICCIONES Y TENDENCIAS',
+            title: 'TENDENCIAS',
             icon: 'chart',
             path: '/manager/analytics',
-            description: 'Métricas de ventas y comportamiento de audiencia'
+            description: 'Métricas de ventas y comportamiento de la audiencia'
         },
         {
             id: 'g_attendees',
-            label: 'LOGÍSTICA',
+            label: 'CONTROL DE ASISTENTES',
             title: 'ASISTENTES',
             icon: 'users',
             path: '/manager/attendees',
-            description: 'Control de censo y validación de accesos'
+            description: 'Control de asistencia y accesos al evento'
         },
         {
             id: 'g_ads',
@@ -167,19 +167,19 @@ const WelcomePortal = () => {
         },
         {
             id: 'g_merchandise',
-            label: 'SHOP Y PRODUCTOS',
-            title: 'MERCANCÍA',
+            label: 'DISEÑO DE TIENDA / SOUVENIRS',
+            title: 'TIENDA',
             icon: 'shoppingBag',
             path: '/manager/merchandise',
-            description: 'Constructor de productos y control de inventario'
+            description: 'Crear productos y controlar el inventario de recuerdos'
         },
         {
             id: 'g_transactions',
-            label: 'FINANZAS',
-            title: 'TRANSACCIONES',
+            label: 'CONTROL DE VENTAS',
+            title: 'VENTAS',
             icon: 'dollarSign',
             path: '/manager/transactions',
-            description: 'Auditoría de ventas y movimientos de saldo'
+            description: 'Historial de dinero ingresado y movimientos de saldo'
         }
     ];
 

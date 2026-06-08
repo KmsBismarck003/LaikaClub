@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { analyticsAPI } from '../../../services/miscService';
 import { eventAPI } from '../../../services/eventService';
-import { Card } from '../../../components';
+import { Card, Modal } from '../../../components';
 import Skeleton from '../../../components/Skeleton/Skeleton';
 import Plot from 'react-plotly.js';
 import B2BProspecting from './components/B2BProspecting';
@@ -98,6 +98,62 @@ const BigDataVisualizer = ({ managerId = null }) => {
     const [kddStep, setKddStep] = useState(1);
     const [simpleView, setSimpleView] = useState(true);
     const [showGlossary, setShowGlossary] = useState(false);
+
+    const [helpModalOpen, setHelpModalOpen] = useState(false);
+    const [helpModalTitle, setHelpModalTitle] = useState('');
+    const [helpModalContent, setHelpModalContent] = useState(null);
+
+    const openHelp = (mode) => {
+        if (mode === 'ML_REGRESSION') {
+            setHelpModalTitle('Ayuda - Predicción de Ingresos');
+            setHelpModalContent(
+                <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        Esta herramienta calcula <b>cuánto dinero recaudará cada uno de tus eventos al finalizar</b> basándose en las ventas actuales y el historial. Compara varios métodos para darte la proyección más exacta.
+                    </p>
+                    <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e293b', margin: '8px 0 2px 0' }}>¿Qué es la precisión (Score R²)?</h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        Es un porcentaje (de 0 a 100%) que indica qué tan confiable es el cálculo. Si la precisión es del 90%, significa que la predicción final de ingresos es altamente confiable y tiene un margen de error histórico de solo el 10%.
+                    </p>
+                    <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e293b', margin: '8px 0 2px 0' }}>¿Cómo usar esta información?</h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        Te sirve para planificar pagos a proveedores antes del evento, o bien para lanzar campañas publicitarias si ves que el <b>Estimado Final</b> proyectado está muy por debajo de la ganancia máxima posible.
+                    </p>
+                </div>
+            );
+        } else if (mode === 'ML_DECISION_TREE') {
+            setHelpModalTitle('Ayuda - Estrategia de Precios');
+            setHelpModalContent(
+                <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        La Inteligencia Artificial evalúa de forma automática la cantidad de boletos que se han vendido (ocupación) y te recomienda acciones comerciales al instante para que no tengas que hacer cálculos manuales.
+                    </p>
+                    <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e293b', margin: '8px 0 2px 0' }}>Las sugerencias automáticas del sistema son:</h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        • <b>Tarifa Dinámica (Ocupación mayor al 60%):</b> El evento tiene alta demanda. Se recomienda subir los precios un 15% para maximizar tus ingresos en las últimas entradas.<br/>
+                        • <b>Estrategia de Promoción (Ocupación menor al 30%):</b> El evento se vende lento. Se recomienda lanzar 2x1 o cupones de descuento para motivar las compras y llenar el lugar.<br/>
+                        • <b>Precio Estable (Ocupación entre 30% y 60%):</b> El ritmo de venta es saludable. Se sugiere mantener los precios normales.
+                    </p>
+                </div>
+            );
+        } else if (mode === 'CLASS_KDD') {
+            setHelpModalTitle('Ayuda - Pasos y Estadísticas');
+            setHelpModalContent(
+                <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        Muestra de forma transparente cómo se procesan y analizan los datos de tu club. Además, ofrece herramientas de mantenimiento y métricas básicas de tus finanzas.
+                    </p>
+                    <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e293b', margin: '8px 0 2px 0' }}>¿Cómo te ayuda este apartado?</h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        • <b>Limpieza de Datos (Paso 2):</b> Presiona el botón para eliminar registros repetidos o vacíos, asegurando que tus reportes sean 100% correctos.<br/>
+                        • <b>Métricas de Control (Abajo):</b> Te muestra tu promedio de ventas, el ingreso medio y la estabilidad de tu flujo de efectivo (si tus eventos ganan montos parecidos o si varían drásticamente).
+                    </p>
+                </div>
+            );
+        }
+        setHelpModalOpen(true);
+    };
+
     const [openFiltersPanel, setOpenFiltersPanel] = useState(false);
     const [openColorPanel, setOpenColorPanel] = useState(false);
     const [openMetricsPanel, setOpenMetricsPanel] = useState(false);
@@ -500,14 +556,14 @@ const BigDataVisualizer = ({ managerId = null }) => {
         <div className="analytics-premium" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '1.5rem 2rem', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif' }}>
             
             {/* CABECERA PREMIUM */}
-            <header style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', backdropFilter: 'blur(20px)', borderRadius: '18px', padding: '0.85rem 1.15rem', marginBottom: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--border-color)' }}>
+            <header style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', backdropFilter: 'blur(20px)', borderRadius: '18px', padding: '0.85rem 1.15rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                     <div style={{ background: '#000000', padding: '9px', borderRadius: '12px', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                         <DatabaseIcon size={18} />
                     </div>
                     <div>
                         <div style={{ fontWeight: 800, fontSize: '1.06rem', letterSpacing: '-0.01em', color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            SALA DE ANÁLISIS {managerId ? 'DE MIS EVENTOS' : ''}
+                            ANÁLISIS Y PREDICCIONES {managerId ? 'DE MIS EVENTOS' : ''}
                             <span style={{ fontSize: '0.58rem', background: '#e2e8f0', color: '#475569', padding: '3px 8px', borderRadius: '12px', fontWeight: 700 }}>v8.5_ML</span>
                         </div>
                         <div style={{ fontSize: '0.66rem', color: 'var(--text-primary)', opacity: 0.8, marginTop: '1px', fontWeight: 500 }}>
@@ -520,12 +576,12 @@ const BigDataVisualizer = ({ managerId = null }) => {
                 <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
                     <div style={{ background: 'var(--bg-primary)', border: '1px solid #E5E7EB', padding: '4px', display: 'flex', gap: '3px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                         {[
-                            { id: '3D_EXPLORATION', label: 'EXPLORACIÓN 3D', icon: <span key="icon-3d"><Layers size={14} /></span> },
-                            { id: 'ML_REGRESSION', label: 'REGRESIÓN ML', icon: <span key="icon-reg"><Activity size={14} /></span> },
-                            { id: 'ML_DECISION_TREE', label: 'ÁRBOL DE DECISIÓN', icon: <span key="icon-tree"><Terminal size={14} /></span> },
-                            { id: 'CLASS_KDD', label: 'ESTADÍSTICA & KDD', icon: <span key="icon-kdd"><DatabaseIcon size={14} /></span> },
-                            { id: 'B2B_PROSPECTING', label: 'PROSPECCIÓN B2B', icon: <span key="icon-b2b"><Search size={14} /></span> },
-                            { id: 'ML_USER_DEMAND', label: 'USUARIOS Y DEMANDA', icon: <span key="icon-ud"><Users size={14} /></span> }
+                            { id: '3D_EXPLORATION', label: 'VISTA EN 3D', icon: <span key="icon-3d"><Layers size={14} /></span> },
+                            { id: 'ML_REGRESSION', label: 'PREDICCIÓN DE INGRESOS', icon: <span key="icon-reg"><Activity size={14} /></span> },
+                            { id: 'ML_DECISION_TREE', label: 'ESTRATEGIA DE PRECIOS', icon: <span key="icon-tree"><Terminal size={14} /></span> },
+                            { id: 'CLASS_KDD', label: 'PASOS Y ESTADÍSTICAS', icon: <span key="icon-kdd"><DatabaseIcon size={14} /></span> },
+                            { id: 'B2B_PROSPECTING', label: 'RECOMENDADOR DE EMPRESAS', icon: <span key="icon-b2b"><Search size={14} /></span> },
+                            { id: 'ML_USER_DEMAND', label: 'PREFERENCIAS DE CLIENTES', icon: <span key="icon-ud"><Users size={14} /></span> }
                         ].map(mode => (
                             <button 
                                 key={mode.id}
@@ -585,7 +641,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
                 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.8rem' }}>
                         <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <HelpCircle style={{ color: '#111827' }} size={20} /> Guía de Conceptos y Métricas de Big Data
+                            <HelpCircle style={{ color: '#111827' }} size={20} /> Guía de Conceptos y Métricas de Tendencias
                         </h3>
                         <button 
                             onClick={() => setShowGlossary(false)} 
@@ -597,47 +653,44 @@ const BigDataVisualizer = ({ managerId = null }) => {
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.2rem' }}>
                         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Score R² (Precisión de Predicción)</h4>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Precisión de la Predicción (Acierto)</h4>
                             <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                Mide de 0 a 1 qué tan exacta es la estimación. <b>0.88 equivale a un 88% de precisión histórica.</b> Entre más alto, más confiable es la proyección.
+                                Indica qué tan confiable es el cálculo matemático de ingresos futuros según las ventas reales. Un valor de 0.88 representa un 88% de acierto garantizado.
                             </p>
                         </div>
                         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Algoritmos de Regresión</h4>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Proyecciones y Tendencias</h4>
                             <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                <b>• Lineal Simple:</b> Asume crecimiento constante.
-                                <br /><b>• Polinomial (deg 2):</b> Se adapta a curvas de venta rápida o lenta.
-                                <br /><b>• Ridge / Lasso:</b> Eliminan anomalías y picos extraños para evitar proyecciones irreales.
+                                Cálculos que trazan si tus ventas van en aumento constante o si siguen curvas rápidas/lentas en base a tus eventos históricos.
                             </p>
                         </div>
                         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Árbol de Decisión & Accuracy</h4>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Estrategia de Precios (Recomendación)</h4>
                             <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                <b>Accuracy (Exactitud):</b> Porcentaje de acierto para predecir éxito o fracaso de eventos.
-                                <br /><b>Estructura:</b> Conjunto de preguntas automáticas (ej. ¿Venta &gt; 30?) para clasificar.
+                                Preguntas y caminos lógicos que la computadora sigue sola (ej. ¿Se vendieron más de 30 entradas?) para darte sugerencias automáticas de precios y promociones.
                             </p>
                         </div>
                         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Medidas Estadísticas (Media, Mediana, Moda)</h4>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Promedio, Centro y Comunes</h4>
                             <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                <b>• Media (Promedio):</b> Suma de ingresos dividida entre el total de eventos.
-                                <br /><b>• Mediana:</b> El valor central exacto de tus eventos (el punto del 50%).
-                                <br /><b>• Moda:</b> El precio de boleto o tipo de ticket más vendido.
+                                <b>• Promedio:</b> Lo que suele ganar un evento de media.
+                                <br /><b>• Centro (Mediana):</b> El punto intermedio de tus ganancias totales.
+                                <br /><b>• Común (Moda):</b> El precio de boleto que la gente compra más veces.
                             </p>
                         </div>
                         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Desviación Estándar (σ)</h4>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Estabilidad de Ingresos (Variación)</h4>
                             <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                Muestra qué tanto varían tus ingresos. Una desviación alta indica gran diferencia entre eventos hiper-exitosos y eventos con poca venta; una baja indica estabilidad.
+                                Muestra qué tanto suben y bajan tus ingresos. Si es alta, significa que unos eventos ganan mucho y otros muy poco; si es baja, tus ingresos son estables y constantes.
                             </p>
                         </div>
                         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Las 4 Preguntas Analíticas</h4>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Pasos del Análisis</h4>
                             <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                <b>• Descriptiva:</b> ¿Qué pasó?
-                                <br /><b>• Diagnóstica:</b> ¿Por qué pasó?
-                                <br /><b>• Predictiva:</b> ¿Qué pasará?
-                                <br /><b>• Prescriptiva:</b> ¿Cómo actuar para ganar más?
+                                <b>1. ¿Qué pasó?:</b> Historial y datos reales de ventas.
+                                <br /><b>2. ¿Por qué pasó?:</b> Diagnóstico de picos de asistencia.
+                                <br /><b>3. ¿Qué pasará?:</b> Predicciones futuras.
+                                <br /><b>4. ¿Cómo actuar?:</b> Recomendaciones comerciales concretas.
                             </p>
                         </div>
                     </div>
@@ -836,9 +889,18 @@ const BigDataVisualizer = ({ managerId = null }) => {
                             ) : analysisMode === 'ML_REGRESSION' ? (
                                 <div key="ml-regression-container" className="ml-panel-content" style={{ maxHeight: '416px', overflowY: 'auto' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '12px' }}>
-                                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span key="title-icon-activity"><Activity size={18} color="#000000"/></span>                                            {simpleView ? 'Evaluación de Modelos de Predicción' : 'COMPARATIVA DE MODELOS (R²)'}
-                                        </h2>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span key="title-icon-activity"><Activity size={18} color="#000000"/></span>                                            {simpleView ? 'Evaluación de Modelos de Predicción' : 'COMPARATIVA DE MODELOS (R²)'}
+                                            </h2>
+                                            <button 
+                                                onClick={() => openHelp('ML_REGRESSION')}
+                                                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
+                                                title="¿Qué es este apartado?"
+                                            >
+                                                <HelpCircle size={16} />
+                                            </button>
+                                        </div>
                                         <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
                                             <button 
                                                 onClick={() => setSimpleView(true)} 
@@ -879,22 +941,25 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     {mlData?.model_comparison ? (
                                         simpleView ? (
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                                                <div style={{ background: '#f8fafc', padding: '1.2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                                                    <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>¿Cómo funciona esta proyección?</h3>
-                                                    <p style={{ fontSize: '0.8rem', color: '#475569', margin: 0, lineHeight: '1.5' }}>
-                                                        El sistema analiza de forma automática el histórico de entradas vendidas y los ingresos reales de tus eventos. A través de este análisis, compara diferentes métodos de cálculo para seleccionar el que proporcione el estimado más exacto.
+                                                {/* EXPLICACIÓN DE NEGOCIO ACCESIBLE */}
+                                                <div style={{ background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '1.25rem', color: '#1e3a8a' }}>
+                                                    <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <Activity size={16} /> ¿De qué sirve esta pantalla y cómo usar la información?
+                                                    </div>
+                                                    <p style={{ fontSize: '0.78rem', margin: 0, lineHeight: '1.5', color: '#1e40af' }}>
+                                                        Esta sección calcula <b>cuánto dinero recaudará cada evento al final</b> basándose en las ventas actuales y el comportamiento histórico. 
+                                                        La <b>Precisión</b> te dice qué tan confiable es el cálculo (entre más cercano al 100%, más exacto).
                                                     </p>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px', marginTop: '10px', fontSize: '0.75rem', color: '#1e3a8a' }}>
+                                                        <div style={{ background: 'rgba(255,255,255,0.6)', padding: '8px 12px', borderRadius: '8px' }}>
+                                                            💡 <b>Si la precisión es alta:</b> Puedes planificar pagos a proveedores y presupuestos antes del día del evento con seguridad.
+                                                        </div>
+                                                        <div style={{ background: 'rgba(255,255,255,0.6)', padding: '8px 12px', borderRadius: '8px' }}>
+                                                            🚀 <b>Si el ritmo es lento:</b> Es tu señal para lanzar promociones (2x1, cupones) y evitar que queden asientos vacíos.
+                                                        </div>
+                                                    </div>
                                                 </div>
-
                                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.2rem' }}>
-                                                 <div style={{ gridColumn: 'span 2', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px', fontSize: '0.8rem', color: '#475569' }}>
-                                                     <div style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                                                         <HelpCircle size={16} style={{ color: '#111827' }} /> ¿Qué es el Score R²?
-                                                     </div>
-                                                     <p style={{ margin: 0, lineHeight: '1.4' }}>
-                                                         Es el <b>Coeficiente de Determinación</b>. Mide de 0.00 a 1.00 qué tan preciso es el modelo para estimar tus ingresos según las entradas vendidas. Por ejemplo, <b>0.88 representa un 88% de precisión histórica</b>. Entre más cercano a 1.00, más confiable es la predicción.
-                                                     </p>
-                                                 </div>
 
                                                     <div style={{ background: mlData.best_model === 'Lineal Simple' ? 'rgba(79, 70, 229, 0.05)' : '#ffffff', border: '1px solid #e2e8f0', padding: '1.2rem', borderRadius: '16px' }}>
                                                         <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>Proyección Directa (Lineal Simple)</div>
@@ -1085,9 +1150,18 @@ const BigDataVisualizer = ({ managerId = null }) => {
                             ) : analysisMode === 'ML_DECISION_TREE' ? (
                                 <div key="ml-decision-tree-container" className="ml-panel-content">
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '12px' }}>
-                                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span key="title-icon-terminal"><Terminal size={18} color="#000000"/></span>                                            {simpleView ? 'Reglas de Clasificación de Eventos' : 'ÁRBOL DE DECISIÓN GENERADO'}
-                                        </h2>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span key="title-icon-terminal"><Terminal size={18} color="#000000"/></span>                                            {simpleView ? 'Reglas de Clasificación de Eventos' : 'ÁRBOL DE DECISIÓN GENERADO'}
+                                            </h2>
+                                            <button 
+                                                onClick={() => openHelp('ML_DECISION_TREE')}
+                                                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
+                                                title="¿Qué es este apartado?"
+                                            >
+                                                <HelpCircle size={16} />
+                                            </button>
+                                        </div>
                                         <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
                                             <button 
                                                 onClick={() => setSimpleView(true)} 
@@ -1127,11 +1201,22 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                     </div>
                                     {simpleView ? (
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                                            <div style={{ background: '#f8fafc', padding: '1.2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                                                <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', margin: '0 0 6px 0' }}>¿Cómo optimiza la IA las tarifas y promociones de tus eventos?</h3>
-                                                <p style={{ fontSize: '0.8rem', color: '#475569', margin: 0, lineHeight: '1.5' }}>
-                                                    El modelo de Árbol de Decisión analiza el porcentaje de aforo vendido (ocupación) y la elasticidad de los precios base. Con base en el ritmo de ventas históricas, determina si es momento de subir precios para maximizar ingresos o lanzar promociones para evitar asientos vacíos.
+                                            {/* EXPLICACIÓN DE NEGOCIO ACCESIBLE */}
+                                            <div style={{ background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', border: '1px solid #fde68a', borderRadius: '16px', padding: '1.25rem', color: '#92400e' }}>
+                                                <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <Terminal size={16} /> ¿Cómo te ayuda esta estrategia a ganar más dinero?
+                                                </div>
+                                                <p style={{ fontSize: '0.78rem', margin: 0, lineHeight: '1.5', color: '#78350f' }}>
+                                                    La Inteligencia Artificial evalúa cuántos boletos se han vendido (ocupación) de cada evento en tiempo real y te da recomendaciones comerciales automáticas de precios para <b>maximizar las ganancias y llenar el lugar</b>.
                                                 </p>
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px', marginTop: '10px', fontSize: '0.75rem', color: '#92400e' }}>
+                                                    <div style={{ background: 'rgba(255,255,255,0.6)', padding: '8px 12px', borderRadius: '8px' }}>
+                                                        📈 <b>Tarifa Dinámica (Alta Demanda):</b> Si la venta va excelente (mayor al 60%), sube un 15% los precios para ganar más en los boletos restantes.
+                                                    </div>
+                                                    <div style={{ background: 'rgba(255,255,255,0.6)', padding: '8px 12px', borderRadius: '8px' }}>
+                                                        🏷️ <b>Promoción (Baja Demanda):</b> Si se ha vendido poco (menor al 30%), el sistema te sugiere activar 2x1 o cupones para atraer clientes.
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -1144,7 +1229,8 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                                             <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>A</div>
                                                             <div>
                                                                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Estrategia de Promoción (Baja Demanda):</div>
-                                                                 <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>Ocupación menor al <b>30%</b> y precio base > $30 USD. Se recomienda activar promociones (2x1, cupones) para incentivar la demanda.</div>
+                                                                 <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>Ocupación menor al <b>30%</b> y precio base &gt; $30 USD. Se recomienda activar promociones (2x1, cupones) para incentivar la demanda.</div>
+                                                                 {/* or {'>'} */}
                                                             </div>
                                                         </div>
                                                         <div style={{ height: '1px', background: '#e2e8f0' }}></div>
@@ -1160,7 +1246,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                                             <div style={{ background: '#dcfce7', color: '#15803d', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>C</div>
                                                             <div>
                                                                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>Tarifa Dinámica (Alta Demanda):</div>
-                                                                 <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>Ocupación mayor al <b>60%</b> y precio base > $30 USD. Alta demanda. Se recomienda un recargo dinámico del 15% en los boletos restantes.</div>
+                                                                 <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>Ocupación mayor al <b>60%</b> y precio base &gt; $30 USD. Alta demanda. Se recomienda un recargo dinámico del 15% en los boletos restantes.</div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1293,9 +1379,18 @@ const BigDataVisualizer = ({ managerId = null }) => {
                             ) : (
                                 <div key="class-kdd-container" className="kdd-panel-content" style={{ padding: '1.8rem', color: '#1e293b', background: '#ffffff' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', flexWrap: 'wrap', gap: '12px' }}>
-                                        <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span key="title-icon-database"><DatabaseIcon size={22} style={{ color: '#111827' }} /></span>                                            {simpleView ? 'Descubrimiento de Información y Estadísticas' : 'PROCESO DE DESCUBRIMIENTO KDD & ESTADÍSTICA DE CLASE'}
-                                        </h2>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span key="title-icon-database"><DatabaseIcon size={22} style={{ color: '#111827' }} /></span>                                            {simpleView ? 'Descubrimiento de Información y Estadísticas' : 'PROCESO DE DESCUBRIMIENTO KDD & ESTADÍSTICA DE CLASE'}
+                                            </h2>
+                                            <button 
+                                                onClick={() => openHelp('CLASS_KDD')}
+                                                style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
+                                                title="¿Qué es este apartado?"
+                                            >
+                                                <HelpCircle size={16} />
+                                            </button>
+                                        </div>
                                         <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
                                             <button 
                                                 onClick={() => setSimpleView(true)} 
@@ -1333,6 +1428,26 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                             </button>
                                         </div>
                                     </div>
+                                    
+                                    {/* EXPLICACIÓN DE NEGOCIO ACCESIBLE */}
+                                    {simpleView && (
+                                        <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #bbf7d0', borderRadius: '18px', padding: '1.25rem', color: '#166534', marginBottom: '1.2rem' }}>
+                                            <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <DatabaseIcon size={16} /> ¿Para qué sirve esta sección de Pasos y Estadísticas?
+                                            </div>
+                                            <p style={{ fontSize: '0.78rem', margin: 0, lineHeight: '1.5', color: '#14532d' }}>
+                                                Muestra de forma transparente cómo el sistema procesa, limpia y analiza la información de tus eventos. También te da un resumen general de tus ingresos para saber si tus ventas son constantes o varían demasiado.
+                                            </p>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px', marginTop: '10px', fontSize: '0.75rem', color: '#166534' }}>
+                                                <div style={{ background: 'rgba(255,255,255,0.6)', padding: '8px 12px', borderRadius: '8px' }}>
+                                                    🧹 <b>Limpieza de Datos (Paso 2):</b> Presiona "Ejecutar Limpieza" para eliminar boletos duplicados y corregir errores que arruinen tus números.
+                                                </div>
+                                                <div style={{ background: 'rgba(255,255,255,0.6)', padding: '8px 12px', borderRadius: '8px' }}>
+                                                    📊 <b>Estadísticas Simples (Abajo):</b> Conoce el promedio real ganado y la desviación (qué tanto varían tus ingresos de un evento a otro).
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                     
                                     {/* PASOS DE LA METODOLOGÍA KDD */}
                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between', marginBottom: '1.5rem', padding: '0.8rem', background: '#f8fafc', borderRadius: '18px', border: '1px solid #e2e8f0' }}>
@@ -1766,6 +1881,15 @@ const BigDataVisualizer = ({ managerId = null }) => {
                     </button>
                 </div>
             )}
+
+            <Modal
+                isOpen={helpModalOpen}
+                onClose={() => setHelpModalOpen(false)}
+                title={helpModalTitle}
+                size="medium"
+            >
+                {helpModalContent}
+            </Modal>
 
             <style>{`
                 .btn-primary { background: linear-gradient(135deg, #000000, #000000); color: white; border: none; padding: 0.7rem 1.4rem; border-radius: 12px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; display: flex; alignItems: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }

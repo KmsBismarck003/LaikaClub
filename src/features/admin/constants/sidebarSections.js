@@ -23,9 +23,9 @@ export const DEFAULT_ADMIN_SECTIONS = [
     id: 'control_central',
     label: 'CONTROL MAESTRO',
     items: [
-      { id: 'dashboard',    path: '/admin',             icon: 'dashboard', label: 'Dashboard General',   permission: 'admin.view' },
+      { id: 'dashboard',    path: '/admin',             icon: 'dashboard', label: 'Vista General',   permission: 'admin.view' },
       { id: 'users',       path: '/admin/users',        icon: 'users',     label: 'Gestión Usuarios',     permission: 'users.view' },
-      { id: 'logs',        path: '/admin/logs',         icon: 'fileText',  label: 'Logs del Sistema',     permission: 'logs.view' },
+      { id: 'logs',        path: '/admin/logs',         icon: 'fileText',  label: 'Historial de Actividad',     permission: 'logs.view' },
       { id: 'config',      path: '/admin/config',       icon: 'settings',  label: 'Configuración',        permission: 'config.view' }
     ]
   },
@@ -33,20 +33,20 @@ export const DEFAULT_ADMIN_SECTIONS = [
     id: 'operaciones_negocio',
     label: 'OPERACIONES Y VENTAS',
     items: [
-      { id: 'sales',            path: '/admin/sales',            icon: 'dollarSign',  label: 'Ventas y Reportes',     permission: 'sales.view' },
-      { id: 'transactions',     path: '/manager/transactions',   icon: 'dollarSign',  label: 'Transacciones (Auditoría)', permission: 'sales.view' },
+      { id: 'sales',            path: '/admin/sales',            icon: 'dollarSign',  label: 'Reportes de Ventas',     permission: 'sales.view' },
+      { id: 'transactions',     path: '/manager/transactions',   icon: 'dollarSign',  label: 'Historial de Pagos', permission: 'sales.view' },
       { id: 'events',           path: '/admin/events',           icon: 'calendar',    label: 'Gestión de Eventos',    permission: 'events.view' },
-      { id: 'merchandise_adm',  path: '/admin/merchandise',      icon: 'shoppingBag', label: 'Aprobación Mercancía',  permission: 'admin.view' }
+      { id: 'merchandise_adm',  path: '/admin/merchandise',      icon: 'shoppingBag', label: 'Aprobación de Tienda',  permission: 'admin.view' }
     ]
   },
   {
     id: 'infraestructura_datos',
     label: 'INFRAESTRUCTURA Y DATOS',
     items: [
-      { id: 'admin_venue_map', path: '/admin/venue-map', icon: 'edit',     label: 'Mapa Editor (Recinto)', permission: 'venues.view' },
-      { id: 'venues',         path: '/admin/venues',     icon: 'map',      label: 'Sedes y Recintos',      permission: 'venues.view' },
-      { id: 'database',       path: '/admin/database',   icon: 'database', label: 'Base de Datos',         permission: 'database.view' },
-      { id: 'big_data',       path: '/admin/big-data',   icon: 'database', label: 'Análisis Big Data',     permission: 'admin.view' }
+      { id: 'admin_venue_map', path: '/admin/venue-map', icon: 'edit',     label: 'Diseño de Lugares', permission: 'venues.view' },
+      { id: 'venues',         path: '/admin/venues',     icon: 'map',      label: 'Lugares y Sedes',      permission: 'venues.view' },
+      { id: 'database',       path: '/admin/database',   icon: 'database', label: 'Copias de Seguridad',         permission: 'database.view' },
+      { id: 'big_data',       path: '/admin/big-data',   icon: 'database', label: 'Análisis y Predicciones',     permission: 'admin.view' }
     ]
   },
   {
@@ -71,15 +71,15 @@ export const GESTOR_SIDEBAR_ITEMS = [
     id: 'g_main',
     label: 'GESTIÓN GESTOR',
     items: [
-      { id: 'g_main_dashboard', path: '/events/manage',        icon: 'dashboard',   label: 'Monitor Gestor' },
-      { id: 'g_create',         path: '/events/create',        icon: 'plus',        label: 'Nuevo Evento' },
-      { id: 'g_merch',          path: '/manager/merchandise',  icon: 'shoppingBag', label: 'Constructor Mercancía' },
+      { id: 'g_main_dashboard', path: '/events/manage',        icon: 'dashboard',   label: 'Mi Panel de Control' },
+      { id: 'g_create',         path: '/events/create',        icon: 'plus',        label: 'Crear Evento' },
+      { id: 'g_merch',          path: '/manager/merchandise',  icon: 'shoppingBag', label: 'Diseño de Tienda / Souvenirs' },
       { id: 'g_events',         path: '/events/manage',        icon: 'calendar',    label: 'Mis Eventos' },
-      { id: 'g_venue_map',      path: '/admin/venue-map',      icon: 'map',         label: 'Diseño de Recinto' },
-      { id: 'g_stats',          path: '/manager/analytics',    icon: 'chart',       label: 'Big Data Analítico' },
-      { id: 'g_transactions',   path: '/manager/transactions', icon: 'dollarSign',  label: 'Auditoría Ventas' },
-      { id: 'g_attendees',      path: '/manager/attendees',    icon: 'users',       label: 'Gestor Asistentes' },
-      { id: 'g_ads',            path: '/admin/ads',            icon: 'image',       label: 'Publicidad & Ads' }
+      { id: 'g_venue_map',      path: '/admin/venue-map',      icon: 'map',         label: 'Diseñar Lugar' },
+      { id: 'g_stats',          path: '/manager/analytics',    icon: 'chart',       label: 'Análisis y Predicciones' },
+      { id: 'g_transactions',   path: '/manager/transactions', icon: 'dollarSign',  label: 'Control de Ventas' },
+      { id: 'g_attendees',      path: '/manager/attendees',    icon: 'users',       label: 'Control de Asistentes' },
+      { id: 'g_ads',            path: '/admin/ads',            icon: 'image',       label: 'Administrar Anuncios' }
     ]
   }
 ]
@@ -94,12 +94,12 @@ export const OPERADOR_SIDEBAR_ITEMS = [
     id: 'o_main',
     label: 'CONTROL OPERADOR',
     items: [
-      { id: 'o_dashboard', path: '/staff/dashboard',        icon: 'dashboard',    label: 'Monitor Operativo' },
-      { id: 'o_staff',     path: '/staff?tab=scanner',      icon: 'checkCircle',  label: 'Terminal Escaneo' },
-      { id: 'o_helpdesk',  path: '/staff?tab=helpdesk',     icon: 'search',       label: 'Mesa de Ayuda' },
-      { id: 'o_boxoffice', path: '/staff?tab=boxoffice',    icon: 'shoppingBag',  label: 'Taquilla On-site' },
-      { id: 'o_history',   path: '/staff/history',          icon: 'history',      label: 'Historial Entradas' },
-      { id: 'o_incidents', path: '/staff/incidents',        icon: 'alertTriangle',label: 'Reportar Incidencias' }
+      { id: 'o_dashboard', path: '/staff/dashboard',        icon: 'dashboard',    label: 'Panel de Staff' },
+      { id: 'o_staff',     path: '/staff?tab=scanner',      icon: 'checkCircle',  label: 'Lector de Entradas' },
+      { id: 'o_helpdesk',  path: '/staff?tab=helpdesk',     icon: 'search',       label: 'Soporte de Entrada' },
+      { id: 'o_boxoffice', path: '/staff?tab=boxoffice',    icon: 'shoppingBag',  label: 'Venta Presencial' },
+      { id: 'o_history',   path: '/staff/history',          icon: 'history',      label: 'Registro de Accesos' },
+      { id: 'o_incidents', path: '/staff/incidents',        icon: 'alertTriangle',label: 'Reporte de Problemas' }
     ]
   }
 ]
@@ -117,11 +117,11 @@ export const ADMIN_SUPERVISION_SECTIONS = [
     isCollapsible: true,
     items: [
       { id: 'g_events_s',       path: '/events/manage',        icon: 'calendar',   label: 'Monitor Eventos' },
-      { id: 'g_merch_s',        path: '/manager/merchandise',  icon: 'shoppingBag',label: 'Control Mercancía' },
-      { id: 'g_stats_s',        path: '/manager/analytics',    icon: 'chart',      label: 'Analíticas Globales' },
-      { id: 'g_transactions_s', path: '/manager/transactions', icon: 'dollarSign', label: 'Auditoría Transacciones' },
-      { id: 'g_attendees_s',    path: '/manager/attendees',    icon: 'users',      label: 'Censo Asistentes' },
-      { id: 'g_ads_s',          path: '/admin/ads',            icon: 'image',      label: 'Publicidad & Ads' }
+      { id: 'g_merch_s',        path: '/manager/merchandise',  icon: 'shoppingBag',label: 'Supervisar Tienda' },
+      { id: 'g_stats_s',        path: '/manager/analytics',    icon: 'chart',      label: 'Análisis y Predicciones' },
+      { id: 'g_transactions_s', path: '/manager/transactions', icon: 'dollarSign', label: 'Auditoría de Pagos' },
+      { id: 'g_attendees_s',    path: '/manager/attendees',    icon: 'users',      label: 'Registro de Asistentes' },
+      { id: 'g_ads_s',          path: '/admin/ads',            icon: 'image',      label: 'Administrar Anuncios' }
     ]
   },
   {
@@ -129,9 +129,9 @@ export const ADMIN_SUPERVISION_SECTIONS = [
     label: 'OPERADOR (Supervisión)',
     isCollapsible: true,
     items: [
-      { id: 'o_staff_s',    path: '/staff',           icon: 'checkCircle',   label: 'Terminal Staff' },
-      { id: 'o_history_s',  path: '/staff/history',   icon: 'history',       label: 'Historial Entradas' },
-      { id: 'o_incidents_s',path: '/staff/incidents', icon: 'alertTriangle', label: 'Monitor Incidencias' }
+      { id: 'o_staff_s',    path: '/staff',           icon: 'checkCircle',   label: 'Terminal de Staff' },
+      { id: 'o_history_s',  path: '/staff/history',   icon: 'history',       label: 'Registro de Accesos' },
+      { id: 'o_incidents_s',path: '/staff/incidents', icon: 'alertTriangle', label: 'Control de Reportes' }
     ]
   },
   {
@@ -139,9 +139,9 @@ export const ADMIN_SUPERVISION_SECTIONS = [
     label: 'USUARIO (Supervisión)',
     isCollapsible: true,
     items: [
-      { id: 'u_dashboard_s',    path: '/user/dashboard',    icon: 'dashboard', label: 'Vista Dashboard' },
-      { id: 'u_tickets_s',      path: '/user/tickets',      icon: 'ticket',    label: 'Mis Boletos' },
-      { id: 'u_achievements_s', path: '/user/achievements', icon: 'star',      label: 'Logros y ADN' }
+      { id: 'u_dashboard_s',    path: '/user/dashboard',    icon: 'dashboard', label: 'Vista del Cliente' },
+      { id: 'u_tickets_s',      path: '/user/tickets',      icon: 'ticket',    label: 'Boletos del Cliente' },
+      { id: 'u_achievements_s', path: '/user/achievements', icon: 'star',      label: 'Premios del Cliente' }
     ]
   }
 ]

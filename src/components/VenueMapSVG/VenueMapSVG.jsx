@@ -107,7 +107,14 @@ const VenueMapSVG = memo(({
     const mapH = maxY - minY;
     const rect = svgRef.current.getBoundingClientRect();
     const zoom = Math.min(rect.width / mapW, rect.height / mapH, 1.8);
-    setViewBox({ x: minX - (rect.width / zoom - mapW) / 2, y: minY - (rect.height / zoom - mapH) / 2, zoom });
+    const targetX = minX - (rect.width / zoom - mapW) / 2;
+    const targetY = minY - (rect.height / zoom - mapH) / 2;
+    setViewBox(prev => {
+      if (prev.x === targetX && prev.y === targetY && prev.zoom === zoom) {
+        return prev;
+      }
+      return { x: targetX, y: targetY, zoom };
+    });
   }, [mapData]);
 
   // Auto-fit on mount
@@ -150,10 +157,13 @@ const VenueMapSVG = memo(({
     // Zoom closer to show individual seats clearly
     const zoom = Math.min(rect.width / compW, rect.height / compH, 2.2);
 
-    setViewBox({
-      x: minX - (rect.width / zoom - compW) / 2,
-      y: minY - (rect.height / zoom - compH) / 2,
-      zoom
+    const targetX = minX - (rect.width / zoom - compW) / 2;
+    const targetY = minY - (rect.height / zoom - compH) / 2;
+    setViewBox(prev => {
+      if (prev.x === targetX && prev.y === targetY && prev.zoom === zoom) {
+        return prev;
+      }
+      return { x: targetX, y: targetY, zoom };
     });
   }, [selectedSection, mapData]);
 

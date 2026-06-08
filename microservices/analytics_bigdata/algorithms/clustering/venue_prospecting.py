@@ -3,6 +3,34 @@ import math
 from pymongo import MongoClient
 from datetime import datetime
 
+def clean_text(text):
+    if not isinstance(text, str):
+        return text
+    replacements = {
+        "M|-®xico": "México",
+        "M├®xico": "México",
+        "MÃ©xico": "México",
+        "|-®": "é",
+        "├®": "é",
+        "Ã©": "é",
+        "|-¡": "í",
+        "├¡": "í",
+        "Ã­": "í",
+        "|-³": "ó",
+        "├³": "ó",
+        "Ã³": "ó",
+        "├║": "ú",
+        "Ãº": "ú",
+        "├▒": "ñ",
+        "Ã±": "ñ",
+        "├í": "á",
+        "Ã¡": "á",
+        "|-±": "ñ"
+    }
+    for k, v in replacements.items():
+        text = text.replace(k, v)
+    return text
+
 def run_venue_prospecting(mysql_params, mongo_uri, mongo_db_name):
     """
     Algoritmo modular de Prospección B2B.
@@ -283,30 +311,35 @@ def run_venue_prospecting(mysql_params, mongo_uri, mongo_db_name):
             priority_color = "#94a3b8" # Gris
 
         # Generar explicación simple y clara en español
-        recinto_nombre = best_match["venue_name"]
-        perfil_activo = best_match["cluster_tag"]
+        recinto_nombre = clean_text(best_match["venue_name"])
+        perfil_activo = clean_text(best_match["cluster_tag"])
         ventas_activas = best_match["tickets_sold"]
         
+        lead_city_clean = clean_text(lead['city'])
+        lead_state_clean = clean_text(lead['state'])
+        lead_name_clean = clean_text(lead['name'])
+        lead_category_clean = clean_text(lead['category'])
+
         explicacion = (
-            f"Este negocio se clasifica como {lead['category']} con capacidad para {lead['capacity']:,} personas en {lead['city']}, {lead['state']}. "
+            f"Este negocio se clasifica como {lead_category_clean} con capacidad para {lead['capacity']:,} personas en {lead_city_clean}, {lead_state_clean}. "
             f"Tiene un **{match_percentage}% de similitud** comercial con tu recinto activo **'{recinto_nombre}'** (perfil '{perfil_activo}' que ha vendido {ventas_activas:,} tickets en tu plataforma). "
             f"Es un excelente candidato para prospección comercial B2B ya que comparte la misma dinámica de público y afluencia."
         )
 
         results.append({
-            "name": lead["name"],
-            "category": lead["category"],
+            "name": lead_name_clean,
+            "category": lead_category_clean,
             "capacity": lead["capacity"],
-            "location": f"{lead['city']}, {lead['state']}",
+            "location": f"{lead_city_clean}, {lead_state_clean}",
             "contact": {
                 "email": lead["contact_email"],
                 "phone": lead["phone"]
             },
             "best_match_venue": recinto_nombre,
             "match_score": match_percentage,
-            "prospecting_priority": priority,
+            "prospecting_priority": clean_text(priority),
             "priority_color": priority_color,
-            "explanation": explicacion
+            "explanation": clean_text(explicacion)
         })
 
     # Ordenar por puntaje de coincidencia descendente
@@ -353,18 +386,21 @@ def run_venue_prospecting(mysql_params, mongo_uri, mongo_db_name):
     best_comb_cat, best_comb_state, best_comb_country = best_comb
     best_comb_revenue = comb_revenues.get(best_comb, 0.0)
 
+    best_comb_state_clean = clean_text(best_comb_state)
+    best_comb_country_clean = clean_text(best_comb_country)
+
     # Generar texto de la deducción de mercado
     reasoning = (
         f"Con base en el rendimiento comercial histórico de tus eventos, deducimos que el segmento más conveniente "
-        f"para ofrecer y expandir tus servicios es el de **{best_comb_cat}** en el estado de **{best_comb_state}** ({best_comb_country}). "
+        f"para ofrecer y expandir tus servicios es el de **{best_comb_cat}** en el estado de **{best_comb_state_clean}** ({best_comb_country_clean}). "
         f"Esta combinación ha demostrado el mayor éxito, acumulando **${best_comb_revenue:,.2f} MXN** en ventas dentro de tu plataforma. "
         f"Te sugerimos enfocar tu prospección comercial B2B activamente buscando negocios similares en esa región."
     )
 
     market_recommendation = {
         "recommended_category": best_comb_cat,
-        "recommended_state": best_comb_state,
-        "recommended_country": best_comb_country,
+        "recommended_state": best_comb_state_clean,
+        "recommended_country": best_comb_country_clean,
         "revenue_generated": best_comb_revenue,
         "reasoning": reasoning
     }

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { analyticsAPI } from '../../../../services/miscService';
-import { Card } from '../../../../components';
+import { Card, Modal } from '../../../../components';
+import { getDemandRecommendation } from '../utils/decisionHelper';
 import { 
-  Users, 
+  Users,
   AlertTriangle, 
   TrendingUp, 
   Calendar, 
@@ -16,6 +17,30 @@ import {
   HelpCircle
 } from 'lucide-react';
 
+const cleanEncoding = (str) => {
+    if (typeof str !== 'string') return str;
+    return str
+        .replace(/M\|-®xico/g, 'México')
+        .replace(/M├®xico/g, 'México')
+        .replace(/MÃ©xico/g, 'México')
+        .replace(/\|-®/g, 'é')
+        .replace(/├®/g, 'é')
+        .replace(/Ã©/g, 'é')
+        .replace(/\|-¡/g, 'í')
+        .replace(/├¡/g, 'í')
+        .replace(/Ã­/g, 'í')
+        .replace(/\|-³/g, 'ó')
+        .replace(/├³/g, 'ó')
+        .replace(/Ã³/g, 'ó')
+        .replace(/├║/g, 'ú')
+        .replace(/Ãº/g, 'ú')
+        .replace(/├▒/g, 'ñ')
+        .replace(/Ã±/g, 'ñ')
+        .replace(/├í/g, 'á')
+        .replace(/Ã¡/g, 'á')
+        .replace(/\|-±/g, 'ñ');
+};
+
 const UserDemandAnalytics = ({ managerId = null }) => {
     const [loading, setLoading] = useState(false);
     const [behaviorData, setBehaviorData] = useState(null);
@@ -24,6 +49,8 @@ const UserDemandAnalytics = ({ managerId = null }) => {
     const [activeSection, setActiveSection] = useState('behavior'); // behavior, demand
     const [reactivatingUserId, setReactivatingUserId] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
+    const [showHelpModal, setShowHelpModal] = useState(false);
+
 
     const fetchData = async () => {
         setLoading(true);
@@ -100,6 +127,11 @@ const UserDemandAnalytics = ({ managerId = null }) => {
         };
     }, [demandData]);
 
+    const demandRecommendation = useMemo(() => {
+        if (!demandData) return null;
+        return getDemandRecommendation(demandData.events_attendance || [], demandData.profitable_slots || []);
+    }, [demandData]);
+
 
     const handleReactivateUser = (user) => {
         setReactivatingUserId(user.id);
@@ -167,32 +199,38 @@ const UserDemandAnalytics = ({ managerId = null }) => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
-            {/* ENCABEZADO EXPLICATIVO */}
-            <div style={{ 
-                background: 'linear-gradient(135deg, #e0e7ff, #f5f3ff)', 
-                border: '1px solid #c7d2fe', 
-                padding: '1.5rem', 
-                borderRadius: '24px', 
-                position: 'relative', 
-                overflow: 'hidden' 
-            }}>
-                <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                    <div style={{ background: '#4f46e5', color: '#fff', padding: '10px', borderRadius: '14px', flexShrink: 0 }}>
-                        <Sparkles size={22} />
-                    </div>
-                    <div>
-                        <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#1e1b4b', margin: '0 0 6px 0' }}>
-                            Modelado Predictivo de Usuarios y Optimización de Demanda
-                        </h2>
-                        <p style={{ fontSize: '0.85rem', color: '#312e81', lineHeight: '1.6', margin: 0 }}>
-                            Este panel utiliza <b>Inteligencia Proactiva (ML)</b> para analizar el ciclo de vida de los clientes. Identifica de forma autónoma qué usuarios corren riesgo de abandono (Churn), quiénes generan mayores compras y proyecta la demanda esperada de los siguientes eventos para optimizar precios y horarios.
-                        </p>
-                    </div>
-                </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.2rem' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                    Preferencias y Demanda de Clientes
+                </h2>
+                <button 
+                    onClick={() => setShowHelpModal(true)}
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', color: '#64748b' }}
+                    title="¿Qué es este apartado?"
+                >
+                    <HelpCircle size={18} />
+                </button>
             </div>
+
+            <Modal
+                isOpen={showHelpModal}
+                onClose={() => setShowHelpModal(false)}
+                title="Ayuda - Preferencias y Demanda de Clientes"
+                size="medium"
+            >
+                <div style={{ padding: '0.5rem' }}>
+                    <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        Analiza el comportamiento histórico y el ciclo de vida de los compradores de boletos en LaikaClub.
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: '1.6' }}>
+                        Te ayuda a identificar a tiempo clientes inactivos para ofrecerles un descuento de reactivación y proyecta los picos de demanda para tus próximos eventos.
+                    </p>
+                </div>
+            </Modal>
 
             {/* SELECCIÓN DE PESTAÑA */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
+
                 <div style={{ display: 'flex', gap: '8px' }}>
                     {[
                         { id: 'behavior', label: 'Comportamiento y Riesgo de Abandono', icon: Users },
@@ -270,40 +308,46 @@ const UserDemandAnalytics = ({ managerId = null }) => {
                     
                     {/* KPI CARDS */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
-                        <Card style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '14px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
-                            <div style={{ background: '#fee2e2', color: '#ef4444', padding: '10px', borderRadius: '12px' }}>
-                                <ShieldAlert size={22} />
-                            </div>
-                            <div>
-                                <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Riesgo de Abandono Alto</span>
-                                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ef4444', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                                    {behaviorData.churn_risk_distribution?.High || 0}
-                                    <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>({highRiskPct}% del total)</span>
+                        <Card style={{ padding: '1.25rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                <div style={{ background: '#fee2e2', color: '#ef4444', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <ShieldAlert size={22} />
+                                </div>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Riesgo de Abandono Alto</span>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ef4444', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                                        {behaviorData.churn_risk_distribution?.High || 0}
+                                        <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>({highRiskPct}% del total)</span>
+                                    </div>
                                 </div>
                             </div>
                         </Card>
 
-                        <Card style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '14px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
-                            <div style={{ background: '#fef3c7', color: '#d97706', padding: '10px', borderRadius: '12px' }}>
-                                <AlertTriangle size={22} />
-                            </div>
-                            <div>
-                                <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Cuentas Inactivas (Sin Compras)</span>
-                                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#d97706' }}>
-                                    {behaviorData.inactive_accounts_count}
+                        <Card style={{ padding: '1.25rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                <div style={{ background: '#fef3c7', color: '#d97706', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <AlertTriangle size={22} />
+                                </div>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Cuentas Inactivas (Sin Compras)</span>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#d97706' }}>
+                                        {behaviorData.inactive_accounts_count}
+                                    </div>
                                 </div>
                             </div>
                         </Card>
 
-                        <Card style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '14px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
-                            <div style={{ background: '#dcfce7', color: '#15803d', padding: '10px', borderRadius: '12px' }}>
-                                <DollarSign size={22} />
-                            </div>
-                            <div>
-                                <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Top VIP de Mayor Gasto</span>
-                                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#15803d' }}>
-                                    ${(behaviorData.top_consumers?.[0]?.spent || 0).toLocaleString()}
-                                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500, marginLeft: '4px' }}>max</span>
+                        <Card style={{ padding: '1.25rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                <div style={{ background: '#dcfce7', color: '#15803d', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <DollarSign size={22} />
+                                </div>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Top VIP de Mayor Gasto</span>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#15803d' }}>
+                                        ${(behaviorData.top_consumers?.[0]?.spent || 0).toLocaleString()}
+                                        <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500, marginLeft: '4px' }}>max</span>
+                                    </div>
                                 </div>
                             </div>
                         </Card>
@@ -469,54 +513,89 @@ const UserDemandAnalytics = ({ managerId = null }) => {
                 </div>
             )}
 
-            {/* CONTENIDO DE PESTAÑA: DEMANDA DE EVENTOS */}
             {activeSection === 'demand' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     
+                    {/* RECOMENDACIÓN TÁCTICA DE EVENTOS Y HORARIOS */}
+                    {demandRecommendation && demandRecommendation.hasData && (
+                        <div style={{ 
+                            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', 
+                            border: '1px solid #cbd5e1', 
+                            padding: '1.5rem', 
+                            borderRadius: '24px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)',
+                            borderLeft: '4px solid #6366f1'
+                        }}>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                                <div style={{ background: '#6366f1', color: '#fff', padding: '10px', borderRadius: '12px', flexShrink: 0 }}>
+                                    <Sparkles size={20} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                        Decisiones de Programación y Demanda Recomendada
+                                        <span style={{ background: '#6366f1', color: '#fff', fontSize: '0.65rem', padding: '3px 8px', borderRadius: '12px', fontWeight: 800, textTransform: 'uppercase' }}>
+                                            Análisis y Decisiones Inteligentes
+                                        </span>
+                                    </h2>
+                                    <p 
+                                        style={{ fontSize: '0.85rem', color: '#334155', lineHeight: '1.6', margin: 0 }}
+                                        dangerouslySetInnerHTML={{ __html: cleanEncoding(demandRecommendation.recommendationText) }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* KPI CARDS DE DEMANDA */}
                     {demandMetrics && (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
-                            <Card style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '14px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
-                                <div style={{ background: '#dcfce7', color: '#15803d', padding: '10px', borderRadius: '12px' }}>
-                                    <DollarSign size={22} />
-                                </div>
-                                <div style={{ minWidth: 0, flex: 1 }}>
-                                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Mayor Recaudación Real</span>
-                                    <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#15803d', whiteSpace: 'normal', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: '1', WebkitBoxOrient: 'vertical' }} title={demandMetrics.topRevenueEvent?.name}>
-                                        {demandMetrics.topRevenueEvent ? demandMetrics.topRevenueEvent.name : 'N/A'}
+                            <Card style={{ padding: '1.25rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <div style={{ background: '#dcfce7', color: '#15803d', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <DollarSign size={22} />
                                     </div>
-                                    <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>
-                                        ${(demandMetrics.maxRevenue || 0).toLocaleString()} COP
-                                    </div>
-                                </div>
-                            </Card>
-
-                            <Card style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '14px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
-                                <div style={{ background: '#eef2ff', color: '#4f46e5', padding: '10px', borderRadius: '12px' }}>
-                                    <Users size={22} />
-                                </div>
-                                <div style={{ minWidth: 0, flex: 1 }}>
-                                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Mayor Asistencia Real</span>
-                                    <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#4f46e5', whiteSpace: 'normal', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: '1', WebkitBoxOrient: 'vertical' }} title={demandMetrics.topAttendanceEvent?.name}>
-                                        {demandMetrics.topAttendanceEvent ? demandMetrics.topAttendanceEvent.name : 'N/A'}
-                                    </div>
-                                    <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>
-                                        {(demandMetrics.maxAttendance || 0).toLocaleString()} asistentes
+                                    <div style={{ minWidth: 0, flex: 1 }}>
+                                        <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Mayor Recaudación Real</span>
+                                        <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#15803d', whiteSpace: 'normal', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: '1', WebkitBoxOrient: 'vertical' }} title={cleanEncoding(demandMetrics.topRevenueEvent?.name)}>
+                                            {demandMetrics.topRevenueEvent ? cleanEncoding(demandMetrics.topRevenueEvent.name) : 'N/A'}
+                                        </div>
+                                        <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>
+                                            ${(demandMetrics.maxRevenue || 0).toLocaleString()} COP
+                                        </div>
                                     </div>
                                 </div>
                             </Card>
 
-                            <Card style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '14px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
-                                <div style={{ background: '#f5f3ff', color: '#7c3aed', padding: '10px', borderRadius: '12px' }}>
-                                    <TrendingUp size={22} />
-                                </div>
-                                <div style={{ minWidth: 0, flex: 1 }}>
-                                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Ingreso Proyectado Total</span>
-                                    <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#7c3aed' }}>
-                                        ${Math.round(demandMetrics.totalPredictedRevenue).toLocaleString()} COP
+                            <Card style={{ padding: '1.25rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <div style={{ background: '#eef2ff', color: '#4f46e5', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <Users size={22} />
                                     </div>
-                                    <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                                        Real hasta hoy: ${(demandMetrics.totalRealRevenue || 0).toLocaleString()} COP
+                                    <div style={{ minWidth: 0, flex: 1 }}>
+                                        <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Mayor Asistencia Real</span>
+                                        <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#4f46e5', whiteSpace: 'normal', wordBreak: 'break-word', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: '1', WebkitBoxOrient: 'vertical' }} title={cleanEncoding(demandMetrics.topAttendanceEvent?.name)}>
+                                            {demandMetrics.topAttendanceEvent ? cleanEncoding(demandMetrics.topAttendanceEvent.name) : 'N/A'}
+                                        </div>
+                                        <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>
+                                            {(demandMetrics.maxAttendance || 0).toLocaleString()} asistentes
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+
+                            <Card style={{ padding: '1.25rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '20px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <div style={{ background: '#f5f3ff', color: '#7c3aed', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <TrendingUp size={22} />
+                                    </div>
+                                    <div style={{ minWidth: 0, flex: 1 }}>
+                                        <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Ingreso Proyectado Total</span>
+                                        <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#7c3aed' }}>
+                                            ${Math.round(demandMetrics.totalPredictedRevenue).toLocaleString()} COP
+                                        </div>
+                                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                                            Real hasta hoy: ${(demandMetrics.totalRealRevenue || 0).toLocaleString()} COP
+                                        </div>
                                     </div>
                                 </div>
                             </Card>
@@ -564,7 +643,7 @@ const UserDemandAnalytics = ({ managerId = null }) => {
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                                     <div>
                                                         <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>
-                                                            {evt.name}
+                                                            {cleanEncoding(evt.name)}
                                                         </h4>
                                                         <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
                                                             Fecha: {evt.date || 'Sin definir'} | Hora: {evt.time || 'Sin definir'}
