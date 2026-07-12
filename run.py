@@ -96,14 +96,14 @@ def start_backend():
     # Usamos CREATE_NEW_CONSOLE en Windows para que tenga su propia ventana
     if IS_WINDOWS:
         backend_proc = subprocess.Popen(
-            [sys.executable, "run_microservices.py"],
+            [sys.executable, os.path.join("tiradero", "run_microservices.py")],
             cwd=ROOT,
             creationflags=subprocess.CREATE_NEW_CONSOLE
         )
     else:
         # En Linux/Mac usamos una terminal si es posible (ej. xterm, gnome-terminal)
         # Por ahora lo lanzamos normal si no es Windows
-        backend_proc = subprocess.Popen([sys.executable, "run_microservices.py"], cwd=ROOT)
+        backend_proc = subprocess.Popen([sys.executable, os.path.join("tiradero", "run_microservices.py")], cwd=ROOT)
     
     time.sleep(1)
 

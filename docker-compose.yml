@@ -5,14 +5,14 @@ services:
     container_name: laika_db
     restart: always
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-laika_club3_v2}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-laika_auth}
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
     ports:
       - "3306:3306"
     volumes:
       - laika_db_data:/var/lib/mysql
       # Importa automáticamente el respaldo configurado en init.sql al iniciar por primera vez en un equipo limpio
-      - ./backups/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backups/init_split.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -20,13 +20,13 @@ services:
 
   # API Gateway
   gateway:
-    build: .
+    build:
+      context: ./microservices2/gateway
+      dockerfile: Dockerfile
     container_name: laika_gateway
     ports:
       - "8000:8000"
-    command: uvicorn microservices.gateway:app --host 0.0.0.0 --port 8000
     environment:
-      - PYTHONPATH=/app
       - AUTH_SERVICE_URL=http://auth:8001
       - EVENTS_SERVICE_URL=http://events:8002
       - TICKETS_SERVICE_URL=http://tickets:8003
@@ -37,7 +37,7 @@ services:
       - MERCHANDISE_SERVICE_URL=http://merchandise:8008
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=laika_club3_v2
+      - MYSQL_DATABASE=laika_gateway
     depends_on:
       - auth
       - events
@@ -51,38 +51,18 @@ services:
       - .env.docker
     volumes:
       - ./uploads:/app/uploads
-      - ./microservices_logs:/app/microservices_logs
 
   auth:
-    build: .
+    build:
+      context: ./microservices2/auth
+      dockerfile: Dockerfile
     container_name: laika_auth
     ports:
       - "8001:8001"
-    command: uvicorn microservices.auth.main:app --host 0.0.0.0 --port 8001
     environment:
-      - PYTHONPATH=/app
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=laika_club3_v2
-    depends_on:
-      laika_db:
-        condition: service_healthy
-    env_file:
-      - .env.docker
-    volumes:
-      - ./microservices_logs:/app/microservices_logs
-
-  events:
-    build: .
-    container_name: laika_events
-    ports:
-      - "8002:8002"
-    command: uvicorn microservices.events.main:app --host 0.0.0.0 --port 8002
-    environment:
-      - PYTHONPATH=/app
-      - MYSQL_HOST=laika_db
-      - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=laika_club3_v2
+      - MYSQL_DATABASE=laika_auth
     depends_on:
       laika_db:
         condition: service_healthy
@@ -90,57 +70,75 @@ services:
       - .env.docker
     volumes:
       - ./uploads:/app/uploads
-      - ./microservices_logs:/app/microservices_logs
+
+  events:
+    build:
+      context: ./microservices2/events
+      dockerfile: Dockerfile
+    container_name: laika_events
+    ports:
+      - "8002:8002"
+    environment:
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_events
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    volumes:
+      - ./uploads:/app/uploads
 
   tickets:
-    build: .
+    build:
+      context: ./microservices2/tickets
+      dockerfile: Dockerfile
     container_name: laika_tickets
     ports:
       - "8003:8003"
-    command: uvicorn microservices.tickets.main:app --host 0.0.0.0 --port 8003
     environment:
-      - PYTHONPATH=/app
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=laika_club3_v2
+      - MYSQL_DATABASE=laika_tickets
     depends_on:
       laika_db:
         condition: service_healthy
     env_file:
       - .env.docker
     volumes:
-      - ./microservices_logs:/app/microservices_logs
+      - ./uploads:/app/uploads
 
   stats:
-    build: .
+    build:
+      context: ./microservices2/stats
+      dockerfile: Dockerfile
     container_name: laika_stats
     ports:
       - "8004:8004"
-    command: uvicorn microservices.stats.main:app --host 0.0.0.0 --port 8004
     environment:
-      - PYTHONPATH=/app
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=laika_club3_v2
+      - MYSQL_DATABASE=laika_stats
     depends_on:
       laika_db:
         condition: service_healthy
     env_file:
       - .env.docker
-    volumes:
-      - ./microservices_logs:/app/microservices_logs
 
   admin:
-    build: .
+    build:
+      context: ./microservices2/admin
+      dockerfile: Dockerfile
     container_name: laika_admin
     ports:
       - "8005:8005"
-    command: uvicorn microservices.admin.main:app --host 0.0.0.0 --port 8005
     environment:
-      - PYTHONPATH=/app
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=laika_club3_v2
+      - MYSQL_DATABASE=laika_admin
+      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME:-redjar481@gmail.com}
+      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD:-yvpfindjqyyexjxp}
     depends_on:
       laika_db:
         condition: service_healthy
@@ -149,57 +147,52 @@ services:
     volumes:
       - ./uploads:/app/uploads
       - ./backups:/app/backups
-      - ./microservices_logs:/app/microservices_logs
 
   achievements:
-    build: .
+    build:
+      context: ./microservices2/achievements
+      dockerfile: Dockerfile
     container_name: laika_achievements
     ports:
       - "8006:8006"
-    command: uvicorn microservices.achievements.main:app --host 0.0.0.0 --port 8006
     environment:
-      - PYTHONPATH=/app
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=laika_club3_v2
+      - MYSQL_DATABASE=laika_achievements
     depends_on:
       laika_db:
         condition: service_healthy
     env_file:
       - .env.docker
-    volumes:
-      - ./microservices_logs:/app/microservices_logs
 
   analytics:
-    build: .
+    build:
+      context: ./microservices2/analytics
+      dockerfile: Dockerfile
     container_name: laika_analytics
     ports:
       - "8007:8007"
-    command: uvicorn microservices.analytics_bigdata.main:app --host 0.0.0.0 --port 8007
     environment:
-      - PYTHONPATH=/app
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=laika_club3_v2
+      - MYSQL_DATABASE=laika_analytics
     depends_on:
       laika_db:
         condition: service_healthy
     env_file:
       - .env.docker
-    volumes:
-      - ./microservices_logs:/app/microservices_logs
 
   merchandise:
-    build: .
+    build:
+      context: ./microservices2/merchandise
+      dockerfile: Dockerfile
     container_name: laika_merchandise
     ports:
       - "8008:8008"
-    command: uvicorn microservices.merchandise.main:app --host 0.0.0.0 --port 8008
     environment:
-      - PYTHONPATH=/app
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=laika_club3_v2
+      - MYSQL_DATABASE=laika_merchandise
     depends_on:
       laika_db:
         condition: service_healthy
@@ -207,7 +200,6 @@ services:
       - .env.docker
     volumes:
       - ./uploads:/app/uploads
-      - ./microservices_logs:/app/microservices_logs
 
   # React Frontend Service
   frontend:

@@ -255,22 +255,57 @@ def get_vault_status():
     }
 
 @app.get("/api/analytics/ml/regression")
-def get_ml_regression(manager_id: int = None):
+def get_ml_regression(
+    manager_id: int = None,
+    event_id: int = None,
+    category: str = None,
+    date_from: str = None,
+    date_to: str = None
+):
     if not engine:
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
-    return engine.predict_regression(manager_id)
+    return engine.predict_regression(
+        manager_id=manager_id,
+        event_id=event_id,
+        category=category,
+        date_from=date_from,
+        date_to=date_to
+    )
 
 @app.get("/api/analytics/ml/decision-tree")
-def get_ml_decision_tree(manager_id: int = None):
+def get_ml_decision_tree(
+    manager_id: int = None,
+    event_id: int = None,
+    objective: str = None,
+    q1: str = None,
+    q2: str = None,
+    q3: str = None
+):
     if not engine:
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
-    return engine.predict_classification(manager_id)
+    return engine.predict_classification(
+        manager_id=manager_id,
+        event_id=event_id,
+        objective=objective,
+        q1=q1,
+        q2=q2,
+        q3=q3
+    )
 
 @app.get("/api/analytics/ml/prospecting")
 def get_ml_prospecting():
     if not engine:
         raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
     return engine.get_venue_prospecting_leads()
+
+@app.post("/api/analytics/ml/prospecting/lead")
+def add_ml_prospecting_lead(payload: dict):
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    res = engine.add_venue_prospecting_lead(payload)
+    if res.get("status") == "error":
+        raise HTTPException(status_code=500, detail=res.get("message"))
+    return res
 
 @app.get("/api/analytics/ml/user-behavior")
 def get_ml_user_behavior(manager_id: int = None):
@@ -295,6 +330,23 @@ def get_merch_sales_insights(date_from: str = None, date_to: str = None):
     result = engine.get_sales_insights(date_from=date_from, date_to=date_to)
     if result.get("status") == "error":
         raise HTTPException(status_code=500, detail=result.get("error", "Error desconocido"))
+    return result
+
+@app.post("/api/analytics/ml/user-behavior/grant-coupon")
+async def grant_user_retention_coupon(payload: dict):
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    
+    user_id = payload.get("user_id")
+    discount_value = payload.get("discount_value", 15.0)
+    
+    if not user_id:
+        raise HTTPException(status_code=400, detail="El parámetro user_id es obligatorio")
+        
+    result = engine.grant_retention_coupon(user_id=user_id, discount_value=discount_value)
+    if result.get("status") == "error":
+        raise HTTPException(status_code=500, detail=result.get("message"))
+        
     return result
 
 if __name__ == "__main__":

@@ -72,6 +72,9 @@ const ManagerAttendees = ({ eventId = null }) => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+        }, 250);
     };
 
     const columns = [

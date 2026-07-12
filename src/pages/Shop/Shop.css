@@ -63,6 +63,31 @@
   padding: 0.5rem 0 1rem;
 }
 
+/* OVERRIDES FOR NO-SIDEBAR LAYOUT IN SHOP */
+.laika-shop-container .home-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: inherit;
+  position: relative; 
+}
+
+@media (min-width: 1280px) {
+  .laika-shop-container .home-layout {
+    display: block !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    padding: 0 2rem !important;
+  }
+}
+
+.laika-shop-container .home-main {
+  width: 100%;
+  max-width: 1400px !important; 
+  margin: 0 auto;
+  padding: 0.5rem 0 1rem;
+}
+
 .home-banner {
   max-width: 100%;
   margin: 0 auto 1.5rem;

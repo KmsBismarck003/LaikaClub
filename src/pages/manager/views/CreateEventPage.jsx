@@ -18,7 +18,15 @@ const CreateEventPage = () => {
         }
     }, [location.search]);
 
-    const handleSave = () => {
+    const handleSave = (eventData) => {
+        // Disparar Notificación Push Automática (Nuevo Evento)
+        import('../../../specialFun/PushNotifications').then(module => {
+            module.PushEngine.triggerSmart('NEW_EVENT', {
+                eventName: eventData?.name || 'un nuevo evento espectacular',
+                url: `${window.location.origin}/event/${eventData?.id || 1}`
+            });
+        }).catch(e => console.error("Error triggering push:", e));
+
         // Al guardar, redirigimos al monitor de eventos
         navigate('/events/manage');
     };

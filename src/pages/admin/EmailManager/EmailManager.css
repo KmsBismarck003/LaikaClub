@@ -7,7 +7,7 @@
 }
 
 .admin-header {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     border-left: 4px solid #000;
     padding-left: 20px;
 }
@@ -37,20 +37,119 @@
     margin-top: 5px;
 }
 
-.email-grid {
+/* Tabs */
+.email-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tab-btn:hover {
+    color: #000;
+}
+
+.tab-btn.active {
+    color: #000;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: #000;
+}
+
+/* Config Section */
+.config-section h2 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.section-desc {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.template-cards-grid {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
+}
+
+.template-config-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 25px;
+    border-radius: 8px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.template-config-card.active-card {
+    border-color: #000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.template-config-card h3 {
+    margin: 15px 0 10px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+}
+
+.template-config-card p {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #000;
+    color: #fff;
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 4px;
+}
+
+/* Tester Layout */
+.email-tester-layout {
+    display: grid;
+    grid-template-columns: 450px 1fr;
     gap: 30px;
     align-items: start;
 }
 
-.email-editor-card,
-.email-test-card,
-.email-preview-card {
+.tester-sidebar {
     background: #fff;
     border: 1px solid #000;
     padding: 30px;
-    position: relative;
 }
 
 .card-header {
@@ -63,7 +162,7 @@
 }
 
 .card-header h2 {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -71,74 +170,95 @@
 }
 
 .card-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     color: #000;
 }
 
-.editor-group label {
+.form-section, .dynamic-form, .test-action-box {
+    margin-bottom: 30px;
+}
+
+.section-subtitle {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    margin-bottom: 15px;
+    color: #333;
+    border-left: 3px solid #000;
+    padding-left: 10px;
+}
+
+.industrial-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    font-family: inherit;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+.industrial-select:focus {
+    border-color: #000;
+    background: #fff;
+}
+
+.industrial-label {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: #444;
 }
 
-.industrial-textarea {
+.industrial-textarea-small {
     width: 100%;
-    min-height: 400px;
+    min-height: 120px;
     background: #fafafa;
     border: 1px solid #ddd;
-    padding: 20px;
+    padding: 15px;
     font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     line-height: 1.5;
     resize: vertical;
-    transition: all 0.3s ease;
     outline: none;
+    margin-bottom: 15px;
 }
 
-.industrial-textarea:focus {
+.industrial-textarea-small:focus {
     border-color: #000;
     background: #fff;
-    box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.05);
 }
 
-.editor-actions {
-    margin-top: 25px;
-}
-
-.email-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-.card-description {
-    font-size: 0.85rem;
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 20px;
-}
-
-.test-group {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.live-preview {
-    background: #fff;
-    border: 1px dashed #ccc;
-    min-height: 300px;
+.tester-preview {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
     padding: 20px;
-    overflow-y: auto;
-    font-size: 0.9rem;
+    height: 100%;
+    min-height: 800px;
+    display: flex;
+    flex-direction: column;
 }
+
+.preview-container {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.mt-10 { margin-top: 10px; }
 
 @media (max-width: 1024px) {
-    .email-grid {
+    .email-tester-layout {
         grid-template-columns: 1fr;
     }
 }

@@ -49,6 +49,29 @@ const Navbar = () => {
     }
   }, [menuOpen])
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)')
+    const handleMediaQueryChange = (e) => {
+      if (!e.matches) {
+        setMenuOpen(false)
+      }
+    }
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleMediaQueryChange)
+    } else {
+      mediaQuery.addListener(handleMediaQueryChange)
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleMediaQueryChange)
+      } else {
+        mediaQuery.removeListener(handleMediaQueryChange)
+      }
+    }
+  }, [])
+
   // Cerrar dropdown de usuario al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (e) => {

@@ -240,7 +240,7 @@ const EventDetail = () => {
                 )}
 
                 {activeTab === 'revenue' && (
-                    <RevenuePanel eventId={id} />
+                    <RevenuePanel eventId={id} event={event} />
                 )}
 
                 {activeTab === 'merch' && (

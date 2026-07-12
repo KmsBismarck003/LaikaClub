@@ -189,7 +189,9 @@ export const downloadFile = (data, filename) => {
   document.body.removeChild(link);
   
   if (typeof data !== 'string') {
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 250);
   }
 };
 

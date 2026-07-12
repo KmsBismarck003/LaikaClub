@@ -9,6 +9,12 @@ export const getImageUrl = (path) => {
     let cleanPath = path;
     if (typeof cleanPath === 'string') {
         cleanPath = cleanPath.replace('/api/api/', '/api/');
+        
+        // Extract relative upload paths to serve directly from the frontend
+        const uploadIndex = cleanPath.indexOf('uploads/');
+        if (uploadIndex !== -1) {
+            return '/' + cleanPath.substring(uploadIndex);
+        }
     }
 
     // If it's already an absolute URL (http/https) or blob, return as is

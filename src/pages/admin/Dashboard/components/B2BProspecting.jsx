@@ -46,6 +46,51 @@ const B2BProspecting = () => {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('all'); // all, high, medium
     const [showHelpModal, setShowHelpModal] = useState(false);
+    const [showNewLeadModal, setShowNewLeadModal] = useState(false);
+    const [submittingLead, setSubmittingLead] = useState(false);
+    const [newLeadForm, setNewLeadForm] = useState({
+        name: '',
+        category: 'Club/Foro',
+        capacity: '',
+        city: '',
+        state: '',
+        estimated_events_month: 5,
+        contact_email: '',
+        phone: ''
+    });
+
+    const handleAddLeadSubmit = async (e) => {
+        e.preventDefault();
+        if (!newLeadForm.name || !newLeadForm.capacity || !newLeadForm.city || !newLeadForm.state) {
+            alert('Por favor completa los campos obligatorios: Nombre, Capacidad, Ciudad y Estado.');
+            return;
+        }
+        setSubmittingLead(true);
+        try {
+            await analyticsAPI.addProspectingLead({
+                ...newLeadForm,
+                capacity: parseInt(newLeadForm.capacity) || 500,
+                estimated_events_month: parseInt(newLeadForm.estimated_events_month) || 5
+            });
+            setShowNewLeadModal(false);
+            setNewLeadForm({
+                name: '',
+                category: 'Club/Foro',
+                capacity: '',
+                city: '',
+                state: '',
+                estimated_events_month: 5,
+                contact_email: '',
+                phone: ''
+            });
+            fetchProspectingData();
+        } catch (err) {
+            console.error('Error adding prospecting lead:', err);
+            alert('Ocurrió un error al registrar el prospecto.');
+        } finally {
+            setSubmittingLead(false);
+        }
+    };
 
     const fetchProspectingData = async () => {
         setLoading(true);
@@ -272,24 +317,45 @@ const B2BProspecting = () => {
                     ))}
                 </div>
 
-                <button
-                    onClick={fetchProspectingData}
-                    style={{
-                        background: '#ffffff',
-                        border: '1px solid #d1d5db',
-                        padding: '8px 14px',
-                        borderRadius: '10px',
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        color: '#374151'
-                    }}
-                >
-                    <RefreshCw size={12} /> Actualizar Modelo
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                        onClick={() => setShowNewLeadModal(true)}
+                        style={{
+                            background: '#000000',
+                            border: 'none',
+                            color: '#ffffff',
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                        }}
+                    >
+                        <Sparkles size={12} /> Registrar Nuevo Recinto
+                    </button>
+
+                    <button
+                        onClick={fetchProspectingData}
+                        style={{
+                            background: '#ffffff',
+                            border: '1px solid #d1d5db',
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            color: '#374151'
+                        }}
+                    >
+                        <RefreshCw size={12} /> Actualizar Modelo
+                    </button>
+                </div>
             </div>
 
             {/* LISTA DE PROSPECTOS RECOMENDADOS */}
@@ -449,7 +515,126 @@ const B2BProspecting = () => {
                     </div>
                 </div>
             </div>
-
+ 
+            {/* MODAL PARA AGREGAR NUEVO LEAD */}
+            <Modal
+                isOpen={showNewLeadModal}
+                onClose={() => setShowNewLeadModal(false)}
+                title="Registrar Nuevo Recinto / Prospecto B2B"
+                size="medium"
+            >
+                <form onSubmit={handleAddLeadSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>Nombre del Recinto *</label>
+                            <input 
+                                type="text" 
+                                required
+                                value={newLeadForm.name} 
+                                onChange={e => setNewLeadForm({ ...newLeadForm, name: e.target.value })} 
+                                placeholder="Ej. Auditorio Nacional"
+                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>Categoría *</label>
+                            <select 
+                                value={newLeadForm.category} 
+                                onChange={e => setNewLeadForm({ ...newLeadForm, category: e.target.value })}
+                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                            >
+                                <option value="Arena/Estadio">Arena / Estadio</option>
+                                <option value="Teatro/Auditorio">Teatro / Auditorio</option>
+                                <option value="Club/Foro">Club / Foro</option>
+                                <option value="Club/Antro">Club / Antro</option>
+                                <option value="Bar/Restaurante">Bar / Restaurante</option>
+                            </select>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>Capacidad de Personas *</label>
+                            <input 
+                                type="number" 
+                                required
+                                min="10"
+                                value={newLeadForm.capacity} 
+                                onChange={e => setNewLeadForm({ ...newLeadForm, capacity: e.target.value })} 
+                                placeholder="Ej. 10000"
+                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>Eventos Est. al Mes</label>
+                            <input 
+                                type="number" 
+                                min="1"
+                                value={newLeadForm.estimated_events_month} 
+                                onChange={e => setNewLeadForm({ ...newLeadForm, estimated_events_month: e.target.value })} 
+                                placeholder="Ej. 8"
+                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>Ciudad *</label>
+                            <input 
+                                type="text" 
+                                required
+                                value={newLeadForm.city} 
+                                onChange={e => setNewLeadForm({ ...newLeadForm, city: e.target.value })} 
+                                placeholder="Ej. Querétaro"
+                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>Estado *</label>
+                            <input 
+                                type="text" 
+                                required
+                                value={newLeadForm.state} 
+                                onChange={e => setNewLeadForm({ ...newLeadForm, state: e.target.value })} 
+                                placeholder="Ej. Querétaro"
+                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>Email de Contacto</label>
+                            <input 
+                                type="email" 
+                                value={newLeadForm.contact_email} 
+                                onChange={e => setNewLeadForm({ ...newLeadForm, contact_email: e.target.value })} 
+                                placeholder="contacto@recinto.com"
+                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>Teléfono de Contacto</label>
+                            <input 
+                                type="text" 
+                                value={newLeadForm.phone} 
+                                onChange={e => setNewLeadForm({ ...newLeadForm, phone: e.target.value })} 
+                                placeholder="442-123-4567"
+                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
+                            />
+                        </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
+                        <button 
+                            type="button" 
+                            onClick={() => setShowNewLeadModal(false)}
+                            style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'transparent', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            type="submit" 
+                            disabled={submittingLead}
+                            style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#000000', color: '#ffffff', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}
+                        >
+                            {submittingLead ? 'Procesando...' : 'Registrar y Analizar'}
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     );
 };

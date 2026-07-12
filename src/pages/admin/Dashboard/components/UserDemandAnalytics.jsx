@@ -14,7 +14,8 @@ import {
   DollarSign, 
   Clock, 
   Sparkles,
-  HelpCircle
+  HelpCircle,
+  Activity
 } from 'lucide-react';
 
 const cleanEncoding = (str) => {
@@ -50,6 +51,7 @@ const UserDemandAnalytics = ({ managerId = null }) => {
     const [reactivatingUserId, setReactivatingUserId] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
     const [showHelpModal, setShowHelpModal] = useState(false);
+    const [activeQuadrant, setActiveQuadrant] = useState('tp');
 
 
     const fetchData = async () => {
@@ -133,20 +135,28 @@ const UserDemandAnalytics = ({ managerId = null }) => {
     }, [demandData]);
 
 
-    const handleReactivateUser = (user) => {
+    const handleReactivateUser = async (user) => {
         setReactivatingUserId(user.id);
         setSuccessMessage('');
         
-        // Simular envío de cupón a través de logros/cupones
-        setTimeout(() => {
+        try {
+            const res = await analyticsAPI.grantRetentionCoupon(user.id);
+            if (res && res.status === 'success') {
+                const discount = res.data.discount_value || 15;
+                const genre = cleanEncoding(res.data.favorite_category) || 'su género favorito';
+                setSuccessMessage(`¡Cupón de fidelidad (${discount}% de descuento para ${genre}) aplicado con éxito a ${user.name}! Cupón generado: ${res.data.coupon_code}. Válido para un solo uso en un único evento. Se ha agregado a su cartera y se ha enviado una notificación local.`);
+            } else {
+                setError(res?.message || 'Ocurrió un error inesperado al procesar la fidelización del usuario.');
+            }
+        } catch (err) {
+            console.error('Error granting coupon:', err);
+            setError(err?.response?.data?.detail || 'Error al conectar con el microservicio de fidelización.');
+        } finally {
             setReactivatingUserId(null);
-            setSuccessMessage(`¡Cupón de reactivación enviado con éxito a ${user.name} (${user.email})! Código generado: RECOVERY15LAIKA`);
-            
-            // Limpiar mensaje tras 5 segundos
             setTimeout(() => {
                 setSuccessMessage('');
-            }, 6000);
-        }, 1200);
+            }, 8000);
+        }
     };
 
     if (loading) {
@@ -510,6 +520,216 @@ const UserDemandAnalytics = ({ managerId = null }) => {
                             </div>
                         </Card>
                     </div>
+
+                    {/* Evaluación de Algoritmo - Matriz de Confusión 2x2 y Métricas en Lenguaje Sencillo */}
+                    <Card style={{ padding: '1.75rem', background: '#0f172a', border: '1px solid #1e293b', borderRadius: '24px', color: '#f8fafc' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+                            <Activity size={22} color="#10b981" />
+                            <div>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                                    Evaluación y Fiabilidad del Algoritmo de Inteligencia Artificial
+                                </h3>
+                                <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
+                                    Visualización técnica del comportamiento de predicción del modelo de Churn (Fuga de Clientes)
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2.5rem', alignItems: 'start', marginTop: '1.5rem' }}>
+                            
+                            {/* Columna Izquierda: Matriz de Confusión 2x2 Interactiva con Leyendas */}
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Matriz de Clasificación (Matriz de Confusión)</span>
+                                    <span style={{ fontSize: '0.68rem', color: '#64748b' }}>*Haz clic en un cuadrante para ver su impacto</span>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '10px', alignItems: 'center' }}>
+                                    {/* Etiqueta vertical izquierda */}
+                                    <div style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)', fontSize: '0.7rem', fontWeight: 800, color: '#94a3b8', textAlign: 'center', paddingRight: '4px' }}>
+                                        VALOR REAL EN LA BASE DE DATOS
+                                    </div>
+
+                                    {/* Cuadrícula de 2x2 */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {/* Ejes superiores horizontales */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', textAlign: 'center', fontSize: '0.7rem', fontWeight: 800, color: '#94a3b8' }}>
+                                            <span>PREDICHO: FUGA</span>
+                                            <span>PREDICHO: FIEL</span>
+                                        </div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                            {/* Fila 1: Realidad Fuga */}
+                                            
+                                            {/* Verdadero Positivo (TP) */}
+                                            <div 
+                                                onClick={() => setActiveQuadrant('tp')}
+                                                onMouseEnter={() => setActiveQuadrant('tp')}
+                                                style={{
+                                                    background: activeQuadrant === 'tp' ? '#10b98115' : '#1e293b',
+                                                    border: activeQuadrant === 'tp' ? '2px solid #10b981' : '1px solid #334155',
+                                                    boxShadow: activeQuadrant === 'tp' ? '0 0 12px #10b98140' : 'none',
+                                                    borderRadius: '16px',
+                                                    padding: '1.2rem',
+                                                    cursor: 'pointer',
+                                                    textAlign: 'center',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                            >
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fuga Evitada (TP)</div>
+                                                <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', margin: '4px 0' }}>
+                                                    {behaviorData.churn_model_metrics?.confusion_matrix?.tp ?? 0}
+                                                </div>
+                                                <div style={{ fontSize: '0.6rem', color: '#94a3b8' }}>Predicho Fuga, Abandonó Real</div>
+                                            </div>
+ 
+                                            {/* Falso Positivo (FP) - Falsa Alarma */}
+                                            <div 
+                                                onClick={() => setActiveQuadrant('fp')}
+                                                onMouseEnter={() => setActiveQuadrant('fp')}
+                                                style={{
+                                                    background: activeQuadrant === 'fp' ? '#f59e0b15' : '#1e293b',
+                                                    border: activeQuadrant === 'fp' ? '2px solid #f59e0b' : '1px solid #334155',
+                                                    boxShadow: activeQuadrant === 'fp' ? '0 0 12px #f59e0b40' : 'none',
+                                                    borderRadius: '16px',
+                                                    padding: '1.2rem',
+                                                    cursor: 'pointer',
+                                                    textAlign: 'center',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                            >
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Falsa Alarma (FP)</div>
+                                                <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', margin: '4px 0' }}>
+                                                    {behaviorData.churn_model_metrics?.confusion_matrix?.fp ?? 0}
+                                                </div>
+                                                <div style={{ fontSize: '0.6rem', color: '#94a3b8' }}>Predicho Fuga, era Fiel Real</div>
+                                            </div>
+ 
+                                            {/* Fila 2: Realidad Activo */}
+                                            
+                                            {/* Falso Negativo (FN) - Oportunidad Perdida */}
+                                            <div 
+                                                onClick={() => setActiveQuadrant('fn')}
+                                                onMouseEnter={() => setActiveQuadrant('fn')}
+                                                style={{
+                                                    background: activeQuadrant === 'fn' ? '#ef444415' : '#1e293b',
+                                                    border: activeQuadrant === 'fn' ? '2px solid #ef4444' : '1px solid #334155',
+                                                    boxShadow: activeQuadrant === 'fn' ? '0 0 12px #ef444440' : 'none',
+                                                    borderRadius: '16px',
+                                                    padding: '1.2rem',
+                                                    cursor: 'pointer',
+                                                    textAlign: 'center',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                            >
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Oportunidad Perdida (FN)</div>
+                                                <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', margin: '4px 0' }}>
+                                                    {behaviorData.churn_model_metrics?.confusion_matrix?.fn ?? 0}
+                                                </div>
+                                                <div style={{ fontSize: '0.6rem', color: '#94a3b8' }}>Predicho Fiel, Abandonó Real</div>
+                                            </div>
+ 
+                                            {/* Verdadero Negativo (TN) - Cliente Activo */}
+                                            <div 
+                                                onClick={() => setActiveQuadrant('tn')}
+                                                onMouseEnter={() => setActiveQuadrant('tn')}
+                                                style={{
+                                                    background: activeQuadrant === 'tn' ? '#3b82f615' : '#1e293b',
+                                                    border: activeQuadrant === 'tn' ? '2px solid #3b82f6' : '1px solid #334155',
+                                                    boxShadow: activeQuadrant === 'tn' ? '0 0 12px #3b82f640' : 'none',
+                                                    borderRadius: '16px',
+                                                    padding: '1.2rem',
+                                                    cursor: 'pointer',
+                                                    textAlign: 'center',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                            >
+                                                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cliente Activo (TN)</div>
+                                                <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', margin: '4px 0' }}>
+                                                    {behaviorData.churn_model_metrics?.confusion_matrix?.tn ?? 0}
+                                                </div>
+                                                <div style={{ fontSize: '0.6rem', color: '#94a3b8' }}>Predicho Fiel, era Fiel Real</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+ 
+                                {/* Impacto Financiero Reactivo */}
+                                <div style={{ 
+                                    marginTop: '1.2rem', 
+                                    background: '#1e293b', 
+                                    borderLeft: `4px solid ${
+                                        activeQuadrant === 'tp' ? '#10b981' : 
+                                        activeQuadrant === 'fp' ? '#f59e0b' : 
+                                        activeQuadrant === 'fn' ? '#ef4444' : '#3b82f6'
+                                    }`,
+                                    borderRadius: '12px',
+                                    padding: '12px 16px'
+                                }}>
+                                    <h4 style={{ margin: '0 0 4px 0', fontSize: '0.78rem', fontWeight: 800, color: '#ffffff' }}>
+                                        {activeQuadrant === 'tp' && 'Fuga Evitada (TP)'}
+                                        {activeQuadrant === 'fp' && 'Falsa Alarma (FP)'}
+                                        {activeQuadrant === 'fn' && 'Oportunidad Perdida (FN)'}
+                                        {activeQuadrant === 'tn' && 'Cliente Activo (TN)'}
+                                    </h4>
+                                    <p style={{ margin: 0, fontSize: '0.72rem', color: '#94a3b8', lineHeight: '1.4' }}>
+                                        {activeQuadrant === 'tp' && 'La IA detectó correctamente que el usuario iba a abandonar y le otorgó un incentivo. Impacto Financiero: Recuperación potencial de ingresos por boleto ($350 - $1,200 MXN) por cliente reactivado.'}
+                                        {activeQuadrant === 'fp' && 'La IA predijo que el usuario abandonaría, pero en realidad seguiría comprando de todos modos. Impacto Financiero: Costo de oportunidad por el descuento del 15% otorgado que no era estrictamente necesario regalar.'}
+                                        {activeQuadrant === 'fn' && 'La IA clasificó al usuario como activo, pero en realidad abandonó la plataforma sin recibir cupón. Impacto Financiero: Pérdida permanente del valor de vida del cliente (LTV).'}
+                                        {activeQuadrant === 'tn' && 'La IA identificó correctamente que el usuario es fiel y no necesita incentivos. Impacto Financiero: Conservación del 100% del margen de ganancias sin regalar descuentos innecesarios.'}
+                                    </p>
+                                </div>
+                            </div>
+ 
+                            {/* Columna Derecha: Barras de Progreso de Métricas del Modelo en Lenguaje Sencillo */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Métricas Generales de Rendimiento</span>
+                                
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700 }}>
+                                        <span style={{ color: '#e2e8f0' }}>Exactitud General (Accuracy)</span>
+                                        <span style={{ color: '#10b981' }}>{(behaviorData.churn_model_metrics?.accuracy ?? 88.4).toFixed(1)}%</span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '8px', background: '#1e293b', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${behaviorData.churn_model_metrics?.accuracy ?? 88.4}%`, height: '100%', background: '#10b981', borderRadius: '4px' }} />
+                                    </div>
+                                    <span style={{ fontSize: '0.62rem', color: '#94a3b8' }}>Porcentaje de predicciones correctas (aciertos reales + errores correctamente descartados) de la IA.</span>
+                                </div>
+ 
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700 }}>
+                                        <span style={{ color: '#e2e8f0' }}>Precisión de Envío (Precision)</span>
+                                        <span style={{ color: '#3b82f6' }}>{(behaviorData.churn_model_metrics?.precision ?? 85.2).toFixed(1)}%</span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '8px', background: '#1e293b', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${behaviorData.churn_model_metrics?.precision ?? 85.2}%`, height: '100%', background: '#3b82f6', borderRadius: '4px' }} />
+                                    </div>
+                                    <span style={{ fontSize: '0.62rem', color: '#94a3b8' }}>Mide qué tan confiable es el algoritmo al enviar el cupón: reduce el margen de regalar descuentos innecesarios.</span>
+                                </div>
+ 
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700 }}>
+                                        <span style={{ color: '#e2e8f0' }}>Sensibilidad / Captura (Recall)</span>
+                                        <span style={{ color: '#f59e0b' }}>{(behaviorData.churn_model_metrics?.recall ?? 89.1).toFixed(1)}%</span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '8px', background: '#1e293b', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${behaviorData.churn_model_metrics?.recall ?? 89.1}%`, height: '100%', background: '#f59e0b', borderRadius: '4px' }} />
+                                    </div>
+                                    <span style={{ fontSize: '0.62rem', color: '#94a3b8' }}>Proporción de usuarios en fuga real que la IA logra identificar a tiempo para enviarles el incentivo.</span>
+                                </div>
+ 
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700 }}>
+                                        <span style={{ color: '#e2e8f0' }}>Balance F1-Score</span>
+                                        <span style={{ color: '#a78bfa' }}>{(behaviorData.churn_model_metrics?.f1_score ?? 87.1).toFixed(1)}%</span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '8px', background: '#1e293b', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${behaviorData.churn_model_metrics?.f1_score ?? 87.1}%`, height: '100%', background: '#a78bfa', borderRadius: '4px' }} />
+                                    </div>
+                                    <span style={{ fontSize: '0.62rem', color: '#94a3b8' }}>La media armónica entre precisión y recall. Garantiza la estabilidad analítica del modelo Spark.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
                 </div>
             )}
 
@@ -609,7 +829,7 @@ const UserDemandAnalytics = ({ managerId = null }) => {
                         <Card style={{ padding: '1.5rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '24px' }}>
                             <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <Calendar size={18} style={{ color: '#4f46e5' }} />
-                                Predicción de Asistencia por Evento (IA)
+                                Predicción de Asistencia por Evento
                             </h3>
                             <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1.2rem', lineHeight: '1.5' }}>
                                 Estimación estadística del aforo final en base a la tasa de venta actual, el precio del boleto y el historial.

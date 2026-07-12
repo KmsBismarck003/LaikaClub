@@ -19,8 +19,9 @@
 9. [Sistema de Roles y Seguridad](#sistema-de-roles-y-seguridad)
 10. [Flujo de Compra](#flujo-de-compra)
 11. [Modulo de Merchandising](#modulo-de-merchandising)
-12. [Scripts de Utilidad y Herramientas Extra](#scripts-de-utilidad-y-herramientas-extra)
-13. [Credenciales por Defecto](#credenciales-por-defecto)
+12. [Modulo de Big Data y Analisis Predictivo](#modulo-de-big-data-y-analisis-predictivo)
+13. [Scripts de Utilidad y Herramientas Extra](#scripts-de-utilidad-y-herramientas-extra)
+14. [Credenciales por Defecto](#credenciales-por-defecto)
 
 ---
 
@@ -386,6 +387,34 @@ La seccion **"MERCH DEL EVENTO"** aparece en la pagina de detalle de cada evento
 - Vista de todos los productos pendientes de aprobacion
 - Aprobar o rechazar productos con comentario
 - Gestion global del catalogo de merch (`/admin/merch`)
+
+
+---
+
+## Modulo de Big Data y Analisis Predictivo
+
+El sistema cuenta con un motor de analítica distribuida y procesamiento masivo de datos para soportar la toma de decisiones estratégicas.
+
+### Arquitectura Analítica
+- **Motor Central**: Apache Spark (inicializado en un hilo secundario en `microservices/analytics_bigdata/engine.py`).
+- **Resiliencia Automática**: Si Spark está arrancando, el servicio conmuta automáticamente a **consultas SQL directas a MySQL/SQLite** para evitar caídas o pantallas de carga bloqueadas.
+- **Sincronización (ETL)**: Sincronización asíncrona ("fire-and-forget") de compras de boletos hacia **MongoDB Atlas** mediante `mongodb_sync.py` para análisis OLAP sin bloquear el flujo transaccional de producción.
+
+### Preparación y Limpieza de Datos (Saneamiento)
+- **Relleno de nulos**: PySpark reemplaza valores nulos en columnas críticas por valores por defecto (`"STAND"`, `"ANÓNIMO"`, `0.0`).
+- **Normalización**: Limpieza de cadenas de texto mediante `trim()` y conversión a minúsculas con `lower()`.
+- **Casting**: Conversión de campos numéricos a tipo flotante (`double`) para evitar fallos matemáticos durante el MapReduce.
+
+### Modelado Dimensional (Copo de Nieve)
+Aunque el sistema lee bases de datos transaccionales, la estructura de entidades se modela lógicamente como un **Esquema de Copo de Nieve (Snowflake Schema)**:
+- **Hechos (Fact Table)**: `tickets` (transacciones) y `payments` (pagos).
+- **Dimensiones Directas**: `users` (compradores) y `events` (espectáculos).
+- **Sub-dimensiones Normalizadas**: `events` $\rightarrow$ `venues` (recinto) $\rightarrow$ `venue_rooms` (sala) $\rightarrow$ `seating_zones` (zona de asientos) $\rightarrow$ `room_seats` (asiento individual).
+
+### Modelos de Machine Learning
+1. **Regresiones Predictivas**: Comparación de 6 modelos (Regresión Lineal, Polinomial, Ridge, Lasso) sobre las ventas históricas para estimar los ingresos de conciertos futuros.
+2. **Clasificación (Árboles de Decisión)**: Clasifica la velocidad de compra y ocupación para recomendar la activación de **Tarifas Dinámicas**.
+3. **Clustering (K-Means)**: Agrupamiento automático de usuarios en segmentos (ej. Súper Fans/Ballenas vs. Compradores casuales).
 
 
 ---

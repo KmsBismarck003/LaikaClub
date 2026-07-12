@@ -225,6 +225,15 @@ export const useCheckoutFlow = () => {
                 setCardData(prev => ({ ...prev, lastReference: paymentId }));
             }
 
+            // Disparar Notificación Push Automática (Ticket Purchase)
+            import('../../../specialFun/PushNotifications').then(module => {
+                const eventName = ticketItems.length > 0 ? (ticketItems[0].eventName || ticketItems[0].name || 'el evento') : 'tu compra';
+                module.PushEngine.triggerSmart('TICKET_PURCHASE', {
+                    eventName,
+                    url: `${window.location.origin}/user/tickets`
+                });
+            }).catch(e => console.error("Error triggering push:", e));
+
             success('¡Transacción completada con éxito!');
             clearCart();
             localStorage.removeItem('checkout_shipping');

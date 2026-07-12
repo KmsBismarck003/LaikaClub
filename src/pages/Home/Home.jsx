@@ -1,74 +1,97 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { getImageUrl } from '../../utils/imageUtils'
-import { Card, Button, AdCarousel, Icon, Badge, Pagination } from '../../components'
+import { Button, AdCarousel, Icon, Pagination } from '../../components'
 import api from '../../services/api'
-import { SkeletonAd, SkeletonEventCard, SkeletonHero } from '../../components/Skeleton/Skeleton'
+import { SkeletonEventCard, SkeletonHero } from '../../components/Skeleton/Skeleton'
 import { useNotification } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { useSkeletonContext } from '../../context/SkeletonContext'
+
+// Home sub-components
+import CategoryFilter from './components/CategoryFilter/CategoryFilter'
+import EventsGrid    from './components/EventsGrid/EventsGrid'
+import DiscoverySection from './components/DiscoverySection/DiscoverySection'
 import { ShopCtaBanner } from './components/HomeShopSection/HomeShopSection'
+
 import './Home.css'
 
-// Category configuration with icons
+/* ─── Constants ─── */
 const CATEGORIES = [
-  { id: 'all', name: 'Todos', icon: 'grid' },
-  { id: 'concert', name: 'Conciertos', icon: 'music' },
-  { id: 'sport', name: 'Deportes', icon: 'sport' },
-  { id: 'theater', name: 'Teatro', icon: 'theater' },
+  { id: 'all',      name: 'Todos',      icon: 'grid'     },
+  { id: 'concert',  name: 'Conciertos', icon: 'music'    },
+  { id: 'sport',    name: 'Deportes',   icon: 'sport'    },
+  { id: 'theater',  name: 'Teatro',     icon: 'theater'  },
   { id: 'festival', name: 'Festivales', icon: 'festival' },
-  { id: 'family', name: 'Familiares', icon: 'heart' },
-  { id: 'other', name: 'Otros', icon: 'sparkles' }
+  { id: 'family',   name: 'Familiares', icon: 'heart'    },
+  { id: 'other',    name: 'Otros',      icon: 'sparkles' },
 ]
 
 const BADGE_VARIANTS = {
-  concert: 'primary',
-  sport: 'success',
-  theater: 'error',
+  concert:  'primary',
+  sport:    'success',
+  theater:  'error',
   festival: 'warning',
-  other: 'secondary'
+  other:    'secondary',
 }
 
-const ITEMS_PER_PAGE = 4 // 2x2 Grid per page
+const ITEMS_PER_PAGE = 4
 
+/* ─── Helpers ─── */
+const formatDate = dateString => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString('es-MX', {
+    weekday: 'short', day: 'numeric', month: 'short',
+  })
+}
+
+const formatTime = time => {
+  if (!time) return ''
+  const s = String(time)
+  return s.includes(':') ? s.substring(0, 5) : s
+}
+
+const getCategoryInfo = id =>
+  CATEGORIES.find(c => c.id === id) || CATEGORIES[CATEGORIES.length - 1]
+
+/* ═══════════════════════════════════════════════════════════════
+   HOME COMPONENT
+   ═══════════════════════════════════════════════════════════════ */
 const Home = () => {
   const navigate = useNavigate()
-  const { error: showError, showNotification } = useNotification()
-  const { user, isGuestPreview } = useAuth()
-  const { addToCart, addMerchToCart } = useCart()
-  const { showSkeleton: loading, startLoading, stopLoading } = useSkeletonContext()
-  const eventsSectionRef = useRef(null)
   const [searchParams] = useSearchParams()
-  const [events, setEvents] = useState([])
-  const [ads, setAds] = useState([])
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '')
+  const { error: showError } = useNotification()
+  const { user } = useAuth()
+  const { addToCart } = useCart()
+  const { showSkeleton: loading, startLoading, stopLoading } = useSkeletonContext()
+
+  const eventsSectionRef = useRef(null)
+
+  /* ─── State ─── */
+  const [events,         setEvents]         = useState([])
+  const [ads,            setAds]            = useState([])
+  const [searchTerm,     setSearchTerm]     = useState(searchParams.get('q') || '')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [error, setError] = useState(null)
+  const [currentPage,    setCurrentPage]    = useState(1)
+  const [error,          setError]          = useState(null)
   const [recentlyViewed, setRecentlyViewed] = useState([])
 
-  // Sync with URL params
+  /* ─── Sync URL params ─── */
   useEffect(() => {
-    const q = searchParams.get('q') || ''
-    const category = searchParams.get('category') || 'all'
-    setSearchTerm(q)
-    setSelectedCategory(category)
+    setSearchTerm(searchParams.get('q') || '')
+    setSelectedCategory(searchParams.get('category') || 'all')
   }, [searchParams])
 
-  // Initial data fetch — removed, handled by the interval useEffect below
-
-  // Fetch events & ads — limit 50 for performance, 120s polling interval
+  /* ─── Data fetch ─── */
   const fetchInitialData = useCallback(async (background = false) => {
     if (!background) startLoading('home_data')
     try {
-      const [eventsResponse, adsResponse] = await Promise.all([
+      const [eventsRes, adsRes] = await Promise.all([
         api.event.getPublic({ limit: 50 }),
-        api.ads.getPublic()
+        api.ads.getPublic(),
       ])
-      
-      setEvents(eventsResponse || [])
-      setAds(adsResponse || [])
+      setEvents(eventsRes || [])
+      setAds(adsRes || [])
       setError(null)
     } catch (err) {
       console.error('Error al cargar datos de Inicio:', err)
@@ -82,331 +105,167 @@ const Home = () => {
     }
   }, [startLoading, stopLoading])
 
-
   useEffect(() => {
     fetchInitialData()
-    const interval = setInterval(() => fetchInitialData(true), 120000)
-    
-    const loadRecentlyViewed = () => {
-      const items = JSON.parse(localStorage.getItem('recently_viewed') || '[]')
-      setRecentlyViewed(items)
-    }
+    const interval = setInterval(() => fetchInitialData(true), 120_000)
 
-    loadRecentlyViewed()
-    
-    // Listen for storage changes
-    window.addEventListener('storage', loadRecentlyViewed)
-    // Custom event for same-tab updates
-    window.addEventListener('recentlyViewedUpdated', loadRecentlyViewed)
+    const loadRecent = () => {
+      setRecentlyViewed(JSON.parse(localStorage.getItem('recently_viewed') || '[]'))
+    }
+    loadRecent()
+    window.addEventListener('storage', loadRecent)
+    window.addEventListener('recentlyViewedUpdated', loadRecent)
 
     return () => {
       clearInterval(interval)
-      window.removeEventListener('storage', loadRecentlyViewed)
-      window.removeEventListener('recentlyViewedUpdated', loadRecentlyViewed)
+      window.removeEventListener('storage', loadRecent)
+      window.removeEventListener('recentlyViewedUpdated', loadRecent)
     }
   }, [fetchInitialData])
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchTerm, selectedCategory])
+  /* ─── Reset page on filter change ─── */
+  useEffect(() => { setCurrentPage(1) }, [searchTerm, selectedCategory])
 
-  // Filter events
+  /* ─── Filtered events ─── */
   const filteredEvents = useMemo(() => {
-    let filtered = events.filter(event => event.status === 'published')
+    let list = events.filter(e => e.status === 'published')
 
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(event => event.category === selectedCategory)
-    }
+    if (selectedCategory !== 'all')
+      list = list.filter(e => e.category === selectedCategory)
 
     if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(event =>
-        event.name.toLowerCase().includes(term) ||
-        event.description?.toLowerCase().includes(term) ||
-        event.location?.toLowerCase().includes(term) ||
-        event.venue?.toLowerCase().includes(term) ||
-        event.state_name?.toLowerCase().includes(term) ||
-        event.municipality_name?.toLowerCase().includes(term)
+      const t = searchTerm.toLowerCase()
+      list = list.filter(e =>
+        e.name.toLowerCase().includes(t) ||
+        e.description?.toLowerCase().includes(t) ||
+        e.location?.toLowerCase().includes(t) ||
+        e.venue?.toLowerCase().includes(t) ||
+        e.state_name?.toLowerCase().includes(t) ||
+        e.municipality_name?.toLowerCase().includes(t)
       )
     }
 
     const cityParam = searchParams.get('city')
     if (cityParam && cityParam !== 'Todo México') {
       const city = cityParam.toLowerCase()
-      filtered = filtered.filter(event =>
-        event.location?.toLowerCase().includes(city) ||
-        event.venue?.toLowerCase().includes(city) ||
-        event.state_name?.toLowerCase().includes(city) ||
-        event.municipality_name?.toLowerCase().includes(city)
+      list = list.filter(e =>
+        e.location?.toLowerCase().includes(city) ||
+        e.venue?.toLowerCase().includes(city) ||
+        e.state_name?.toLowerCase().includes(city) ||
+        e.municipality_name?.toLowerCase().includes(city)
       )
     }
 
-    return filtered
+    return list
   }, [events, selectedCategory, searchTerm, searchParams])
 
-  // Paginated events
   const totalPages = Math.ceil(filteredEvents.length / ITEMS_PER_PAGE)
   const paginatedEvents = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE
     return filteredEvents.slice(start, start + ITEMS_PER_PAGE)
   }, [filteredEvents, currentPage])
 
-  // Formatters
-  const formatDate = (dateString) => {
-    if (!dateString) return ''
-    return new Date(dateString).toLocaleDateString('es-MX', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short'
-    })
-  }
+  const showLeftSidebar = useMemo(() => {
+    return loading || ads.some(ad => ad.position === 'side_left' && ad.active);
+  }, [loading, ads]);
 
-  const formatTime = (time) => {
-    if (!time) return ''
-    const str = String(time)
-    if (str.includes(':')) return str.substring(0, 5)
-    return str
-  }
+  const showRightSidebar = useMemo(() => {
+    return loading || ads.some(ad => ad.position === 'side_right' && ad.active);
+  }, [loading, ads]);
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      minimumFractionDigits: 0
-    }).format(price || 0)
-  }
-
-  const getCategoryInfo = (categoryId) => {
-    return CATEGORIES.find(c => c.id === categoryId) || CATEGORIES[5]
-  }
-
-  const handleGoBack = () => {
-    navigate(-1)
-  }
-
+  /* ─── Render ─── */
   return (
     <div className="home">
+      {/* Hero / Ad Carousel */}
       {loading ? <SkeletonHero /> : <AdCarousel position="main" isLoading={loading} preloadedAds={ads} />}
 
-      <div className="home-layout">
-        <aside className={`home-sidebar home-sidebar--left ${loading ? 'loading' : ''}`}>
-          <AdCarousel position="side_left" isLoading={loading} preloadedAds={ads} />
-        </aside>
+      <div className={`home-layout ${!showLeftSidebar ? 'no-left-sidebar' : ''} ${!showRightSidebar ? 'no-right-sidebar' : ''}`}>
+        {/* Left sidebar ad */}
+        {showLeftSidebar && (
+          <aside className={`home-sidebar home-sidebar--left ${loading ? 'loading' : ''}`}>
+            <AdCarousel position="side_left" isLoading={loading} preloadedAds={ads} />
+          </aside>
+        )}
 
+        {/* ── MAIN CONTENT ── */}
         <main className="home-main">
+          {/* Category filters */}
+          <CategoryFilter
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
 
+          {/* Loading skeleton */}
           {loading ? (
-            <div className="events-sections">
-              <header className="events-header">
-                <div style={{ width: '200px', height: '24px', backgroundColor: '#f0f0f0', borderRadius: '4px' }} className="skeleton" />
-                <div style={{ width: '80px', height: '16px', backgroundColor: '#f0f0f0', borderRadius: '4px' }} className="skeleton" />
-              </header>
-              <div className="events-grid">
-                {[1, 2, 3, 4].map(i => <SkeletonEventCard key={i} />)}
-              </div>
+            <div className="events-grid">
+              {[1, 2, 3, 4].map(i => <SkeletonEventCard key={i} />)}
             </div>
           ) : error && events.length === 0 ? (
+            /* ── Error state ── */
             <div className="home-error-view">
               <div className="error-code">ERROR</div>
-              <Icon name="alertTriangle" size={80} className="error-icon" />
-              <h2 className="error-title">UPS! ALGO SALIÓ MAL</h2>
+              <Icon name="alertTriangle" size={72} className="error-icon" />
+              <h2 className="error-title">Ups, algo salió mal</h2>
               <p className="error-message">{error}</p>
               <div className="error-actions">
-                <Button variant="primary" size="large" onClick={() => fetchInitialData()}>REINTENTAR</Button>
-                <Button variant="secondary" size="large" onClick={handleGoBack}>REGRESAR</Button>
+                <Button variant="primary"   size="large" onClick={() => fetchInitialData()}>Reintentar</Button>
+                <Button variant="secondary" size="large" onClick={() => navigate(-1)}>Regresar</Button>
               </div>
             </div>
+          ) : filteredEvents.length === 0 ? (
+            /* ── Empty state ── */
+            <div className="events-empty">
+              <Icon name="searchEmpty" size={56} className="events-empty-icon" />
+              <h3 className="events-empty-title">No se encontraron eventos</h3>
+              <Button onClick={() => { setSearchTerm(''); setSelectedCategory('all') }}>
+                Limpiar filtros
+              </Button>
+            </div>
           ) : (
+            /* ── Events grid ── */
             <>
-              {/* Event Section (shows events or empty state) */}
-              {filteredEvents.length === 0 ? (
-                <div className="events-empty">
-                  <Icon name="searchEmpty" size={64} className="events-empty-icon" />
-                  <h3 className="events-empty-title">NO SE ENCONTRARON EVENTOS</h3>
-                  <Button onClick={() => { setSearchTerm(''); setSelectedCategory('all'); }}>LIMPIAR FILTROS</Button>
-                </div>
-              ) : (
-                <div className="events-sections" ref={eventsSectionRef}>
-                  <header className="events-header">
-                    <h2 className="events-title">{selectedCategory === 'all' ? 'TODOS LOS EVENTOS' : getCategoryInfo(selectedCategory).name.toUpperCase()}</h2>
-                    <span className="events-count">{filteredEvents.length} EVENTOS</span>
-                  </header>
-                  <div className="events-grid">
-                    {paginatedEvents.map(event => (
-                      <Card
-                        key={event.id}
-                        className="event-card-container"
-                        onClick={() => navigate(`/event/${event.id}`)}
-                      >
-                        <div className="event-primary-card">
-                          <div className="event-card-image">
-                            <img src={getImageUrl(event.image_url || event.image)} alt={event.name} loading="lazy" />
-                            <div className="event-card-badge">
-                              <Badge variant={BADGE_VARIANTS[event.category] || 'secondary'}>
-                                {getCategoryInfo(event.category).name}
-                              </Badge>
-                            </div>
-                          </div>
-                          <div className="event-card-content">
-                            <div className="event-card-venue">
-                              <Icon name="mapPin" size={12} />
-                              <span>{event.venue || event.location || 'RECINTO POR CONFIRMAR'}</span>
-                            </div>
-                            <h3 className="event-card-title">{event.name}</h3>
-                            <div className="event-card-date">
-                              <span>{formatDate(event.event_date || event.date)}</span>
-                              <span className="date-separator">•</span>
-                              <span>{formatTime(event.start_time || event.time)} HRS</span>
-                            </div>
-                            <div className="event-card-price-tm">
-                              DESDE {formatPrice(event.min_price || 250)}
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                  {totalPages > 1 && (
-                    <div className="events-pagination">
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={(page) => {
-                          setCurrentPage(page);
-                          window.scrollTo({ top: eventsSectionRef.current?.offsetTop - 100, behavior: 'smooth' });
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
+              <div ref={eventsSectionRef}>
+                <EventsGrid
+                  paginatedEvents={paginatedEvents}
+                  filteredEvents={filteredEvents}
+                  selectedCategory={selectedCategory}
+                  getCategoryInfo={getCategoryInfo}
+                  BADGE_VARIANTS={BADGE_VARIANTS}
+                  formatDate={formatDate}
+                  formatTime={formatTime}
+                  navigate={navigate}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  setCurrentPage={setCurrentPage}
+                  eventsSectionRef={eventsSectionRef}
+                />
+              </div>
 
-              {/* LAIKA SHOP CTA BANNER */}
+              {/* Shop CTA Banner */}
               <ShopCtaBanner onNavigate={() => navigate('/shop')} />
 
-              {/* INLINE AD CAROUSEL 1 */}
+              {/* Inline ad */}
               <AdCarousel position="inline_1" isLoading={loading} preloadedAds={ads} />
 
-              {/* DISCOVERY SECTIONS - INSIDE HOME-MAIN TO PRESERVE SIDEBAR */}
-              <section className="discovery-container">
-                {/* 1. VISTOS RECIENTEMENTE */}
-                {recentlyViewed.length > 0 && (
-                  <div className="discovery-section recently-viewed">
-                    <header className="section-header">
-                      <h2 className="section-title">VISTOS RECIENTEMENTE</h2>
-                      <div className="header-line"></div>
-                    </header>
-                    <div className="recent-pills">
-                      {recentlyViewed.map(item => (
-                        <div 
-                          key={`recent-${item.id}`} 
-                          className="recent-pill"
-                          onClick={() => navigate(`/event/${item.id}`)}
-                        >
-                          <img src={getImageUrl(item.image)} alt={item.name} />
-                          <span>{item.name}</span>
-                          <Icon name="check" size={14} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {/* Discovery sections */}
+              <DiscoverySection
+                recentlyViewed={recentlyViewed}
+                events={events}
+                navigate={navigate}
+              />
 
-                <hr className="discovery-divider" />
-
-                {/* 2. LO MÁS BUSCADO */}
-                <div className="discovery-section most-searched">
-                  <header className="section-header">
-                    <h2 className="section-title">LO MÁS BUSCADO</h2>
-                    <div className="header-line"></div>
-                  </header>
-                  <div className="most-searched-grid">
-                    {events.slice(0, 4).map(event => (
-                      <div key={`ms-${event.id}`} className="mini-event-card">
-                        <div className="mini-card-image">
-                          <img src={getImageUrl(event.image_url || event.image)} alt={event.name} />
-                        </div>
-                        <div className="mini-card-info">
-                          <span className="mini-venue">{event.venue || 'ESTADIO GNP SEGUROS'}</span>
-                          <span className="mini-name">{event.name}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* INLINE AD CAROUSEL 2 */}
-                <AdCarousel position="inline_2" isLoading={loading} preloadedAds={ads} />
-
-                <hr className="discovery-divider" />
-
-                {/* 3. DESCUBRE */}
-                <div className="discovery-section discover-grid">
-                  <header className="section-header">
-                    <h2 className="section-title">DESCUBRE</h2>
-                    <div className="header-line"></div>
-                  </header>
-                  <div className="category-banners">
-                    <div className="category-banner">
-                      <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600" alt="Ayuda" loading="lazy" />
-                      <div className="banner-overlay">
-                        <span className="banner-subtitle">ESTAMOS AQUÍ PARA TI</span>
-                        <h3 className="banner-title">BOTÓN DE AYUDA</h3>
-                        <span className="banner-link">VER MÁS</span>
-                      </div>
-                    </div>
-                    <div className="category-banner">
-                      <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600" alt="VIP" loading="lazy" />
-                      <div className="banner-overlay">
-                        <span className="banner-subtitle">TU PLAN COMIENZA AQUÍ</span>
-                        <h3 className="banner-title">PAQUETES VIP</h3>
-                        <span className="banner-link">VER MÁS</span>
-                      </div>
-                    </div>
-                    <div className="category-banner">
-                      <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600" alt="Familiares" loading="lazy" />
-                      <div className="banner-overlay">
-                        <span className="banner-subtitle">DISFRUTA EN FAMILIA</span>
-                        <h3 className="banner-title">FAMILIARES</h3>
-                        <span className="banner-link">VER MÁS</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <hr className="discovery-divider" />
-
-                {/* 4. CIUDADES MÁS BUSCADAS */}
-                <div className="discovery-section searched-cities">
-                  <header className="section-header">
-                    <h2 className="section-title">CIUDADES MÁS BUSCADAS</h2>
-                    <div className="header-line"></div>
-                  </header>
-                  <div className="cities-grid">
-                    <div className="city-card">
-                      <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=400" alt="CDMX" loading="lazy" />
-                      <span className="city-name-link">Ciudad de México</span>
-                    </div>
-                    <div className="city-card">
-                      <img src="https://images.unsplash.com/photo-1534430480872-3498386e7856?w=400" alt="Guadalajara" loading="lazy" />
-                      <span className="city-name-link">Guadalajara</span>
-                    </div>
-                    <div className="city-card">
-                      <img src="https://images.unsplash.com/photo-1577017040065-650ee4d43339?w=400" alt="Monterrey" loading="lazy" />
-                      <span className="city-name-link">Monterrey</span>
-                    </div>
-                  </div>
-                </div>
-              </section>
+              {/* Inline ad 2 */}
+              <AdCarousel position="inline_2" isLoading={loading} preloadedAds={ads} />
             </>
           )}
-
         </main>
 
-        <aside className={`home-sidebar home-sidebar--right ${loading ? 'loading' : ''}`}>
-          <AdCarousel position="side_right" isLoading={loading} preloadedAds={ads} />
-        </aside>
+        {/* Right sidebar ad */}
+        {showRightSidebar && (
+          <aside className={`home-sidebar home-sidebar--right ${loading ? 'loading' : ''}`}>
+            <AdCarousel position="side_right" isLoading={loading} preloadedAds={ads} />
+          </aside>
+        )}
       </div>
     </div>
   )

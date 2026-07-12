@@ -356,7 +356,9 @@ const RestoreAudit = () => {
       document.body.appendChild(a)
       a.click()
       a.remove()
-      window.URL.revokeObjectURL(url)
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+      }, 250)
       setSuccess('Archivo CSV exportado exitosamente')
     } catch (err) {
       setError('Error al exportar: ' + getErrorMessage(err))

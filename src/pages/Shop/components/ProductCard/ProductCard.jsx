@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Heart, ShoppingBag, Eye, Tag } from 'lucide-react';
 import { useFavorites } from '../../../../context/FavoritesContext';
+import { getImageUrl } from '../../../../utils/imageUtils';
 import StockBadge from '../StockBadge/StockBadge';
 import './ProductCard.css';
 
@@ -30,8 +31,9 @@ const ProductCard = ({ product, onQuickView, onAddToCart }) => {
     const totalStock = getTotalStock(product.variants);
     const lowestPrice = getLowestPrice(product.variants);
     const allOutOfStock = totalStock <= 0;
-    const imageUrl = product.image_url?.split(',')[0] || '/assets/default_product.png';
-    const isOfficial = product.is_official;
+    const rawImageUrl = product.imageUrl || product.image_url;
+    const imageUrl = rawImageUrl ? getImageUrl(rawImageUrl.split(',')[0]) : '/assets/default_product.png';
+    const isOfficial = product.isOfficial !== undefined ? product.isOfficial : product.is_official;
 
     const handleFavoriteClick = useCallback((e) => {
         e.stopPropagation();

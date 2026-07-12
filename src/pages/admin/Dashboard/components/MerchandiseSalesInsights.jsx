@@ -60,7 +60,7 @@ const ProductCard = ({ product, maxUnits, isTop }) => (
     </div>
 
     <div style={{ display: 'flex', gap: 12, fontSize: '0.72rem', color: '#475569' }}>
-      <span><b style={{ color: '#111827' }}>{(product.units || 0).toLocaleString()}</b> uds</span>
+      <span><b style={{ color: '#111827' }}>{(product.units || 0).toLocaleString()}</b> Pzs</span>
       <span><b style={{ color: '#111827' }}>${(product.revenue || 0).toLocaleString('es-MX', { maximumFractionDigits: 0 })}</b> MXN</span>
     </div>
 
@@ -295,7 +295,7 @@ const MerchandiseSalesInsights = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                           <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#111827' }}>{cat.category}</span>
                           <div style={{ display: 'flex', gap: 12, fontSize: '0.72rem', color: '#64748b' }}>
-                            <span><b style={{ color: '#111827' }}>{cat.units}</b> uds</span>
+                            <span><b style={{ color: '#111827' }}>{cat.units}</b> Pzs</span>
                             <span><b style={{ color: '#111827' }}>${cat.revenue.toLocaleString('es-MX', { maximumFractionDigits: 0 })}</b> MXN</span>
                             <span style={{ fontWeight: 700, color: pct === 100 ? '#10b981' : '#64748b' }}>{pct}%</span>
                           </div>

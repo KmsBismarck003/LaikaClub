@@ -4,6 +4,7 @@ import { X, Heart, Tag, Package, Calendar, CheckCircle2, AlertCircle, Star } fro
 import { useFavorites } from '../../../../context/FavoritesContext';
 import { useAuth } from '../../../../context/AuthContext';
 import { merchService } from '../../../../services/merch.service';
+import { getImageUrl } from '../../../../utils/imageUtils';
 import ProductImageCarousel from './ProductImageCarousel';
 import VariantSelector from './VariantSelector';
 import StockBadge from '../StockBadge/StockBadge';
@@ -170,7 +171,7 @@ const ProductModal = ({ selectedProduct, setSelectedProduct, handleAddToCart }) 
                         <p className="success-subtitle">Tu producto se ha añadido al carrito de compras.</p>
                         
                         <div className="success-product-preview">
-                            <img src={selectedProduct.image_url?.split(',')[0]} alt={selectedProduct.name} />
+                            <img src={getImageUrl((selectedProduct.imageUrl || selectedProduct.image_url)?.split(',')[0])} alt={selectedProduct.name} />
                             <div className="success-product-details">
                                 <span className="product-name">{selectedProduct.name}</span>
                                 {activeVariant && activeVariant.attributes && (
@@ -238,7 +239,7 @@ const ProductModal = ({ selectedProduct, setSelectedProduct, handleAddToCart }) 
                 <div className="shop-modal-grid">
                     {/* LEFT: IMAGE GALLERY */}
                     <div className="shop-modal-gallery">
-                        <ProductImageCarousel imageUrls={selectedProduct.image_url} />
+                        <ProductImageCarousel imageUrls={selectedProduct.imageUrl || selectedProduct.image_url} />
                     </div>
 
                     {/* RIGHT: PRODUCT DETAILS */}

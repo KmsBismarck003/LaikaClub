@@ -10,9 +10,7 @@ const LaikaAgent = ({ loading = false }) => {
     const { toggleTheme, isDark } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const [displayText, setDisplayText] = useState('');
-    const [footerBottom, setFooterBottom] = useState(0);
     const floatingRef = useRef(null);
-    const [homeRight, setHomeRight] = useState(null);
     const [showScrollBtn, setShowScrollBtn] = useState(false);
     const [phraseIndex, setPhraseIndex] = useState(0);
     const [isTyping, setIsTyping] = useState(true);
@@ -83,63 +81,7 @@ const LaikaAgent = ({ loading = false }) => {
 
     const isLaikaVisible = isEnabled && isRoleEnabled();
 
-    useEffect(() => {
-        const checkFooter = () => {
-            const footer = document.querySelector('footer');
-            if (footer) {
-                const rect = footer.getBoundingClientRect();
-                const agentHeight = 160;
-                const overlap = agentHeight - rect.top;
-                if (overlap > 0) {
-                    setFooterBottom(overlap + 10);
-                } else {
-                    setFooterBottom(0);
-                }
-            } else {
-                const docHeight = document.documentElement.scrollHeight;
-                const winHeight = window.innerHeight;
-                const scrollY = window.scrollY;
-                const maxScroll = docHeight - winHeight;
-                if (maxScroll <= 0) {
-                    setFooterBottom(0);
-                    return;
-                }
-                const distFromBottom = maxScroll - scrollY;
-                if (distFromBottom < 200) {
-                    setFooterBottom(200 - distFromBottom + 10);
-                } else {
-                    setFooterBottom(0);
-                }
-            }
-        };
-        checkFooter();
-        window.addEventListener('scroll', checkFooter, { passive: true });
-        window.addEventListener('resize', checkFooter);
-        return () => {
-            window.removeEventListener('scroll', checkFooter);
-            window.removeEventListener('resize', checkFooter);
-        };
-    }, []);
 
-    // Posicionar flotante a la izquierda del sidebar derecho en el Home
-    useEffect(() => {
-        const updateHomePosition = () => {
-            if (location.pathname === '/') {
-                const sidebar = document.querySelector('.home-sidebar--right');
-                if (sidebar) {
-                    const rect = sidebar.getBoundingClientRect();
-                    setHomeRight(window.innerWidth - rect.left + 8 + 6 - window.innerWidth * 0.01);
-                } else {
-                    setHomeRight(null);
-                }
-            } else {
-                setHomeRight(null);
-            }
-        };
-        updateHomePosition();
-        window.addEventListener('resize', updateHomePosition);
-        return () => window.removeEventListener('resize', updateHomePosition);
-    }, [location.pathname]);
 
     // Mostrar/ocultar botón de subir según scroll
     useEffect(() => {
@@ -331,6 +273,13 @@ const LaikaAgent = ({ loading = false }) => {
     const [pendingAction, setPendingAction] = useState(null);
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
     const [attachmentPreview, setAttachmentPreview] = useState(null);
+    useEffect(() => {
+        return () => {
+            if (attachmentPreview?.url) {
+                URL.revokeObjectURL(attachmentPreview.url);
+            }
+        };
+    }, [attachmentPreview]);
     const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
     const navigate = useNavigate();
@@ -424,7 +373,12 @@ const LaikaAgent = ({ loading = false }) => {
                         const a = document.createElement('a');
                         a.href = url;
                         a.download = `laika_logs_${Date.now()}.json`;
+                        document.body.appendChild(a);
                         a.click();
+                        document.body.removeChild(a);
+                        setTimeout(() => {
+                            window.URL.revokeObjectURL(url);
+                        }, 250);
                         resultMessage = "Archivo de logs generado y descargado. Revisa tu carpeta de descargas.";
                         break;
                     default:
@@ -798,7 +752,7 @@ const LaikaAgent = ({ loading = false }) => {
     if (!isLaikaVisible && !loading && !showSettings && !isOpen) return null;
 
     return (
-        <div className="laika-agent-container" style={{ bottom: footerBottom ? `${footerBottom}px` : '1.5rem', right: homeRight ? `${homeRight}px` : '1rem' }}>
+        <div className="laika-agent-container">
             {isOpen && (
                 <div
                     className={`laika-agent-panel glass-panel ${isResizing ? 'resizing' : ''}`}

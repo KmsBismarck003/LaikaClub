@@ -40,7 +40,7 @@ class ApiClient {
                 localStorage.removeItem('user')
                 sessionStorage.removeItem('token')
                 sessionStorage.removeItem('user')
-                // window.location.href = '/login'
+                window.location.href = '/login'
             }
             let errorMessage = 'Error en la petición'
             if (data) {

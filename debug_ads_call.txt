@@ -1,3 +1,0 @@
-Total ads sin filtro: 2
-Total ads con active=1: 2
-Ejemplo primer ad sin filtro: {'id': 1, 'title': 'promo', 'image_url': 'http://localhost:8000/api/api/admin/uploads/ads/2bc3d3976c13403989b7a27f099c0d61.png', 'link_url': '', 'position': 'main', 'active': 1, 'created_at': datetime.datetime(2026, 5, 16, 19, 42, 58), 'event_id': 8}

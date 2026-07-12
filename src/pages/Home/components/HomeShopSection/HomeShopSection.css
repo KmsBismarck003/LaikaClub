@@ -213,7 +213,8 @@
    ============================================ */
 
 .amazon-product-card {
-  flex: 0 0 220px; /* Exact size for scrolling shelf cards */
+  /* fluid width: at least 160px, ideal 200px, no fixed max */
+  flex: 0 0 clamp(160px, 36vw, 210px);
   display: flex;
   flex-direction: column;
   background: #ffffff;
@@ -527,19 +528,29 @@
   color: #52525b;
 }
 
-/* Responsive tweaks */
+/* ─── Responsive tweaks ─── */
 @media (max-width: 768px) {
+  .amazon-shop-section-wrapper {
+    margin: 2rem 0;
+    gap: 1.75rem;
+  }
   .amazon-logo-indicator {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
   }
   .amazon-shelf-title {
-    font-size: 1rem;
-  }
-  .amazon-product-card {
-    flex: 0 0 180px;
+    font-size: 0.95rem;
   }
   .amazon-price-whole {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .amazon-shelf-nav {
+    display: none; /* arrows are redundant on touch */
+  }
+  .amazon-shelf-scroll-container {
+    padding: 0.25rem 0 0.75rem;
   }
 }
 

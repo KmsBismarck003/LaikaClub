@@ -104,20 +104,24 @@ export const analyticsAPI = {
         const response = await axios.post(`${ANALYTICS_URL}/vault/restore/${snapshotId}`);
         return response.data;
     },
-    getRegressionML: async (managerId = null) => {
-        const params = {};
+    getRegressionML: async (managerId = null, extraParams = {}) => {
+        const params = { ...extraParams };
         if (managerId) params.manager_id = managerId;
         const response = await axios.get(`${ANALYTICS_URL}/ml/regression`, { params });
         return response.data;
     },
-    getDecisionTreeML: async (managerId = null) => {
-        const params = {};
+    getDecisionTreeML: async (managerId = null, extraParams = {}) => {
+        const params = { ...extraParams };
         if (managerId) params.manager_id = managerId;
         const response = await axios.get(`${ANALYTICS_URL}/ml/decision-tree`, { params });
         return response.data;
     },
     getProspectingML: async () => {
         const response = await axios.get(`${ANALYTICS_URL}/ml/prospecting`);
+        return response.data;
+    },
+    addProspectingLead: async (leadData) => {
+        const response = await axios.post(`${ANALYTICS_URL}/ml/prospecting/lead`, leadData);
         return response.data;
     },
     getUserBehaviorML: async (managerId = null) => {
@@ -137,6 +141,13 @@ export const analyticsAPI = {
         if (dateFrom) params.date_from = dateFrom;
         if (dateTo) params.date_to = dateTo;
         const response = await axios.get(`${ANALYTICS_URL}/merch/sales-insights`, { params });
+        return response.data;
+    },
+    grantRetentionCoupon: async (userId, discountValue = 15.0) => {
+        const response = await axios.post(`${ANALYTICS_URL}/ml/user-behavior/grant-coupon`, {
+            user_id: userId,
+            discount_value: discountValue
+        });
         return response.data;
     }
 }

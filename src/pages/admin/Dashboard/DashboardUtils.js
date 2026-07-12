@@ -18,7 +18,10 @@ export const INITIAL_SECTIONS = [
             { id: 'events', path: '/admin/events', icon: 'calendar', label: 'Administrar Eventos' },
             { id: 'merch', path: '/admin/merch', icon: 'shoppingBag', label: 'Diseño de Tienda / Souvenirs' },
             { id: 'sales', path: '/admin/sales', icon: 'dollarSign', label: 'Reportes de Ventas' },
-            { id: 'venues', path: '/admin/venues', icon: 'map', label: 'Lugares y Sedes' }
+            { id: 'venues', path: '/admin/venues', icon: 'map', label: 'Lugares y Sedes' },
+            { id: 'laika', path: '/admin/laika', icon: 'bot', label: 'Laika Agent' },
+            { id: 'emails', path: '/admin/emails', icon: 'mail', label: 'Correos de Difusión' },
+            { id: 'push', path: '/admin/push-manager', icon: 'bell', label: 'Notificaciones Push' }
         ]
     },
     {

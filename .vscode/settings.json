@@ -8,5 +8,6 @@
     "./src",
     "C:\\Users\\redja\\miniconda3\\envs\\laika\\Lib\\site-packages",
     "${workspaceFolder}/.venv/Lib/site-packages"
-  ]
+  ],
+  "java.compile.nullAnalysis.mode": "automatic"
 }

@@ -56,7 +56,9 @@ export function useRestoreEvents(initialFilters = {}) {
       document.body.appendChild(a);
       a.click();
       a.remove();
-      window.URL.revokeObjectURL(url);
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 250);
       if (successCallback) successCallback('Archivo CSV exportado exitosamente');
     } catch (err) {
       setError('Error al exportar: ' + (err.message || 'Fallo desconocido'));

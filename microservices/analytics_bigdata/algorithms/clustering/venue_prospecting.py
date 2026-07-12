@@ -230,9 +230,47 @@ def run_venue_prospecting(mysql_params, mongo_uri, mongo_db_name):
     # Clasificar recintos activos en perfiles (clusters)
     for v in active_venues:
         # Asegurar tipos correctos
-        v["total_revenue"] = float(v["total_revenue"] or 0.0)
-        v["tickets_sold"] = int(v["tickets_sold"] or 0)
         v["capacity"] = int(v["capacity"] or 500)
+        v["events_count"] = int(v["events_count"] or 1)
+        
+        # Lógica de Cold-Start: Si no hay transacciones en MySQL pero el recinto existe,
+        # estimamos un rendimiento comercial correlacionado lógicamente con su aforo y tipo.
+        raw_rev = float(v.get("total_revenue") or 0.0)
+        raw_sold = int(v.get("tickets_sold") or 0)
+        
+        if raw_rev == 0.0 or raw_sold == 0:
+            # Distribución correlacionada según aforo y tipo
+            cat = (v.get("event_category") or "concert").lower()
+            cap = v["capacity"]
+            
+            # Ajustar ocupación promedio estimada
+            if cap >= 10000:
+                occupancy_rate = 0.55 # 55% de ocupación promedio
+                price_factor = 350.0  # Ticket masivo promedio
+            elif cap >= 2000:
+                occupancy_rate = 0.65 # 65% de ocupación
+                price_factor = 220.0  # Auditorio promedio
+            else:
+                occupancy_rate = 0.75 # 75% en foros locales
+                price_factor = 120.0  # Club promedio
+                
+            # Modulador de categoría de show
+            if cat == "festival":
+                occupancy_rate += 0.10
+                price_factor *= 1.25
+            elif cat == "theater":
+                price_factor *= 0.90
+                
+            estimated_sold = int(cap * occupancy_rate) * v["events_count"]
+            estimated_revenue = estimated_sold * price_factor
+            
+            v["tickets_sold"] = estimated_sold
+            v["total_revenue"] = round(estimated_revenue, 2)
+            v["avg_ticket_price"] = round(price_factor, 2)
+        else:
+            v["total_revenue"] = raw_rev
+            v["tickets_sold"] = raw_sold
+            v["avg_ticket_price"] = float(v.get("avg_ticket_price") or 0.0)
         
         # Clasificar según el volumen de ventas
         if v["total_revenue"] >= 500000.0:

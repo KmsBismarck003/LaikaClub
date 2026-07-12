@@ -1,0 +1,24 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: laika-gateway
+  
+  datasource:
+    mysql:
+      url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/${MYSQL_DATABASE:laika_club3_v2}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      username: ${MYSQL_USER:root}
+      password: ${MYSQL_PASSWORD:}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+# Routing configurations for the microservices
+services:
+  auth: ${AUTH_SERVICE_URL:http://localhost:8001}
+  events: ${EVENTS_SERVICE_URL:http://localhost:8002}
+  tickets: ${TICKETS_SERVICE_URL:http://localhost:8003}
+  stats: ${STATS_SERVICE_URL:http://localhost:8004}
+  admin: ${ADMIN_SERVICE_URL:http://localhost:8005}
+  achievements: ${ACHIEVEMENTS_SERVICE_URL:http://localhost:8006}
+  analytics: ${ANALYTICS_SERVICE_URL:http://localhost:8007}
+  merchandise: ${MERCHANDISE_SERVICE_URL:http://localhost:8008}

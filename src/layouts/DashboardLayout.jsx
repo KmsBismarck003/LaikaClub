@@ -55,7 +55,9 @@ const DashboardLayout = () => {
       label: 'MARKETING Y DIFUSIÓN',
       items: [
         { id: 'ads', path: '/admin/ads', icon: 'image', label: 'Administrar Anuncios', permission: 'cms.view' },
+        { id: 'laika', path: '/admin/laika', icon: 'bot', label: 'Laika Agent', permission: 'admin.view' },
         { id: 'emails', path: '/admin/emails', icon: 'mail', label: 'Correos de Difusión', permission: 'admin.view' },
+        { id: 'push', path: '/admin/push-manager', icon: 'bell', label: 'Notificaciones Push', permission: 'admin.view' },
         { id: 'ticker', path: '/admin/ticker', icon: 'sparkles', label: 'Anuncios en Banner', permission: 'cms.view' }
       ]
     },

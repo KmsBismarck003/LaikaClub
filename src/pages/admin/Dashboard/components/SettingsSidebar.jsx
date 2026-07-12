@@ -168,7 +168,7 @@ const SettingsSidebar = ({
                 
                 <div style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-1px', marginBottom: '0.6rem', color: '#000', display: 'flex', alignItems: 'baseline', gap: '4px' }}>
                     ${canonicalData.reduce((acc, d) => acc + d.val_num, 0).toLocaleString()} 
-                    <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>USD</span>
+                    <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>MXN</span>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.8rem' }}>

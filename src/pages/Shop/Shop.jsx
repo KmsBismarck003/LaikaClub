@@ -13,6 +13,7 @@ import {
 } from '../../components/Skeleton/Skeleton';
 import HeroSection from '../Home/components/HeroSection/HeroSection';
 import api from '../../services/api';
+import { getImageUrl } from '../../utils/imageUtils';
 
 import ProductSearch from './components/ProductSearch/ProductSearch';
 import ProductFilters from './components/ProductFilters/ProductFilters';
@@ -41,7 +42,11 @@ const sortProducts = (products, sortBy) => {
             return copy.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
         case 'popular':
         default:
-            return copy.sort((a, b) => (b.is_official ? 1 : 0) - (a.is_official ? 1 : 0));
+            return copy.sort((a, b) => {
+                const aOfficial = a.isOfficial !== undefined ? a.isOfficial : a.is_official;
+                const bOfficial = b.isOfficial !== undefined ? b.isOfficial : b.is_official;
+                return (bOfficial ? 1 : 0) - (aOfficial ? 1 : 0);
+            });
     }
 };
 
@@ -210,9 +215,6 @@ const Shop = () => {
                 <SkeletonNewsTicker />
                 <SkeletonHero />
                 <div className="home-layout">
-                    <aside className="home-sidebar home-sidebar--left">
-                        <SkeletonAd position="side_left" />
-                    </aside>
                     <main className="home-main">
                         <div className="home-banner">
                             <SkeletonAd position="main" />
@@ -227,9 +229,6 @@ const Shop = () => {
                             </div>
                         </div>
                     </main>
-                    <aside className="home-sidebar home-sidebar--right">
-                        <SkeletonAd position="side_right" />
-                    </aside>
                 </div>
             </div>
         );
@@ -244,17 +243,12 @@ const Shop = () => {
 
             <HeroSection
                 title="LAIKA SHOP"
+                accentText=""
                 subtitle="EQUIPO OFICIAL Y EDICIONES LIMITADAS DE ARTISTAS"
                 backgroundImage="/assets/shop_hero.png"
             />
 
             <div className="home-layout">
-                <aside className="home-sidebar home-sidebar--left">
-                    <div className="sidebar-sticky-wrapper">
-                        <AdCarousel position="side_left" isLoading={loading} preloadedAds={ads} />
-                    </div>
-                </aside>
-
                 <main className="home-main">
                     <div className="home-banner shop-top-carousel-container">
                         <AdCarousel position="main" isLoading={loading} preloadedAds={ads} />
@@ -317,7 +311,7 @@ const Shop = () => {
                                                 onClick={() => handleQuickView(p)}
                                             >
                                                 <div className="recently-viewed-img-wrapper">
-                                                    <img src={p.image_url?.split(',')[0]} alt={p.name} />
+                                                    <img src={getImageUrl((p.imageUrl || p.image_url)?.split(',')[0])} alt={p.name} />
                                                 </div>
                                                 <div className="recently-viewed-info">
                                                     <span className="recently-viewed-name">{p.name}</span>
@@ -333,12 +327,6 @@ const Shop = () => {
                         )}
                     </div>
                 </main>
-
-                <aside className="home-sidebar home-sidebar--right">
-                    <div className="sidebar-sticky-wrapper">
-                        <AdCarousel position="side_right" isLoading={loading} preloadedAds={ads} />
-                    </div>
-                </aside>
             </div>
 
             <ProductModal

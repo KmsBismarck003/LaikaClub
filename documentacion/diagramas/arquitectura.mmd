@@ -1,0 +1,104 @@
+graph TD
+    %% Estilos de los nodos
+    classDef client fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b;
+    classDef gateway fill:#ffe0b2,stroke:#f57c00,stroke-width:2px,color:#e65100;
+    classDef service fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#1b5e20;
+    classDef db fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#b71c1c;
+    classDef localdb fill:#eceff1,stroke:#37474f,stroke-width:2px,color:#263238;
+    classDef engine fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
+
+    %% Definición de Nodos por Capas
+    subgraph CapaCliente ["Capa de Cliente: Frontend (React 19 SPA)"]
+        direction LR
+        Core["Core<br/>- Roles y Config. Global"]:::client
+        Context["Contexts<br/>- Estado Global (Auth, Cart, UX)"]:::client
+        Pages["Pages<br/>- Vistas de Rutas (lazy load)"]:::client
+        Features["Features<br/>- Lógica por Dominio (auth, events...)"]:::client
+        Components["Components<br/>- Genéricos y Guards de Seguridad"]:::client
+        Services["Services<br/>- Cliente Axios (Cabeceras JWT)"]:::client
+
+        Pages --> Features
+        Features --> Components
+        Features --> Services
+        Pages --> Context
+        Features --> Core
+    end
+
+    subgraph CapaPuerta ["Enrutamiento y Entrada"]
+        Gateway["API Gateway (Java / Spring Boot - Puerto 8000)<br/>- Centraliza y enruta peticiones HTTP<br/>- Gestiona CORS y seguridad perimetral"]:::gateway
+    end
+
+    subgraph CapaServicios ["Capa de Microservicios (Java 17 / Spring Boot 3.2.5)"]
+        Auth["Servicio Auth (8001)<br/>- Sesión, Registro y JWT<br/>- Justificación DB: Aísla credenciales sensibles y logs"]:::service
+        Events["Servicio Events (8002)<br/>- Eventos y Recintos (Venues)<br/>- Justificación DB: Aísla aforos y coordenadas de asientos"]:::service
+        Tickets["Servicio Tickets (8003)<br/>- Venta de Boletos y Validación QR<br/>- Justificación DB: Aísla la consistencia transaccional de pagos"]:::service
+        Stats["Servicio Stats (8004)<br/>- Telemetría y Métricas Rápidas<br/>- Justificación DB: Evita saturar la transaccional con escrituras frecuentes de CPU/RAM"]:::service
+        Admin["Servicio Admin (8005)<br/>- Configuración y Backups<br/>- Justificación DB: Aísla variables de configuración técnica de TI"]:::service
+        Achievements["Servicio Achievements (8006)<br/>- Gamificación e Insignias<br/>- Justificación DB: Desacopla las recompensas del flujo crítico de venta"]:::service
+        Analytics["Servicio Analytics (8007)<br/>- Analíticas y ML con NoSQL<br/>- Justificación DB: Aísla consultas agregadas complejas (OLAP)"]:::service
+        Merch["Servicio Merchandise (8008)<br/>- Bazar de Eventos y Tienda<br/>- Justificación DB: Separa stock comercial de los aforos del recinto"]:::service
+    end
+
+    subgraph CapaDatosMySQL ["Capa de Persistencia Relacional (MySQL - Schemas Independientes)"]
+        DB_Auth[("MySQL: db_auth")]:::db
+        DB_Events[("MySQL: db_events")]:::db
+        DB_Tickets[("MySQL: db_tickets")]:::db
+        DB_Stats[("MySQL: db_stats")]:::db
+        DB_Admin[("MySQL: db_admin")]:::db
+        DB_Achievements[("MySQL: db_achievements")]:::db
+        DB_Analytics[("MySQL: db_analytics")]:::db
+        DB_Merch[("MySQL: db_merchandise")]:::db
+    end
+
+    subgraph CapaDatosSQLite ["Fallbacks Resilientes Locales (SQLite - Archivos .db)"]
+        SQLite_Auth[("SQLite: auth.db")]:::localdb
+        SQLite_Events[("SQLite: events.db")]:::localdb
+        SQLite_Tickets[("SQLite: tickets.db")]:::localdb
+        SQLite_Stats[("SQLite: stats.db")]:::localdb
+        SQLite_Admin[("SQLite: admin.db")]:::localdb
+        SQLite_Achievements[("SQLite: achievements.db")]:::localdb
+        SQLite_Analytics[("SQLite: analytics.db")]:::localdb
+        SQLite_Merch[("SQLite: merchandise.db")]:::localdb
+    end
+
+    subgraph CapaDatosNoSQL ["Persistencia Analítica Nube (NoSQL OLAP)"]
+        MongoDB[("MongoDB Atlas Cloud<br/>- Repositorio de analíticas aislado<br/>- Sincronización asíncrona no bloqueante")]:::db
+    end
+
+    %% Conexiones de Flujo de Datos
+    Services -->|Peticiones HTTP / JSON| Gateway
+
+    %% Enrutamiento del Gateway
+    Gateway -->|/api/auth/* /api/admin/users/*| Auth
+    Gateway -->|/api/events/* /api/manager/*| Events
+    Gateway -->|/api/tickets/*| Tickets
+    Gateway -->|/api/stats/* /api/monitoring/*| Stats
+    Gateway -->|/api/database/* /api/ads/* /api/config/* /api/admin/*| Admin
+    Gateway -->|/api/achievements/*| Achievements
+    Gateway -->|/api/analytics/*| Analytics
+    Gateway -->|/api/merchandise/*| Merch
+
+    %% Conexión de cada microservicio a su base MySQL correspondiente
+    Auth -->|1. Conexión Principal| DB_Auth
+    Events -->|1. Conexión Principal| DB_Events
+    Tickets -->|1. Conexión Principal| DB_Tickets
+    Stats -->|1. Conexión Principal| DB_Stats
+    Admin -->|1. Conexión Principal| DB_Admin
+    Achievements -->|1. Conexión Principal| DB_Achievements
+    Analytics -->|1. Conexión Principal| DB_Analytics
+    Merch -->|1. Conexión Principal| DB_Merch
+
+    %% Mecanismo de Fallback local a SQLite por servicio si falla MySQL
+    Auth -.->|2. Fallback si MySQL cae| SQLite_Auth
+    Events -.->|2. Fallback si MySQL cae| SQLite_Events
+    Tickets -.->|2. Fallback si MySQL cae| SQLite_Tickets
+    Stats -.->|2. Fallback si MySQL cae| SQLite_Stats
+    Admin -.->|2. Fallback si MySQL cae| SQLite_Admin
+    Achievements -.->|2. Fallback si MySQL cae| SQLite_Achievements
+    Analytics -.->|2. Fallback si MySQL cae| SQLite_Analytics
+    Merch -.->|2. Fallback si MySQL cae| SQLite_Merch
+
+    %% Conexiones Asíncronas y ETL
+    Tickets -->|Notifica compra completada| Achievements
+    Tickets -->|Sincronización asíncrona - mongodb_sync.py| MongoDB
+    Analytics -->|Agregaciones y ETL NoSQL| MongoDB

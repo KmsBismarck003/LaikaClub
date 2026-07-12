@@ -1,0 +1,11 @@
+com\laikaclub\gateway\GatewayApplication.class
+com\laikaclub\gateway\service\CacheService$CacheEntry.class
+com\laikaclub\gateway\controller\GatewayController.class
+com\laikaclub\gateway\config\DatabaseConfig.class
+com\laikaclub\gateway\service\ProxyService$1.class
+com\laikaclub\gateway\config\CorsConfig.class
+com\laikaclub\gateway\service\RouteMapper.class
+com\laikaclub\gateway\service\HotpatchService.class
+com\laikaclub\gateway\service\CacheService.class
+com\laikaclub\gateway\service\RouteMapper$TargetRoute.class
+com\laikaclub\gateway\service\ProxyService.class

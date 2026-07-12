@@ -64,6 +64,7 @@ const BigDataAnalytics = lazy(() => import('../pages/admin/BigDataAnalytics'))
 const WelcomePortal = lazy(() => import('../pages/admin/Dashboard/WelcomePortal'))
 const LuckySeatConfig = lazy(() => import('../pages/admin/Config/LuckySeatConfig'))
 const MerchandiseApproval = lazy(() => import('../pages/admin/MerchandiseApproval'))
+const PushManager = lazy(() => import('../specialFun/PushNotifications/PushAdminPanel'))
 
 // Módulo Manager
 const ManagerStatsPage = lazy(() => import('../pages/manager/ManagerStatsPage'))
@@ -321,6 +322,10 @@ export const adminRoutes = [
     title: 'Auditoría de Accesos'
   },
   {
+    path: '/admin/emails',
+    element: EmailManager,
+    layout: 'dashboard',
+    allowedRoles: ['admin'],
     title: 'Email Marketing'
   },
   {
@@ -357,6 +362,13 @@ export const adminRoutes = [
     layout: 'dashboard',
     allowedRoles: ['admin'],
     title: 'Aprobación de Mercancía'
+  },
+  {
+    path: '/admin/push-manager',
+    element: PushManager,
+    layout: 'dashboard',
+    allowedRoles: ['admin'],
+    title: 'Central Push'
   }
 ]
 

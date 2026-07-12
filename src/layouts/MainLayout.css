@@ -703,7 +703,7 @@
   cursor: pointer;
 }
 
-@media (min-width: 1501px) {
+@media (min-width: 1201px) {
   .main-mobile-toggle {
     display: none;
   }
@@ -888,7 +888,7 @@
    RESPONSIVE
    ============================================ */
 
-@media (max-width: 1500px) {
+@media (max-width: 1200px) {
 
   .desktop-nav,
   .desktop-actions {
@@ -1001,11 +1001,35 @@
 }
 
 /* Extra media query for tablets/mid-size mobile screens to keep search bar elegant */
-@media (max-width: 1500px) {
+@media (max-width: 1200px) {
   .tm-search-block {
     width: 90% !important;
     max-width: 600px;
     margin: 0 auto;
+  }
+}
+
+@media (min-width: 1201px) {
+  .main-mobile-nav,
+  .main-mobile-overlay {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1201px) and (max-width: 1600px) {
+  .main-navbar-nav.desktop-nav {
+    gap: 0.6rem !important;
+    margin-left: 0.5rem !important;
+  }
+  .brand-nav-group {
+    gap: 0.8rem !important;
+  }
+  .main-nav-link {
+    font-size: 0.62rem !important;
+    padding: 0.25rem 0.6rem !important;
+  }
+  .desktop-actions {
+    gap: 0.6rem !important;
   }
 }
 

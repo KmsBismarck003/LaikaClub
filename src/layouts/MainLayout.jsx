@@ -85,6 +85,29 @@ const MainLayout = () => {
     }
   }, [isMobileMenuOpen])
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 1500px)')
+    const handleMediaQueryChange = (e) => {
+      if (!e.matches) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleMediaQueryChange)
+    } else {
+      mediaQuery.addListener(handleMediaQueryChange)
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleMediaQueryChange)
+      } else {
+        mediaQuery.removeListener(handleMediaQueryChange)
+      }
+    }
+  }, [])
+
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (e) => {

@@ -105,8 +105,8 @@ export const analyticsAPI = {
         const response = await axios.get(`${ANALYTICS_URL}/ml/regression`, { params });
         return response.data;
     },
-    getDecisionTreeML: async (managerId = null, max_depth = 5) => {
-        const params = { max_depth };
+    getDecisionTreeML: async (managerId = null, max_depth = 5, extraParams = {}) => {
+        const params = { max_depth, ...extraParams };
         if (managerId) params.manager_id = managerId;
         const response = await axios.get(`${ANALYTICS_URL}/ml/decision-tree`, { params });
         return response.data;
@@ -141,6 +141,13 @@ export const analyticsAPI = {
         const params = {};
         if (managerId) params.manager_id = managerId;
         const response = await axios.get(`${ANALYTICS_URL}/ml/demand-prediction`, { params });
+        return response.data;
+    },
+    grantRetentionCoupon: async (userId, discountValue = 15.0) => {
+        const response = await axios.post(`${ANALYTICS_URL}/ml/user-behavior/grant-coupon`, {
+            user_id: userId,
+            discount_value: discountValue
+        });
         return response.data;
     }
 }

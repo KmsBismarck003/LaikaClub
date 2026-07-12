@@ -55,6 +55,7 @@ export const DEFAULT_ADMIN_SECTIONS = [
     items: [
       { id: 'ads',    path: '/admin/ads',    icon: 'image',    label: 'Publicidad & Ads',  permission: 'cms.view' },
       { id: 'emails', path: '/admin/emails', icon: 'mail',     label: 'Email Marketing',    permission: 'admin.view' },
+      { id: 'push',   path: '/admin/push-manager', icon: 'bell', label: 'Notificaciones Push', permission: 'admin.view' },
       { id: 'ticker', path: '/admin/ticker', icon: 'sparkles', label: 'Cinta de Noticias',  permission: 'cms.view' }
     ]
   }

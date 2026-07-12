@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getImageUrl } from '../../../../utils/imageUtils';
 
 const ProductImageCarousel = ({ imageUrls }) => {
     const images = imageUrls ? imageUrls.split(',').map(url => url.trim()).filter(Boolean) : [];
@@ -15,7 +16,7 @@ const ProductImageCarousel = ({ imageUrls }) => {
     return (
         <div className="product-image-carousel">
             <div className="carousel-main-image">
-                <img src={images[activeIndex]} alt={`Producto ${activeIndex + 1}`} />
+                <img src={getImageUrl(images[activeIndex])} alt={`Producto ${activeIndex + 1}`} />
             </div>
             {images.length > 1 && (
                 <div className="carousel-thumbnails">
@@ -26,7 +27,7 @@ const ProductImageCarousel = ({ imageUrls }) => {
                             onClick={() => setActiveIndex(index)}
                             type="button"
                         >
-                            <img src={img} alt={`Miniatura ${index + 1}`} />
+                            <img src={getImageUrl(img)} alt={`Miniatura ${index + 1}`} />
                         </button>
                     ))}
                 </div>
