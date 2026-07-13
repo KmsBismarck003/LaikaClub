@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../../../services/api'
 import { Card, Button, Table, Badge, SkeletonRow, Modal, ConfirmationModal, Icon } from '../../../components'
 import Skeleton from '../../../components/Skeleton/Skeleton';
@@ -10,7 +11,23 @@ import PreviewMonitor from '../../../components/Admin/PreviewMonitor'
 import { getImageUrl } from '../../../utils/imageUtils'
 import './admin.css'
 
+const isEventFinished = (event) => {
+  if (!event.event_date) return false;
+  let dateStr = event.event_date;
+  if (event.event_time) {
+    dateStr += `T${event.event_time}`;
+  } else {
+    dateStr += `T00:00:00`;
+  }
+  const eventDate = new Date(dateStr);
+  if (isNaN(eventDate.getTime())) return false;
+  const now = new Date();
+  now.setHours(now.getHours() - 1);
+  return eventDate < now;
+};
+
 const Events = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true)
   const { showSkeleton } = useSkeletonContext()
   const [events, setEvents] = useState([])
@@ -141,7 +158,10 @@ const Events = () => {
     {
       key: 'status',
       header: 'Estado',
-      render: (val) => {
+      render: (val, row) => {
+        if (isEventFinished(row)) {
+          return <Badge variant="default" rounded>FINALIZADO</Badge>
+        }
         const variants = { published: 'success', draft: 'warning', cancelled: 'danger' }
         return <Badge variant={variants[val] || 'default'} rounded>{val?.toUpperCase()}</Badge>
       }
@@ -149,17 +169,31 @@ const Events = () => {
     {
       key: 'actions',
       header: 'Acciones',
-      render: (_, row) => (
+      render: (_, row) => {
+        const finished = isEventFinished(row);
+        return (
         <div style={{ display: 'flex', gap: '6px' }}>
-          <Button 
-            variant={row.status === 'published' ? 'secondary' : 'success'} 
-            size="small" 
-            onClick={() => handleTogglePublish(row)}
-            title={row.status === 'published' ? 'Mover a Borrador' : 'Publicar Evento'}
-          >
-            <Icon name={row.status === 'published' ? 'eye-off' : 'eye'} size={14} className="mr-1" />
-            {row.status === 'published' ? 'OCULTAR' : 'PUBLICAR'}
-          </Button>
+          {finished ? (
+            <Button 
+              variant="secondary" 
+              size="small" 
+              onClick={() => navigate('/admin/history')}
+              title="Ver Resultados del Evento"
+            >
+              <Icon name="bar-chart-2" size={14} className="mr-1" />
+              RESULTADOS
+            </Button>
+          ) : (
+            <Button 
+              variant={row.status === 'published' ? 'secondary' : 'success'} 
+              size="small" 
+              onClick={() => handleTogglePublish(row)}
+              title={row.status === 'published' ? 'Mover a Borrador' : 'Publicar Evento'}
+            >
+              <Icon name={row.status === 'published' ? 'eye-off' : 'eye'} size={14} className="mr-1" />
+              {row.status === 'published' ? 'OCULTAR' : 'PUBLICAR'}
+            </Button>
+          )}
           <Button variant="ghost" size="small" onClick={() => handleSettingsClick(row)} title="Configuración y Permisos">
             <Icon name="settings" size={14} />
           </Button>
@@ -170,10 +204,10 @@ const Events = () => {
             <Icon name="trash" size={12} className="mr-1" />
           </Button>
         </div>
-      )
+      );
+      }
     }
-
-  ]
+  ];
 
   const filteredEvents = events.filter(event =>
     event.name?.toLowerCase().includes(searchTerm.toLowerCase())

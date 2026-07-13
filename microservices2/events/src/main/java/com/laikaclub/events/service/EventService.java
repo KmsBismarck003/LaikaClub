@@ -41,6 +41,10 @@ public class EventService {
 
     @Transactional
     public Map<String, Object> createEvent(EventDTOs.EventCreate dto, Long userId) {
+        if (dto.contract_id == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede crear el evento. Falta el contrato asociado (contract_id requerido).");
+        }
+        
         Event event = new Event();
         event.setName(dto.name);
         event.setDescription(dto.description);
@@ -70,6 +74,7 @@ public class EventService {
         event.setMerchEnabled(dto.merch_enabled != null ? dto.merch_enabled : false);
         event.setMetricsEnabled(dto.metrics_enabled != null ? dto.metrics_enabled : false);
         event.setAssignedManagerId(dto.assigned_manager_id);
+        event.setContractId(dto.contract_id);
         event.setMunicipalityId(dto.municipality_id);
 
         // Presale settings
@@ -121,8 +126,7 @@ public class EventService {
                 functionRepository.save(func);
             }
         }
-
-        return eventQueryService.getEventById(eventId);
+        return eventQueryService.getEventById(eventId, false);
     }
 
     @Transactional
@@ -156,6 +160,7 @@ public class EventService {
         if (dto.merch_enabled != null) event.setMerchEnabled(dto.merch_enabled);
         if (dto.metrics_enabled != null) event.setMetricsEnabled(dto.metrics_enabled);
         if (dto.assigned_manager_id != null) event.setAssignedManagerId(dto.assigned_manager_id);
+        if (dto.contract_id != null) event.setContractId(dto.contract_id);
         if (dto.municipality_id != null) event.setMunicipalityId(dto.municipality_id);
 
         if (dto.presale_enabled != null) event.setPresaleEnabled(dto.presale_enabled);
@@ -208,8 +213,7 @@ public class EventService {
                 functionRepository.save(func);
             }
         }
-
-        return eventQueryService.getEventById(eventId);
+        return eventQueryService.getEventById(eventId, false);
     }
 
     @Transactional

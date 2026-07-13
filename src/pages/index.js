@@ -41,7 +41,7 @@ export { default as EmailManager } from './admin/EmailManager/EmailManager'
 export { default as AuthAudit } from './admin/AuthAudit/AuthAudit'
 export { default as RestoreAudit } from './admin/RestoreAudit/RestoreAudit'
 export { default as MerchandiseApproval } from './admin/MerchandiseApproval'
-
+export { default as EventHistory } from './admin/EventHistory/EventHistory'
 
 // Módulo de Manager
 export { default as EventList } from './manager/EventList'

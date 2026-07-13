@@ -24,7 +24,8 @@ export const {
   stats: statsAPI,
   achievements: achievementsAPI,
   analytics: analyticsAPI,
-  ticker: tickerAPI
+  ticker: tickerAPI,
+  b2b: b2bAPI
 } = api;
 
 export default api;

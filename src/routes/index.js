@@ -65,6 +65,8 @@ const WelcomePortal = lazy(() => import('../pages/admin/Dashboard/WelcomePortal'
 const LuckySeatConfig = lazy(() => import('../pages/admin/Config/LuckySeatConfig'))
 const MerchandiseApproval = lazy(() => import('../pages/admin/MerchandiseApproval'))
 const PushManager = lazy(() => import('../specialFun/PushNotifications/PushAdminPanel'))
+const EventHistory = lazy(() => import('../pages/admin/EventHistory/EventHistory'))
+const B2BManager = lazy(() => import('../pages/admin/B2B/B2BManager'))
 
 // Módulo Manager
 const ManagerStatsPage = lazy(() => import('../pages/manager/ManagerStatsPage'))
@@ -252,6 +254,20 @@ export const adminRoutes = [
     title: 'Gestión de Eventos'
   },
   {
+    path: '/admin/history',
+    element: EventHistory,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'gestor'],
+    title: 'Historial de Eventos'
+  },
+  {
+    path: '/admin/b2b',
+    element: B2BManager,
+    layout: 'dashboard',
+    allowedRoles: ['admin'],
+    title: 'B2B: Clientes y Contratos'
+  },
+  {
     path: '/admin/config',
     element: Config,
     layout: 'dashboard',
@@ -382,6 +398,13 @@ export const managerRoutes = [
     layout: 'dashboard',
     allowedRoles: ['gestor', 'admin'],
     title: 'Gestión de Eventos'
+  },
+  {
+    path: '/events/history',
+    element: EventHistory,
+    layout: 'dashboard',
+    allowedRoles: ['gestor', 'admin'],
+    title: 'Historial de Eventos'
   },
   {
     path: '/manager/analytics',

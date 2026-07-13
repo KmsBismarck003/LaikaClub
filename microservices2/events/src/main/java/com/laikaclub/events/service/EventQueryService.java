@@ -10,6 +10,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class EventQueryService {
@@ -36,9 +39,16 @@ public class EventQueryService {
                 "LEFT JOIN municipalities m ON v.municipality_id = m.id " +
                 "LEFT JOIN states s ON m.state_id = s.id " +
                 "LEFT JOIN countries c ON s.country_id = c.id " +
-                "WHERE e.status = 'published' ";
+                "WHERE e.status = 'published' " +
+                "AND (" +
+                "  EXISTS (SELECT 1 FROM event_functions ef WHERE ef.event_id = e.id AND CONCAT(ef.date, ' ', ef.time) >= :cutoff) " +
+                "  OR " +
+                "  (NOT EXISTS (SELECT 1 FROM event_functions ef WHERE ef.event_id = e.id) AND CONCAT(e.event_date, ' ', e.event_time) >= :cutoff) " +
+                ") ";
 
         MapSqlParameterSource params = new MapSqlParameterSource();
+        LocalDateTime cutoff = LocalDateTime.now(ZoneId.of("America/Mexico_City")).minusHours(1);
+        params.addValue("cutoff", cutoff.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         if (category != null && !category.isEmpty()) {
             sql += "AND e.category = :category ";
             params.addValue("category", category);
@@ -110,7 +120,7 @@ public class EventQueryService {
         }
     }
 
-    public Map<String, Object> getEventById(Long eventId) {
+    public Map<String, Object> getEventById(Long eventId, boolean isPublic) {
         String sql = "SELECT e.*, v.name as venue_name " +
                 "FROM events e " +
                 "LEFT JOIN venues v ON e.venue_id = v.id " +
@@ -141,7 +151,14 @@ public class EventQueryService {
                 "LEFT JOIN venue_rooms vr ON ef.room_id = vr.id " +
                 "LEFT JOIN municipalities m ON v.municipality_id = m.id " +
                 "LEFT JOIN states s ON m.state_id = s.id " +
-                "WHERE ef.event_id = :eventId";
+                "WHERE ef.event_id = :eventId ";
+                
+        if (isPublic) {
+            LocalDateTime cutoff = LocalDateTime.now(ZoneId.of("America/Mexico_City")).minusHours(1);
+            functionsSql += "AND CONCAT(ef.date, ' ', ef.time) >= :cutoff ";
+            params.addValue("cutoff", cutoff.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }
+        
         event.put("functions", cleanResults(jdbcTemplate.queryForList(functionsSql, params)));
 
         // Room and Seating Map
@@ -188,7 +205,7 @@ public class EventQueryService {
             }
 
             // 2. Stats
-            String statsSql = "SELECT status, COUNT(*) as cnt FROM tickets WHERE event_id = :eventId GROUP BY status";
+            String statsSql = "SELECT status, COUNT(*) as cnt FROM laika_tickets.tickets WHERE event_id = :eventId GROUP BY status";
             List<Map<String, Object>> statsList = jdbcTemplate.queryForList(statsSql, new MapSqlParameterSource("eventId", eventId));
             
             int active = 0;
@@ -209,8 +226,8 @@ public class EventQueryService {
 
             // 3. Recent purchases
             String recentSql = "SELECT t.ticket_code, u.first_name as customer, t.price, t.purchase_date, t.status " +
-                    "FROM tickets t " +
-                    "LEFT JOIN users u ON t.user_id = u.id " +
+                    "FROM laika_tickets.tickets t " +
+                    "LEFT JOIN laika_auth.users u ON t.user_id = u.id " +
                     "WHERE t.event_id = :eventId " +
                     "ORDER BY t.purchase_date DESC " +
                     "LIMIT 10";
@@ -255,7 +272,7 @@ public class EventQueryService {
                     "    SUM(CASE WHEN status IN ('active', 'used') THEN price ELSE 0 END) as net, " +
                     "    COUNT(CASE WHEN status IN ('active', 'used') THEN 1 END) as tickets_sold, " +
                     "    COUNT(CASE WHEN status = 'refunded' THEN 1 END) as tickets_refunded " +
-                    "FROM tickets " +
+                    "FROM laika_tickets.tickets " +
                     "WHERE event_id = :eventId";
             
             List<Map<String, Object>> resList = jdbcTemplate.queryForList(sql, new MapSqlParameterSource("eventId", eventId));
@@ -335,7 +352,72 @@ public class EventQueryService {
         try {
             return cleanResults(jdbcTemplate.queryForList(sql, params));
         } catch (Exception e) {
-            logger.error("Error in getVenues: ", e);
+            logger.warn("Error in getVenues: {}. Trying fallback without users join...", e.getMessage());
+            try {
+                String fallbackSql = "SELECT v.*, " +
+                        "       m.name as municipality_name, " +
+                        "       s.id as state_id, s.name as state_name, " +
+                        "       c.id as country_id, c.name as country_name " +
+                        "FROM venues v " +
+                        "LEFT JOIN municipalities m ON v.municipality_id = m.id " +
+                        "LEFT JOIN states s ON m.state_id = s.id " +
+                        "LEFT JOIN countries c ON s.country_id = c.id " +
+                        "WHERE 1=1 ";
+                
+                if (statusFilter != null && !statusFilter.equalsIgnoreCase("all")) {
+                    fallbackSql += "AND v.status = :status ";
+                }
+                if (countryId != null) {
+                    fallbackSql += "AND c.id = :countryId ";
+                }
+                if (stateId != null) {
+                    fallbackSql += "AND s.id = :stateId ";
+                }
+                if (municipalityId != null) {
+                    fallbackSql += "AND v.municipality_id = :municipalityId ";
+                }
+                if (managerId != null) {
+                    fallbackSql += "AND v.assigned_manager_id = :managerId ";
+                }
+                fallbackSql += "ORDER BY v.name ASC";
+                
+                return cleanResults(jdbcTemplate.queryForList(fallbackSql, params));
+            } catch (Exception ex) {
+                logger.error("Error in getVenues fallback: ", ex);
+                return Collections.emptyList();
+            }
+        }
+    }
+
+    public List<Map<String, Object>> getHistoricalEvents(Long userId, String role, int limit) {
+        String sql = "SELECT e.*, " +
+                "       v.name as venue_name " +
+                "FROM events e " +
+                "LEFT JOIN venues v ON e.venue_id = v.id " +
+                "WHERE e.status != 'draft' " +
+                "AND (" +
+                "  (EXISTS (SELECT 1 FROM event_functions ef WHERE ef.event_id = e.id) AND " +
+                "   NOT EXISTS (SELECT 1 FROM event_functions ef2 WHERE ef2.event_id = e.id AND CONCAT(ef2.date, ' ', ef2.time) >= :cutoff)) " +
+                "  OR " +
+                "  (NOT EXISTS (SELECT 1 FROM event_functions ef WHERE ef.event_id = e.id) AND CONCAT(e.event_date, ' ', e.event_time) < :cutoff) " +
+                ") ";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        LocalDateTime cutoff = LocalDateTime.now(ZoneId.of("America/Mexico_City")).minusHours(1);
+        params.addValue("cutoff", cutoff.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        
+        if ("gestor".equalsIgnoreCase(role)) {
+            sql += "AND (e.created_by = :userId OR e.assigned_manager_id = :userId) ";
+            params.addValue("userId", userId);
+        }
+        
+        sql += "ORDER BY e.event_date DESC LIMIT :limit";
+        params.addValue("limit", limit);
+
+        try {
+            return cleanResults(jdbcTemplate.queryForList(sql, params));
+        } catch (Exception e) {
+            logger.error("Error in getHistoricalEvents: ", e);
             return Collections.emptyList();
         }
     }

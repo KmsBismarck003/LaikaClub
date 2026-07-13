@@ -71,7 +71,7 @@ public class EventController {
 
     @GetMapping("/{event_id}")
     public Map<String, Object> getEventDetail(@PathVariable("event_id") Long eventId) {
-        Map<String, Object> event = eventQueryService.getEventById(eventId);
+        Map<String, Object> event = eventQueryService.getEventById(eventId, true);
         if (event == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado");
         }
@@ -130,7 +130,7 @@ public class EventController {
 
     @GetMapping("/presale/{event_id}/info")
     public Map<String, Object> getPresaleInfo(@PathVariable("event_id") Long eventId) {
-        Map<String, Object> event = eventQueryService.getEventById(eventId);
+        Map<String, Object> event = eventQueryService.getEventById(eventId, false);
         if (event == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado");
         }
@@ -141,7 +141,7 @@ public class EventController {
     public Map<String, Object> validatePresaleBin(
             @PathVariable("event_id") Long eventId,
             @RequestBody Map<String, Object> payload) {
-        Map<String, Object> event = eventQueryService.getEventById(eventId);
+        Map<String, Object> event = eventQueryService.getEventById(eventId, false);
         if (event == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado");
         }
@@ -158,5 +158,15 @@ public class EventController {
                 "valid", isValid,
                 "message", isValid ? "Tarjeta válida para preventa" : "Tarjeta no válida para preventa bancaria"
         );
+    }
+
+    @GetMapping("/historical")
+    public List<Map<String, Object>> getHistoricalEvents(
+            @RequestParam(defaultValue = "100") int limit,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        return eventQueryService.getHistoricalEvents(principal.getId(), principal.getRole(), limit);
     }
 }

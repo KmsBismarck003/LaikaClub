@@ -19,6 +19,7 @@ const formatTime = (time) => {
 };
 
 const EventForm = ({ event = null, onClose, onSave }) => {
+    const [contracts, setContracts] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -35,9 +36,23 @@ const EventForm = ({ event = null, onClose, onSave }) => {
         map_url: '',
         seat_map_url: '',
         status: 'draft',
+        contract_id: '',
         sections: [],
         rules: []
     })
+
+    // Fetch Contracts for B2B Selection
+    useEffect(() => {
+        const fetchContracts = async () => {
+            try {
+                const data = await api.b2b.getContracts();
+                setContracts(data);
+            } catch (error) {
+                console.error("Error fetching B2B contracts:", error);
+            }
+        };
+        fetchContracts();
+    }, []);
 
     // Cargar datos si estamos editando
     useEffect(() => {
@@ -141,6 +156,15 @@ const EventForm = ({ event = null, onClose, onSave }) => {
                                     <option value="published">Publicado</option>
                                     <option value="draft">Borrador</option>
                                     <option value="cancelled">Cancelado</option>
+                                </select>
+                            </div>
+                            <div className="input-group">
+                                <label>Contrato / Proyecto (B2B)</label>
+                                <select name="contract_id" value={formData.contract_id || ''} onChange={handleChange} className="laika-input" required>
+                                    <option value="">-- Seleccionar Contrato --</option>
+                                    {contracts.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name} ({c.isUnlimited ? 'Ilimitado' : c.maxEvents + ' eventos'})</option>
+                                    ))}
                                 </select>
                             </div>
                             <Input label="URL Imagen Evento" name="image_url" value={formData.image_url} onChange={handleChange} />

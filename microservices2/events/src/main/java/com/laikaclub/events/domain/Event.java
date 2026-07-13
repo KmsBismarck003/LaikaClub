@@ -88,6 +88,9 @@ public class Event {
     @Column(name = "assigned_manager_id")
     private Long assignedManagerId;
 
+    @Column(name = "contract_id")
+    private Long contractId;
+
     @Column(name = "municipality_id")
     private Long municipalityId;
 
@@ -330,6 +333,14 @@ public class Event {
 
     public void setAssignedManagerId(Long assignedManagerId) {
         this.assignedManagerId = assignedManagerId;
+    }
+
+    public Long getContractId() {
+        return contractId;
+    }
+
+    public void setContractId(Long contractId) {
+        this.contractId = contractId;
     }
 
     public Long getMunicipalityId() {

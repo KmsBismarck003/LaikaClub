@@ -73,6 +73,7 @@ public class EventDTOs {
         public Boolean merch_enabled = false;
         public Boolean metrics_enabled = false;
         public Long assigned_manager_id;
+        public Long contract_id;
         public Long municipality_id;
 
         public Boolean presale_enabled = false;
@@ -112,6 +113,7 @@ public class EventDTOs {
         public Boolean merch_enabled;
         public Boolean metrics_enabled;
         public Long assigned_manager_id;
+        public Long contract_id;
         public Long municipality_id;
 
         public Boolean presale_enabled;

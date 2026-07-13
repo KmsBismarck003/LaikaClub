@@ -43,7 +43,9 @@ const DashboardLayout = () => {
       id: 'eventos_control',
       label: 'VENTAS Y EVENTOS',
       items: [
+        { id: 'b2b', path: '/admin/b2b', icon: 'briefcase', label: 'B2B (Contratos)', permission: 'admin.view' },
         { id: 'events', path: '/admin/events', icon: 'calendar', label: 'Gestión de Eventos', permission: 'events.view' },
+        { id: 'historical', path: '/admin/history', icon: 'history', label: 'Historial de Eventos', permission: 'events.view' },
         { id: 'sales', path: '/admin/sales', icon: 'dollarSign', label: 'Reportes de Ventas', permission: 'sales.view' },
         { id: 'venues', path: '/admin/venues', icon: 'map', label: 'Lugares y Sedes', permission: 'venues.view' },
         { id: 'venue_map', path: '/admin/venue-map', icon: 'map', label: 'Diseño de Lugares', permission: 'admin.view' },
@@ -120,6 +122,7 @@ const DashboardLayout = () => {
               { id: 'g_main_hub', path: '/events/manage', icon: 'dashboard', label: 'Mi Panel de Control' },
               { id: 'g_create', path: '/events/create', icon: 'plus', label: 'Crear Evento' },
               { id: 'g_events', path: '/events/manage?tab=list', icon: 'calendar', label: 'Mis Eventos' },
+              { id: 'g_historical', path: '/events/history', icon: 'history', label: 'Historial de Eventos' },
               { id: 'g_venue_map', path: '/events/manage?tab=venues', icon: 'map', label: 'Diseñar Lugar' },
               { id: 'g_stats', path: '/manager/analytics', icon: 'chart', label: 'Análisis y Predicciones' },
               { id: 'g_transactions', path: '/manager/transactions', icon: 'dollarSign', label: 'Control de Ventas' },

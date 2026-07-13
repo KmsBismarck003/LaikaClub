@@ -76,13 +76,42 @@ public class TicketService {
         try {
             List<Map<String, Object>> purchased = new ArrayList<>();
             LocalDateTime now = LocalDateTime.now();
+            Map<Long, Map<?, ?>> eventCache = new HashMap<>();
 
             for (TicketItem item : items) {
                 Long eid = item.getEventId();
+                Long fid = item.getFunctionId();
+                
+                // Validación de expiración
+                if (!eventCache.containsKey(eid)) {
+                    try {
+                        Map<?, ?> ev = restTemplate.getForObject(eventServiceUrl + "/" + eid, Map.class);
+                        if (ev == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado");
+                        eventCache.put(eid, ev);
+                    } catch (Exception e) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se pudo validar el evento. Puede que haya concluido o ya no esté disponible.");
+                    }
+                }
+                
+                Map<?, ?> ev = eventCache.get(eid);
+                List<Map<String, Object>> functions = (List<Map<String, Object>>) ev.get("functions");
+                
+                if (functions != null && !functions.isEmpty()) {
+                    if (fid == null) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debe especificar una función para el evento");
+                    }
+                    boolean isValidFunction = functions.stream().anyMatch(f -> {
+                        Number fIdNum = (Number) f.get("id");
+                        return fIdNum != null && fIdNum.longValue() == fid.longValue();
+                    });
+                    if (!isValidFunction) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La función seleccionada ya ha concluido o no está disponible para compra");
+                    }
+                }
+
                 String seat = item.getSeatId();
                 String section = item.getSectionName();
                 Double price = item.getPrice() != null ? item.getPrice() : 0.0;
-                Long fid = item.getFunctionId();
 
                 String uniqueCode = "TKT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 
@@ -131,6 +160,17 @@ public class TicketService {
     @Transactional
     public Map<String, Object> createPaymentIntent(Long userId, Double amount, Long eventId, String method) {
         try {
+            // Check if the event is valid (if it has functions, we would ideally need the functionId here, 
+            // but createPaymentIntent is often called at checkout. Let's at least check the event exists and is valid)
+            if (eventId != null) {
+                try {
+                    Map<?, ?> ev = restTemplate.getForObject(eventServiceUrl + "/" + eventId, Map.class);
+                    if (ev == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado");
+                } catch (Exception e) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El evento seleccionado ya ha concluido o no está disponible.");
+                }
+            }
+
             String ref = "PAY-" + UUID.randomUUID().toString().replace("-", "").substring(0, 6).toUpperCase();
 
             Payment payment = new Payment();
