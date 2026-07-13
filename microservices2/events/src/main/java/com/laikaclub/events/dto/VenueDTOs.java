@@ -72,6 +72,10 @@ public class VenueDTOs {
         public Integer capacity;
         public String status = "active";
         public Long assigned_manager_id;
+        public Double latitude;
+        public Double longitude;
+        public Integer geofence_radius;
+        public String timezone;
     }
 
     public static class VenueUpdate {
@@ -83,5 +87,9 @@ public class VenueDTOs {
         public Integer capacity;
         public String status;
         public Long assigned_manager_id;
+        public Double latitude;
+        public Double longitude;
+        public Integer geofence_radius;
+        public String timezone;
     }
 }

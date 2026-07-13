@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByCreatedByOrAssignedManagerIdOrderByIdDesc(Long createdBy, Long assignedManagerId);
+    
+    long countByVenueIdAndStatus(Long venueId, String status);
 }

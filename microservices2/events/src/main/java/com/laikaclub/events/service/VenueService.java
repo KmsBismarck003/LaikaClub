@@ -111,6 +111,10 @@ public class VenueService {
         venue.setCapacity(dto.capacity);
         venue.setStatus(dto.status != null ? dto.status : "active");
         venue.setAssignedManagerId(dto.assigned_manager_id);
+        venue.setLatitude(dto.latitude);
+        venue.setLongitude(dto.longitude);
+        if (dto.geofence_radius != null) venue.setGeofenceRadius(dto.geofence_radius);
+        if (dto.timezone != null) venue.setTimezone(dto.timezone);
 
         Venue saved = venueRepository.save(venue);
         return Map.of("id", saved.getId(), "message", "Recinto creado exitosamente");
@@ -129,6 +133,10 @@ public class VenueService {
         if (dto.capacity != null) venue.setCapacity(dto.capacity);
         if (dto.status != null) venue.setStatus(dto.status);
         if (dto.assigned_manager_id != null) venue.setAssignedManagerId(dto.assigned_manager_id);
+        if (dto.latitude != null) venue.setLatitude(dto.latitude);
+        if (dto.longitude != null) venue.setLongitude(dto.longitude);
+        if (dto.geofence_radius != null) venue.setGeofenceRadius(dto.geofence_radius);
+        if (dto.timezone != null) venue.setTimezone(dto.timezone);
 
         venueRepository.save(venue);
         return Map.of("success", true, "message", "Recinto actualizado");

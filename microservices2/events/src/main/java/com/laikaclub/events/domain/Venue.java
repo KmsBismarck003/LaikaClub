@@ -29,6 +29,15 @@ public class Venue {
 
     private String status = "active";
 
+    private Double latitude;
+    
+    private Double longitude;
+    
+    @Column(name = "geofence_radius")
+    private Integer geofenceRadius = 500;
+    
+    private String timezone = "UTC";
+
     @Column(name = "assigned_manager_id")
     private Long assignedManagerId;
 
@@ -104,6 +113,38 @@ public class Venue {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Integer getGeofenceRadius() {
+        return geofenceRadius;
+    }
+
+    public void setGeofenceRadius(Integer geofenceRadius) {
+        this.geofenceRadius = geofenceRadius;
+    }
+
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
     }
 
     public Long getAssignedManagerId() {

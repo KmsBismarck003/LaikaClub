@@ -22,7 +22,11 @@ const VenueFormModal = ({ isOpen, onClose, onSubmit, venue = null }) => {
     map_url: '',
     capacity: '',
     status: 'active',
-    assigned_manager_id: ''
+    assigned_manager_id: '',
+    latitude: '',
+    longitude: '',
+    geofence_radius: 500,
+    timezone: 'America/Mexico_City'
   })
 
   // Cargar países y gestores al abrir el modal
@@ -99,7 +103,11 @@ const VenueFormModal = ({ isOpen, onClose, onSubmit, venue = null }) => {
         map_url: venue.map_url || '',
         capacity: venue.capacity || '',
         status: venue.status || 'active',
-        assigned_manager_id: venue.assigned_manager_id || ''
+        assigned_manager_id: venue.assigned_manager_id || '',
+        latitude: venue.latitude || '',
+        longitude: venue.longitude || '',
+        geofence_radius: venue.geofence_radius || 500,
+        timezone: venue.timezone || 'America/Mexico_City'
       })
       // Inicializar selectores
       if (venue.country_id) setSelectedCountry(venue.country_id)
@@ -113,7 +121,11 @@ const VenueFormModal = ({ isOpen, onClose, onSubmit, venue = null }) => {
         map_url: '',
         capacity: '',
         status: 'active',
-        assigned_manager_id: ''
+        assigned_manager_id: '',
+        latitude: '',
+        longitude: '',
+        geofence_radius: 500,
+        timezone: 'America/Mexico_City'
       })
       setSelectedCountry('')
       setSelectedState('')
@@ -146,7 +158,10 @@ const VenueFormModal = ({ isOpen, onClose, onSubmit, venue = null }) => {
         ...formData,
         capacity: formData.capacity ? parseInt(formData.capacity) : null,
         municipality_id: parseInt(formData.municipality_id),
-        assigned_manager_id: formData.assigned_manager_id ? parseInt(formData.assigned_manager_id) : null
+        assigned_manager_id: formData.assigned_manager_id ? parseInt(formData.assigned_manager_id) : null,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        geofence_radius: formData.geofence_radius ? parseInt(formData.geofence_radius) : null
       }
 
       await onSubmit(payload)
@@ -260,6 +275,62 @@ const VenueFormModal = ({ isOpen, onClose, onSubmit, venue = null }) => {
           <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
             El gestor seleccionado tendrá permiso para crear y administrar eventos en este recinto.
           </p>
+        </div>
+
+        <div style={{ marginTop: '1.5rem', marginBottom: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+          <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>Configuración LBS (Sugerencias Inteligentes)</h4>
+          <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <Input
+              label="Latitud"
+              name="latitude"
+              type="number"
+              step="any"
+              value={formData.latitude}
+              onChange={handleChange}
+              placeholder="Ej: 19.432608"
+            />
+            <Input
+              label="Longitud"
+              name="longitude"
+              type="number"
+              step="any"
+              value={formData.longitude}
+              onChange={handleChange}
+              placeholder="Ej: -99.133209"
+            />
+          </div>
+          <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+            <Input
+              label="Radio de Geocerca (Metros)"
+              name="geofence_radius"
+              type="number"
+              value={formData.geofence_radius}
+              onChange={handleChange}
+              placeholder="Ej: 500"
+            />
+            <Input
+              label="Zona Horaria"
+              name="timezone"
+              value={formData.timezone}
+              onChange={handleChange}
+              placeholder="Ej: America/Mexico_City"
+            />
+          </div>
+          
+          {formData.latitude && formData.longitude && (
+            <div style={{ marginTop: '1rem', width: '100%', height: '200px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+              <iframe
+                title="Geofence Preview"
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                scrolling="no"
+                marginHeight="0"
+                marginWidth="0"
+                src={`https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(formData.longitude) - 0.01}%2C${parseFloat(formData.latitude) - 0.01}%2C${parseFloat(formData.longitude) + 0.01}%2C${parseFloat(formData.latitude) + 0.01}&layer=mapnik&marker=${formData.latitude}%2C${formData.longitude}`}
+              ></iframe>
+            </div>
+          )}
         </div>
 
         <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
