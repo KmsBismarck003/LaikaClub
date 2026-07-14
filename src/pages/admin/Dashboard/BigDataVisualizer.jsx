@@ -11,6 +11,7 @@ import InteractiveDecisionWizard from './components/InteractiveDecisionWizard/In
 import FinancialRegressionChart from './components/FinancialRegressionChart';
 import PricingConfusionMatrix from './components/PricingConfusionMatrix';
 import DatabaseSanitizationStatus from './components/DatabaseSanitizationStatus';
+import SmartRecommendations from './components/SmartRecommendations';
 import { 
   Activity, 
   Settings, 
@@ -585,9 +586,12 @@ const BigDataVisualizer = ({ managerId = null }) => {
                     <div style={{ background: 'var(--bg-primary)', border: '1px solid #E5E7EB', padding: '4px', display: 'flex', gap: '3px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                         {[
                             { id: '3D_EXPLORATION', label: 'VISTA EN 3D', icon: <span key="icon-3d"><Layers size={14} /></span> },
+                            { id: 'ML_PCA', label: 'SEGMENTACIÓN', icon: <span key="icon-pca"><Users size={14} /></span> },
+                            { id: 'ML_ELBOW', label: 'PERFILES IDEALES', icon: <span key="icon-elbow"><Target size={14} /></span> },
+                            { id: 'ML_ANOMALY', label: 'ANTI-BOT', icon: <span key="icon-anom"><ShieldAlert size={14} /></span> },
                             { id: 'ML_REGRESSION', label: 'PROYECCIÓN DE GANANCIAS', icon: <span key="icon-reg"><Activity size={14} /></span> },
                             { id: 'ML_DECISION_TREE', label: 'OPTIMIZADOR DE PRECIOS', icon: <span key="icon-tree"><Terminal size={14} /></span> },
-                            { id: 'CLASS_KDD', label: 'LIMPIEZA Y ESTADÍSTICAS DE EVENTOS', icon: <span key="icon-kdd"><DatabaseIcon size={14} /></span> },
+                            { id: 'CLASS_KDD', label: 'LIMPIEZA DE EVENTOS', icon: <span key="icon-kdd"><DatabaseIcon size={14} /></span> },
                             { id: 'B2B_PROSPECTING', label: 'RECOMENDADOR DE EMPRESAS', icon: <span key="icon-b2b"><Search size={14} /></span> },
                             { id: 'ML_USER_DEMAND', label: 'PREFERENCIAS DE CLIENTES', icon: <span key="icon-ud"><Users size={14} /></span> },
                             { id: 'MERCH_INSIGHTS', label: 'VENTAS DE MERCANCÍA', icon: <span key="icon-merch"><BarChart3 size={14} /></span> }
@@ -906,6 +910,10 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                         style={{ width: '100%', opacity: (loading || mlLoading) ? 0.3 : 1, transition: 'opacity 0.3s' }}
                                         config={{ responsive: true, displaylogo: false }}
                                     />
+                                </div>
+                            ) : (analysisMode === 'ML_PCA' || analysisMode === 'ML_ELBOW' || analysisMode === 'ML_ANOMALY') ? (
+                                <div key="smart-recs-container" className="b2b-scrollable-container" style={{ padding: '1.8rem', background: '#ffffff', borderRadius: '24px', maxHeight: '650px', overflowY: 'auto' }}>
+                                    <SmartRecommendations analysisMode={analysisMode} mlData={mlData} />
                                 </div>
                             ) : analysisMode === 'ML_REGRESSION' ? (
                                 <FinancialRegressionChart mlData={mlData} mlLoading={mlLoading} eventsList={eventsList} onRefresh={() => executeMLAnalysis('ML_REGRESSION')} />
