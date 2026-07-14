@@ -1,0 +1,328 @@
+/* ════════════════════════════════════════════════════════════════
+   EVENT DETAIL HERO — New Editorial Layout
+   Full-bleed cinematic image. Content anchored at bottom-left.
+   The hero IS the page. Everything else flows below.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── CONTAINER ────────────────────────────────────────────────── */
+.event-hero-v2 {
+  position: relative;
+  width: 100%;
+  height: clamp(420px, 72vh, 780px);
+  overflow: hidden;
+  background: #050505;
+  margin-bottom: 0;
+}
+
+/* ── MEDIA (image / video / tiktok) ──────────────────────────── */
+.event-hero-v2__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  background: #111;
+  transform-origin: center;
+  animation: ehv2-scale-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ehv2-scale-in {
+  from { transform: scale(1.05); opacity: 0.7; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* ── MULTI-LAYER OVERLAY ──────────────────────────────────────── */
+/* Layer 1: strong bottom vignette for text legibility */
+.event-hero-v2__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(to top,  rgba(0,0,0,0.96) 0%,  rgba(0,0,0,0.55) 35%,  rgba(0,0,0,0.1) 65%,  transparent 100%),
+    linear-gradient(to right, rgba(0,0,0,0.45) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* Layer 2: cinematic top vignette */
+.event-hero-v2__top-vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  z-index: 2;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ── BACK BUTTON ──────────────────────────────────────────────── */
+.event-hero-v2__back {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  background: rgba(0,0,0,0.42);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 9999px;
+  color: rgba(255,255,255,0.82);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.2s cubic-bezier(0.16,1,0.3,1);
+}
+
+.event-hero-v2__back:hover {
+  background: rgba(0,0,0,0.72);
+  color: #fff;
+  transform: translateX(-3px);
+}
+
+/* ── PRESALE BADGE (top right) ────────────────────────────────── */
+.event-hero-v2__presale-slot {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+}
+
+/* ── BOTTOM CONTENT AREA ──────────────────────────────────────── */
+.event-hero-v2__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.25rem, 5vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── CATEGORY EYEBROW ─────────────────────────────────────────── */
+.event-hero-v2__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  animation: ehv2-fade-up 0.5s 0.1s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.event-hero-v2__eyebrow-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  flex-shrink: 0;
+}
+
+/* ── TITLE ────────────────────────────────────────────────────── */
+.event-hero-v2__title {
+  font-size: clamp(2rem, 6vw, 4.2rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  color: #fff;
+  margin: 0;
+  text-shadow: 0 4px 28px rgba(0,0,0,0.55);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  animation: ehv2-fade-up 0.55s 0.18s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+/* ── META ROW ─────────────────────────────────────────────────── */
+.event-hero-v2__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem 0;
+  animation: ehv2-fade-up 0.55s 0.26s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.event-hero-v2__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.72);
+  padding: 0 0.95rem;
+  position: relative;
+}
+
+/* Pipe separator */
+.event-hero-v2__meta-item + .event-hero-v2__meta-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 12px;
+  background: rgba(255,255,255,0.22);
+}
+
+.event-hero-v2__meta-item:first-child {
+  padding-left: 0;
+}
+
+.event-hero-v2__meta-item svg {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+/* ── ACTIONS ROW ──────────────────────────────────────────────── */
+.event-hero-v2__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+  animation: ehv2-fade-up 0.55s 0.34s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.event-hero-v2__share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.event-hero-v2__share-btn:hover {
+  background: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.5);
+  color: #fff;
+  transform: scale(1.08);
+}
+
+/* ── SCROLL HINT ──────────────────────────────────────────────── */
+.event-hero-v2__scroll-hint {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.75rem;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  animation: ehv2-fade-up 0.55s 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.event-hero-v2__scroll-label {
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+}
+
+.event-hero-v2__scroll-line {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+  animation: ehv2-scroll-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ehv2-scroll-pulse {
+  0%, 100% { opacity: 0.4; transform: scaleY(1); }
+  50%       { opacity: 1;   transform: scaleY(0.6); }
+}
+
+/* ── ANIMATIONS ───────────────────────────────────────────────── */
+@keyframes ehv2-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SEAT LOCK BANNER ─────────────────────────────────────────── */
+.event-hero-v2__lock-banner {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 1.25rem;
+  background: rgba(234, 179, 8, 0.15);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fde68a;
+  white-space: nowrap;
+}
+
+.event-hero-v2__lock-timer {
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  color: #fef08a;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .event-hero-v2 {
+    height: clamp(320px, 60vh, 520px);
+  }
+
+  .event-hero-v2__title {
+    font-size: clamp(1.75rem, 7vw, 2.5rem);
+  }
+
+  .event-hero-v2__scroll-hint {
+    display: none;
+  }
+
+  .event-hero-v2__lock-banner {
+    font-size: 0.65rem;
+    padding: 0.45rem 0.9rem;
+    top: 4.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-hero-v2 {
+    height: 300px;
+  }
+
+  .event-hero-v2__content {
+    gap: 0.5rem;
+  }
+
+  .event-hero-v2__meta-item {
+    font-size: 0.7rem;
+    padding: 0 0.65rem;
+  }
+}

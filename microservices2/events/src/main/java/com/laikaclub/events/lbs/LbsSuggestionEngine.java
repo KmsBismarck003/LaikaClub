@@ -34,14 +34,14 @@ public class LbsSuggestionEngine {
     }
 
     @Transactional
-    public void processGeofenceTrigger(Long userId, GeofenceTriggerDTO trigger) {
+    public String processGeofenceTrigger(Long userId, GeofenceTriggerDTO trigger) {
         if (!"ENTER".equalsIgnoreCase(trigger.triggerType)) {
-            return; // For now, we only trigger suggestions when entering the geofence
+            return null; // For now, we only trigger suggestions when entering the geofence
         }
 
         Optional<Venue> venueOpt = venueRepository.findById(trigger.venueId);
         if (venueOpt.isEmpty()) {
-            return;
+            return null;
         }
         Venue venue = venueOpt.get();
 
@@ -51,7 +51,7 @@ public class LbsSuggestionEngine {
         int hour = localTime.getHour();
         if (hour >= 22 || hour < 8) {
             logger.info("Quiet hours active for venue {}. No LBS notification sent.", venue.getId());
-            return;
+            return null;
         }
 
         // 2. Check Cooldown
@@ -60,7 +60,7 @@ public class LbsSuggestionEngine {
             UserLbsHistory history = historyOpt.get();
             if (history.getLastNotifiedAt().isAfter(LocalDateTime.now().minusHours(COOLDOWN_HOURS))) {
                 logger.info("User {} is in cooldown for venue {}.", userId, venue.getId());
-                return;
+                return null;
             }
         }
 
@@ -68,7 +68,7 @@ public class LbsSuggestionEngine {
         long activeEventsCount = eventRepository.countByVenueIdAndStatus(venue.getId(), "published");
         if (activeEventsCount == 0) {
             logger.info("No active events for venue {}. Skipping LBS suggestion.", venue.getId());
-            return;
+            return null;
         }
 
         String suggestionMessage = "¡Estás cerca de " + venue.getName() + "! Descubre los próximos eventos. ¡Hay " + activeEventsCount + " eventos programados!";
@@ -85,5 +85,7 @@ public class LbsSuggestionEngine {
         });
         history.setLastNotifiedAt(LocalDateTime.now());
         historyRepository.save(history);
+        
+        return suggestionMessage;
     }
 }

@@ -1,0 +1,25 @@
+/* ══════════════════════════════════════════════════════════════
+   NATIVE AD BANNER
+   Integrated promo unit — seamless, non-intrusive.
+   ══════════════════════════════════════════════════════════════ */
+
+.native-ad-banner {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 2.5rem 0;
+}
+
+.native-ad-label {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.75rem;
+  z-index: 20;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  pointer-events: none;
+}

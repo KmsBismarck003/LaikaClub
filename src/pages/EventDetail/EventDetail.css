@@ -1,49 +1,44 @@
-/* EventDetail.css — Glassmorphism Dark Style */
-/* Foto del evento como fondo, paneles negro blur oscuro */
+/* ════════════════════════════════════════════════════════════════
+   EVENT DETAIL — New Editorial Layout
+   Hero full-bleed → clean dark content surface → sticky panel.
+   ════════════════════════════════════════════════════════════════ */
 
-/* ── CSS Variables injected via JSX inline style ───────────── */
-/* --event-bg: url("...") is set on .event-detail-page from JSX  */
+/* ── CSS Variables (injected via JSX inline style) ─────────── */
+/* --event-bg: url("...") set on .event-detail-page from JSX     */
 
-/* ── PAGE: Full background = event photo + blur + dark overlay ─ */
+/* ── PAGE ROOT ────────────────────────────────────────────── */
 .event-detail-page {
   min-height: 100vh;
   position: relative;
-  padding: 2rem 0 4rem;
-  /* overflow: hidden removed to allow sticky sidebar */
-
-  /* Event photo background — contained to this element only */
-  background-image: var(--event-bg, none);
-  background-size: cover;
-  background-position: center top;
-  background-attachment: scroll; /* scroll = stays inside this div, not footer */
-  background-color: #050505;
+  background: #080808;
+  padding: 0;
 }
 
-/* Dark overlay + blur — absolute so it only covers this div, not the footer */
-.event-detail-page::before {
-  content: "";
-  position: absolute;
+/* Subtle noise texture on the content area */
+.event-detail-page::after {
+  content: '';
+  position: fixed;
   inset: 0;
-  z-index: 0;
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.3;
   pointer-events: none;
+  z-index: 0;
 }
 
-/* All direct content above the overlay */
+/* ── CONTAINER ───────────────────────────────────────────── */
 .event-detail-container {
   position: relative;
   z-index: 1;
-  max-width: 1300px;
-  margin: 0 auto !important;
-  padding: 0 2rem;
+  width: 100%;
+  max-width: 1340px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2.5rem);
 }
 
-/* ── FORCE ALL TEXT WHITE inside event page ─────────────────── */
-/* Solo aplica al contenido de primer nivel, respeta colores de sub-componentes */
+/* ── FORCE WHITE TEXT in detail page ─────────────────────── */
 .event-detail-page .event-description *,
 .event-detail-page .event-hero-title,
+.event-detail-page .event-hero-v2__title,
 .event-detail-page .event-hero-meta-pill {
   color: #fff;
 }
@@ -86,21 +81,21 @@
   transform: translateX(-4px);
 }
 
-/* ── DUAL COLUMN ─────────────────────────────────────────────── */
+/* ── DUAL COLUMN ────────────────────────────────────────────── */
 .layout-dual-column {
   display: grid;
-  grid-template-columns: 1fr 420px; /* Generous sidebar */
-  gap: 2rem;
+  grid-template-columns: 1fr 400px;
+  gap: 2.25rem;
   align-items: start;
-  height: auto;
-  position: relative;
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
 }
 
 /* ── LEFT COLUMN ─────────────────────────────────────────────── */
 .event-left-column {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 /* Event title */
@@ -401,12 +396,15 @@
   max-width: 100%;
 }
 
-/* ── RIGHT COLUMN ─────────────────────────────────────────────── */
+/* ── RIGHT COLUMN ──────────────────────────────────────────── */
 .event-right-column {
   position: sticky;
-  top: 1rem;
+  top: 1.25rem;
   z-index: 100;
   height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 /* ticket-selection-panel: estilos base en TicketSelection.css */
@@ -872,44 +870,26 @@
   border-radius: 8px;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 1100px) {
   .layout-dual-column {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 2rem !important;
-    align-items: stretch !important;
+    grid-template-columns: 1fr;
+    padding-top: 1.75rem;
   }
-  .event-left-column,
   .event-right-column {
-    display: contents !important;
+    position: static;
+    order: -1; /* Ticket panel above details on tablet */
   }
-  .seat-lock-countdown-banner {
-    order: 1 !important;
-  }
-  .venue-map-outer {
-    order: 2 !important;
-  }
-  .ticket-selection-panel {
-    order: 3 !important; /* Mover el menú de pago justo abajo del mapa de asientos */
-  }
-  .event-description {
-    order: 4 !important;
-  }
-  .event-merch-section {
-    order: 5 !important;
-  }
-  .location-section-glass {
-    order: 6 !important;
-  }
-  .event-rules-container {
-    order: 7 !important;
-  }
-  .event-detail-ad-wrapper {
-    order: 8 !important;
+}
+
+@media (max-width: 768px) {
+  .layout-dual-column {
+    padding-top: 1.25rem;
+    gap: 1.5rem;
+    padding-bottom: 3rem;
   }
   .event-detail-container {
-    padding: 0 2rem;
+    padding: 0 1rem;
   }
 }
 
@@ -918,7 +898,7 @@
     font-size: 1.8rem;
   }
   .event-detail-container {
-    padding: 0 1rem;
+    padding: 0 0.75rem;
   }
 }
 

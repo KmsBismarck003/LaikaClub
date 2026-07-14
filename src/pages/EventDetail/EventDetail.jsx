@@ -15,7 +15,7 @@ import { useSeatLock } from "./hooks/useSeatLock";
 import { cleanPrice, formatDate, formatTime } from "./utils/helpers";
 import { useFreeEventFlow } from "../../hooks/useFreeEventFlow";
 
-import EventHero from "./components/EventHero/EventHero";
+import EventHeroV2 from "./components/EventHero/EventHeroV2";
 import TicketSelectionPanel from "./components/TicketSelection/TicketSelectionPanel";
 import EventModalsManager from "./components/Modals/EventModalsManager";
 import LoginIncentiveModal from "./components/Modals/LoginIncentiveModal";
@@ -27,14 +27,14 @@ import EventPoster from "./components/EventPoster/EventPoster";
 import EventDescription from "./components/EventDescription/EventDescription";
 
 import { LoadingScreen, AdCarousel } from "../../components";
-import { usePresale, PresaleGate, PresaleBadge } from "../../features/presale";
+import { usePresale, PresaleGate } from "../../features/presale";
 import "./EventDetail.css";
 
 const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const { user } = useAuth();
   const { success, error } = useNotification();
   const { addToCart, setIsOpen: openCart } = useCart();
@@ -50,10 +50,10 @@ const EventDetail = () => {
   };
 
   // 1. Core Data Hook
-  const { 
-    event, 
-    loading, 
-    busySeats, 
+  const {
+    event,
+    loading,
+    busySeats,
     addBusySeats,
     fetchEventDetail,
     fetchBusySeats,
@@ -73,7 +73,7 @@ const EventDetail = () => {
   const ticketEngine = useTicketEngine(event, id, user, navigate, location, { success, error }, addToCart, zones);
   const { isEventSeating } = ticketEngine;
 
-  // 3. Presale Hook — determina si necesitamos mostrar el gate de preventa
+  // 3. Presale Hook
   const presale = usePresale(event);
 
   // 3. Venue Map Hook
@@ -95,14 +95,14 @@ const EventDetail = () => {
   // 4. Lucky Seat Hook
   const luckySeat = useLuckySeat(id, user, navigate, location, { success, error }, api, synchronizedZones, addBusySeats);
 
-  // 5. Seat Lock Hook (Pessimistic seat booking timer)
+  // 5. Seat Lock Hook
   const { timeLeft, isActive, formatTimeLeft, resetLock } = useSeatLock(
     ticketEngine.selectedSeats,
     ticketEngine.setSelectedSeats,
     error
   );
 
-  // 6. Free Event Hook — cortocircuita carrito/pagos para precio 0
+  // 6. Free Event Hook
   const freeFlow = useFreeEventFlow(
     event,
     ticketEngine.selectedSection,
@@ -113,35 +113,24 @@ const EventDetail = () => {
     }
   );
 
-  // Direct Purchase Flow overrides
+  // Direct Purchase Flow
   const confirmDirectPayment = async (method) => {
     ticketEngine.setIsProcessingPayment(true);
     try {
       const amount = cleanPrice(ticketEngine.directTicketData.section?.price || event?.price) * ticketEngine.directTicketData.quantity;
-
-      // 1. Create Payment Intent
-      const intentResp = await api.payment.createIntent({
-         amount: amount,
-         method: method,
-         eventId: id,
-         event_id: id
-      });
-      
+      const intentResp = await api.payment.createIntent({ amount, method, eventId: id, event_id: id });
       const paymentId = intentResp.payment_id || intentResp.reference;
-      
-      // 2. Confirm Payment for cards
+
       if (method === 'card') {
-         await api.payment.confirm(paymentId);
+        await api.payment.confirm(paymentId);
       }
 
-      // 3. Purchase Tickets
       const purchaseItems = [];
       const directSeats = ticketEngine.directTicketData.seats;
       if (directSeats && directSeats.length > 0) {
         for (const seat of directSeats) {
           purchaseItems.push({
-            eventId: id,
-            quantity: 1,
+            eventId: id, quantity: 1,
             functionId: ticketEngine.selectedFunction?.id,
             sectionId: ticketEngine.directTicketData.section?.id,
             sectionName: ticketEngine.directTicketData.section?.name,
@@ -152,8 +141,7 @@ const EventDetail = () => {
       } else {
         for (let i = 0; i < ticketEngine.directTicketData.quantity; i++) {
           purchaseItems.push({
-            eventId: id,
-            quantity: 1,
+            eventId: id, quantity: 1,
             functionId: ticketEngine.selectedFunction?.id,
             sectionId: ticketEngine.directTicketData.section?.id,
             sectionName: ticketEngine.directTicketData.section?.name,
@@ -163,32 +151,25 @@ const EventDetail = () => {
         }
       }
 
-      await api.ticket.purchase({
-        items: purchaseItems,
-        paymentMethod: method,
-        paymentId
-      });
-
-      // Detener el bloqueo temporal
+      await api.ticket.purchase({ items: purchaseItems, paymentMethod: method, paymentId });
       resetLock();
 
       const payload = {
-         id: paymentId,
-         event: ticketEngine.directTicketData.event,
-         section: ticketEngine.directTicketData.section,
-         seats: ticketEngine.directTicketData.seats,
-         quantity: ticketEngine.directTicketData.quantity,
-         total: amount
+        id: paymentId,
+        event: ticketEngine.directTicketData.event,
+        section: ticketEngine.directTicketData.section,
+        seats: ticketEngine.directTicketData.seats,
+        quantity: ticketEngine.directTicketData.quantity,
+        total: amount
       };
-      
-      // Registrar instantáneamente los asientos comprados en la lista de ocupados del mapa
+
       if (ticketEngine.directTicketData.seats?.length > 0) {
         addBusySeats(ticketEngine.directTicketData.seats);
       }
-      
+
       ticketEngine.setPrintingData(payload);
       ticketEngine.setShowSuccessTicket(true);
-      ticketEngine.setSelectedSeats([]); // Vaciar selección activa de asientos
+      ticketEngine.setSelectedSeats([]);
       ticketEngine.setIsProcessingPayment(false);
       ticketEngine.setShowDirectPayment(false);
       success("¡Compra realizada con éxito!");
@@ -198,10 +179,10 @@ const EventDetail = () => {
     }
   };
 
-  // Local State: Payment & Merch
+  // Local State
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [cardData, setCardData] = useState({ number: '', expiry: '', cvv: '' });
-  
+
   const handleCardChange = (e) => {
     const { name, value } = e.target;
     if (name === "number") setCardData({ ...cardData, number: value.replace(/\D/g, "").slice(0, 16) });
@@ -212,12 +193,11 @@ const EventDetail = () => {
     }
     else if (name === "cvv") setCardData({ ...cardData, cvv: value.replace(/\D/g, "").slice(0, 4) });
   };
-  
+
   const [selectedMerchItem, setSelectedMerchItem] = useState(null);
   const [merchAttributes, setMerchAttributes] = useState({});
   const [merchQty, setMerchQty] = useState(1);
 
-  // Hero static (sin desvanecido/zoom al hacer scroll)
   const heroRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -243,8 +223,8 @@ const EventDetail = () => {
   const customTicketDesign = event.printing_canvas_json ? (() => { try { return JSON.parse(event.printing_canvas_json); } catch(e) { return null; } })() : null;
 
   return (
-    <div className="event-detail-page" style={{ "--event-bg": `url(${imageUrl})` }}>
-      {/* PRESALE GATE — bloquea acceso al contenido si la preventa está activa */}
+    <div className="event-detail-page">
+      {/* PRESALE GATE */}
       {presale.needsPresaleGate && (
         <PresaleGate
           presaleState={presale.presaleState}
@@ -255,39 +235,33 @@ const EventDetail = () => {
           onSubmit={presale.attemptUnlock}
         />
       )}
+
+      {/* ── HERO (full-bleed, no container wrapper) ── */}
+      <EventHeroV2
+        heroRef={heroRef}
+        imageUrl={imageUrl}
+        event={event}
+        isVideo={isVideo}
+        tiktokId={tiktokId}
+        videoRef={videoRef}
+        formatDate={formatDate}
+        displayDate={displayDate}
+        formatTime={formatTime}
+        displayTime={displayTime}
+        displayVenue={displayVenue}
+        displayCity={displayCity}
+        navigate={navigate}
+        isLockActive={isActive}
+        formatTimeLeft={formatTimeLeft}
+        presale={presale.needsPresaleGate ? null : presale}
+      />
+
+      {/* ── MAIN CONTENT AREA ── */}
       <div className="event-detail-container">
-        {/* HERO SECTION */}
-        <EventHero
-          heroRef={heroRef}
-          imageUrl={imageUrl}
-          event={event}
-          isVideo={isVideo}
-          tiktokId={tiktokId}
-          videoRef={videoRef}
-          formatDate={formatDate}
-          displayDate={displayDate}
-          formatTime={formatTime}
-          displayTime={displayTime}
-          displayVenue={displayVenue}
-          displayCity={displayCity}
-          navigate={navigate}
-        />
-
         <div className="layout-dual-column">
-          {/* LEFT COLUMN: Map, Details, Location */}
-          <div className="event-left-column">
-            {isActive && (
-              <div className="seat-lock-countdown-banner">
-                <div className="seat-lock-info">
-                  <span style={{ fontSize: '1.2rem', animation: 'pulseLock 1.5s infinite ease-in-out' }}>🔒</span>
-                  <span>Reserva temporal activa: tus asientos seleccionados están reservados</span>
-                </div>
-                <div className="seat-lock-timer">
-                  {formatTimeLeft()}
-                </div>
-              </div>
-            )}
 
+          {/* LEFT COLUMN */}
+          <div className="event-left-column">
             {isEventSeating ? (
               <VenueMapContainer
                 event={event}
@@ -334,46 +308,47 @@ const EventDetail = () => {
               openCart={openCart}
             />
 
-             <EventLocation displayVenue={displayVenue} displayCity={displayCity} />
-             <EventRules event={event} />
-             {event.ads_enabled && (
-               <div className="event-detail-ad-wrapper left-sidebar mt-4">
-                 <AdCarousel position="side_left" eventId={id} />
-               </div>
-             )}
-           </div>
- 
-           {/* RIGHT COLUMN: Ticket Selection */}
-           <div className="event-right-column">
-              <TicketSelectionPanel
-                user={user}
-                event={event}
-                hasFunctions={event.functions && event.functions.length > 0}
-                selectedFunction={ticketEngine.selectedFunction}
-                setSelectedFunction={ticketEngine.setSelectedFunction}
-                sortedSections={ticketEngine.sortedSections}
-                selectedSection={ticketEngine.selectedSection}
-                setSelectedSection={ticketEngine.setSelectedSection}
-                quantity={ticketEngine.quantity}
-                setQuantity={ticketEngine.setQuantity}
-                selectedSeats={ticketEngine.selectedSeats}
-                cleanPrice={cleanPrice}
-                handleAddToCart={() => requireAuth(ticketEngine.handleAddToCart)}
-                handleDirectBuy={() => requireAuth(ticketEngine.handleDirectBuy)}
-                handleLuckySeat={() => requireAuth(luckySeat.handleLuckySeat)}
-                isRouletteActive={luckySeat.isRouletteActive}
-                setShowProbModal={luckySeat.setShowProbModal}
-                isFreeEvent={freeFlow.isFreeEvent}
-                onClaimFree={() => requireAuth(() => freeFlow.claimFreeTicket({ functionId: ticketEngine.selectedFunction?.id }))}
-                isClaimingFree={freeFlow.loading}
-              />
-             {event.ads_enabled && (
-               <div className="event-detail-ad-wrapper right-sidebar mt-4">
-                 <AdCarousel position="side_right" eventId={id} />
-               </div>
-             )}
-           </div>
-         </div>
+            <EventLocation displayVenue={displayVenue} displayCity={displayCity} />
+            <EventRules event={event} />
+            {event.ads_enabled && (
+              <div className="event-detail-ad-wrapper left-sidebar mt-4">
+                <AdCarousel position="side_left" eventId={id} />
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div className="event-right-column">
+            <TicketSelectionPanel
+              user={user}
+              event={event}
+              hasFunctions={event.functions && event.functions.length > 0}
+              selectedFunction={ticketEngine.selectedFunction}
+              setSelectedFunction={ticketEngine.setSelectedFunction}
+              sortedSections={ticketEngine.sortedSections}
+              selectedSection={ticketEngine.selectedSection}
+              setSelectedSection={ticketEngine.setSelectedSection}
+              quantity={ticketEngine.quantity}
+              setQuantity={ticketEngine.setQuantity}
+              selectedSeats={ticketEngine.selectedSeats}
+              cleanPrice={cleanPrice}
+              handleAddToCart={() => requireAuth(ticketEngine.handleAddToCart)}
+              handleDirectBuy={() => requireAuth(ticketEngine.handleDirectBuy)}
+              handleLuckySeat={() => requireAuth(luckySeat.handleLuckySeat)}
+              isRouletteActive={luckySeat.isRouletteActive}
+              setShowProbModal={luckySeat.setShowProbModal}
+              isFreeEvent={freeFlow.isFreeEvent}
+              onClaimFree={() => requireAuth(() => freeFlow.claimFreeTicket({ functionId: ticketEngine.selectedFunction?.id }))}
+              isClaimingFree={freeFlow.loading}
+            />
+            {event.ads_enabled && (
+              <div className="event-detail-ad-wrapper right-sidebar mt-4">
+                <AdCarousel position="side_right" eventId={id} />
+              </div>
+            )}
+          </div>
+
+        </div>
       </div>
 
       <EventModalsManager

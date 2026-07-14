@@ -44,6 +44,7 @@ import MaintenanceGuard from './components/Guards/MaintenanceGuard'
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import { CartModal } from './components/Cart'
 import { LoadingScreen } from './components'
+import useLBS from './hooks/useLBS'
 // Estilos globales movidos a index.js para control de precedencia
 
 const EventDetail = lazy(() => import('./pages/EventDetail/EventDetail'))
@@ -53,6 +54,9 @@ function AppContent() {
   const { loading, loggingOut } = useAuth()
   const [minDone, setMinDone] = useState(false)
   const startedRef = useRef(false)
+
+  // Initialize LBS Tracking
+  useLBS()
 
   useEffect(() => {
     if (loading || loggingOut) {
