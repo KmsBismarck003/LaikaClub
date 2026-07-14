@@ -314,21 +314,27 @@ def run_venue_prospecting(mysql_params, mongo_uri, mongo_db_name):
         best_match = None
         max_score = -1.0
         
-        # Calcular similitud con cada uno de los recintos activos
+        # Calcular similitud con cada uno de los recintos activos usando Distancia Euclidiana
         for active in active_venues:
-            # 1. Similitud de Capacidad (escala logarítmica para evitar que recintos enormes distorsionen)
+            # 1. Vectorización (Normalización de características)
             try:
-                cap_similarity = 1.0 - abs(math.log10(lead["capacity"]) - math.log10(active["capacity"])) / 2.0
-                cap_similarity = max(0.0, min(1.0, cap_similarity))
-            except:
-                cap_similarity = 0.5
+                # Capacidad normalizada (log10 escalado sobre 5.0, asumiendo max 100k aforo)
+                lead_cap_norm = math.log10(lead["capacity"]) / 5.0
+                active_cap_norm = math.log10(active["capacity"]) / 5.0
+            except (ValueError, TypeError):
+                lead_cap_norm, active_cap_norm = 0.5, 0.5
                 
-            # 2. Similitud de Categoría
+            # 2. Distancia de Categoría (0.0 si son iguales, 1.0 si son diferentes)
             active_cat = cat_mapping.get(active["event_category"].lower(), "Club/Foro")
-            cat_similarity = 1.0 if lead["category"].lower() == active_cat.lower() else 0.3
+            cat_dist = 0.0 if lead["category"].lower() == active_cat.lower() else 1.0
             
-            # Ponderar similitud (60% categoría, 40% capacidad)
-            score = (cat_similarity * 0.6) + (cap_similarity * 0.4)
+            # 3. Cálculo de Distancia Euclidiana
+            # d(p,q) = sqrt((p1 - q1)^2 + (p2 - q2)^2)
+            euclidean_distance = math.sqrt((lead_cap_norm - active_cap_norm)**2 + cat_dist**2)
+            
+            # 4. Transformar Distancia en Score de Similitud Inversa (0 a 1)
+            # La distancia máxima esperada es ~1.414 (sqrt(1^2 + 1^2)).
+            score = max(0.0, 1.0 - (euclidean_distance / 1.414))
             
             if score > max_score:
                 max_score = score

@@ -254,6 +254,16 @@ def get_vault_status():
         "snapshots_count": len(snapshots) if isinstance(snapshots, list) else 0
     }
 
+@app.get("/api/analytics/ml/pca")
+def get_ml_pca(k: int = 3):
+    """
+    Ejecuta el Análisis de Componentes Principales (PCA) y K-Means.
+    Retorna la varianza explicada y la asignación de clústeres.
+    """
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    return engine.run_pca_analysis(k=k)
+
 @app.get("/api/analytics/ml/regression")
 def get_ml_regression(
     manager_id: int = None,

@@ -186,10 +186,60 @@ class MerchandiseAnalyticsModule:
             """
             event_breakdown = self._query(self._merch_db, event_sql, params, attach_events=True)
 
+            # ─── 5.5 ASOCIACIÓN DE PRODUCTOS (CROSS-SELLING) ──────────────────
+            basket_sql = f"""
+                SELECT o.id as order_id, i.name as product_name
+                FROM merchandise_orders o
+                JOIN merchandise_order_items oi ON o.id = oi.order_id
+                JOIN merchandise_variants v ON v.id = oi.variant_id
+                JOIN merchandise_items i ON i.id = v.item_id
+                WHERE o.status = 'completed' {date_filter}
+            """
+            basket_rows = self._query(self._merch_db, basket_sql, params)
+            
+            baskets = defaultdict(set)
+            product_counts = defaultdict(int)
+            for r in basket_rows:
+                baskets[r["order_id"]].add(r["product_name"])
+                
+            for b in baskets.values():
+                for p in b:
+                    product_counts[p] += 1
+            
+            co_occurrences = defaultdict(int)
+            for b in baskets.values():
+                items = list(b)
+                for i in range(len(items)):
+                    for j in range(i+1, len(items)):
+                        pair = tuple(sorted([items[i], items[j]]))
+                        co_occurrences[pair] += 1
+            
+            cross_sell_insight = None
+            if co_occurrences:
+                best_pair = max(co_occurrences.items(), key=lambda x: x[1])
+                pair_items = best_pair[0]
+                pair_count = best_pair[1]
+                
+                if pair_count >= 2: # Al menos 2 co-ocurrencias significativas
+                    item_a, item_b = pair_items
+                    conf_a_to_b = (pair_count / product_counts[item_a]) * 100
+                    conf_b_to_a = (pair_count / product_counts[item_b]) * 100
+                    
+                    if conf_a_to_b >= conf_b_to_a:
+                        base_item, rec_item, conf = item_a, item_b, conf_a_to_b
+                    else:
+                        base_item, rec_item, conf = item_b, item_a, conf_b_to_a
+                        
+                    cross_sell_insight = {
+                        "base_item": base_item,
+                        "rec_item": rec_item,
+                        "confidence": conf
+                    }
+
             # ─── 6. RECOMENDACIONES EN LENGUAJE HUMANO ────────────────────
             recommendations = self._generate_recommendations(
                 top_products, low_products, category_insights,
-                total_units, total_revenue, event_breakdown
+                total_units, total_revenue, event_breakdown, cross_sell_insight
             )
 
             return {
@@ -246,7 +296,7 @@ class MerchandiseAnalyticsModule:
         )
 
     def _generate_recommendations(
-        self, top, low, categories, total_units, total_revenue, event_breakdown
+        self, top, low, categories, total_units, total_revenue, event_breakdown, cross_sell_insight=None
     ) -> list:
         """Genera la lista de recomendaciones estratégicas humanizadas."""
         recs = []
@@ -371,6 +421,27 @@ class MerchandiseAnalyticsModule:
                 "body": body,
                 "type": "success",
                 "tag": "FINANZAS"
+            })
+
+        # ── REC 6: Venta Cruzada (Cross-Selling ML) ───────────────────────
+        if cross_sell_insight:
+            base = cross_sell_insight["base_item"]
+            rec = cross_sell_insight["rec_item"]
+            conf = cross_sell_insight["confidence"]
+            
+            body = (
+                f"Hemos detectado un fuerte patrón de compra conjunta: el {conf:.0f}% de los clientes "
+                f"que compran «{base}» también adquieren «{rec}». "
+                f"Te recomendamos crear un paquete promocional (Bundle) con ambos productos "
+                f"u ofrecer «{rec}» como sugerencia automática (upsell) en el carrito cuando un usuario agregue «{base}»."
+            )
+            # Insertar en la segunda posición (Alta prioridad para ML)
+            recs.insert(1, {
+                "icon": "",
+                "title": "Venta Cruzada Inteligente (Cross-Selling)",
+                "body": body,
+                "type": "success",
+                "tag": "MACHINE LEARNING"
             })
 
         return recs
