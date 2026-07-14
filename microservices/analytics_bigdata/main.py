@@ -254,6 +254,24 @@ def get_vault_status():
         "snapshots_count": len(snapshots) if isinstance(snapshots, list) else 0
     }
 
+@app.get("/api/analytics/ml/elbow")
+def get_ml_elbow(max_k: int = 8):
+    """
+    Ejecuta el Método del Codo para sugerir el número óptimo de clústeres.
+    """
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    return engine.run_elbow_method_optimization(max_k=max_k)
+
+@app.get("/api/analytics/ml/anomaly")
+def get_ml_anomaly(manager_id: int = None):
+    """
+    Detección de Bots y Reventa masiva usando Isolation Forest.
+    """
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    return engine.run_anomaly_detection(manager_id=manager_id)
+
 @app.get("/api/analytics/ml/pca")
 def get_ml_pca(k: int = 3):
     """

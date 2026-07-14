@@ -4,6 +4,7 @@ from pyspark.ml.evaluation import ClusteringEvaluator
 from pyspark.ml.functions import vector_to_array
 from pyspark.sql.functions import count, avg, sum
 from datetime import datetime
+from pymongo import MongoClient
 
 class ClusteringModule:
     """Módulo de Agrupamiento (K-Means) y Reducción de Dimensionalidad (PCA)."""
@@ -50,6 +51,27 @@ class ClusteringModule:
                 wcss = model.summary.trainingCost
             except AttributeError:
                 wcss = 0.0
+
+            # ── GESTIÓN DE CENTROIDES (MLOps) ──
+            # Guardar Centroides en MongoDB para Mapeo en Tiempo Real
+            try:
+                if hasattr(self, 'mongo_uri') and self.mongo_uri:
+                    client = MongoClient(self.mongo_uri, tlsAllowInvalidCertificates=True, serverSelectionTimeoutMS=3000)
+                    db = client[self.mongo_db]
+                    centroids_col = db["ml_centroids_history"]
+                    
+                    centers_list = [center.tolist() for center in model.clusterCenters()]
+                    centroids_col.insert_one({
+                        "timestamp": datetime.now(),
+                        "algorithm": "K-Means-PCA",
+                        "k": k,
+                        "wcss": float(wcss),
+                        "silhouette": float(silhouette),
+                        "centroids": centers_list
+                    })
+                    print("[MLOps] Centroides guardados en MongoDB exitosamente.")
+            except Exception as mongo_e:
+                print(f"[MLOps] Error guardando centroides en MongoDB: {mongo_e}")
 
             df_json = df_final.withColumn("pca_vec", vector_to_array("pcaFeatures"))
             rows = df_json.select("pca_vec", "cluster", "cantidad", "gasto_total", "user_id").limit(100).collect()
@@ -124,3 +146,64 @@ class ClusteringModule:
             "silhouette_score": 0.72,
             "wcss": 15420.5
         }
+
+    def run_elbow_method_optimization(self, max_k=8):
+        """Implementa el Método del Codo para hallar dinámicamente el K óptimo."""
+        if self.resilience_mode:
+            return {
+                "status": "success", 
+                "optimal_k": 3, 
+                "wcss_curve": [
+                    {"k": 2, "wcss": 20000},
+                    {"k": 3, "wcss": 8000},
+                    {"k": 4, "wcss": 7500},
+                    {"k": 5, "wcss": 7100}
+                ], 
+                "resilience": True,
+                "summary": "Modo Resiliencia: Método del Codo estimando K óptimo = 3 basado en histórico."
+            }
+        
+        try:
+            df_tickets = self._read_mysql("tickets")
+            df_ml = df_tickets.groupBy("user_id").agg(
+                count("*").alias("cantidad"), avg("price").alias("precio_promedio"), sum("price").alias("gasto_total")
+            ).fillna(0)
+            
+            assembler = VectorAssembler(inputCols=["cantidad", "precio_promedio", "gasto_total"], outputCol="features")
+            df_vector = assembler.transform(df_ml)
+            scaler = StandardScaler(inputCol="features", outputCol="scaledFeatures", withMean=True, withStd=True)
+            df_scaled = scaler.fit(df_vector).transform(df_vector)
+            pca = PCA(k=3, inputCol="scaledFeatures", outputCol="pcaFeatures")
+            df_pca = pca.fit(df_scaled).transform(df_scaled)
+            
+            wcss_curve = []
+            for k_val in range(2, max_k + 1):
+                kmeans = KMeans(k=k_val, featuresCol="pcaFeatures", predictionCol="cluster", seed=42)
+                model = kmeans.fit(df_pca)
+                try:
+                    wcss = model.summary.trainingCost
+                except:
+                    wcss = 0.0
+                wcss_curve.append({"k": k_val, "wcss": float(wcss)})
+                
+            # Heurística analítica simple para encontrar el "Codo": Máxima caída relativa de Inercia
+            optimal_k = 3
+            max_drop_ratio = 0
+            for i in range(1, len(wcss_curve)-1):
+                drop1 = wcss_curve[i-1]["wcss"] - wcss_curve[i]["wcss"]
+                drop2 = wcss_curve[i]["wcss"] - wcss_curve[i+1]["wcss"]
+                if drop1 > 0 and drop2 > 0:
+                    ratio = drop1 / drop2
+                    if ratio > max_drop_ratio:
+                        max_drop_ratio = ratio
+                        optimal_k = wcss_curve[i]["k"]
+                    
+            return {
+                "status": "success",
+                "optimal_k": optimal_k,
+                "wcss_curve": wcss_curve,
+                "summary": f"Optimización completada. El Método del Codo sugiere un K óptimo de {optimal_k} segmentos."
+            }
+        except Exception as e:
+            print(f"Elbow Method Fail: {e}")
+            return {"status": "error", "message": str(e)}

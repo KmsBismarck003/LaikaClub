@@ -532,3 +532,80 @@ class UserDemandAnalyticsModule:
         except Exception as e:
             print(f"[SQL Demand Fail]: {e}")
             return {"status": "error", "message": str(e)}
+
+    def run_anomaly_detection(self, manager_id=None):
+        """
+        Detección de anomalías (Anti-Bot y Prevención de Reventa)
+        Utiliza Isolation Forest para detectar patrones anómalos de compra de tickets.
+        """
+        try:
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            
+            manager_filter = ""
+            if manager_id:
+                manager_filter = f"AND (e.created_by = {int(manager_id)} OR e.assigned_manager_id = {int(manager_id)})"
+                
+            query = f"""
+                SELECT t.user_id, u.email, u.first_name, u.last_name,
+                       COUNT(t.id) as total_tickets,
+                       COUNT(DISTINCT t.event_id) as distinct_events,
+                       COALESCE(SUM(t.price), 0) as total_spent,
+                       MAX(t.created_at) as last_purchase
+                FROM tickets t
+                JOIN users u ON t.user_id = u.id
+                LEFT JOIN events e ON t.event_id = e.id
+                WHERE t.status != 'cancelled' {manager_filter}
+                GROUP BY t.user_id
+            """
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            conn.close()
+            
+            if len(rows) < 10:
+                return {"status": "success", "anomalies": [], "summary": "Datos insuficientes para entrenar el modelo de anomalías."}
+                
+            X = []
+            users_map = {}
+            for r in rows:
+                tickets = float(r["total_tickets"])
+                events = float(r["distinct_events"])
+                spent = float(r["total_spent"])
+                avg_spent_per_ticket = spent / tickets if tickets > 0 else 0
+                
+                features = [tickets, events, spent, avg_spent_per_ticket]
+                X.append(features)
+                users_map[len(X)-1] = r
+                
+            from sklearn.ensemble import IsolationForest
+            import numpy as np
+            
+            X_arr = np.array(X)
+            # Entrenar Isolation Forest asumiendo un 2% histórico de cuentas bot/reventa
+            clf = IsolationForest(n_estimators=100, contamination=0.02, random_state=42)
+            preds = clf.fit_predict(X_arr)
+            
+            anomalies = []
+            for idx, pred in enumerate(preds):
+                if pred == -1: # -1 indica anomalía en Isolation Forest
+                    user_data = users_map[idx]
+                    anomalies.append({
+                        "user_id": user_data["user_id"],
+                        "name": f"{user_data['first_name']} {user_data['last_name']}",
+                        "email": user_data["email"],
+                        "total_tickets": int(user_data["total_tickets"]),
+                        "distinct_events": int(user_data["distinct_events"]),
+                        "total_spent": float(user_data["total_spent"]),
+                        "risk_score": "High (Bot/Scalper Suspicion)"
+                    })
+                    
+            return {
+                "status": "success",
+                "total_users_analyzed": len(rows),
+                "anomalies_detected": len(anomalies),
+                "anomalies": anomalies,
+                "summary": "Escaneo Anti-Bot completado usando Isolation Forest."
+            }
+        except Exception as e:
+            print(f"[Anomaly Detection Fail]: {e}")
+            return {"status": "error", "message": str(e)}
