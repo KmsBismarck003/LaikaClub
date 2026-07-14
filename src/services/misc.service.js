@@ -115,6 +115,16 @@ export const analyticsAPI = {
         const response = await axios.get(`${ANALYTICS_URL}/ml/pca`, { params: { k } });
         return response.data;
     },
+    getElbowML: async (max_k = 8) => {
+        const response = await axios.get(`${ANALYTICS_URL}/ml/elbow`, { params: { max_k } });
+        return response.data;
+    },
+    getAnomalyML: async (managerId = null) => {
+        const params = {};
+        if (managerId) params.manager_id = managerId;
+        const response = await axios.get(`${ANALYTICS_URL}/ml/anomaly`, { params });
+        return response.data;
+    },
     getNeuralNetworkML: async (epochs = 50) => {
         const response = await axios.get(`${ANALYTICS_URL}/ml/neural-network`, { params: { epochs } });
         return response.data;

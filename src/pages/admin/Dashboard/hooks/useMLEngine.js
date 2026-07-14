@@ -35,6 +35,10 @@ export function useMLEngine(setError) {
           response = await analyticsAPI.getPCAML(params.pcaK); 
         } else if (mode === 'ML_NEURAL_NETWORK') {
           response = await analyticsAPI.getNeuralNetworkML(params.nnEpochs); 
+        } else if (mode === 'ML_ELBOW') {
+          response = await analyticsAPI.getElbowML(8);
+        } else if (mode === 'ML_ANOMALY') {
+          response = await analyticsAPI.getAnomalyML();
         } else if (mode === 'SCRAPING_HUB') {
           response = await analyticsAPI.scrapeFootballData("SP1");
         }
@@ -105,6 +109,19 @@ export function useMLEngine(setError) {
               { type: 'Dropout', units: 0.2 },
               { type: 'Softmax', units: 3 }
             ]
+          },
+          ML_ELBOW: {
+            optimal_k: 3,
+            wcss_curve: [{k:2,wcss:1500},{k:3,wcss:500},{k:4,wcss:450}],
+            summary: "Modo Simulado: El análisis de inercia detectó un codo estadístico en K=3."
+          },
+          ML_ANOMALY: {
+            total_users_analyzed: 1520,
+            anomalies: [
+              { name: "Sistema Reventa (Simulado)", email: "reseller1@bot.com", total_tickets: 420, distinct_events: 15, total_spent: 85000 },
+              { name: "Scraper Automático", email: "bot_hunter@scalper.net", total_tickets: 112, distinct_events: 8, total_spent: 24000 }
+            ],
+            summary: "Modo Simulado: Isolation Forest detectó 2 patrones masivos de reventa."
           }
         };
         response = mockMLMap[mode] || { status: 'error', detail: 'Modo no simulado' };

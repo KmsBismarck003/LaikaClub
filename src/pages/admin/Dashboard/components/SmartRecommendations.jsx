@@ -331,15 +331,14 @@ const DecisionTreeInsights = ({ mlData }) => {
   );
 };
 
-/* ──── CLUSTERING & PCA ───────────────────────────────────── */
+/* ──── CLASIFICACIÓN (PCA + K-MEANS HUMANIZADO) ────────────── */
 const PCAInsights = ({ mlData }) => {
-  if (!mlData) return <EmptyState mode="Clustering PCA" />;
+  if (!mlData) return <EmptyState mode="Clasificación de Fans" />;
 
   const clusters    = mlData.clusters ?? mlData.cluster_info ?? mlData.cluster_summary ?? [];
   const explained   = mlData.explained_variance ?? mlData.variance_ratio ?? mlData.pca_variance ?? null;
   const nClusters   = mlData.n_clusters ?? clusters.length ?? null;
   const silhouette  = mlData.silhouette_score ?? mlData.silhouette ?? null;
-  const components  = mlData.n_components ?? mlData.components ?? null;
 
   const explPct = explained
     ? (Array.isArray(explained) ? explained.reduce((a,b) => a+b, 0) * 100 : explained * 100).toFixed(1)
@@ -347,28 +346,27 @@ const PCAInsights = ({ mlData }) => {
 
   return (
     <div className="smart-recs-grid">
-      {/* Métricas PCA */}
+      {/* Métricas Humanizadas */}
       <div className="rec-card rec-card--info">
         <div className="rec-card__header">
           <Layers size={22} color="#3b82f6" />
           <div>
-            <h3 className="rec-card__title">Análisis de Componentes</h3>
-            <Tag label="CLUSTERING PCA" color="#1d4ed8" bg="#eff6ff" />
+            <h3 className="rec-card__title">Calidad de los Perfiles</h3>
+            <Tag label="IA DE SEGMENTACIÓN" color="#1d4ed8" bg="#eff6ff" />
           </div>
         </div>
         <div className="rec-card__stats-row">
-          {nClusters   != null && <Stat label="Grupos (clusters)" value={nClusters} accent="#3b82f6" />}
-          {explPct     != null && <Stat label="Varianza Explicada" value={`${explPct}%`} accent={parseFloat(explPct) >= 80 ? '#10b981' : '#f59e0b'} />}
-          {silhouette  != null && <Stat label="Silhouette Score" value={silhouette.toFixed ? silhouette.toFixed(3) : silhouette} sub="calidad del clustering" />}
-          {components  != null && <Stat label="Componentes PC" value={components} />}
+          {nClusters   != null && <Stat label="Tipos de Fans" value={nClusters} accent="#3b82f6" />}
+          {explPct     != null && <Stat label="Fidelidad" value={`${explPct}%`} accent={parseFloat(explPct) >= 80 ? '#10b981' : '#f59e0b'} sub="nivel de certeza" />}
+          {silhouette  != null && <Stat label="Precisión" value={`${(silhouette * 100).toFixed(0)}%`} sub="confiabilidad" />}
         </div>
         <p className="rec-card__insight">
           <Lightbulb size={12} style={{marginRight:5}} />
           {explPct == null
-            ? 'Ejecuta el análisis para ver cuánta varianza capturan los componentes principales.'
+            ? 'La IA está clasificando a tus clientes...'
             : parseFloat(explPct) >= 80
-              ? `${explPct}% de la varianza explicada: excelente reducción dimensional. Los ${nClusters ?? '?'} grupos son estadísticamente sólidos.`
-              : `${explPct}% de varianza. Considera aumentar el número de componentes PC para capturar más información del dataset.`}
+              ? `Excelente nivel de certeza. Puedes confiar en estos ${nClusters ?? '?'} perfiles para diseñar tus promociones y pautas publicitarias.`
+              : `La IA encontró ${nClusters ?? '?'} tipos de fans, pero los patrones son un poco difusos. Intenta con un periodo de ventas mayor.`}
         </p>
       </div>
 
@@ -378,20 +376,20 @@ const PCAInsights = ({ mlData }) => {
           <div className="rec-card__header">
             <Target size={22} color="#10b981" />
             <div>
-              <h3 className="rec-card__title">Grupos Identificados</h3>
-              <Tag label="SEGMENTOS" color="#065f46" bg="#f0fdf4" />
+              <h3 className="rec-card__title">Perfiles de Compradores</h3>
+              <Tag label="LISTOS PARA MARKETING" color="#065f46" bg="#f0fdf4" />
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
             {clusters.map((cl, i) => {
               const size  = cl.size ?? cl.count ?? cl.n ?? null;
-              const label = cl.label ?? cl.name ?? `Cluster ${i}`;
+              const label = cl.label ?? cl.name ?? `Perfil ${i+1}`;
               const cent  = cl.centroid_summary ?? cl.centroid ?? null;
               return (
                 <div key={i} style={{ padding: '10px 14px', background: '#f9fafb', borderRadius: 10, border: '1px solid #e5e7eb' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0a0a0a' }}>{label}</span>
-                    {size != null && <Tag label={`${size} registros`} color="#1d4ed8" bg="#eff6ff" />}
+                    {size != null && <Tag label={`${size} fans activos`} color="#1d4ed8" bg="#eff6ff" />}
                   </div>
                   {cent && <p style={{ fontSize: '0.68rem', color: '#6b7280', margin: 0 }}>{typeof cent === 'string' ? cent : JSON.stringify(cent).slice(0, 80) + '...'}</p>}
                 </div>
@@ -400,10 +398,89 @@ const PCAInsights = ({ mlData }) => {
           </div>
           <p className="rec-card__insight" style={{marginTop:'0.75rem'}}>
             <Lightbulb size={12} style={{marginRight:5}} />
-            Usa los {nClusters ?? clusters.length} grupos para personalizar estrategias: marketing diferenciado por segmento, precios dinámicos y promociones dirigidas.
+            Utiliza estos grupos para enviar emails masivos con ofertas que realmente le interesen a cada tipo de cliente.
           </p>
         </div>
       )}
+    </div>
+  );
+};
+
+/* ──── OPTIMIZACIÓN (ELBOW METHOD HUMANIZADO) ─────────────── */
+const ElbowInsights = ({ mlData }) => {
+  if (!mlData) return <EmptyState mode="Optimización de Segmentos" />;
+
+  const optimalK = mlData.optimal_k ?? null;
+  const summary = mlData.summary ?? "Calculando segmentos ideales...";
+
+  return (
+    <div className="smart-recs-grid">
+      <div className="rec-card rec-card--success" style={{ gridColumn: '1 / -1' }}>
+        <div className="rec-card__header">
+          <Target size={22} color="#10b981" />
+          <div>
+            <h3 className="rec-card__title">Recomendación del Algoritmo</h3>
+            <Tag label="ESTRATEGIA INTELIGENTE" color="#065f46" bg="#f0fdf4" />
+          </div>
+        </div>
+        <div className="rec-card__stats-row" style={{ marginTop: '1rem' }}>
+          {optimalK != null && <Stat label="Grupos Ideales a Crear" value={optimalK} accent="#10b981" />}
+        </div>
+        <p className="rec-card__insight" style={{marginTop:'0.75rem'}}>
+          <Lightbulb size={12} style={{marginRight:5}} />
+          {summary}
+          <br/><br/>
+          <strong>¿Qué significa esto?</strong> En lugar de adivinar cuántos tipos de clientes tienes, la Inteligencia Artificial analizó matemáticamente la diferencia en el gasto de tus compradores y sugiere dividirlos exactamente en {optimalK} perfiles. Con esto asegurarás que cada grupo sea lo suficientemente único para lanzar campañas exitosas.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+/* ──── ANTI-BOT (ISOLATION FOREST HUMANIZADO) ─────────────── */
+const AnomalyInsights = ({ mlData }) => {
+  if (!mlData) return <EmptyState mode="Seguridad Anti-Bot" />;
+
+  const anomalies = mlData.anomalies ?? [];
+  const totalAnalyzed = mlData.total_users_analyzed ?? 0;
+  
+  return (
+    <div className="smart-recs-grid">
+      <div className="rec-card rec-card--warning" style={{ gridColumn: '1 / -1' }}>
+        <div className="rec-card__header">
+          <AlertTriangle size={22} color="#ef4444" />
+          <div>
+            <h3 className="rec-card__title">Alerta de Cuentas Sospechosas</h3>
+            <Tag label="INTELIGENCIA ANTI-REVENTA" color="#991b1b" bg="#fef2f2" />
+          </div>
+        </div>
+        <div className="rec-card__stats-row" style={{ marginTop: '1rem' }}>
+          <Stat label="Cuentas Revisadas" value={totalAnalyzed} />
+          <Stat label="Bloqueos Recomendados" value={anomalies.length} accent="#ef4444" />
+        </div>
+        
+        {anomalies.length > 0 ? (
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {anomalies.slice(0, 5).map((anom, idx) => (
+              <div key={idx} style={{ padding: '10px 14px', background: '#fef2f2', borderLeft: '4px solid #ef4444', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontWeight: 800, fontSize: '0.8rem', color: '#7f1d1d' }}>{anom.name} ({anom.email})</span>
+                  <Tag label="Riesgo de Reventa" color="#ef4444" bg="#fee2e2" />
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#991b1b', lineHeight: 1.4 }}>
+                  Adquirió <strong>{anom.total_tickets} boletos</strong> para {anom.distinct_events} eventos diferentes, invirtiendo <strong>${anom.total_spent.toLocaleString()}</strong>.
+                  Este comportamiento es irreal para un humano y coincide con el patrón de granjas de bots o revendedores.
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="rec-card__insight" style={{marginTop:'0.75rem'}}>
+            <CheckCircle size={12} color="#10b981" style={{marginRight:5}} />
+            <strong>Tu plataforma está protegida.</strong> El escáner de IA no encontró comportamientos de reventa o bots masivos en tu base de clientes actual.
+          </p>
+        )}
+      </div>
     </div>
   );
 };
@@ -513,10 +590,12 @@ const EmptyState = ({ mode }) => (
 ══════════════════════════════════════════════════════════════ */
 const MODE_META = {
   '2D_EXPLORATION':     { label: 'Exploración 2D',     icon: <BarChart2 size={18} />,  color: '#3b82f6' },
-  'ML_REGRESSION':      { label: 'Regresión ML',        icon: <TrendingUp size={18} />, color: '#10b981' },
-  'ML_DECISION_TREE':   { label: 'Árbol de Decisión',   icon: <GitBranch size={18} />,  color: '#f59e0b' },
-  'ML_PCA':             { label: 'Clustering PCA',      icon: <Layers size={18} />,     color: '#3b82f6' },
+  'ML_REGRESSION':      { label: 'Proyección de Ventas',        icon: <TrendingUp size={18} />, color: '#10b981' },
+  'ML_DECISION_TREE':   { label: 'Predicción de Abandono',   icon: <GitBranch size={18} />,  color: '#f59e0b' },
+  'ML_PCA':             { label: 'Clasificación de Fans',      icon: <Layers size={18} />,     color: '#3b82f6' },
   'ML_NEURAL_NETWORK':  { label: 'Red Neuronal',        icon: <Network size={18} />,    color: '#8b5cf6' },
+  'ML_ELBOW':           { label: 'Optimización de Segmentos', icon: <Target size={18} />, color: '#f43f5e' },
+  'ML_ANOMALY':         { label: 'Seguridad Anti-Bot', icon: <AlertTriangle size={18} />, color: '#ef4444' },
 };
 
 /* ══════════════════════════════════════════════════════════════
@@ -556,6 +635,10 @@ const SmartRecommendations = ({
         return <PCAInsights mlData={mlData} />;
       case 'ML_NEURAL_NETWORK':
         return <NeuralNetworkInsights mlData={mlData} />;
+      case 'ML_ELBOW':
+        return <ElbowInsights mlData={mlData} />;
+      case 'ML_ANOMALY':
+        return <AnomalyInsights mlData={mlData} />;
       default:
         return <EmptyState mode={meta.label} />;
     }
