@@ -34,7 +34,8 @@ import {
   HelpCircle,
   BookOpen,
   Users,
-  ChevronDown
+  ChevronDown,
+  Target
 } from 'lucide-react';
 
 
@@ -227,6 +228,12 @@ const BigDataVisualizer = ({ managerId = null }) => {
                 data = await analyticsAPI.getRegressionML(managerId, activeFilters);
             } else if (mode === 'ML_DECISION_TREE') {
                 data = await analyticsAPI.getDecisionTreeML(managerId, activeFilters);
+            } else if (mode === 'ML_PCA') {
+                data = await analyticsAPI.getPCAML(3);
+            } else if (mode === 'ML_ELBOW') {
+                data = await analyticsAPI.getElbowML(8);
+            } else if (mode === 'ML_ANOMALY') {
+                data = await analyticsAPI.getAnomalyML(managerId);
             }
             setMlData(data);
         } catch (err) {

@@ -283,7 +283,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                         boxShadow: '0 24px 80px rgba(0,0,0,0.8), 0 0 40px rgba(168,85,247,0.15)'
                     }}>
                         <div style={{ padding: '2rem 2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                            <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}>🎁</span>
+                            <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}></span>
                             <h2 style={{ fontSize: '1.4rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '2px', color: '#fff', margin: 0, background: 'linear-gradient(90deg, #c084fc, #db2777)', bgClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                                 ¿TE GUSTARÍA UN RECUERDITO?
                             </h2>
