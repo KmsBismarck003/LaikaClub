@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import {
   Brain, TrendingUp, GitBranch, Layers, Network, BarChart2,
   Lightbulb, AlertTriangle, CheckCircle, Info, Clock, Target,
-  Zap, ArrowUpRight, ArrowDownRight, Minus, Activity, RefreshCw, Loader
+  Zap, ArrowUpRight, ArrowDownRight, Minus, Activity, RefreshCw, Loader, Search
 } from 'lucide-react';
 import { useRecommendations } from '../hooks/useRecommendations';
 import './SmartRecommendations.css';
@@ -406,13 +406,15 @@ const PCAInsights = ({ mlData }) => {
               const size  = cl.size ?? cl.count ?? cl.n ?? null;
               const label = cl.label ?? cl.name ?? `Perfil ${i+1}`;
               const cent  = cl.centroid_summary ?? cl.centroid ?? null;
+              const desc  = cl.description ?? null;
               return (
                 <div key={i} style={{ padding: '10px 14px', background: '#f9fafb', borderRadius: 10, border: '1px solid #e5e7eb' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0a0a0a' }}>{label}</span>
                     {size != null && <Tag label={`${size} fans activos`} color="#1d4ed8" bg="#eff6ff" />}
                   </div>
-                  {cent && <p style={{ fontSize: '0.68rem', color: '#6b7280', margin: 0 }}>{typeof cent === 'string' ? cent : JSON.stringify(cent).slice(0, 80) + '...'}</p>}
+                  {cent && <p style={{ fontSize: '0.68rem', color: '#6b7280', margin: '0 0 6px 0' }}>{typeof cent === 'string' ? cent : JSON.stringify(cent).slice(0, 80) + '...'}</p>}
+                  {desc && <p style={{ fontSize: '0.68rem', color: '#065f46', background: '#ecfdf5', padding: '6px', borderRadius: '4px', margin: 0, fontStyle: 'italic', borderLeft: '2px solid #10b981' }}>{desc}</p>}
                 </div>
               );
             })}
@@ -675,6 +677,8 @@ const MODE_META = {
   'ML_REGRESSION':      { label: 'Proyección de Ventas',        icon: <TrendingUp size={18} />, color: '#10b981' },
   'ML_DECISION_TREE':   { label: 'Predicción de Abandono',   icon: <GitBranch size={18} />,  color: '#f59e0b' },
   'ML_PCA':             { label: 'Clasificación de Fans',      icon: <Layers size={18} />,     color: '#3b82f6' },
+  'ML_MARKET_GAPS':     { label: 'Huecos de Mercado',          icon: <Search size={18} />,     color: '#8b5cf6' },
+  'ML_RECOMMENDATIONS': { label: 'Recomendador (Cold Start)',  icon: <Zap size={18} />,        color: '#f59e0b' },
   'ML_NEURAL_NETWORK':  { label: 'Red Neuronal',        icon: <Network size={18} />,    color: '#8b5cf6' },
   'ML_ELBOW':           { label: 'Optimización de Segmentos', icon: <Target size={18} />, color: '#f43f5e' },
   'ML_ANOMALY':         { label: 'Seguridad Anti-Bot', icon: <AlertTriangle size={18} />, color: '#ef4444' },
@@ -721,6 +725,105 @@ const SmartRecommendations = ({
         return <ElbowInsights mlData={mlData} />;
       case 'ML_ANOMALY':
         return <AnomalyInsights mlData={mlData} />;
+      case 'ML_MARKET_GAPS':
+        const gapsData = mlData?.data || [];
+        const gapsInsights = mlData?.insights || [];
+        return (
+          <div className="smart-recs-grid">
+             {gapsInsights.length > 0 && (
+               <div className="rec-card rec-card--success" style={{ gridColumn: '1 / -1' }}>
+                 <div className="rec-card__header">
+                    <Target size={22} color="#10b981" />
+                    <div>
+                       <h3 className="rec-card__title">Oportunidades de Negocio</h3>
+                       <Tag label="INTELIGENCIA COMPETITIVA" color="#065f46" bg="#f0fdf4" />
+                    </div>
+                 </div>
+                 <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {gapsInsights.map((insight, idx) => (
+                      <div key={idx} style={{ padding: '10px 14px', background: '#ecfdf5', borderRadius: 8, borderLeft: '4px solid #10b981', fontSize: '0.75rem', color: '#064e3b', lineHeight: 1.5 }}>
+                         {insight}
+                      </div>
+                    ))}
+                 </div>
+               </div>
+             )}
+             
+             {gapsData.map((gap, i) => (
+               <div key={i} className="rec-card rec-card--info">
+                 <div className="rec-card__header">
+                   <Activity size={20} color="#3b82f6" />
+                   <div>
+                     <h3 className="rec-card__title">{gap.category}</h3>
+                     <Tag label={`Ocupación: ${gap.metrics.occupancy_rate.toFixed(1)}%`} color="#1d4ed8" bg="#eff6ff" />
+                   </div>
+                 </div>
+                 <div className="rec-card__stats-row" style={{ marginTop: '1rem' }}>
+                   <Stat label="Eventos" value={gap.metrics.total_events} />
+                   <Stat label="Ingresos" value={`$${gap.metrics.revenue.toLocaleString()}`} accent="#10b981" />
+                 </div>
+                 <div style={{ marginTop: '1rem' }}>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                     <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#64748b' }}>Demanda vs Oferta</span>
+                     <span style={{ fontSize: '0.65rem', fontWeight: 800, color: gap.metrics.occupancy_rate > 75 ? '#10b981' : '#3b82f6' }}>{gap.metrics.total_sold} / {gap.metrics.total_capacity} boletos</span>
+                   </div>
+                   <MiniBar value={gap.metrics.occupancy_rate} max={100} color={gap.metrics.occupancy_rate > 75 ? '#10b981' : '#3b82f6'} />
+                 </div>
+               </div>
+             ))}
+             {gapsData.length === 0 && (
+                 <div className="rec-card rec-card--info" style={{ gridColumn: '1 / -1' }}>
+                    <p className="rec-card__insight"><Lightbulb size={12} style={{marginRight:5}} />{mlData?.summary || "Ejecuta el análisis para visualizar los huecos de mercado."}</p>
+                 </div>
+             )}
+          </div>
+        );
+      case 'ML_RECOMMENDATIONS':
+        const targetClusters = mlData?.target_clusters || [];
+        return (
+          <div className="smart-recs-grid">
+             <div className="rec-card rec-card--warning" style={{ gridColumn: '1 / -1' }}>
+                <div className="rec-card__header">
+                   <Zap size={22} color="#f59e0b" />
+                   <div>
+                      <h3 className="rec-card__title">Recomendador Estratégico (Marketing)</h3>
+                      <Tag label="ACCIÓN REQUERIDA" color="#b45309" bg="#fffbeb" />
+                   </div>
+                </div>
+                
+                {targetClusters.length > 0 ? (
+                    <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {targetClusters.map((c, i) => (
+                           <div key={i} style={{ padding: '14px', background: '#fff', borderRadius: 12, border: '1px solid #fef3c7', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                                   <div>
+                                       <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0a0a0a', display: 'block' }}>{c.event_name}</span>
+                                       <span style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>{c.category} • Ocupación: <span style={{color: '#ef4444'}}>{c.occupancy}%</span></span>
+                                   </div>
+                                   <Tag label={`Dirigir a: ${c.target_cluster_name || `Segmento ${c.target_cluster + 1}`}`} color="#b45309" bg="#fef3c7" />
+                               </div>
+                               
+                               <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', marginTop: '10px' }}>
+                                   <p style={{ fontSize: '0.7rem', color: '#475569', margin: '0 0 6px 0', lineHeight: 1.4 }}>
+                                       <strong>Por qué:</strong> {c.reason}
+                                   </p>
+                                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontWeight: 700, fontSize: '0.72rem' }}>
+                                       <CheckCircle size={14} />
+                                       {c.action}
+                                   </div>
+                               </div>
+                           </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="rec-card__insight" style={{ marginTop: '1rem' }}>
+                       <Lightbulb size={12} style={{marginRight:5}} />
+                       {mlData?.summary || "Analizando eventos para detectar riesgos de asistencia y recomendar campañas..."}
+                    </p>
+                )}
+             </div>
+          </div>
+        );
       default:
         return <EmptyState mode={meta.label} />;
     }

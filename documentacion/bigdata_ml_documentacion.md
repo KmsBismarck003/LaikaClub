@@ -1,4 +1,4 @@
-﻿# BIG DATA, ANÃLISIS DE DATOS Y MACHINE LEARNING
+# BIG DATA, ANÃLISIS DE DATOS Y MACHINE LEARNING
 
 ## DescripciÃ³n General del MÃ³dulo
 
@@ -251,6 +251,79 @@ if hasattr(self, 'mongo_uri') and self.mongo_uri:
 ### Beneficios
 
 Este mecanismo permite comparar la evoluciÃ³n de los segmentos a lo largo del tiempo, detectar si los perfiles de usuarios han cambiado entre periodos y disponer de un registro auditable de cada anÃ¡lisis ejecutado por la plataforma, en lÃ­nea con prÃ¡cticas estÃ¡ndar de MLOps.
+
+---
+
+## VectorizaciÃ³n de Eventos e Inteligencia Competitiva (Fase 1)
+
+### PropÃ³sito
+Permitir a los administradores descubrir visualmente **Market Gaps** (nichos de mercado desatendidos) analizando el rendimiento histÃ³rico de los eventos. A diferencia del clustering de fans que agrupa a los usuarios, esta fase agrupa y vectoriza las caracterÃ­sticas de los eventos para proyectarlos en un espacio tridimensional.
+
+### ImplementaciÃ³n
+El mÃ©todo `run_event_market_gaps_pca` dentro de `ClusteringModule` fusiona la informaciÃ³n de `events` y `tickets`. 
+A cada evento se le asignan tres features comerciales principales:
+- `tickets_sold`: OcupaciÃ³n y demanda real.
+- `avg_price`: Valor percibido o precio de entrada.
+- `revenue`: Ganancia bruta total generada.
+
+Se aplica un `StandardScaler` seguido de un `PCA (k=2)` para transformar este espacio dimensional en coordenadas X, Y mapeables. Los eventos que aparecen aislados en el grÃ¡fico de dispersiÃ³n representan formatos no explotados o "White Spaces" de alta rentabilidad que el administrador podrÃ­a replicar.
+
+---
+
+## Persistencia de Segmentos y Mapeo de Usuarios (Fase 2)
+
+### PropÃ³sito
+La asignaciÃ³n de clÃºsteres no solo sirve para visualizaciÃ³n, sino que tiene un valor operativo de negocio directo. La **Fase 2** de la estrategia de Inteligencia Artificial requiere etiquetar automÃ¡ticamente a todos los usuarios de la base de datos con su respectivo segmento para habilitar campaÃ±as de marketing dirigido.
+
+### ImplementaciÃ³n
+Dentro del mÃ©todo `run_pca_analysis`, despuÃ©s de calcular los clÃºsteres y guardar los centroides, el sistema utiliza el conector nativo de PySpark para MongoDB (`spark.mongodb.write`) para realizar una escritura masiva (bulk write) de las asignaciones de usuario. Se guarda el mapeo directo entre `user_id` y `cluster` en la colecciÃ³n `user_segments` de MongoDB:
+
+```python
+# â”€â”€ PERSISTENCIA DE SEGMENTOS DE USUARIOS (FASE 2) â”€â”€
+df_final.select("user_id", "cluster").write \\
+    .format("mongodb") \\
+    .mode("overwrite") \\
+    .option("database", self.mongo_db) \\
+    .option("collection", "user_segments") \\
+    .save()
+```
+
+Esta operaciÃ³n es extremadamente eficiente gracias al procesamiento distribuido de Spark, evitando sobrecargar el hilo de FastAPI.
+
+---
+
+## Motor de Recomendaciones y "Cold Start" (Fase 3)
+
+### PropÃ³sito
+La **Fase 3** monetiza los resultados del aprendizaje no supervisado. Convierte las asignaciones pasivas de clÃºsteres en recomendaciones proactivas de eventos. Aborda dos problemas principales:
+1. **RecomendaciÃ³n a usuarios**: Sugerir eventos a un usuario basÃ¡ndose en lo que consumen otros usuarios de su mismo segmento.
+2. **Problema de "Cold Start"**: Encontrar la audiencia objetivo ideal para un nuevo evento reciÃ©n creado que aÃºn no tiene historial de ventas.
+
+### ImplementaciÃ³n de "Cold Start" (Distancia Euclidiana)
+El mÃ³dulo `RecommendationsModule` proporciona el endpoint `POST /api/analytics/ml/recommend-target`. Toma las caracterÃ­sticas numÃ©ricas de un evento nuevo (precio, capacidad, etc.), lo convierte en un vector, y calcula la **Distancia Euclidiana** contra todos los centroides histÃ³ricos almacenados en `ml_centroids_history` de MongoDB. El clÃºster que presente la menor distancia euclidiana al evento se considera la "audiencia objetivo Ã³ptima".
+
+### ImplementaciÃ³n de Recomendaciones a Usuario
+El endpoint `GET /api/analytics/ml/recommendations/{user_id}` sigue la lÃ³gica de Filtrado Colaborativo Basado en Segmentos:
+1. Localiza el clÃºster al que pertenece el usuario consultando la colecciÃ³n `user_segments`.
+2. Extrae una muestra representativa de otros usuarios (`peer_ids`) que pertenecen a ese mismo clÃºster.
+3. Consulta la base de datos transaccional (MySQL) para identificar los eventos mÃ¡s comprados por esos "pares" y se los recomienda al usuario actual.
+
+Este enfoque hÃ­brido (NoSQL para perfilamiento rÃ¡pido + SQL para historial de ventas) permite generar recomendaciones en milisegundos sin necesidad de recalcular matrices de similitud completas.
+
+---
+
+## IntegraciÃ³n End-to-End con Experiencia de Usuario (UI)
+
+Toda la arquitectura del motor K-Means y Filtrado Colaborativo estÃ¡ conectada directamente al Frontend a travÃ©s de dos flujos:
+
+1. **Dashboard Administrativo (`SmartRecommendations.jsx`):**
+   * El organizador selecciona el evento que va a organizar. El sistema extrae las mÃ©tricas reales del evento (capacidad, precio esperado, etc.) desde `eventsList` y las envÃ­a al endpoint `/recommend-target`.
+   * El sistema calcula la distancia euclidiana y devuelve el clÃºster objetivo, visualizÃ¡ndolo bajo el mÃ³dulo "Recomendador Inteligente (Cold Start)".
+
+2. **Tienda del Usuario / Home (`DiscoverySection.jsx`):**
+   * Un comprador (fan) inicia sesiÃ³n y su `user_id` es detectado por `AuthContext`.
+   * El hook `useHomeEvents` llama a `getUserRecommendations`, el cual cruza el clÃºster del comprador con los gustos de sus homÃ³logos en MongoDB.
+   * La interfaz inyecta automÃ¡ticamente un carrusel cinematogrÃ¡fico "**RECOMENDADO PARA TI**", cerrando exitosamente el embudo de inteligencia de negocios e incrementando la conversiÃ³n de tickets.
 
 ---
 

@@ -164,5 +164,19 @@ export const analyticsAPI = {
         if (managerId) params.manager_id = managerId;
         const response = await axios.get(`${BIGDATA_URL}/ml/anomaly`, { params });
         return response.data;
+    },
+    getMarketGapsML: async (managerId = null) => {
+        const params = {};
+        if (managerId) params.manager_id = managerId;
+        const response = await axios.get(`${BIGDATA_URL}/ml/market-gaps`, { params });
+        return response.data;
+    },
+    getEventTargetAudience: async (features, limit = 1) => {
+        const response = await axios.post(`${BIGDATA_URL}/ml/recommend-target`, { features, limit });
+        return response.data;
+    },
+    getUserRecommendations: async (userId, limit = 5) => {
+        const response = await axios.get(`${BIGDATA_URL}/ml/recommendations/${userId}`, { params: { limit } });
+        return response.data;
     }
 }

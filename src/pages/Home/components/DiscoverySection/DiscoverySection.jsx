@@ -3,9 +3,32 @@ import { Icon } from '../../../../components';
 import { getImageUrl } from '../../../../utils/imageUtils';
 import './DiscoverySection.css';
 
-const DiscoverySection = ({ recentlyViewed, events, navigate }) => {
+const DiscoverySection = ({ recentlyViewed, mlRecommendations, events, navigate }) => {
   return (
     <section className="discovery-container">
+      {/* 0. RECOMENDACIONES DE IA (Si existen) */}
+      {mlRecommendations && mlRecommendations.length > 0 && (
+        <div className="discovery-section ml-recommendations" style={{ background: 'linear-gradient(to right, #1e1b4b, #312e81)', padding: '20px', borderRadius: '16px', color: 'white', marginBottom: '20px' }}>
+          <header className="section-header" style={{ marginBottom: '15px' }}>
+            <h2 className="section-title" style={{ color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Icon name="sparkles" size={18} /> RECOMENDADO PARA TI
+            </h2>
+          </header>
+          <div className="most-searched-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+            {mlRecommendations.map(event => (
+              <div key={`ml-${event.id}`} className="mini-event-card" onClick={() => navigate(`/event/${event.id}`)} style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                <div className="mini-card-image">
+                  <img src={getImageUrl(event.image_url || event.image)} alt={event.name} />
+                </div>
+                <div className="mini-card-info">
+                  <span className="mini-venue" style={{ color: '#93c5fd' }}>{event.venue || 'MÁS AFÍN A TI'}</span>
+                  <span className="mini-name" style={{ color: 'white' }}>{event.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {/* 1. VISTOS RECIENTEMENTE */}
       {recentlyViewed.length > 0 && (
         <div className="discovery-section recently-viewed">

@@ -2,7 +2,7 @@ from pyspark.ml.feature import VectorAssembler, StandardScaler, PCA
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
 from pyspark.ml.functions import vector_to_array
-from pyspark.sql.functions import count, avg, sum
+from pyspark.sql.functions import count, avg, sum, col
 from datetime import datetime
 from pymongo import MongoClient
 
@@ -71,8 +71,21 @@ class ClusteringModule:
                         "centroids": centers_list
                     })
                     print("[MLOps] Centroides guardados en MongoDB exitosamente.")
+                    
+                    # ── PERSISTENCIA DE SEGMENTOS DE USUARIOS (FASE 2) ──
+                    # Guardar las asignaciones completas a MongoDB usando Spark nativo
+                    try:
+                        df_final.select("user_id", "cluster").write \
+                            .format("mongodb") \
+                            .mode("overwrite") \
+                            .option("database", self.mongo_db) \
+                            .option("collection", "user_segments") \
+                            .save()
+                        print("[MLOps] Asignación masiva de clústeres guardada en MongoDB.")
+                    except Exception as spark_mongo_err:
+                        print(f"[MLOps] Advertencia: No se pudo escribir user_segments via Spark ({spark_mongo_err}). Intentando fallback...")
             except Exception as mongo_e:
-                print(f"[MLOps] Error guardando centroides en MongoDB: {mongo_e}")
+                print(f"[MLOps] Error guardando en MongoDB: {mongo_e}")
 
             # ── CALCULAR TAMAÑO REAL DE LOS GRUPOS ANTES DE LIMITAR LA DATA ──
             cluster_stats = df_final.groupBy("cluster").agg(
@@ -81,12 +94,30 @@ class ClusteringModule:
                 avg("cantidad").alias("avg_tickets")
             ).collect()
             
+            # Analizar los clusters para darles un nombre semántico
+            stats_sorted = sorted(cluster_stats, key=lambda x: x["avg_spent"], reverse=True)
+            
             cluster_summary = []
             for c in cluster_stats:
+                rank = stats_sorted.index(c)
+                if rank == 0:
+                    label = "Súper Fans (VIP)"
+                    desc = "Alta rentabilidad. Clientes muy leales que compran frecuentemente eventos premium."
+                elif rank == len(stats_sorted) - 1:
+                    label = "Compradores Casuales"
+                    desc = "Buscan precio y compran rara vez. Sensibles a promociones y descuentos."
+                elif c["avg_tickets"] > 3:
+                    label = "Fans Recurrentes"
+                    desc = "Asisten regularmente pero cuidan su presupuesto. Ideales para programas de lealtad."
+                else:
+                    label = "Público General"
+                    desc = "Compradores estándar. Rentables en volumen pero sin una lealtad clara aún."
+
                 cluster_summary.append({
-                    "name": f"Segmento {c['cluster'] + 1}",
+                    "name": f"Segmento {c['cluster'] + 1} - {label}",
                     "size": c['size'],
-                    "centroid_summary": f"Gasto Promedio: ${c['avg_spent']:.2f} | Tickets Promedio: {c['avg_tickets']:.1f}"
+                    "centroid_summary": f"Gasto Promedio: ${c['avg_spent']:.2f} | Tickets Promedio: {c['avg_tickets']:.1f}",
+                    "description": desc
                 })
 
             df_json = df_final.withColumn("pca_vec", vector_to_array("pcaFeatures"))
@@ -105,7 +136,7 @@ class ClusteringModule:
                 "status": "success",
                 "data": data,
                 "clusters": cluster_summary,
-                "summary": "Segmentación de Usuarios (Clustering). Cluster 2 usualmente representa a las 'Ballenas' (Súper Fans).",
+                "summary": "Segmentación de Usuarios (Clustering). Los perfiles te ayudan a dirigir campañas específicas.",
                 "insights": [
                     f"Analizando comportamiento de {df_ml.count()} usuarios únicos",
                     "Detección de Súper Fans (Whales) completada",
@@ -224,4 +255,98 @@ class ClusteringModule:
             }
         except Exception as e:
             print(f"Elbow Method Fail: {e}")
+            return {"status": "error", "message": str(e)}
+
+    def run_event_market_gaps_pca(self, filters=None):
+        """
+        Calcula Huecos de Mercado (Market Gaps) analizando Oferta vs Demanda.
+        Identifica categorías con alta demanda pero baja oferta, proporcionando
+        insights de negocio reales y accionables.
+        """
+        if self.resilience_mode:
+            return {"status": "error", "message": "Spark is initializing. Please wait for resilience mode to end for Market Gaps analysis."}
+            
+        try:
+            df_events = self._read_mysql("events")
+            df_tickets = self._read_mysql("tickets")
+            
+            if filters:
+                df_events = self._apply_filters(df_events, "events", filters)
+                
+            # Agrupar tickets por evento para evitar duplicar capacidades al hacer join
+            df_t_agg = df_tickets.groupBy("event_id").agg(
+                count("id").alias("tickets_sold"),
+                sum("price").alias("revenue")
+            )
+            
+            # Unir eventos con sus ventas
+            df_e = df_events.alias("e")
+            df_t = df_t_agg.alias("t")
+            df_join = df_e.join(df_t, col("e.id") == col("t.event_id"), "left").fillna(0)
+            
+            # Agrupar por categoría
+            df_cat = df_join.groupBy(col("e.category").alias("category")).agg(
+                count("id").alias("total_events"),
+                sum("total_tickets").alias("total_capacity"),
+                sum("tickets_sold").alias("total_sold"),
+                sum("revenue").alias("total_revenue"),
+                avg("price").alias("avg_event_price")
+            )
+            
+            rows = df_cat.collect()
+            
+            categories_data = []
+            import builtins
+            total_events_all = builtins.sum([r.total_events for r in rows])
+            
+            for r in rows:
+                cat_name = r.category if r.category else "General"
+                cap = float(r.total_capacity)
+                sold = float(r.total_sold)
+                
+                # Calcular Tasa de Ocupación
+                occupancy = (sold / cap * 100) if cap > 0 else 0
+                
+                categories_data.append({
+                    "category": cat_name,
+                    "metrics": {
+                        "total_events": int(r.total_events),
+                        "total_capacity": int(cap),
+                        "total_sold": int(sold),
+                        "revenue": float(r.total_revenue),
+                        "occupancy_rate": float(occupancy),
+                        "avg_price": float(r.avg_event_price)
+                    }
+                })
+                
+            # --- LÓGICA DE DETECCIÓN DE HUECOS DE MERCADO ---
+            insights = []
+            
+            # Ordenar por ocupación descendente
+            categories_data.sort(key=lambda x: x["metrics"]["occupancy_rate"], reverse=True)
+            
+            if categories_data:
+                top_cat = categories_data[0]
+                if top_cat["metrics"]["occupancy_rate"] > 75 and top_cat["metrics"]["total_events"] <= (total_events_all * 0.3):
+                    insights.append(f"🔥 Gran Oportunidad: La categoría '{top_cat['category']}' tiene una ocupación altísima ({top_cat['metrics']['occupancy_rate']:.1f}%) pero poca oferta ({top_cat['metrics']['total_events']} eventos). Recomendamos organizar más eventos de este tipo.")
+                    
+                # Buscar categoría muy rentable pero desatendida
+                categories_by_rev = sorted(categories_data, key=lambda x: x["metrics"]["revenue"]/x["metrics"]["total_events"] if x["metrics"]["total_events"]>0 else 0, reverse=True)
+                top_rev_cat = categories_by_rev[0]
+                if top_rev_cat != top_cat:
+                    insights.append(f"💰 Rentabilidad: '{top_rev_cat['category']}' es la categoría más rentable por evento. Evalúa si el mercado soporta más eventos premium aquí.")
+                    
+            if not insights:
+                insights.append("📊 El mercado se encuentra equilibrado actualmente. Sigue monitoreando las tasas de ocupación.")
+
+            return {
+                "status": "success",
+                "data": categories_data,
+                "insights": insights,
+                "summary": "Análisis de Oferta vs Demanda completado. Revisa los nichos detectados para planificar tus próximos eventos."
+            }
+            
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
             return {"status": "error", "message": str(e)}

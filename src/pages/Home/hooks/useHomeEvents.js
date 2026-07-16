@@ -3,6 +3,9 @@ import { useSearchParams } from 'react-router-dom'
 import api from '../../../services/api'
 import { useSkeletonContext } from '../../../context/SkeletonContext'
 
+import { useAuth } from '../../../context/AuthContext'
+import { analyticsAPI } from '../../../services/miscService'
+
 const ITEMS_PER_PAGE = 8
 
 export const formatDate = dateString => {
@@ -29,6 +32,8 @@ const useHomeEvents = () => {
   const [currentPage,     setCurrentPage]     = useState(1)
   const [error,           setError]           = useState(null)
   const [recentlyViewed,  setRecentlyViewed]  = useState([])
+  const [mlRecommendations, setMlRecommendations] = useState([])
+  const { user } = useAuth()
 
   /* ─── Sync URL params ─── */
   useEffect(() => {
@@ -44,8 +49,18 @@ const useHomeEvents = () => {
         api.event.getPublic({ limit: 100 }),
         api.ads.getPublic(),
       ])
+      
+      let recsRes = []
+      if (user?.id) {
+        try {
+          const recsData = await analyticsAPI.getUserRecommendations(user.id, 4)
+          recsRes = recsData?.recommendations || []
+        } catch (e) { console.warn("No ML recommendations available") }
+      }
+      
       setEvents(eventsRes || [])
       setAds(adsRes || [])
+      setMlRecommendations(recsRes)
       setError(null)
     } catch (err) {
       console.error('Error al cargar datos de Inicio:', err)
@@ -79,6 +94,11 @@ const useHomeEvents = () => {
 
   /* ─── Reset page on filter change ─── */
   useEffect(() => { setCurrentPage(1) }, [searchTerm, selectedCategory])
+
+  // Refetch if user changes
+  useEffect(() => {
+    if (user?.id) fetchInitialData(true)
+  }, [user?.id, fetchInitialData])
 
   /* ─── Derived state ─── */
   const filteredEvents = useMemo(() => {
@@ -137,6 +157,7 @@ const useHomeEvents = () => {
     filteredEvents,
     paginatedEvents,
     recentlyViewed,
+    mlRecommendations,
     searchTerm,
     selectedCategory,
     currentPage,

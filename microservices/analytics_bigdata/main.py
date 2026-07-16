@@ -377,6 +377,43 @@ async def grant_user_retention_coupon(payload: dict):
         
     return result
 
+@app.get("/api/analytics/ml/recommendations/{user_id}")
+def get_user_recommendations(user_id: int, limit: int = 5):
+    """Obtiene recomendaciones de eventos personalizadas para un usuario basadas en su clúster."""
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    res = engine.get_user_recommendations(user_id=user_id, limit=limit)
+    if res.get("status") == "error":
+        raise HTTPException(status_code=500, detail=res.get("message"))
+    return res
+
+@app.post("/api/analytics/ml/recommend-target")
+def get_event_target(payload: dict):
+    """Encuentra el segmento de usuarios objetivo para un evento nuevo usando distancia Euclidiana."""
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+    
+    features = payload.get("features", [])
+    if not features:
+        raise HTTPException(status_code=400, detail="Se requiere array de features del evento")
+        
+    res = engine.get_event_target_audience(event_features=features, limit=payload.get("limit", 1))
+    if res.get("status") == "error":
+        raise HTTPException(status_code=500, detail=res.get("message"))
+    return res
+
+@app.get("/api/analytics/ml/market-gaps")
+def get_market_gaps(manager_id: int = None):
+    """Ejecuta PCA sobre eventos para descubrir huecos de mercado (Market Gaps)."""
+    if not engine:
+        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+        
+    filters = {"manager_id": manager_id} if manager_id else None
+    res = engine.run_event_market_gaps_pca(filters=filters)
+    if res.get("status") == "error":
+        raise HTTPException(status_code=500, detail=res.get("message"))
+    return res
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8007)
 

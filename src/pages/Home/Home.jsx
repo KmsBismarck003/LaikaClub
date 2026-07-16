@@ -41,6 +41,7 @@ const Home = () => {
     filteredEvents,
     paginatedEvents,
     recentlyViewed,
+    mlRecommendations,
     selectedCategory,
     setSelectedCategory,
     currentPage,
@@ -120,6 +121,7 @@ const Home = () => {
 
             <DiscoverySection
               recentlyViewed={recentlyViewed}
+              mlRecommendations={mlRecommendations}
               events={filteredEvents}
               navigate={navigate}
             />

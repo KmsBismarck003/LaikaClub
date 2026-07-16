@@ -103,6 +103,10 @@ const BigDataVisualizer = ({ managerId = null }) => {
     const [mlData, setMlData] = useState(null);
     const [mlLoading, setMlLoading] = useState(false);
     
+    useEffect(() => {
+        setMlData(null);
+    }, [analysisMode]);
+    
     // Estados para el laboratorio de clase KDD
     const [descriptiveStats, setDescriptiveStats] = useState(null);
     const [statsLoading, setStatsLoading] = useState(false);
@@ -237,6 +241,19 @@ const BigDataVisualizer = ({ managerId = null }) => {
             } else if (mode === 'ML_PCA') {
                 const k = activeFilters.k_clusters ? parseInt(activeFilters.k_clusters, 10) : 3;
                 data = await analyticsAPI.getPCAML(k);
+            } else if (mode === 'ML_MARKET_GAPS') {
+                data = await analyticsAPI.getMarketGapsML(managerId);
+            } else if (mode === 'ML_RECOMMENDATIONS') {
+                let features = [100, 50, 5000]; // Default proxy si no hay evento seleccionado
+                if (activeFilters.event_id) {
+                    const eventObj = eventsList.find(e => e.id.toString() === activeFilters.event_id.toString());
+                    if (eventObj) {
+                        const price = Number(eventObj.price) || 50;
+                        const capacity = Number(eventObj.total_tickets) || 100;
+                        features = [capacity, price, capacity * price];
+                    }
+                }
+                data = await analyticsAPI.getEventTargetAudience(features, 1);
             } else if (mode === 'ML_ELBOW') {
                 data = await analyticsAPI.getElbowML(8);
             } else if (mode === 'ML_ANOMALY') {
@@ -692,7 +709,7 @@ const BigDataVisualizer = ({ managerId = null }) => {
                                         config={{ responsive: true, displaylogo: false }}
                                     />
                                 </div>
-                            ) : (analysisMode === 'ML_PCA' || analysisMode === 'ML_ELBOW' || analysisMode === 'ML_ANOMALY') ? (
+                            ) : (analysisMode === 'ML_PCA' || analysisMode === 'ML_RECOMMENDATIONS' || analysisMode === 'ML_ELBOW' || analysisMode === 'ML_ANOMALY' || analysisMode === 'ML_MARKET_GAPS') ? (
                                 <div key="smart-recs-container" className="b2b-scrollable-container" style={{ padding: '1.8rem', background: '#ffffff', borderRadius: '24px', maxHeight: '650px', overflowY: 'auto' }}>
                                     <SmartRecommendations analysisMode={analysisMode} mlData={mlData} />
                                 </div>

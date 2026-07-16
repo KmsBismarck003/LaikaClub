@@ -3,6 +3,8 @@ import { Database as DatabaseIcon, Zap, BookOpen, Layers, Users, Target, ShieldA
 
 const modes = [
     { id: '3D_EXPLORATION', label: 'VISTA EN 3D', icon: <Layers size={16} /> },
+    { id: 'ML_MARKET_GAPS', label: 'HUECOS DE MERCADO', icon: <Search size={16} /> },
+    { id: 'ML_RECOMMENDATIONS', label: 'RECOMENDADOR', icon: <Zap size={16} /> },
     { id: 'ML_PCA', label: 'SEGMENTACIÓN', icon: <Users size={16} /> },
     { id: 'ML_ELBOW', label: 'PERFILES IDEALES', icon: <Target size={16} /> },
     { id: 'ML_ANOMALY', label: 'ANTI-BOT', icon: <ShieldAlert size={16} /> },

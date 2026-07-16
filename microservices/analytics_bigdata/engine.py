@@ -28,9 +28,10 @@ from modules.clustering_pca import ClusteringModule
 from modules.neural_network import NeuralNetworkModule
 from modules.user_demand_analytics import UserDemandAnalyticsModule
 from modules.merchandise_analytics import MerchandiseAnalyticsModule
+from modules.recommendations import RecommendationsModule
 
 
-class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalyticsModule, MerchandiseAnalyticsModule):
+class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalyticsModule, MerchandiseAnalyticsModule, RecommendationsModule):
     def __init__(self):
         self.spark = None
         self.resilience_mode = True # Iniciar en modo resiliencia (ligero) hasta que Spark despierte
@@ -698,8 +699,9 @@ class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalytics
                     base_price = 150.0
                     if df_ml.count() > 0:
                         real_data = df_ml.collect()
-                        total_sold = sum(r.cantidad for r in real_data)
-                        total_inc = sum(r.ingreso for r in real_data)
+                        import builtins
+                        total_sold = builtins.sum(r.cantidad for r in real_data)
+                        total_inc = builtins.sum(r.ingreso for r in real_data)
                         if total_sold > 0:
                             base_price = float(total_inc) / float(total_sold)
                     
@@ -1110,10 +1112,11 @@ class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalytics
         # Calcular matriz de confusión dinámica basada en las predicciones si hay datos reales
         if classification_predictions:
             try:
-                tp_val = sum(1 for p in classification_predictions if p["ocupacion_pct"] > 50.0 and p["classification"] in ["Tarifa Dinámica", "Ajuste de Precio - Dinámica Alta", "Cupón Urgente", "Venta Alta"])
-                tn_val = sum(1 for p in classification_predictions if p["ocupacion_pct"] <= 50.0 and p["classification"] not in ["Tarifa Dinámica", "Ajuste de Precio - Dinámica Alta", "Cupón Urgente", "Venta Alta"])
-                fp_val = sum(1 for p in classification_predictions if p["ocupacion_pct"] <= 50.0 and p["classification"] in ["Tarifa Dinámica", "Ajuste de Precio - Dinámica Alta", "Cupón Urgente", "Venta Alta"])
-                fn_val = sum(1 for p in classification_predictions if p["ocupacion_pct"] > 50.0 and p["classification"] not in ["Tarifa Dinámica", "Ajuste de Precio - Dinámica Alta", "Cupón Urgente", "Venta Alta"])
+                import builtins
+                tp_val = builtins.sum(1 for p in classification_predictions if p["ocupacion_pct"] > 50.0 and p["classification"] in ["Tarifa Dinámica", "Ajuste de Precio - Dinámica Alta", "Cupón Urgente", "Venta Alta"])
+                tn_val = builtins.sum(1 for p in classification_predictions if p["ocupacion_pct"] <= 50.0 and p["classification"] not in ["Tarifa Dinámica", "Ajuste de Precio - Dinámica Alta", "Cupón Urgente", "Venta Alta"])
+                fp_val = builtins.sum(1 for p in classification_predictions if p["ocupacion_pct"] <= 50.0 and p["classification"] in ["Tarifa Dinámica", "Ajuste de Precio - Dinámica Alta", "Cupón Urgente", "Venta Alta"])
+                fn_val = builtins.sum(1 for p in classification_predictions if p["ocupacion_pct"] > 50.0 and p["classification"] not in ["Tarifa Dinámica", "Ajuste de Precio - Dinámica Alta", "Cupón Urgente", "Venta Alta"])
                 
                 # Seeding baseline values to look beautiful if too few events
                 if len(classification_predictions) < 5:
@@ -1287,7 +1290,7 @@ class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalytics
                 "type": backup_type,
                 "tables": tables,
                 "status": "success",
-                "total_records": sum(r["records"] for r in results.values())
+                "total_records": builtins.sum(r["records"] for r in results.values())
             })
             
             return {
@@ -1352,7 +1355,7 @@ class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalytics
                 "type": f"{backup_type} (Direct)",
                 "tables": tables,
                 "status": "success",
-                "total_records": sum(r["records"] for r in results.values())
+                "total_records": builtins.sum(r["records"] for r in results.values())
             })
             
             return {
