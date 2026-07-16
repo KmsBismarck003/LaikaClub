@@ -35,6 +35,7 @@ export const achievementsAPI = {
 }
 
 const ANALYTICS_URL = 'http://127.0.0.1:8007/api/analytics';
+const BIGDATA_URL = 'http://127.0.0.1:8009/api/analytics';
 
 export const analyticsAPI = {
     getAnalyticsTables: async () => {

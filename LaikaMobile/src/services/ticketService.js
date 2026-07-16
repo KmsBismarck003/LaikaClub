@@ -14,6 +14,7 @@ export const ticketAPI = {
   refund: (refundData) => apiClient.post('/refunds', refundData),
   luckySeatAssign: (eventId, data) => apiClient.post('/tickets/lucky-seat/assign', { event_id: eventId, ...data }),
   resendTicket: (ticketCode) => apiClient.post(`/tickets/${ticketCode}/resend`),
+  claimFree: (data) => apiClient.post('/tickets/free', data),
 };
 
 export const paymentAPI = {

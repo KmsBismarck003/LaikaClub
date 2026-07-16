@@ -12,7 +12,7 @@ export const Header = ({ title = 'LAIKA CLUB', showBack = false, onBackPress }) 
 
   const handleProfilePress = () => {
     if (isAuthenticated()) {
-      navigation.navigate('UserProfile');
+      navigation.navigate('Perfil');
     } else {
       navigation.navigate('Login');
     }
@@ -41,26 +41,6 @@ export const Header = ({ title = 'LAIKA CLUB', showBack = false, onBackPress }) 
         >
           <Settings size={20} color={theme.colors.black} />
         </TouchableOpacity>
-
-        {/* Admin Dashboard Quick Access */}
-        {isAuthenticated() && user.role === 'admin' && (
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('AdminDashboard')}
-          >
-            <Shield size={20} color={theme.colors.black} />
-          </TouchableOpacity>
-        )}
-
-        {/* Manager Dashboard Quick Access */}
-        {isAuthenticated() && user.role === 'gestor' && (
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('ManagerDashboard')}
-          >
-            <LayoutDashboard size={20} color={theme.colors.black} />
-          </TouchableOpacity>
-        )}
 
         {/* Cart Icon */}
         <TouchableOpacity

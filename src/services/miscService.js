@@ -35,6 +35,7 @@ export const achievementsAPI = {
 }
 
 const ANALYTICS_URL = 'http://127.0.0.1:8000/api/analytics';
+const BIGDATA_URL = 'http://127.0.0.1:8009/api/analytics';
 
 export const analyticsAPI = {
     getAnalyticsTables: async () => {
@@ -148,6 +149,20 @@ export const analyticsAPI = {
             user_id: userId,
             discount_value: discountValue
         });
+        return response.data;
+    },
+    getPCAML: async (k = 3) => {
+        const response = await axios.get(`${BIGDATA_URL}/ml/pca`, { params: { k } });
+        return response.data;
+    },
+    getElbowML: async (max_k = 8) => {
+        const response = await axios.get(`${BIGDATA_URL}/ml/elbow`, { params: { max_k } });
+        return response.data;
+    },
+    getAnomalyML: async (managerId = null) => {
+        const params = {};
+        if (managerId) params.manager_id = managerId;
+        const response = await axios.get(`${BIGDATA_URL}/ml/anomaly`, { params });
         return response.data;
     }
 }

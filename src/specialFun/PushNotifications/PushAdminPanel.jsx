@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PushEngine } from './services/PushEngine';
+import { apiClient } from '../../services/apiClient';
 import './PushAdminPanel.css';
 
 const PushAdminPanel = () => {
@@ -56,21 +57,26 @@ const PushAdminPanel = () => {
     setIsSending(true);
     setFeedback(null);
 
-    // Simulate network delay for admin feedback
-    setTimeout(async () => {
-      const success = await PushEngine.sendNotification(formData.title, {
+    try {
+      const response = await apiClient.post('/users/push/send', {
+        title: formData.title,
         body: formData.body,
-        data: formData.url || window.location.origin,
+        url: formData.url,
+        audience: formData.targetAudience
       });
 
-      if (success) {
-        setFeedback({ type: 'success', msg: `Notificación push enviada exitosamente a: ${formData.targetAudience}` });
+      if (response && response.status === 'success') {
+        setFeedback({ type: 'success', msg: `Notificación push enviada a ${response.sentCount || 0} dispositivos registrados en la BD.` });
         setFormData({ ...formData, title: '', body: '', url: '' });
       } else {
-        setFeedback({ type: 'error', msg: 'Error al intentar enviar la notificación al sistema.' });
+        setFeedback({ type: 'error', msg: 'Error del servidor al enviar la notificación.' });
       }
+    } catch (err) {
+      console.error(err);
+      setFeedback({ type: 'error', msg: err.message || 'Error de red al intentar enviar la notificación.' });
+    } finally {
       setIsSending(false);
-    }, 800);
+    }
   };
 
   const handleTestSmartTrigger = async (type) => {

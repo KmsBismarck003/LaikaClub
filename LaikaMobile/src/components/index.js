@@ -5,7 +5,7 @@ import EventCard from './EventCard';
 import VenueMap from './VenueMap';
 import Header from './Header';
 import TransferModal from './TransferModal';
-import ManagerStatsCards from './manager/ManagerStatsCards';
+import BiometricShield from './BiometricShield';
 
 export {
   Button,
@@ -15,5 +15,5 @@ export {
   VenueMap,
   Header,
   TransferModal,
-  ManagerStatsCards,
+  BiometricShield,
 };

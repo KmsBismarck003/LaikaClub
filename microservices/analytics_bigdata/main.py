@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from .engine import AnalyticsEngine
+from engine import AnalyticsEngine
 import uvicorn
 
 app = FastAPI(title="Laika Analytics Big Data Service", version="1.0.0")

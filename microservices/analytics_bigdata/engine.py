@@ -14,20 +14,20 @@ from pathlib import Path
 import threading
 
 # Importación de algoritmos organizados en carpetas dedicadas
-from .algorithms.regression.linear_regression import train_linear_regression
-from .algorithms.regression.polynomial_regression import train_polynomial_regression
-from .algorithms.regression.ridge_regression import train_ridge_regression
-from .algorithms.regression.lasso_regression import train_lasso_regression
-from .algorithms.classification.decision_tree import train_decision_tree
-from .algorithms.clustering.k_means import train_k_means
-from .algorithms.clustering.pca import run_pca
-from .algorithms.clustering.venue_prospecting import run_venue_prospecting
+from algorithms.regression.linear_regression import train_linear_regression
+from algorithms.regression.polynomial_regression import train_polynomial_regression
+from algorithms.regression.ridge_regression import train_ridge_regression
+from algorithms.regression.lasso_regression import train_lasso_regression
+from algorithms.classification.decision_tree import train_decision_tree
+from algorithms.clustering.k_means import train_k_means
+from algorithms.clustering.pca import run_pca
+from algorithms.clustering.venue_prospecting import run_venue_prospecting
 
 # Importación de módulos mixin
-from .modules.clustering_pca import ClusteringModule
-from .modules.neural_network import NeuralNetworkModule
-from .modules.user_demand_analytics import UserDemandAnalyticsModule
-from .modules.merchandise_analytics import MerchandiseAnalyticsModule
+from modules.clustering_pca import ClusteringModule
+from modules.neural_network import NeuralNetworkModule
+from modules.user_demand_analytics import UserDemandAnalyticsModule
+from modules.merchandise_analytics import MerchandiseAnalyticsModule
 
 
 class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalyticsModule, MerchandiseAnalyticsModule):
@@ -51,13 +51,10 @@ class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalytics
         self.mongo_db = os.getenv("MONGO_DB", "laika_analytics")
 
         try:
-            print(f"[DEBUG] Iniciando hilo de Spark...")
-            self.spark_thread = threading.Thread(target=self._safe_initialize_spark)
-            self.spark_thread.daemon = True
-            self.spark_thread.start()
-            print("[DEBUG] Hilo de Spark lanzado. El servicio operará en modo ligero mientras Spark inicializa.")
+            print(f"[DEBUG] Inicializando motor Spark de forma síncrona en el hilo principal...")
+            self._safe_initialize_spark()
         except Exception as e:
-            print(f"FAILED to launch spark thread: {e}")
+            print(f"FAILED to launch spark: {e}")
 
     def _safe_initialize_spark(self):
         """Método para ejecutar en segundo plano."""

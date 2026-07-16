@@ -24,6 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 @Service
 public class UserService {
@@ -201,6 +208,7 @@ public class UserService {
             u.put("lockout_until", user.getLockoutUntil());
             u.put("last_login", user.getLastLogin());
             u.put("created_at", user.getCreatedAt() != null ? user.getCreatedAt().format(formatter) : null);
+            u.put("expo_push_token", user.getExpoPushToken());
             return u;
         }).collect(Collectors.toList());
 
@@ -209,5 +217,61 @@ public class UserService {
         result.put("total", userPage.getTotalElements());
 
         return result;
+    }
+
+    @Transactional
+    public void updatePushToken(Long userId, String token) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setExpoPushToken(token);
+            userRepository.save(user);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public int sendPushNotification(String title, String body, String url, String audience) {
+        List<User> users = userRepository.findAll();
+        List<Map<String, Object>> messages = new ArrayList<>();
+        
+        for (User user : users) {
+            if (user.getExpoPushToken() != null && !user.getExpoPushToken().isEmpty()) {
+                Map<String, Object> msg = new HashMap<>();
+                msg.put("to", user.getExpoPushToken());
+                msg.put("sound", "default");
+                msg.put("title", title);
+                msg.put("body", body);
+                
+                if (url != null && !url.isEmpty()) {
+                    Map<String, String> data = new HashMap<>();
+                    data.put("url", url);
+                    msg.put("data", data);
+                }
+                messages.add(msg);
+            }
+        }
+        
+        if (messages.isEmpty()) {
+            logger.warn("No valid Expo Push Tokens found to send notifications.");
+            return 0;
+        }
+        
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            
+            HttpEntity<List<Map<String, Object>>> request = new HttpEntity<>(messages, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                "https://exp.host/--/api/v2/push/send", 
+                request, 
+                String.class
+            );
+            
+            logger.info("Expo Push API Response: {}", response.getBody());
+            return messages.size();
+        } catch (Exception e) {
+            logger.error("Failed to send push notification to Expo Servers", e);
+            return 0;
+        }
     }
 }

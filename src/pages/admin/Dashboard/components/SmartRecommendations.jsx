@@ -335,8 +335,29 @@ const DecisionTreeInsights = ({ mlData }) => {
 const PCAInsights = ({ mlData }) => {
   if (!mlData) return <EmptyState mode="Clasificación de Fans" />;
 
-  const clusters    = mlData.clusters ?? mlData.cluster_info ?? mlData.cluster_summary ?? [];
-  const explained   = mlData.explained_variance ?? mlData.variance_ratio ?? mlData.pca_variance ?? null;
+  const explained   = mlData.explained_variance ?? mlData.variance_ratio ?? mlData.pca_variance ?? mlData.varianza_explicada ?? null;
+  const rawClusters = mlData.clusters ?? mlData.cluster_info ?? mlData.cluster_summary ?? null;
+  
+  // Si el backend devuelve 'data' con cada usuario y su 'cluster', derivamos los grupos
+  let clusters = [];
+  if (rawClusters && rawClusters.length > 0) {
+      clusters = rawClusters;
+  } else if (mlData.data && mlData.data.length > 0) {
+      const grouped = mlData.data.reduce((acc, item) => {
+          const cId = item.cluster;
+          if (!acc[cId]) acc[cId] = { id: cId, size: 0, total_spent: 0, tickets: 0 };
+          acc[cId].size += 1;
+          acc[cId].total_spent += (item.metrics?.total || 0);
+          acc[cId].tickets += (item.metrics?.tickets || 0);
+          return acc;
+      }, {});
+      clusters = Object.values(grouped).map(g => ({
+          name: `Segmento ${g.id + 1}`,
+          size: g.size,
+          centroid_summary: `Gasto Promedio: $${(g.total_spent / g.size).toFixed(2)} | Tickets Promedio: ${(g.tickets / g.size).toFixed(1)}`
+      }));
+  }
+
   const nClusters   = mlData.n_clusters ?? clusters.length ?? null;
   const silhouette  = mlData.silhouette_score ?? mlData.silhouette ?? null;
 
@@ -411,28 +432,89 @@ const ElbowInsights = ({ mlData }) => {
   if (!mlData) return <EmptyState mode="Optimización de Segmentos" />;
 
   const optimalK = mlData.optimal_k ?? null;
-  const summary = mlData.summary ?? "Calculando segmentos ideales...";
+  const wcssCurve = mlData.wcss_curve ?? [];
+  const maxWcss = wcssCurve.length > 0 ? Math.max(...wcssCurve.map(p => p.wcss)) : 1;
 
   return (
-    <div className="smart-recs-grid">
-      <div className="rec-card rec-card--success" style={{ gridColumn: '1 / -1' }}>
+    <div className="smart-recs-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+      {/* Tarjeta de Recomendación */}
+      <div className="rec-card rec-card--success">
         <div className="rec-card__header">
           <Target size={22} color="#10b981" />
           <div>
-            <h3 className="rec-card__title">Recomendación del Algoritmo</h3>
-            <Tag label="ESTRATEGIA INTELIGENTE" color="#065f46" bg="#f0fdf4" />
+            <h3 className="rec-card__title">Recomendación Estratégica</h3>
+            <Tag label="MÁXIMA RENTABILIDAD" color="#065f46" bg="#f0fdf4" />
           </div>
         </div>
-        <div className="rec-card__stats-row" style={{ marginTop: '1rem' }}>
-          {optimalK != null && <Stat label="Grupos Ideales a Crear" value={optimalK} accent="#10b981" />}
+        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            NÚMERO IDEAL DE PERFILES
+          </div>
+          <div style={{ fontSize: '3.5rem', fontWeight: 900, color: '#10b981', lineHeight: '1.1', margin: '8px 0' }}>
+            {optimalK}
+          </div>
+          <p style={{ fontSize: '0.8rem', color: '#475569', padding: '0 1rem', lineHeight: '1.5' }}>
+            Divide a tu audiencia en exactamente <strong>{optimalK} tipos de compradores</strong>. Esta cantidad garantiza que los grupos sean lo suficientemente distintos para personalizar promociones, sin fragmentar demasiado tus campañas.
+          </p>
         </div>
-        <p className="rec-card__insight" style={{marginTop:'0.75rem'}}>
-          <Lightbulb size={12} style={{marginRight:5}} />
-          {summary}
-          <br/><br/>
-          <strong>¿Qué significa esto?</strong> En lugar de adivinar cuántos tipos de clientes tienes, la Inteligencia Artificial analizó matemáticamente la diferencia en el gasto de tus compradores y sugiere dividirlos exactamente en {optimalK} perfiles. Con esto asegurarás que cada grupo sea lo suficientemente único para lanzar campañas exitosas.
-        </p>
+        <div style={{ marginTop: '1.5rem', padding: '12px', background: '#f0fdf4', borderRadius: '12px', border: '1px dashed #a7f3d0' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+            <Zap size={16} color="#10b981" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ fontSize: '0.75rem', color: '#065f46', lineHeight: '1.4' }}>
+              <strong>Siguiente paso sugerido:</strong> Regresa al análisis de <em>Clasificación de Fans</em>, configura el número de grupos en {optimalK} y ejecuta el modelo para descubrir quiénes son.
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Tarjeta de Justificación (Elbow Curve) */}
+      {wcssCurve.length > 0 && (
+        <div className="rec-card rec-card--info">
+          <div className="rec-card__header">
+            <Activity size={22} color="#3b82f6" />
+            <div>
+              <h3 className="rec-card__title">¿Por qué {optimalK}?</h3>
+              <Tag label="EVIDENCIA MATEMÁTICA" color="#1d4ed8" bg="#eff6ff" />
+            </div>
+          </div>
+          <p style={{ fontSize: '0.75rem', color: '#475569', marginTop: '1rem', lineHeight: '1.5' }}>
+            Esta gráfica (<em>Inercia o WCSS</em>) muestra el "error" o dispersión en los grupos. El modelo busca el <strong>punto de quiebre</strong> (donde la gráfica forma un "codo").
+          </p>
+          
+          <div style={{ display: 'flex', alignItems: 'flex-end', height: 140, gap: '6px', marginTop: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #f1f5f9' }}>
+            {wcssCurve.map((point) => {
+              const isOptimal = point.k === optimalK;
+              const heightPct = (point.wcss / maxWcss) * 100;
+              return (
+                <div key={point.k} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', height: '100%' }}>
+                  <div style={{ width: '100%', flex: 1, display: 'flex', alignItems: 'flex-end', background: isOptimal ? '#ecfdf5' : 'transparent', borderRadius: '4px' }}>
+                     <div style={{ 
+                        width: '100%', 
+                        height: `${heightPct}%`, 
+                        background: isOptimal ? 'linear-gradient(to top, #10b981, #34d399)' : '#e2e8f0', 
+                        borderRadius: '4px', 
+                        transition: 'all 0.5s ease',
+                        position: 'relative'
+                     }}>
+                        {isOptimal && (
+                           <div style={{ position: 'absolute', top: '-24px', left: '50%', transform: 'translateX(-50%)', background: '#065f46', color: '#fff', fontSize: '0.55rem', fontWeight: 800, padding: '2px 6px', borderRadius: '4px' }}>
+                             ÓPTIMO
+                           </div>
+                        )}
+                     </div>
+                  </div>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 800, color: isOptimal ? '#10b981' : '#94a3b8' }}>K={point.k}</span>
+                </div>
+              );
+            })}
+          </div>
+          
+          <p className="rec-card__insight" style={{marginTop:'1rem', background: 'transparent', border: 'none', padding: 0}}>
+            <Lightbulb size={14} color="#f59e0b" style={{marginRight:6}} />
+            Después de <strong>K={optimalK}</strong>, dividir más a tu audiencia no aporta valor y solo encarecerá la creación de publicidad específica.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

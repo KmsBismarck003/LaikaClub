@@ -33,12 +33,13 @@ class ClusteringModule:
             scaler = StandardScaler(inputCol="features", outputCol="scaledFeatures", withMean=True, withStd=True)
             df_scaled = scaler.fit(df_vector).transform(df_vector)
 
-            pca = PCA(k=k, inputCol="scaledFeatures", outputCol="pcaFeatures")
+            # Siempre reducimos a 2 componentes principales para la visualización en 2D en el frontend
+            pca = PCA(k=2, inputCol="scaledFeatures", outputCol="pcaFeatures")
             pca_model = pca.fit(df_scaled)
             df_pca = pca_model.transform(df_scaled)
 
-            # K-Means para segmentar fans (3 clusters: Casual, Regular, Ballena)
-            kmeans = KMeans(k=3, featuresCol="pcaFeatures", predictionCol="cluster", seed=42)
+            # K-Means para segmentar fans usando la K dinámica que eligió el usuario (ej. 4)
+            kmeans = KMeans(k=k, featuresCol="pcaFeatures", predictionCol="cluster", seed=42)
             model = kmeans.fit(df_pca)
             df_final = model.transform(df_pca)
 
@@ -73,8 +74,24 @@ class ClusteringModule:
             except Exception as mongo_e:
                 print(f"[MLOps] Error guardando centroides en MongoDB: {mongo_e}")
 
+            # ── CALCULAR TAMAÑO REAL DE LOS GRUPOS ANTES DE LIMITAR LA DATA ──
+            cluster_stats = df_final.groupBy("cluster").agg(
+                count("*").alias("size"),
+                avg("gasto_total").alias("avg_spent"),
+                avg("cantidad").alias("avg_tickets")
+            ).collect()
+            
+            cluster_summary = []
+            for c in cluster_stats:
+                cluster_summary.append({
+                    "name": f"Segmento {c['cluster'] + 1}",
+                    "size": c['size'],
+                    "centroid_summary": f"Gasto Promedio: ${c['avg_spent']:.2f} | Tickets Promedio: {c['avg_tickets']:.1f}"
+                })
+
             df_json = df_final.withColumn("pca_vec", vector_to_array("pcaFeatures"))
-            rows = df_json.select("pca_vec", "cluster", "cantidad", "gasto_total", "user_id").limit(100).collect()
+            # Se mandan solo 500 puntos para no crashear el navegador si se intenta graficar, pero el summary tiene los datos reales.
+            rows = df_json.select("pca_vec", "cluster", "cantidad", "gasto_total", "user_id").limit(500).collect()
             
             data = []
             for r in rows:
@@ -87,10 +104,11 @@ class ClusteringModule:
             return {
                 "status": "success",
                 "data": data,
+                "clusters": cluster_summary,
                 "summary": "Segmentación de Usuarios (Clustering). Cluster 2 usualmente representa a las 'Ballenas' (Súper Fans).",
                 "insights": [
                     f"Analizando comportamiento de {df_ml.count()} usuarios únicos",
-                    "Detección de 10 Súper Fans (Whales) completada",
+                    "Detección de Súper Fans (Whales) completada",
                     "Reducción dimensional PCA para visualización de lealtad"
                 ],
                 "varianza_explicada": [float(x) for x in pca_model.explainedVariance],

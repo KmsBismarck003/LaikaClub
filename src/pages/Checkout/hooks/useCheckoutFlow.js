@@ -50,7 +50,7 @@ export const useCheckoutFlow = () => {
         name: '',
         expiry: '',
         cvv: '',
-        saveCard: false,
+        saveCard: true,
         selectedSavedCard: null,
         lastReference: '',
     });

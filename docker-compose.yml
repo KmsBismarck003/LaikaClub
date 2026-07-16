@@ -182,6 +182,26 @@ services:
     env_file:
       - .env.docker
 
+  analytics_bigdata:
+    build:
+      context: ./microservices/analytics_bigdata
+      dockerfile: Dockerfile
+    container_name: laika_analytics_bigdata
+    ports:
+      - "8009:8009"
+    environment:
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_analytics
+      - MYSQL_USER=root
+      - MONGO_URI=mongodb://host.docker.internal:27017
+      - SPARK_LOCAL_IP=127.0.0.1
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+
   merchandise:
     build:
       context: ./microservices2/merchandise

@@ -78,4 +78,22 @@ public class UserController {
         response.put("message", "Permisos actualizados");
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/push/send")
+    @PreAuthorize("hasAnyRole('admin', 'gestor')")
+    public ResponseEntity<Map<String, Object>> sendPush(
+            @RequestBody Map<String, String> request) {
+        
+        String title = request.get("title");
+        String body = request.get("body");
+        String url = request.get("url");
+        String audience = request.get("audience");
+        
+        int sentCount = userService.sendPushNotification(title, body, url, audience);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("sentCount", sentCount);
+        return ResponseEntity.ok(response);
+    }
 }

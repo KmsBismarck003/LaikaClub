@@ -62,6 +62,9 @@ public class User {
     @Convert(converter = PermissionsConverter.class)
     private Map<String, Boolean> permissions = new HashMap<>();
 
+    @Column(name = "expo_push_token", length = 255)
+    private String expoPushToken;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -212,5 +215,13 @@ public class User {
 
     public void setPermissions(Map<String, Boolean> permissions) {
         this.permissions = permissions;
+    }
+
+    public String getExpoPushToken() {
+        return expoPushToken;
+    }
+
+    public void setExpoPushToken(String expoPushToken) {
+        this.expoPushToken = expoPushToken;
     }
 }

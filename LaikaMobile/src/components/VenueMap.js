@@ -115,11 +115,9 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     alignItems: 'center',
     width: '100%',
-    backgroundColor: theme.colors.white,
+    backgroundColor: '#111',
     padding: 16,
-    borderRadius: theme.radii.base,
-    borderWidth: 1,
-    borderColor: theme.colors.gray200,
+    borderRadius: 12,
   },
   stageContainer: {
     width: '80%',
@@ -129,13 +127,13 @@ const styles = StyleSheet.create({
   stageLine: {
     width: '100%',
     height: 4,
-    backgroundColor: theme.colors.black,
+    backgroundColor: '#333',
     borderRadius: 2,
   },
   stageText: {
     fontSize: 10,
-    fontWeight: theme.typography.fontBold,
-    color: theme.colors.gray500,
+    fontWeight: 'bold',
+    color: '#666',
     marginTop: 6,
     letterSpacing: 2,
   },
@@ -158,8 +156,8 @@ const styles = StyleSheet.create({
   },
   rowLabelText: {
     fontSize: 12,
-    fontWeight: theme.typography.fontBold,
-    color: theme.colors.gray500,
+    fontWeight: 'bold',
+    color: '#666',
   },
   seat: {
     width: 28,
@@ -171,20 +169,20 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   seatAvailable: {
-    backgroundColor: theme.colors.white,
-    borderColor: theme.colors.black,
+    backgroundColor: 'transparent',
+    borderColor: '#444',
   },
   seatSelected: {
-    backgroundColor: theme.colors.black,
-    borderColor: theme.colors.black,
+    backgroundColor: '#fff',
+    borderColor: '#fff',
   },
   seatBusy: {
-    backgroundColor: theme.colors.gray200,
-    borderColor: theme.colors.gray300,
+    backgroundColor: '#222',
+    borderColor: '#222',
   },
   seatText: {
     fontSize: 9,
-    fontWeight: theme.typography.fontBold,
+    fontWeight: 'bold',
   },
   legendContainer: {
     flexDirection: 'row',
@@ -193,7 +191,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.gray100,
+    borderTopColor: '#333',
   },
   legendItem: {
     flexDirection: 'row',
@@ -208,7 +206,7 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 11,
-    color: theme.colors.gray600,
+    color: '#888',
   },
 });
 

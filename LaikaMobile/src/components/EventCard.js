@@ -100,38 +100,37 @@ export const EventCard = ({ event, onPress, customBaseUrl = '' }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.radii.base,
+    backgroundColor: '#111111', // Deep dark card background
+    borderRadius: 16,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: theme.colors.gray200,
-    marginBottom: 16,
-    ...theme.shadows.sm,
+    marginBottom: 20,
+    marginHorizontal: 16,
   },
   imageContainer: {
-    height: 160,
-    backgroundColor: theme.colors.gray100,
+    height: 180,
+    backgroundColor: '#222',
     position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
+    opacity: 0.85,
   },
   placeholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: theme.colors.black,
+    backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
-    color: theme.colors.white,
+    color: '#fff',
     fontSize: 18,
     fontWeight: theme.typography.fontBlack,
     letterSpacing: 2,
   },
   placeholderSub: {
-    color: theme.colors.gray400,
+    color: '#888',
     fontSize: 10,
     textTransform: 'uppercase',
     marginTop: 4,
@@ -139,16 +138,16 @@ const styles = StyleSheet.create({
   },
   badgeContainer: {
     position: 'absolute',
-    top: 10,
-    left: 10,
+    top: 12,
+    left: 12,
   },
   infoContainer: {
     padding: 16,
   },
   title: {
-    fontSize: 16,
-    fontWeight: theme.typography.fontBold,
-    color: theme.colors.black,
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#fff',
     marginBottom: 8,
   },
   detailRow: {
@@ -157,32 +156,32 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   icon: {
-    marginRight: 4,
+    marginRight: 6,
   },
   iconSpacing: {
-    marginLeft: 12,
+    marginLeft: 16,
   },
   detailText: {
     fontSize: 12,
-    color: theme.colors.gray600,
+    color: '#a3a3a3',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
-    marginTop: 10,
-    paddingTop: 10,
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.gray100,
+    borderTopColor: 'rgba(255,255,255,0.08)',
   },
   priceLabel: {
     fontSize: 11,
-    color: theme.colors.gray500,
+    color: '#737373',
   },
   price: {
-    fontSize: 15,
-    fontWeight: theme.typography.fontBold,
-    color: theme.colors.black,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
   },
 });
 

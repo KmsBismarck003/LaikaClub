@@ -57,4 +57,19 @@ public class MlController {
             @RequestParam(value = "date_to", required = false) String dateTo) {
         return merchService.getSalesInsights(dateFrom, dateTo);
     }
+
+    @GetMapping("/ml/pca")
+    public Map<String, Object> getPca(@RequestParam(value = "k", required = false) Integer k) {
+        return analyticsService.getPcaFallback(k);
+    }
+
+    @GetMapping("/ml/elbow")
+    public Map<String, Object> getElbow(@RequestParam(value = "max_k", required = false) Integer maxK) {
+        return analyticsService.getElbowFallback(maxK);
+    }
+
+    @GetMapping("/ml/anomaly")
+    public Map<String, Object> getAnomaly(@RequestParam(value = "manager_id", required = false) Integer managerId) {
+        return analyticsService.getAnomalyFallback(managerId);
+    }
 }

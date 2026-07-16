@@ -167,6 +167,13 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("valid", true));
     }
 
+    @PostMapping("/notifications/register-token")
+    public ResponseEntity<Map<String, String>> registerPushToken(@AuthenticationPrincipal UserPrincipal principal, @RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        userService.updatePushToken(principal.getId(), token);
+        return ResponseEntity.ok(Map.of("status", "success", "message", "Token registered"));
+    }
+
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {

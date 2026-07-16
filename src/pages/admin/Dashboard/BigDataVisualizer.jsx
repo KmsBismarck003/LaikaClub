@@ -12,6 +12,11 @@ import FinancialRegressionChart from './components/FinancialRegressionChart';
 import PricingConfusionMatrix from './components/PricingConfusionMatrix';
 import DatabaseSanitizationStatus from './components/DatabaseSanitizationStatus';
 import SmartRecommendations from './components/SmartRecommendations';
+import BigDataHeader from './components/BigDataHeader';
+import BigDataFilters from './components/BigDataFilters';
+import BigDataTools from './components/BigDataTools';
+import BigDataMetrics from './components/BigDataMetrics';
+import BigDataGlossary from './components/BigDataGlossary';
 import { 
   Activity, 
   Settings, 
@@ -83,7 +88,8 @@ const BigDataVisualizer = ({ managerId = null }) => {
         status: '',
         min_price: '',
         max_price: '',
-        event_id: ''
+        event_id: '',
+        k_clusters: 4
     });
     
     const [data3D, setData3D] = useState([]);
@@ -229,7 +235,8 @@ const BigDataVisualizer = ({ managerId = null }) => {
             } else if (mode === 'ML_DECISION_TREE') {
                 data = await analyticsAPI.getDecisionTreeML(managerId, activeFilters);
             } else if (mode === 'ML_PCA') {
-                data = await analyticsAPI.getPCAML(3);
+                const k = activeFilters.k_clusters ? parseInt(activeFilters.k_clusters, 10) : 3;
+                data = await analyticsAPI.getPCAML(k);
             } else if (mode === 'ML_ELBOW') {
                 data = await analyticsAPI.getElbowML(8);
             } else if (mode === 'ML_ANOMALY') {
@@ -237,7 +244,9 @@ const BigDataVisualizer = ({ managerId = null }) => {
             }
             setMlData(data);
         } catch (err) {
-            setError('FALLO EN EL MOTOR DE MACHINE LEARNING');
+            console.error(`Error in ML Analysis (${mode}):`, err);
+            const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
+            setError(`FALLO EN EL MOTOR DE MACHINE LEARNING: ${errorMessage}`);
         } finally {
             setMlLoading(false);
         }
@@ -296,14 +305,12 @@ const BigDataVisualizer = ({ managerId = null }) => {
         return () => clearTimeout(timer);
     }, [error, errorDismissed]);
     useEffect(() => { 
-        if (analysisMode === '3D_EXPLORATION') {
-            executeAnalysis(); 
-        } else if (analysisMode === 'CLASS_KDD') {
-            fetchDescriptiveStats(selectedTable);
-            setKddCleanResult(null);
-        } else {
-            executeMLAnalysis(analysisMode);
-        }
+        // Solo limpiamos los datos para que quede en espera ("standby")
+        // El usuario debe presionar "Ejecutar" para cargar los datos
+        setData3D([]);
+        setMlData(null);
+        setDescriptiveStats(null);
+        setKddCleanResult(null);
     }, [selectedTable, analysisMode, managerId, filters.event_id]);
 
     const handleFilterChange = (e) => {
@@ -571,151 +578,23 @@ const BigDataVisualizer = ({ managerId = null }) => {
     return (
         <div className="analytics-premium" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', padding: '1.5rem 2rem', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif' }}>
             
-            {/* CABECERA PREMIUM */}
-            <header style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', backdropFilter: 'blur(20px)', borderRadius: '18px', padding: '0.85rem 1.15rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                    <div style={{ background: '#000000', padding: '9px', borderRadius: '12px', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                        <DatabaseIcon size={18} />
-                    </div>
-                    <div>
-                        <div style={{ fontWeight: 800, fontSize: '1.06rem', letterSpacing: '-0.01em', color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            ANÁLISIS Y PREDICCIONES {managerId ? 'DE MIS EVENTOS' : ''}
-                            <span style={{ fontSize: '0.58rem', background: '#e2e8f0', color: '#475569', padding: '3px 8px', borderRadius: '12px', fontWeight: 700 }}>v8.5_ML</span>
-                        </div>
-                        <div style={{ fontSize: '0.66rem', color: 'var(--text-primary)', opacity: 0.8, marginTop: '1px', fontWeight: 500 }}>
-                            {managerId ? 'Filtrado por tus eventos • Modo: ' : 'Motor Distribuido: Spark ML • Modo: '}
-                            <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{analysisMode.replace('_', ' ')}</span>
-                        </div>
-                    </div>
-                </div>
+            <BigDataHeader 
+                managerId={managerId}
+                analysisMode={analysisMode}
+                setAnalysisMode={setAnalysisMode}
+                selectedTable={selectedTable}
+                setSelectedTable={setSelectedTable}
+                showGlossary={showGlossary}
+                setShowGlossary={setShowGlossary}
+                executeAnalysis={executeAnalysis}
+                executeMLAnalysis={executeMLAnalysis}
+                fetchDescriptiveStats={fetchDescriptiveStats}
+            />
 
-                <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
-                    <div style={{ background: 'var(--bg-primary)', border: '1px solid #E5E7EB', padding: '4px', display: 'flex', gap: '3px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                        {[
-                            { id: '3D_EXPLORATION', label: 'VISTA EN 3D', icon: <span key="icon-3d"><Layers size={14} /></span> },
-                            { id: 'ML_PCA', label: 'SEGMENTACIÓN', icon: <span key="icon-pca"><Users size={14} /></span> },
-                            { id: 'ML_ELBOW', label: 'PERFILES IDEALES', icon: <span key="icon-elbow"><Target size={14} /></span> },
-                            { id: 'ML_ANOMALY', label: 'ANTI-BOT', icon: <span key="icon-anom"><ShieldAlert size={14} /></span> },
-                            { id: 'ML_REGRESSION', label: 'PROYECCIÓN DE GANANCIAS', icon: <span key="icon-reg"><Activity size={14} /></span> },
-                            { id: 'ML_DECISION_TREE', label: 'OPTIMIZADOR DE PRECIOS', icon: <span key="icon-tree"><Terminal size={14} /></span> },
-                            { id: 'CLASS_KDD', label: 'LIMPIEZA DE EVENTOS', icon: <span key="icon-kdd"><DatabaseIcon size={14} /></span> },
-                            { id: 'B2B_PROSPECTING', label: 'RECOMENDADOR DE EMPRESAS', icon: <span key="icon-b2b"><Search size={14} /></span> },
-                            { id: 'ML_USER_DEMAND', label: 'PREFERENCIAS DE CLIENTES', icon: <span key="icon-ud"><Users size={14} /></span> },
-                            { id: 'MERCH_INSIGHTS', label: 'VENTAS DE MERCANCÍA', icon: <span key="icon-merch"><BarChart3 size={14} /></span> }
-                        ].map(mode => (
-                            <button 
-                                key={mode.id}
-                                onClick={() => setAnalysisMode(mode.id)} 
-                                className={`mode-btn-premium ${analysisMode === mode.id ? 'active' : ''}`}
-                            >
-                                {mode.icon} {mode.label}
-                            </button>
-                        ))}
-                    </div>
-                    
-                    <div style={{ width: '1px', height: '30px', background: 'rgba(0,0,0,0.06)', margin: '0 4px' }}></div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <label style={{ fontSize: '0.56rem', fontWeight: 700, color: 'var(--text-primary)', opacity: 0.8 }}>FUENTE DE DATOS</label>
-                        <select value={selectedTable} onChange={(e) => setSelectedTable(e.target.value)} className="select-premium">
-                            <option value="tickets">Tickets Principales</option>
-                            <option value="users">Logs de Usuarios</option>
-                            <option value="payments">Bóveda de Pagos</option>
-                            <option value="events">Distribución de Eventos</option>
-                        </select>
-                    </div>
-                    <button 
-                        onClick={() => setShowGlossary(!showGlossary)} 
-                        className="btn-secondary" 
-                        style={{ 
-                            background: showGlossary ? 'rgba(79, 70, 229, 0.08)' : '#f1f5f9',
-            color: showGlossary ? '#111827' : '#334155',
-            border: showGlossary ? '1.5px solid #111827' : '1px solid #e2e8f0',
-                            borderRadius: '10px',
-                            padding: '0.5rem 0.8rem',
-                            fontWeight: 700,
-                            fontSize: '0.68rem',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <BookOpen size={12} /> {showGlossary ? 'Cerrar Guía' : '¿Entender Valores?'}
-                    </button>
-                    <button onClick={() => analysisMode === '3D_EXPLORATION' ? executeAnalysis() : executeMLAnalysis(analysisMode)} className="btn-primary" style={{ background: "#000000", color: "#FFFFFF", border: "1px solid #000000" }}>
-                        <Zap size={12} /> EJECUTAR
-                    </button>
-                </div>
-            </header>
-
-            {showGlossary && (
-                <div className="glossary-card-fadein" style={{ 
-                    padding: '1.8rem', 
-                    background: '#ffffff', 
-                    border: '1.5px solid rgba(79, 70, 229, 0.3)', 
-                    borderRadius: '24px', 
-                    marginBottom: '1.5rem',
-                    boxShadow: '0 10px 30px rgba(79, 70, 229, 0.08)',
-                }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.8rem' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <HelpCircle style={{ color: '#111827' }} size={20} /> Guía de Conceptos y Métricas de Tendencias
-                        </h3>
-                        <button 
-                            onClick={() => setShowGlossary(false)} 
-                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b' }}
-                        >
-                            <X size={18} />
-                        </button>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.2rem' }}>
-                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Precisión de la Predicción (Acierto)</h4>
-                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                Indica qué tan confiable es el cálculo matemático de ingresos futuros según las ventas reales. Un valor de 0.88 representa un 88% de acierto garantizado.
-                            </p>
-                        </div>
-                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Proyecciones y Tendencias</h4>
-                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                Cálculos que trazan si tus ventas van en aumento constante o si siguen curvas rápidas/lentas en base a tus eventos históricos.
-                            </p>
-                        </div>
-                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Estrategia de Precios (Recomendación)</h4>
-                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                Preguntas y caminos lógicos que la computadora sigue sola (ej. ¿Se vendieron más de 30 entradas?) para darte sugerencias automáticas de precios y promociones.
-                            </p>
-                        </div>
-                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Promedio, Centro y Comunes</h4>
-                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                <b>• Promedio:</b> Lo que suele ganar un evento de media.
-                                <br /><b>• Centro (Mediana):</b> El punto intermedio de tus ganancias totales.
-                                <br /><b>• Común (Moda):</b> El precio de boleto que la gente compra más veces.
-                            </p>
-                        </div>
-                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Estabilidad de Ingresos (Variación)</h4>
-                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                Muestra qué tanto suben y bajan tus ingresos. Si es alta, significa que unos eventos ganan mucho y otros muy poco; si es baja, tus ingresos son estables y constantes.
-                            </p>
-                        </div>
-                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '14px' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>Pasos del Análisis</h4>
-                            <p style={{ fontSize: '0.72rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
-                                <b>1. ¿Qué pasó?:</b> Historial y datos reales de ventas.
-                                <br /><b>2. ¿Por qué pasó?:</b> Diagnóstico de picos de asistencia.
-                                <br /><b>3. ¿Qué pasará?:</b> Predicciones futuras.
-                                <br /><b>4. ¿Cómo actuar?:</b> Recomendaciones comerciales concretas.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <BigDataGlossary 
+                showGlossary={showGlossary} 
+                setShowGlossary={setShowGlossary} 
+            />
 
             <div style={{ 
                 display: 'grid', 
@@ -730,126 +609,21 @@ const BigDataVisualizer = ({ managerId = null }) => {
                 {/* PANEL IZQUIERDO: FILTROS */}
                 {(analysisMode === '3D_EXPLORATION' || analysisMode === 'ML_REGRESSION' || analysisMode === 'ML_DECISION_TREE') && (
                 <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <Card style={{ padding: openFiltersPanel ? '1rem' : '0.45rem 0.75rem', height: openFiltersPanel ? 'auto' : '44px', maxHeight: openFiltersPanel ? 'none' : '44px', overflow: 'hidden', background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(0,0,0,0.04)', backdropFilter: 'blur(20px)', borderRadius: '16px', transition: 'all 0.18s ease', flexGrow: 0 }}>
-                        <button onClick={() => setOpenFiltersPanel(v => !v)} style={{ width: '100%', background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: openFiltersPanel ? '0.75rem' : '0', padding: 0, paddingBottom: openFiltersPanel ? '0.5rem' : 0, borderBottom: openFiltersPanel ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Filter size={16} color="#000000" />
-                            <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>CENTRO DE FILTROS</h3>
-                          </div>
-                          <ChevronDown size={16} color="#64748b" style={{ transform: openFiltersPanel ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }} />
-                        </button>
-                        {openFiltersPanel && (<div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxHeight: '170px', overflowY: 'auto', paddingRight: '12px' }}>
-                            <div className="filter-group">
-                                <label>FILTRAR POR EVENTO</label>
-                                <select 
-                                    name="event_id" 
-                                    value={filters.event_id} 
-                                    onChange={handleFilterChange} 
-                                    className="select-premium"
-                                    style={{ width: '100%' }}
-                                >
-                                    <option value="">Todos los eventos</option>
-                                    {eventsList.map(ev => (
-                                        <option key={ev.id} value={ev.id}>
-                                            {ev.name} ({ev.venue || 'Ubicación General'})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="filter-group">
-                                <label>RANGO TEMPORAL</label>
-                                <input type="date" name="date_from" value={filters.date_from} onChange={handleFilterChange} className="input-premium" />
-                                <input type="date" name="date_to" value={filters.date_to} onChange={handleFilterChange} className="input-premium" style={{ marginTop: '6px' }} />
-                            </div>
-                            <div className="filter-group">
-                                <label>RANGO HORARIO (HORAS PICO)</label>
-                                <select name="hour_range" value={filters.hour_range} onChange={handleFilterChange} className="select-premium" style={{ width: '100%' }}>
-                                    <option value="">Todo el día</option>
-                                    <option value="morning">Mañana (06:00 - 12:00)</option>
-                                    <option value="afternoon">Tarde (12:00 - 18:00)</option>
-                                    <option value="night">Noche (18:00 - 00:00)</option>
-                                    <option value="late_night">Madrugada (00:00 - 06:00)</option>
-                                </select>
-                            </div>
-                            <div className="filter-group">
-                                <label>TIPO DE GRÁFICO</label>
-                                <select value={chartType} onChange={(e) => setChartType(e.target.value)} className="select-premium" style={{ width: '100%' }}>
-                                    <option value="3D_BAR">3D Barras Extruidas</option>
-                                    <option value="3D_SCATTER">3D Puntos de Dispersión</option>
-                                    <option value="2D_PIE">2D Gráfica de Pastel</option>
-                                </select>
-                            </div>
-                            <div className="filter-group">
-                                <label>MODO DE COLOR</label>
-                                <select value={colorMode} onChange={(e) => setColorMode(e.target.value)} className="select-premium" style={{ width: '100%' }}>
-                                    <option value="palette">Continuo (Degradado Térmico)</option>
-                                    <option value="solid">Sólido (Por Categoría)</option>
-                                </select>
-                            </div>
-                            <div className="filter-group">
-                                <label>MÉTODO DE PAGO</label>
-                                <select name="payment_method" value={filters.payment_method} onChange={handleFilterChange} className="select-premium" style={{ width: '100%' }}>
-                                    <option value="">Todos los métodos</option>
-                                    <option value="Card">Tarjeta</option>
-                                    <option value="Credits">Créditos</option>
-                                    <option value="Cash">Efectivo</option>
-                                </select>
-                            </div>
-                            <div className="filter-group">
-                                <label>RANGO DE PRECIOS</label>
-                                <div style={{ display: 'flex', gap: '6px' }}>
-                                    <input type="number" name="min_price" placeholder="Mínimo" value={filters.min_price} onChange={handleFilterChange} className="input-premium" />
-                                    <input type="number" name="max_price" placeholder="Máximo" value={filters.max_price} onChange={handleFilterChange} className="input-premium" />
-                                </div>
-                            </div>
-                            <div className="filter-group">
-                                <label>ESTADO DEL TICKET</label>
-                                <select name="status" value={filters.status} onChange={handleFilterChange} className="select-premium" style={{ width: '100%' }}>
-                                    <option value="">Todos los estados</option>
-                                    <option value="active">Activo</option>
-                                    <option value="cancelled">Cancelado</option>
-                                    <option value="pending">Pendiente</option>
-                                </select>
-                            </div>
-                            <button 
-                                onClick={() => {
-                                    if (analysisMode === '3D_EXPLORATION') {
-                                        executeAnalysis();
-                                    } else {
-                                        executeMLAnalysis(analysisMode);
-                                    }
-                                }} 
-                                className="btn-secondary" 
-                                style={{ marginTop: '0.5rem' }}
-                            >
-                                APLICAR FILTROS
-                            </button>
-                            <button onClick={handleExportExcel} className="btn-primary" style={{ marginTop: '0.5rem', background: '#27ae60', borderColor: '#27ae60' }}>
-                                EXPORTAR A EXCEL
-                            </button>
-                        </div>)}
-                    </Card>
-
-                    <Card style={{ padding: openColorPanel ? '1rem' : '0.45rem 0.75rem', height: openColorPanel ? 'auto' : '44px', maxHeight: openColorPanel ? 'none' : '44px', overflow: 'hidden', background: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(0,0,0,0.04)', backdropFilter: 'blur(20px)', borderRadius: '16px', transition: 'all 0.18s ease', flexGrow: 0 }}>
-                        <button onClick={() => setOpenColorPanel(v => !v)} style={{ width: '100%', background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: openColorPanel ? '0.6rem' : '0', padding: 0, cursor: 'pointer' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Palette size={16} color="#000000" />
-                            <h3 style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', opacity: 0.8, margin: 0 }}>ESQUEMA DE COLOR</h3>
-                          </div>
-                          <ChevronDown size={16} color="#64748b" style={{ transform: openColorPanel ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }} />
-                        </button>
-                        {openColorPanel && (<div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', maxHeight: '110px', overflowY: 'auto', paddingRight: '6px' }}>
-                            {Object.keys(palettes).map(p => (
-                                <button 
-                                    key={p} 
-                                    onClick={()=>setColorPalette(p)} 
-                                    className={`palette-btn-premium ${colorPalette === p ? 'active' : ''}`}
-                                >
-                                    {p.charAt(0).toUpperCase() + p.slice(1)}
-                                </button>
-                            ))}
-                        </div>)}
-                    </Card>
+                    <BigDataFilters 
+                        openFiltersPanel={openFiltersPanel}
+                        setOpenFiltersPanel={setOpenFiltersPanel}
+                        eventsList={eventsList}
+                        filters={filters}
+                        handleFilterChange={handleFilterChange}
+                        chartType={chartType}
+                        setChartType={setChartType}
+                        colorMode={colorMode}
+                        setColorMode={setColorMode}
+                        executeAnalysis={executeAnalysis}
+                        executeMLAnalysis={executeMLAnalysis}
+                        analysisMode={analysisMode}
+                        handleExportExcel={handleExportExcel}
+                    />
                 </aside>
                 )}
 
@@ -978,126 +752,35 @@ const BigDataVisualizer = ({ managerId = null }) => {
                     </Card>
 
                     {/* MÉTRICAS INFERIORES PREMIUM */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.2fr)', gap: '1.5rem' }}>
-                        <Card style={{ padding: '1.32rem', background: 'var(--bg-card)', border: '1px solid var(--border-color)', backdropFilter: 'blur(20px)', borderRadius: '24px', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                            <div style={{ position: 'absolute', top: 0, left: 0, width: '6px', height: '100%', background: 'linear-gradient(to bottom, #000000, #000000)' }}></div>
-                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px', letterSpacing: '1px' }}>INTELIGENCIA DE NEGOCIO</div>
-                            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.8rem' }}>Mapeo de Solidez Geográfica</div>
-                            <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', opacity: 0.8, lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                                Renderizado inmersivo de <b>{selectedTable}</b>. La altimetría refleja el volumen financiero captado y normalizado para los análisis tácticos que has filtrado.
-                            </p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', background: '#f1f5f9', padding: '8px 12px', borderRadius: '12px', width: 'fit-content' }}>
-                                <DatabaseIcon size={14} color="#000000" /> {canonicalData.length} Registros Activos
-                            </div>
-                        </Card>
-
-                        <Card style={{ padding: '1.59rem', background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', borderRadius: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', opacity: 0.8, marginBottom: '6px', letterSpacing: '1px', textTransform: 'uppercase' }}>Ingreso Consolidado (Filtro Actual)</div>
-                            <div style={{ fontSize: '3.2rem', fontWeight: 800, letterSpacing: '-1px', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                                ${canonicalData.reduce((acc, d) => acc + d.val_num, 0).toLocaleString()} <span style={{ fontSize: '1.2rem', color: 'var(--text-primary)', opacity: 0.8, fontWeight: 500 }}>MXN</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(0,0,0,0.1)', paddingTop: '1rem', marginTop: 'auto' }}>
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-primary)', opacity: 0.8 }}>
-                                    Pico Máximo: <strong style={{ color: 'var(--text-primary)', marginLeft: '4px' }}>{canonicalData[0]?.producto?.substring(0, 20) || '---'}</strong>
-                                </div>
-                                <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', padding: '4px 10px', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <Check size={10} strokeWidth={3}/> VALIDADO
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
+                    {(analysisMode === '3D_EXPLORATION' || analysisMode === 'CLASS_KDD') && (
+                        <BigDataMetrics 
+                            selectedTable={selectedTable}
+                            canonicalData={canonicalData}
+                        />
+                    )}
                 </main>
 
                 {/* PANEL DERECHO: HERRAMIENTAS Y LOG */}
                 {analysisMode === '3D_EXPLORATION' && (
                 <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <Card style={{ padding: openMetricsPanel ? '1rem' : '0.45rem 0.75rem', height: openMetricsPanel ? 'auto' : '44px', maxHeight: openMetricsPanel ? 'none' : '44px', overflow: 'hidden', background: 'var(--bg-card)', border: '1px solid var(--border-color)', backdropFilter: 'blur(20px)', borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.04)', transition: 'all 0.18s ease', flexGrow: 0 }}>
-                        <button onClick={() => setOpenMetricsPanel(v => !v)} style={{ width: '100%', background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: openMetricsPanel ? '0.75rem' : '0', padding: 0, paddingBottom: openMetricsPanel ? '0.5rem' : 0, borderBottom: openMetricsPanel ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Settings size={16} color="#475569" />
-                            <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>METRÍAS PROYECCIÓN</h3>
-                          </div>
-                          <ChevronDown size={16} color="#64748b" style={{ transform: openMetricsPanel ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }} />
-                        </button>
-                        {openMetricsPanel && (<div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxHeight: '250px', overflowY: 'auto', paddingRight: '8px' }}>
-                            <div className="slider-group">
-                                <div className="slider-header">
-                                    <label>Multiplicador de Altura</label>
-                                    <span className="slider-val">{hMult}x</span>
-                                </div>
-                                <input type="range" min="0.5" max="5" step="0.1" value={hMult} onChange={(e)=>setHMult(parseFloat(e.target.value))} className="slider-premium" />
-                            </div>
-
-                                <div className="slider-group">
-                                    <div className="slider-header">
-                                        <label>Grosor de Celda</label>
-                                        <span className="slider-val">{barWidth}</span>
-                                    </div>
-                                    <input type="range" min="0.05" max="0.5" step="0.01" value={barWidth} onChange={(e)=>setBarWidth(parseFloat(e.target.value))} className="slider-premium" />
-                                </div>
-                                <div className="slider-group">
-                                    <div className="slider-header">
-                                        <label>Grosor de Puntos (Scatter)</label>
-                                        <span className="slider-val">{markerSize}px</span>
-                                    </div>
-                                    <input type="range" min="4" max="24" step="1" value={markerSize} onChange={(e)=>setMarkerSize(parseInt(e.target.value))} className="slider-premium" />
-                                </div>
-                                <div className="slider-group">
-                                    <div className="slider-header">
-                                        <label>Color Personalizado (Paleta Custom)</label>
-                                        <input type="color" value={customColor} onChange={(e)=>setCustomColor(e.target.value)} style={{ padding: 0, border: 'none', width: '30px', height: '18px', cursor: 'pointer', background: 'transparent' }} />
-                                    </div>
-                                </div>
-                                <div className="slider-group">
-                                    <div className="slider-header">
-                                        <label>Opacidad Base</label>
-                                        <span className="slider-val">{Math.round(opacity*100)}%</span>
-                                    </div>
-                                    <input type="range" min="0.1" max="1" step="0.05" value={opacity} onChange={(e)=>setOpacity(parseFloat(e.target.value))} className="slider-premium" />
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)', gap: '8px', marginTop: '0.5rem' }}>
-                                    <select 
-                                        className="select-premium" 
-                                        value={buildingShape} 
-                                        onChange={(e) => setBuildingShape(e.target.value)}
-                                        style={{ padding: '8px' }}
-                                    >
-                                        <option value="cube">Cubos</option>
-                                        <option value="pyramid">Pirámides</option>
-                                        <option value="points">Puntos</option>
-                                    </select>
-                                    <button 
-                                        onClick={()=>setIsWireframe(!isWireframe)} 
-                                        className={`btn-wireframe ${isWireframe ? 'active' : ''}`}
-                                    >
-                                        <Eye size={12}/> {isWireframe ? 'Boceto' : 'Sólido'}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </Card>
-
-                    <Card style={{ padding: openLogPanel ? '0' : '0.45rem 0.75rem', height: openLogPanel ? 'auto' : '44px', maxHeight: openLogPanel ? '190px' : '44px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', backdropFilter: 'blur(20px)', borderRadius: '16px', display: 'flex', flexDirection: 'column', flexGrow: 0, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.04)', transition: 'all 0.18s ease' }}>
-                        <button onClick={() => setOpenLogPanel(v => !v)} style={{ width: '100%', background: 'transparent', border: 'none', padding: openLogPanel ? '1rem 1.2rem' : '0', borderBottom: openLogPanel ? '1px solid rgba(255,255,255,0.04)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <DatabaseIcon size={14} color="#64748b" />
-                            <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>LOG DE CAUDA TECTÓNICO</h3>
-                          </div>
-                          <ChevronDown size={16} color="#64748b" style={{ transform: openLogPanel ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }} />
-                        </button>
-                        {openLogPanel && (<div className="log-container-premium" style={{ maxHeight: '105px', overflowY: 'auto' }}>
-                            {canonicalData.slice(0, 20).map((d, i) => (
-                                <div key={i} className="log-row-premium">
-                                    <span className="log-rank">{(i+1).toString().padStart(2, '0')}</span>
-                                    <span className="log-name" title={d.producto}>{d.producto}</span>
-                                    <span className="log-val">${d.val_num.toLocaleString()}</span>
-                                </div>
-                            ))}
-                            {canonicalData.length === 0 && (
-                                <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem' }}>Sin datos coincidentes</div>
-                            )}
-                        </div>)}
-                    </Card>
+                    <BigDataTools 
+                        openColorPanel={openColorPanel}
+                        setOpenColorPanel={setOpenColorPanel}
+                        colorPalette={colorPalette}
+                        setColorPalette={setColorPalette}
+                        palettes={palettes}
+                        openMetricsPanel={openMetricsPanel}
+                        setOpenMetricsPanel={setOpenMetricsPanel}
+                        hMult={hMult} setHMult={setHMult}
+                        barWidth={barWidth} setBarWidth={setBarWidth}
+                        markerSize={markerSize} setMarkerSize={setMarkerSize}
+                        customColor={customColor} setCustomColor={setCustomColor}
+                        opacity={opacity} setOpacity={setOpacity}
+                        buildingShape={buildingShape} setBuildingShape={setBuildingShape}
+                        isWireframe={isWireframe} setIsWireframe={setIsWireframe}
+                        openLogPanel={openLogPanel} setOpenLogPanel={setOpenLogPanel}
+                        canonicalData={canonicalData}
+                    />
                 </aside>
                 )}
             </div>
