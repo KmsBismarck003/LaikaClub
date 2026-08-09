@@ -106,6 +106,11 @@ class MerchandiseAnalyticsModule:
                 ORDER BY units_sold DESC
             """
             products = self._query(self._merch_db, product_sql, params)
+            if not products or len(products) == 0:
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos reales insuficientes para realizar el análisis de mercancía (se requieren transacciones completadas)."
+                }
 
             # ─── 2. TOTALES GLOBALES ───────────────────────────────────────
             total_units = sum(p.get("units_sold", 0) or 0 for p in products)

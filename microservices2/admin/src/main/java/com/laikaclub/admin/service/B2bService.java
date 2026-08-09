@@ -47,6 +47,29 @@ public class B2bService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organization not found"));
     }
 
+    public Organization updateOrganization(Long id, OrganizationDTO dto) {
+        Organization org = getOrganizationById(id);
+        if (dto.getName() != null) {
+            org.setName(dto.getName());
+        }
+        if (dto.getTaxId() != null) {
+            org.setTaxId(dto.getTaxId());
+        }
+        if (dto.getContactEmail() != null) {
+            org.setContactEmail(dto.getContactEmail());
+        }
+        return organizationRepository.save(org);
+    }
+
+    public void deleteOrganization(Long id) {
+        Organization org = getOrganizationById(id);
+        List<Contract> contracts = contractRepository.findByOrganizationId(id);
+        for (Contract c : contracts) {
+            deleteContract(c.getId());
+        }
+        organizationRepository.delete(org);
+    }
+
     // --- Contracts ---
     public Contract createContract(ContractDTO dto) {
         Organization org = getOrganizationById(dto.getOrganizationId());
@@ -96,6 +119,42 @@ public class B2bService {
         return contractRepository.save(contract);
     }
 
+    public Contract updateContract(Long id, ContractDTO dto) {
+        Contract contract = getContractById(id);
+        if (dto.getOrganizationId() != null) {
+            Organization org = getOrganizationById(dto.getOrganizationId());
+            contract.setOrganization(org);
+        }
+        if (dto.getName() != null) {
+            contract.setName(dto.getName());
+        }
+        if (dto.getStatus() != null) {
+            contract.setStatus(dto.getStatus());
+        }
+        if (dto.getStartDate() != null) {
+            contract.setStartDate(dto.getStartDate());
+        }
+        if (dto.getEndDate() != null) {
+            contract.setEndDate(dto.getEndDate());
+        }
+        if (dto.getMaxEvents() != null) {
+            contract.setMaxEvents(dto.getMaxEvents());
+        }
+        if (dto.getIsUnlimited() != null) {
+            contract.setIsUnlimited(dto.getIsUnlimited());
+        }
+        return contractRepository.save(contract);
+    }
+
+    public void deleteContract(Long id) {
+        Contract contract = getContractById(id);
+        List<ContractManager> managers = contractManagerRepository.findByContractId(id);
+        if (!managers.isEmpty()) {
+            contractManagerRepository.deleteAll(managers);
+        }
+        contractRepository.delete(contract);
+    }
+
     // --- Contract Managers ---
     public ContractManager assignManagerToContract(ContractManagerDTO dto) {
         Contract contract = getContractById(dto.getContractId());
@@ -116,6 +175,12 @@ public class B2bService {
 
     public List<ContractManager> getManagersByContract(Long contractId) {
         return contractManagerRepository.findByContractId(contractId);
+    }
+
+    public void unassignManagerFromContract(Long contractId, Long userId) {
+        ContractManager cm = contractManagerRepository.findByContractIdAndUserId(contractId, userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
+        contractManagerRepository.delete(cm);
     }
     
     public List<Contract> getContractsByManager(Long userId) {

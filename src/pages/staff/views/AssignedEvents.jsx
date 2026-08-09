@@ -1,25 +1,30 @@
 import React from 'react';
-import { Card, Icon } from '../../../components';
+import { Calendar } from 'lucide-react';
+import '../StaffDashboard.css';
 
 const AssignedEvents = () => {
     return (
-        <div className="admin-dashboard-page">
-            <header className="dashboard-header">
-                <div>
-                    <h1 className="welcome-greeting">Mis Asignaciones</h1>
-                    <p className="welcome-date">Eventos donde estás asignado como Staff de acceso</p>
+        <div className="staff-dashboard-page">
+            <header className="staff-header">
+                <div className="staff-header-content">
+                    <h1>
+                        <Calendar size={28} color="var(--staff-accent-primary)" />
+                        Mis Asignaciones de Campo
+                    </h1>
+                    <p className="staff-subtitle">Recintos y eventos en los que estás asignado como operador oficial o especialista en puerta</p>
                 </div>
             </header>
             
-            <div className="stats-grid">
-                <Card className="stat-card" style={{ gridColumn: 'span 4', padding: '3rem', textAlign: 'center' }}>
-                    <Icon name="calendar" size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
-                    <h2 style={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Próximos Turnos</h2>
-                    <p style={{ color: '#888', maxWidth: '600px', margin: '1rem auto' }}>
-                        Actualmente no tienes eventos asignados para las próximas 48 horas. Recibirás una notificación cuando se te asigne un recinto.
+            <section aria-label="Listado de Turnos">
+                <div className="staff-empty-state" style={{ padding: '6rem 2rem' }}>
+                    <Calendar size={48} style={{ color: 'var(--staff-text-muted)', margin: '0 auto 1.5rem', opacity: 0.4 }} />
+                    <h3 className="staff-empty-title">Sin Asignaciones Pendientes Hoy</h3>
+                    <p className="staff-empty-desc">
+                        Actualmente tu usuario no registra turnos de verificación en puertas o taquilla programados dentro de las próximas 48 horas.
+                        Tan pronto un Administrador o Gestor de Sede confirme tu horario y puerta de acceso, se activará el enlace directo en esta central.
                     </p>
-                </Card>
-            </div>
+                </div>
+            </section>
         </div>
     );
 };

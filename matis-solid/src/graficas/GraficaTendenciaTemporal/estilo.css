@@ -1,0 +1,46 @@
+.gtt-line {
+  fill: none;
+  stroke: var(--accent-color);
+  stroke-width: 2.5;
+}
+
+.gtt-area {
+  stroke: none;
+}
+
+.gtt-axis {
+  stroke: var(--border-color);
+  stroke-width: 1.5;
+}
+
+.gtt-tick {
+  stroke: var(--border-color);
+  stroke-width: 1;
+}
+
+.gtt-grid-line {
+  stroke: var(--border-color);
+  stroke-width: 1;
+  stroke-dasharray: 4,4;
+}
+
+.gtt-text {
+  fill: var(--text-secondary);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.gtt-point {
+  fill: var(--bw-white);
+  stroke: var(--accent-color);
+  stroke-width: 2.5;
+  transition: transform 0.15s ease;
+}
+
+.gtt-point:hover {
+  transform: scale(1.4);
+  fill: var(--accent-color);
+  cursor: pointer;
+}

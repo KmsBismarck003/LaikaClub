@@ -137,8 +137,22 @@ for svc in services:
     processes.append((proc, log_file, svc['name']))
     time.sleep(2.0) # Esperar un poco antes de lanzar el siguiente para no saturar la CPU
 
+print("\n[START] Iniciando Wearables IoT Backend (Node.js) en puerto 3010...")
+wearables_log = open(f"{log_dir}/wearables_backend.log", "w", encoding="utf-8")
+npm_cmd = "npm.cmd" if is_windows else "npm"
+wearables_proc = subprocess.Popen(
+    [npm_cmd, "run", "dev"],
+    cwd="microservices/wearables_backend",
+    stdout=wearables_log,
+    stderr=wearables_log,
+    shell=is_windows,
+    bufsize=1,
+    universal_newlines=True
+)
+processes.append((wearables_proc, wearables_log, "Wearables IoT Backend"))
+
 print("\n" + "="*60)
-print("   [SUCCESS] TODOS LOS SERVICIOS JAVA HAN SIDO LANZADOS")
+print("   [SUCCESS] TODOS LOS SERVICIOS JAVA Y WEARABLES HAN SIDO LANZADOS")
 print("   Monitoreando logs en la carpeta 'microservices2_logs/'")
 print("   Presiona Ctrl+C para detenerlos todos de forma segura.")
 print("="*60 + "\n")

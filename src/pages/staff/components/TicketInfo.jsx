@@ -1,41 +1,43 @@
-import React from 'react'
-import '../StaffDashboard.css'
+import React from 'react';
+import '../StaffDashboard.css';
 
 const TicketInfo = ({ ticket }) => {
-  if (!ticket) return null
+  if (!ticket) return null;
 
   return (
-    <div className="ticket-info-card">
-      <div className="info-row">
-        <span className="info-label">Asistente:</span>
-        <span className="info-value highlight">{ticket.customerName}</span>
+    <div className="staff-ticket-info">
+      <div className="staff-info-row">
+        <span className="staff-info-label">Titular / Asistente</span>
+        <span className="staff-info-value highlight">{ticket.customerName || 'No especificado'}</span>
       </div>
 
-      <div className="info-row">
-        <span className="info-label">Evento:</span>
-        <span className="info-value">{ticket.eventName}</span>
+      <div className="staff-info-row">
+        <span className="staff-info-label">Evento Asignado</span>
+        <span className="staff-info-value">{ticket.eventName || 'Evento LAIKA Club'}</span>
       </div>
 
-      <div className="info-row">
-        <span className="info-label">Tipo Boleto:</span>
-        <span className="info-tag">{ticket.ticketType}</span>
+      <div className="staff-info-row">
+        <span className="staff-info-label">Tipo de Boleto / Acceso</span>
+        <span className="staff-info-value" style={{ color: '#ffffff', fontWeight: 800 }}>
+          {ticket.ticketType || 'General'}
+        </span>
       </div>
 
-      <div className="info-row">
-        <span className="info-label">Código:</span>
-        <span className="info-code">{ticket.ticketCode}</span>
+      <div className="staff-info-row">
+        <span className="staff-info-label">Código de Verificación</span>
+        <span className="staff-info-code">{ticket.ticketCode}</span>
       </div>
 
       {ticket.purchaseDate && (
-        <div className="info-row">
-          <span className="info-label">Compra:</span>
-          <span className="info-value">
-            {new Date(ticket.purchaseDate).toLocaleDateString()}
+        <div className="staff-info-row">
+          <span className="staff-info-label">Fecha de Registro</span>
+          <span className="staff-info-value" style={{ color: 'var(--staff-text-secondary)', fontSize: '0.9rem' }}>
+            {new Date(ticket.purchaseDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
           </span>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default TicketInfo
+export default TicketInfo;

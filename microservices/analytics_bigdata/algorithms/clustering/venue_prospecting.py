@@ -40,142 +40,29 @@ def run_venue_prospecting(mysql_params, mongo_uri, mongo_db_name):
     4. Genera explicaciones comerciales claras en español y un porcentaje de afinidad.
     """
     
-    # 1. Asegurar colección en MongoDB con prospectos de recintos
+    # 1. Conectar a MongoDB para obtener leads reales
     client = None
     db = None
     try:
         client = MongoClient(mongo_uri, tlsAllowInvalidCertificates=True, serverSelectionTimeoutMS=3000)
         db = client[mongo_db_name]
         
-        # Verificar si la colección de prospectos tiene datos
         leads_col = db["potential_venues_leads"]
         if leads_col.count_documents({}) == 0:
-            print("[PROSPECTING] Sembrando prospectos iniciales en MongoDB...")
-            seed_leads = [
-                {
-                    "name": "Arena Ciudad de México",
-                    "category": "Arena/Estadio",
-                    "capacity": 22000,
-                    "city": "Ciudad de México",
-                    "state": "CDMX",
-                    "estimated_events_month": 8,
-                    "contact_email": "booking@arenacdmx.com",
-                    "phone": "55-1234-5678"
-                },
-                {
-                    "name": "Teatro Diana",
-                    "category": "Teatro/Auditorio",
-                    "capacity": 2400,
-                    "city": "Guadalajara",
-                    "state": "Jalisco",
-                    "estimated_events_month": 12,
-                    "contact_email": "teatro@diana.udg.mx",
-                    "phone": "33-9876-5432"
-                },
-                {
-                    "name": "Foro Indie Rocks",
-                    "category": "Club/Foro",
-                    "capacity": 1500,
-                    "city": "Ciudad de México",
-                    "state": "CDMX",
-                    "estimated_events_month": 15,
-                    "contact_email": "eventos@indierocks.mx",
-                    "phone": "55-8765-4321"
-                },
-                {
-                    "name": "Auditorio Pabellón M",
-                    "category": "Teatro/Auditorio",
-                    "capacity": 4200,
-                    "city": "Monterrey",
-                    "state": "Nuevo León",
-                    "estimated_events_month": 10,
-                    "contact_email": "booking@pabellonm.com",
-                    "phone": "81-1122-3344"
-                },
-                {
-                    "name": "Pepper Club",
-                    "category": "Club/Antro",
-                    "capacity": 800,
-                    "city": "San Pedro Garza García",
-                    "state": "Nuevo León",
-                    "estimated_events_month": 16,
-                    "contact_email": "vip@pepperclub.mx",
-                    "phone": "81-5566-7788"
-                },
-                {
-                    "name": "C3 Stage",
-                    "category": "Club/Foro",
-                    "capacity": 1200,
-                    "city": "Guadalajara",
-                    "state": "Jalisco",
-                    "estimated_events_month": 9,
-                    "contact_email": "contacto@c3stage.com",
-                    "phone": "33-1122-4455"
-                },
-                {
-                    "name": "Bar Américas",
-                    "category": "Club/Antro",
-                    "capacity": 600,
-                    "city": "Guadalajara",
-                    "state": "Jalisco",
-                    "estimated_events_month": 20,
-                    "contact_email": "info@baramericas.com.mx",
-                    "phone": "33-5544-3322"
-                },
-                {
-                    "name": "Auditorio Telmex",
-                    "category": "Arena/Estadio",
-                    "capacity": 11500,
-                    "city": "Zapopan",
-                    "state": "Jalisco",
-                    "estimated_events_month": 6,
-                    "contact_email": "booking@auditoriotelmex.com",
-                    "phone": "33-2233-4455"
-                },
-                {
-                    "name": "Estadio Akron",
-                    "category": "Arena/Estadio",
-                    "capacity": 46000,
-                    "city": "Zapopan",
-                    "state": "Jalisco",
-                    "estimated_events_month": 2,
-                    "contact_email": "eventos@estadioakron.mx",
-                    "phone": "33-4455-6677"
-                },
-                {
-                    "name": "Foro Alarcón",
-                    "category": "Club/Foro",
-                    "capacity": 1000,
-                    "city": "Ciudad de México",
-                    "state": "CDMX",
-                    "estimated_events_month": 5,
-                    "contact_email": "rentas@foroalarcon.com",
-                    "phone": "55-3344-5566"
-                },
-                {
-                    "name": "El Imperial",
-                    "category": "Club/Foro",
-                    "capacity": 300,
-                    "city": "Ciudad de México",
-                    "state": "CDMX",
-                    "estimated_events_month": 14,
-                    "contact_email": "contacto@elimperial.tv",
-                    "phone": "55-7788-9900"
-                },
-                {
-                    "name": "Cantina La Imperial",
-                    "category": "Bar/Restaurante",
-                    "capacity": 350,
-                    "city": "Querétaro",
-                    "state": "Querétaro",
-                    "estimated_events_month": 22,
-                    "contact_email": "queretaro@laimperial.com.mx",
-                    "phone": "442-123-4567"
-                }
-            ]
-            leads_col.insert_many(seed_leads)
+            return {
+                "status": "insufficient_data",
+                "message": "No hay prospectos de recintos (leads) registrados en MongoDB para analizar. Registre nuevos prospectos para iniciar el análisis.",
+                "leads": [],
+                "market_recommendation": None
+            }
     except Exception as e:
         print(f"[PROSPECTING] Error conectando a MongoDB para leads: {e}")
+        return {
+            "status": "error",
+            "message": f"Error conectando a MongoDB: {str(e)}",
+            "leads": [],
+            "market_recommendation": None
+        }
 
     # 2. Consultar rendimiento de recintos activos de MySQL con geografía
     active_venues = []
@@ -217,15 +104,14 @@ def run_venue_prospecting(mysql_params, mongo_uri, mongo_db_name):
         print(f"[PROSPECTING] Error consultando MySQL con geografía: {e}")
 
     # 3. Profiling/Clustering de los recintos activos actuales
-    # Si la base de datos está vacía de eventos reales, proveemos un perfil por defecto basado en los datos sintéticos típicos de LaikaClub
+    # Si la base de datos está vacía de eventos reales, devolvemos 'insufficient_data'
     if not active_venues:
-        active_venues = [
-            {"venue_name": "Coliseo LAIKA 1", "event_category": "concert", "events_count": 15, "capacity": 5000, "tickets_sold": 45000, "total_revenue": 675000.0, "avg_ticket_price": 150.0, "city_name": "Ciudad de México", "state_name": "CDMX", "country_name": "México"},
-            {"venue_name": "Coliseo LAIKA 2", "event_category": "festival", "events_count": 8, "capacity": 8000, "tickets_sold": 54000, "total_revenue": 1080000.0, "avg_ticket_price": 200.0, "city_name": "Ciudad de México", "state_name": "CDMX", "country_name": "México"},
-            {"venue_name": "Coliseo LAIKA 3", "event_category": "theater", "events_count": 12, "capacity": 1500, "tickets_sold": 16000, "total_revenue": 192000.0, "avg_ticket_price": 80.0, "city_name": "Guadalajara", "state_name": "Jalisco", "country_name": "México"},
-            {"venue_name": "Coliseo LAIKA 4", "event_category": "sport", "events_count": 6, "capacity": 6000, "tickets_sold": 22000, "total_revenue": 330000.0, "avg_ticket_price": 90.0, "city_name": "Monterrey", "state_name": "Nuevo León", "country_name": "México"},
-            {"venue_name": "Coliseo LAIKA 5", "event_category": "other", "events_count": 22, "capacity": 400, "tickets_sold": 8000, "total_revenue": 40000.0, "avg_ticket_price": 50.0, "city_name": "Monterrey", "state_name": "Nuevo León", "country_name": "México"}
-        ]
+        return {
+            "status": "insufficient_data",
+            "message": "Datos reales insuficientes en MySQL para realizar la prospección B2B. Registre eventos con tickets vendidos para iniciar el análisis.",
+            "leads": [],
+            "market_recommendation": None
+        }
 
     # Clasificar recintos activos en perfiles (clusters)
     for v in active_venues:

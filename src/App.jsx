@@ -25,7 +25,6 @@ import {
   Achievements,
   EventManagerDashboard,
   StaffDashboard,
-  WelcomePortal,
   ManagerEventDetail,
   ManagerAnalytics,
   ManagerTransactions,
@@ -35,7 +34,7 @@ import {
   Maintenance,
   Checkout
 } from './pages'
-import { adminRoutes, publicRoutes, managerRoutes, staffRoutes } from './routes'
+import { adminRoutes, publicRoutes, managerRoutes, staffRoutes, matisRoutes } from './routes'
 import ProtectedRoute from './components/Guards/ProtectedRoute'
 import NotificationContainer from './components/Notifications/NotificationContainer/NotificationContainer'
 import DatabaseMonitor from './components/Admin/DatabaseMonitor/DatabaseMonitor'
@@ -185,6 +184,22 @@ function AppContent() {
                     )
                   })}
 
+                  {/* Rutas de MATIS Dinámicas */}
+                  {matisRoutes.map((route, index) => {
+                    const Component = route.element
+                    return (
+                      <Route
+                        key={`matis-${index}`}
+                        path={route.path}
+                        element={
+                          <ProtectedRoute allowedRoles={route.allowedRoles}>
+                            <Component />
+                          </ProtectedRoute>
+                        }
+                      />
+                    )
+                  })}
+
 
 
                   {/* Admin - Monitor de Base de Datos (Sistema/Específico) */}
@@ -199,16 +214,6 @@ function AppContent() {
 
                   {/* Las rutas de Gestor y Staff ahora se cargan dinámicamente arriba */}
                 </Route>
-
-                {/* Welcome Portal - Standalone */}
-                <Route
-                  path='/welcome'
-                  element={
-                    <ProtectedRoute allowedRoles={['admin', 'gestor', 'operador']}>
-                      <WelcomePortal />
-                    </ProtectedRoute>
-                  }
-                />
 
                 {/* Redirect */}
                 <Route path='*' element={<Navigate to='/' replace />} />

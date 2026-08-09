@@ -9,6 +9,12 @@ export const PushPsychology = {
    */
   optimizeContent: (type, data) => {
     switch (type) {
+      case 'TICKET_SCANNED':
+        return {
+          title: "Acceso validado en puerta",
+          body: `Tu boleto para ${data.eventName || 'la función'} ha sido verificado correctamente. Tu entrada se encuentra ahora en la sección de funciones en transcurso. Disfruta el espectáculo en LaikaClub.`
+        };
+
       case 'TICKET_PURCHASE':
         return {
           title: "Boletos confirmados",
@@ -58,6 +64,9 @@ export const PushPsychology = {
    * based on engagement rules (anti-spam logic).
    */
   shouldSend: (userId, notificationType) => {
+    if (notificationType === 'TICKET_SCANNED') {
+      return true;
+    }
     // In a real backend, we'd check rate limits (e.g. no more than 1 promo per day)
     // For this client side demo, we assume true but throttle locally if needed
     const lastSentStr = localStorage.getItem(`laika_last_push_${notificationType}`);

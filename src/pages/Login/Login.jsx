@@ -9,9 +9,9 @@ import './LoginSocial.css'
 
 // Mapa de redirección por rol (inline para evitar dependencia circular con routes.js)
 const roleRedirectMap = {
-  admin: '/welcome',
-  gestor: '/welcome',
-  operador: '/welcome',
+  admin: '/admin',
+  gestor: '/events/manage',
+  operador: '/staff/dashboard',
   usuario: '/user/dashboard'
 }
 
@@ -138,10 +138,7 @@ const Login = () => {
         setFailedAttempts(0)
         setLoggedInUser(result.user)
         
-        // Fase 2: Efecto de "Verificando" Premium (5 segundos)
-        setIsAuthenticating(true)
-        await new Promise(resolve => setTimeout(resolve, 5000))
-        setIsAuthenticating(false)
+        // Fase 2: Efecto de "Verificando" Premium (retirado a petición del usuario)
         
         // Fase 3: Gatillar Bienvenida Global y Redirigir
         triggerWelcomeModal()
@@ -189,10 +186,7 @@ const Login = () => {
       if (result.success) {
         setLoggedInUser(result.user)
         
-        // Fase 2: Efecto de "Verificando" Premium (4 segundos)
-        setIsAuthenticating(true)
-        await new Promise(resolve => setTimeout(resolve, 4000))
-        setIsAuthenticating(false)
+        // Fase 2: Efecto de "Verificando" Premium (retirado a petición del usuario)
         
         // Fase 3: Gatillar Bienvenida Global y Redirigir
         triggerWelcomeModal()

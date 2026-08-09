@@ -703,82 +703,165 @@ public class AnalyticsEngineService {
             logger.error("Error retrieving tickets for regression: {}", e.getMessage());
         }
 
-        // Generate synthetic training data if points count < 5
-        List<Double> xVals = new ArrayList<>();
-        List<Double> yVals = new ArrayList<>();
-
         if (mlPoints.size() < 5) {
-            Random rand = new Random(42);
-            double basePrice = 150.0;
-            if (!mlPoints.isEmpty()) {
-                double totalSold = 0;
-                double totalInc = 0;
-                for (Map<String, Object> pt : mlPoints) {
-                    totalSold += ((Number) pt.get("sold")).doubleValue();
-                    totalInc += ((Number) pt.get("income")).doubleValue();
-                }
-                if (totalSold > 0) {
-                    basePrice = totalInc / totalSold;
-                }
-            }
-
-            for (int i = 1; i <= 15; i++) {
-                double qty = i * 15.0 + rand.nextInt(11) - 5;
-                qty = Math.max(1.0, qty);
-                double inc = qty * basePrice * (1.0 + (rand.nextDouble() * 0.2 - 0.1));
-                xVals.add(qty);
-                yVals.add(inc);
-            }
-        } else {
-            for (Map<String, Object> pt : mlPoints) {
-                xVals.add(((Number) pt.get("sold")).doubleValue());
-                yVals.add(((Number) pt.get("income")).doubleValue());
-            }
+            result.put("status", "insufficient_data");
+            result.put("message", "Datos reales insuficientes en MySQL para realizar el análisis de regresión (mínimo 5 eventos con ventas reales).");
+            return result;
         }
 
-        // Math Solver for Linear Regression
+        List<Double> xVals = new ArrayList<>();
+        List<Double> yVals = new ArrayList<>();
+        for (Map<String, Object> pt : mlPoints) {
+            xVals.add(((Number) pt.get("sold")).doubleValue());
+            yVals.add(((Number) pt.get("income")).doubleValue());
+        }
+
         int n = xVals.size();
-        double sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+        double sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, sumYY = 0;
+        double sumXXX = 0, sumXXXX = 0, sumXXY = 0;
+
         for (int i = 0; i < n; i++) {
             double x = xVals.get(i);
             double y = yVals.get(i);
+            double xx = x * x;
             sumX += x;
             sumY += y;
             sumXY += x * y;
-            sumXX += x * x;
+            sumXX += xx;
+            sumYY += y * y;
+            sumXXX += xx * x;
+            sumXXXX += xx * xx;
+            sumXXY += xx * y;
         }
 
-        double denom = (n * sumXX - sumX * sumX);
-        if (denom != 0) {
-            slope = (n * sumXY - sumX * sumY) / denom;
-            intercept = (sumY - slope * sumX) / n;
+        double meanX = sumX / n;
+        double meanY = sumY / n;
+        double ssTot = sumYY - (sumY * sumY) / n;
+        double sxx = sumXX - (sumX * sumX) / n;
+        double sxy = sumXY - (sumX * sumY) / n;
+
+        // 1. Simple Linear Regression
+        if (sxx != 0) {
+            slope = sxy / sxx;
+            intercept = meanY - slope * meanX;
         }
 
-        // Calculate R2 Score and errors
-        double ssTot = 0.0;
-        double ssRes = 0.0;
-        double sumAbsError = 0.0;
-        double sumSqError = 0.0;
-        double meanY = n > 0 ? sumY / n : 0.0;
+        double ssResSimple = 0.0;
+        double sumAbsSimple = 0.0;
         for (int i = 0; i < n; i++) {
             double x = xVals.get(i);
             double y = yVals.get(i);
             double yPred = slope * x + intercept;
-            double err = y - yPred;
-            ssRes += Math.pow(err, 2);
-            ssTot += Math.pow(y - meanY, 2);
-            sumAbsError += Math.abs(err);
-            sumSqError += Math.pow(err, 2);
+            ssResSimple += Math.pow(y - yPred, 2);
+            sumAbsSimple += Math.abs(y - yPred);
+        }
+        double r2Simple = ssTot != 0 ? 1.0 - (ssResSimple / ssTot) : 1.0;
+        r2Simple = Math.max(0.0, Math.min(1.0, r2Simple));
+        double maeSimple = sumAbsSimple / n;
+        double mseSimple = ssResSimple / n;
+        double rmseSimple = Math.sqrt(mseSimple);
+
+        // 2. Ridge Regression (L2 penalty, alpha = 1.0)
+        double slopeRidge = 0.0;
+        double interceptRidge = 0.0;
+        if (sxx + 1.0 != 0) {
+            slopeRidge = sxy / (sxx + 1.0);
+            interceptRidge = meanY - slopeRidge * meanX;
+        }
+        double ssResRidge = 0.0;
+        double sumAbsRidge = 0.0;
+        for (int i = 0; i < n; i++) {
+            double x = xVals.get(i);
+            double y = yVals.get(i);
+            double yPred = slopeRidge * x + interceptRidge;
+            ssResRidge += Math.pow(y - yPred, 2);
+            sumAbsRidge += Math.abs(y - yPred);
+        }
+        double r2Ridge = ssTot != 0 ? 1.0 - (ssResRidge / ssTot) : 1.0;
+        r2Ridge = Math.max(0.0, Math.min(1.0, r2Ridge));
+        double maeRidge = sumAbsRidge / n;
+        double mseRidge = ssResRidge / n;
+        double rmseRidge = Math.sqrt(mseRidge);
+
+        // 3. Lasso Regression (L1 penalty, alpha = 1.0, threshold = 0.5)
+        double slopeLasso = 0.0;
+        double interceptLasso = 0.0;
+        if (sxx != 0) {
+            double threshold = 0.5;
+            double sign = Math.signum(sxy);
+            double absSxy = Math.abs(sxy);
+            double softSlope = sign * Math.max(0.0, absSxy - threshold) / sxx;
+            slopeLasso = softSlope;
+            interceptLasso = meanY - slopeLasso * meanX;
+        }
+        double ssResLasso = 0.0;
+        double sumAbsLasso = 0.0;
+        for (int i = 0; i < n; i++) {
+            double x = xVals.get(i);
+            double y = yVals.get(i);
+            double yPred = slopeLasso * x + interceptLasso;
+            ssResLasso += Math.pow(y - yPred, 2);
+            sumAbsLasso += Math.abs(y - yPred);
+        }
+        double r2Lasso = ssTot != 0 ? 1.0 - (ssResLasso / ssTot) : 1.0;
+        r2Lasso = Math.max(0.0, Math.min(1.0, r2Lasso));
+        double maeLasso = sumAbsLasso / n;
+        double mseLasso = ssResLasso / n;
+        double rmseLasso = Math.sqrt(mseLasso);
+
+        // 4. Polynomial Regression (Degree 2)
+        double c0 = intercept, c1 = slope, c2 = 0.0;
+        double a00 = n, a01 = sumX, a02 = sumXX;
+        double a10 = sumX, a11 = sumXX, a12 = sumXXX;
+        double a20 = sumXX, a21 = sumXXX, a22 = sumXXXX;
+        double b0 = sumY, b1 = sumXY, b2 = sumXXY;
+
+        double det = a00 * (a11 * a22 - a12 * a21) - a01 * (a10 * a22 - a12 * a20) + a02 * (a10 * a21 - a11 * a20);
+        if (Math.abs(det) > 1e-9) {
+            double det0 = b0 * (a11 * a22 - a12 * a21) - a01 * (b1 * a22 - a12 * b2) + a02 * (b1 * a21 - a11 * b2);
+            double det1 = a00 * (b1 * a22 - b2 * a21) - b0 * (a10 * a22 - a12 * a20) + a02 * (a10 * b2 - b1 * a20);
+            double det2 = a00 * (a11 * b2 - a21 * b1) - a01 * (a10 * b2 - b1 * a20) + b0 * (a10 * a21 - a11 * a20);
+            c0 = det0 / det;
+            c1 = det1 / det;
+            c2 = det2 / det;
         }
 
-        double r2 = ssTot != 0 ? 1.0 - (ssRes / ssTot) : 0.85;
-        r2 = Math.max(0.1, Math.min(0.99, r2));
+        double ssResPoly = 0.0;
+        double sumAbsPoly = 0.0;
+        for (int i = 0; i < n; i++) {
+            double x = xVals.get(i);
+            double y = yVals.get(i);
+            double yPred = c0 + c1 * x + c2 * x * x;
+            ssResPoly += Math.pow(y - yPred, 2);
+            sumAbsPoly += Math.abs(y - yPred);
+        }
+        double r2Poly = ssTot != 0 ? 1.0 - (ssResPoly / ssTot) : 1.0;
+        r2Poly = Math.max(0.0, Math.min(1.0, r2Poly));
+        double maePoly = sumAbsPoly / n;
+        double msePoly = ssResPoly / n;
+        double rmsePoly = Math.sqrt(msePoly);
 
-        // Model Comparison
-        double r2Simple = Math.round(r2 * 1000.0) / 1000.0;
-        double r2Poly = Math.round(Math.min(0.99, r2 + 0.03) * 1000.0) / 1000.0;
-        double r2Ridge = Math.round(Math.max(0.1, r2 - 0.01) * 1000.0) / 1000.0;
-        double r2Lasso = Math.round(Math.max(0.1, r2 - 0.01) * 1000.0) / 1000.0;
+        // Round results
+        r2Simple = Math.round(r2Simple * 1000.0) / 1000.0;
+        r2Poly = Math.round(r2Poly * 1000.0) / 1000.0;
+        r2Ridge = Math.round(r2Ridge * 1000.0) / 1000.0;
+        r2Lasso = Math.round(r2Lasso * 1000.0) / 1000.0;
+
+        maeSimple = Math.round(maeSimple * 100.0) / 100.0;
+        mseSimple = Math.round(mseSimple * 100.0) / 100.0;
+        rmseSimple = Math.round(rmseSimple * 100.0) / 100.0;
+
+        maePoly = Math.round(maePoly * 100.0) / 100.0;
+        msePoly = Math.round(msePoly * 100.0) / 100.0;
+        rmsePoly = Math.round(rmsePoly * 100.0) / 100.0;
+
+        maeRidge = Math.round(maeRidge * 100.0) / 100.0;
+        mseRidge = Math.round(mseRidge * 100.0) / 100.0;
+        rmseRidge = Math.round(rmseRidge * 100.0) / 100.0;
+
+        maeLasso = Math.round(maeLasso * 100.0) / 100.0;
+        mseLasso = Math.round(mseLasso * 100.0) / 100.0;
+        rmseLasso = Math.round(rmseLasso * 100.0) / 100.0;
 
         Map<String, Double> comparison = Map.of(
             "Lineal Simple", r2Simple,
@@ -787,27 +870,6 @@ public class AnalyticsEngineService {
             "Lasso", r2Lasso
         );
         result.put("model_comparison", comparison);
-
-        double mae = n > 0 ? sumAbsError / n : 0.0;
-        double mse = n > 0 ? sumSqError / n : 0.0;
-        double rmse = Math.sqrt(mse);
-
-        double maeSimple = Math.round(mae * 100.0) / 100.0;
-        double mseSimple = Math.round(mse * 100.0) / 100.0;
-        double rmseSimple = Math.round(rmse * 100.0) / 100.0;
-
-        // Scale other models based on R2 changes
-        double maePoly = Math.round(maeSimple * (1.0 - (r2Poly - r2Simple)) * 100.0) / 100.0;
-        double msePoly = Math.round(mseSimple * (1.0 - (r2Poly - r2Simple) * 1.5) * 100.0) / 100.0;
-        double rmsePoly = Math.round(Math.sqrt(Math.max(0.1, msePoly)) * 100.0) / 100.0;
-
-        double maeRidge = Math.round(maeSimple * (1.0 - (r2Ridge - r2Simple)) * 100.0) / 100.0;
-        double mseRidge = Math.round(mseSimple * (1.0 - (r2Ridge - r2Simple) * 1.5) * 100.0) / 100.0;
-        double rmseRidge = Math.round(Math.sqrt(Math.max(0.1, mseRidge)) * 100.0) / 100.0;
-
-        double maeLasso = Math.round(maeSimple * (1.0 - (r2Lasso - r2Simple)) * 100.0) / 100.0;
-        double mseLasso = Math.round(mseSimple * (1.0 - (r2Lasso - r2Simple) * 1.5) * 100.0) / 100.0;
-        double rmseLasso = Math.round(Math.sqrt(Math.max(0.1, mseLasso)) * 100.0) / 100.0;
 
         Map<String, Map<String, Object>> detailedMetrics = Map.of(
             "Lineal Simple", Map.of("r2", r2Simple, "mae", maeSimple, "mse", mseSimple, "rmse", rmseSimple),
@@ -818,7 +880,10 @@ public class AnalyticsEngineService {
         result.put("detailed_metrics", detailedMetrics);
 
         String bestModel = "Polinomial (deg 2)";
-        if (r2Simple >= r2Poly) bestModel = "Lineal Simple";
+        double maxR2 = r2Poly;
+        if (r2Simple > maxR2) { maxR2 = r2Simple; bestModel = "Lineal Simple"; }
+        if (r2Ridge > maxR2) { maxR2 = r2Ridge; bestModel = "Ridge"; }
+        if (r2Lasso > maxR2) { maxR2 = r2Lasso; bestModel = "Lasso"; }
         result.put("best_model", bestModel);
 
         // Fetch events and generate predictions
@@ -1088,6 +1153,12 @@ public class AnalyticsEngineService {
             logger.error("Error calculating decision tree predictions: {}", e.getMessage());
         }
 
+        if (predictions.size() < 5) {
+            result.put("status", "insufficient_data");
+            result.put("message", "Datos reales insuficientes en MySQL para realizar el análisis de clasificación (mínimo 5 eventos con ventas registradas).");
+            return result;
+        }
+
         // Calculate confusion matrix from actual data dynamically
         int tp = 0;
         int tn = 0;
@@ -1105,14 +1176,6 @@ public class AnalyticsEngineService {
             else if (label == 0 && prediction == 0) tn++;
             else if (label == 0 && prediction == 1) fp++;
             else if (label == 1 && prediction == 0) fn++;
-        }
-
-        // Seeding baseline if predictions list is empty or very small
-        if (predictions.size() < 5) {
-            tp += 15;
-            tn += 22;
-            fp += 2;
-            fn += 1;
         }
 
         double total = tp + tn + fp + fn;
@@ -1198,10 +1261,9 @@ public class AnalyticsEngineService {
         }
 
         if (activeVenues.isEmpty()) {
-            activeVenues = new ArrayList<>();
-            for (Map<String, Object> fallback : getFallbackActiveVenues()) {
-                activeVenues.add(new HashMap<>(fallback));
-            }
+            result.put("status", "insufficient_data");
+            result.put("message", "Datos reales insuficientes en MySQL para realizar la prospección de recintos (no hay eventos registrados con ventas).");
+            return result;
         }
 
         // Add classifications/perfil to active venues
@@ -1708,55 +1770,616 @@ public class AnalyticsEngineService {
         );
     }
 
-    private List<Map<String, Object>> getFallbackActiveVenues() {
-        return List.of(
-            Map.of("venue_name", "Coliseo LAIKA 1", "event_category", "concert", "events_count", 15, "capacity", 5000, "tickets_sold", 45000, "total_revenue", 675000.0, "avg_ticket_price", 150.0, "city_name", "Ciudad de México", "state_name", "CDMX", "country_name", "México"),
-            Map.of("venue_name", "Coliseo LAIKA 2", "event_category", "festival", "events_count", 8, "capacity", 8000, "tickets_sold", 54000, "total_revenue", 1080000.0, "avg_ticket_price", 200.0, "city_name", "Ciudad de México", "state_name", "CDMX", "country_name", "México"),
-            Map.of("venue_name", "Coliseo LAIKA 3", "event_category", "theater", "events_count", 12, "capacity", 1500, "tickets_sold", 16000, "total_revenue", 192000.0, "avg_ticket_price", 80.0, "city_name", "Guadalajara", "state_name", "Jalisco", "country_name", "México"),
-            Map.of("venue_name", "Coliseo LAIKA 4", "event_category", "sport", "events_count", 6, "capacity", 6000, "tickets_sold", 22000, "total_revenue", 330000.0, "avg_ticket_price", 90.0, "city_name", "Monterrey", "state_name", "Nuevo León", "country_name", "México"),
-            Map.of("venue_name", "Coliseo LAIKA 5", "event_category", "other", "events_count", 22, "capacity", 400, "tickets_sold", 8000, "total_revenue", 40000.0, "avg_ticket_price", 50.0, "city_name", "Monterrey", "state_name", "Nuevo León", "country_name", "México")
-        );
+    // --- NUEVAS RUTAS DE IA (PROCESAMIENTO MATEMÁTICO REAL SOBRE MYSQL/SQLITE) ---
+    private static class KMeansResult {
+        int[] assignments;
+        double[][] centroids;
+        double wcss;
+        KMeansResult(int[] assignments, double[][] centroids, double wcss) {
+            this.assignments = assignments;
+            this.centroids = centroids;
+            this.wcss = wcss;
+        }
     }
 
-    // --- NUEVAS RUTAS DE IA (FALLBACK PARA PYTHON) ---
+    private KMeansResult runKMeans(double[][] data, int k) {
+        int n = data.length;
+        double[][] centroids = new double[k][2];
+        Random rand = new Random(42);
+        for (int i = 0; i < k; i++) {
+            int idx = (i * n / k) % n;
+            centroids[i][0] = data[idx][0];
+            centroids[i][1] = data[idx][1];
+        }
+
+        int[] assignments = new int[n];
+        boolean changed = true;
+        int maxIter = 100;
+        for (int iter = 0; iter < maxIter && changed; iter++) {
+            changed = false;
+            // Assignment
+            for (int i = 0; i < n; i++) {
+                double minDist = Double.MAX_VALUE;
+                int bestCluster = 0;
+                for (int c = 0; c < k; c++) {
+                    double dist = Math.pow(data[i][0] - centroids[c][0], 2) + Math.pow(data[i][1] - centroids[c][1], 2);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        bestCluster = c;
+                    }
+                }
+                if (assignments[i] != bestCluster) {
+                    assignments[i] = bestCluster;
+                    changed = true;
+                }
+            }
+
+            // Update
+            double[][] sum = new double[k][2];
+            int[] counts = new int[k];
+            for (int i = 0; i < n; i++) {
+                int c = assignments[i];
+                sum[c][0] += data[i][0];
+                sum[c][1] += data[i][1];
+                counts[c]++;
+            }
+
+            for (int c = 0; c < k; c++) {
+                if (counts[c] > 0) {
+                    centroids[c][0] = sum[c][0] / counts[c];
+                    centroids[c][1] = sum[c][1] / counts[c];
+                } else {
+                    int randPt = rand.nextInt(n);
+                    centroids[c][0] = data[randPt][0];
+                    centroids[c][1] = data[randPt][1];
+                    changed = true;
+                }
+            }
+        }
+
+        // Calculate WCSS
+        double wcss = 0.0;
+        for (int i = 0; i < n; i++) {
+            int c = assignments[i];
+            wcss += Math.pow(data[i][0] - centroids[c][0], 2) + Math.pow(data[i][1] - centroids[c][1], 2);
+        }
+
+        return new KMeansResult(assignments, centroids, wcss);
+    }
+
+    private double calculateSilhouetteScore(double[][] data, int[] assignments) {
+        int n = data.length;
+        if (n <= 1) return 0.0;
+
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < n; i++) indices.add(i);
+        if (n > 1000) {
+            Collections.shuffle(indices, new Random(42));
+            indices = indices.subList(0, 1000);
+        }
+        int size = indices.size();
+
+        double silhouetteSum = 0.0;
+        for (int i = 0; i < size; i++) {
+            int idxI = indices.get(i);
+            int clusterI = assignments[idxI];
+
+            double aDistSum = 0.0;
+            int aCount = 0;
+            Map<Integer, Double> bDistSums = new HashMap<>();
+            Map<Integer, Integer> bCounts = new HashMap<>();
+
+            for (int j = 0; j < size; j++) {
+                if (i == j) continue;
+                int idxJ = indices.get(j);
+                int clusterJ = assignments[idxJ];
+                double dist = Math.sqrt(Math.pow(data[idxI][0] - data[idxJ][0], 2) + Math.pow(data[idxI][1] - data[idxJ][1], 2));
+
+                if (clusterI == clusterJ) {
+                    aDistSum += dist;
+                    aCount++;
+                } else {
+                    bDistSums.put(clusterJ, bDistSums.getOrDefault(clusterJ, 0.0) + dist);
+                    bCounts.put(clusterJ, bCounts.getOrDefault(clusterJ, 0) + 1);
+                }
+            }
+
+            double ai = aCount > 0 ? aDistSum / aCount : 0.0;
+            double bi = Double.MAX_VALUE;
+            for (Map.Entry<Integer, Double> entry : bDistSums.entrySet()) {
+                int c = entry.getKey();
+                double avgDist = entry.getValue() / bCounts.get(c);
+                if (avgDist < bi) {
+                    bi = avgDist;
+                }
+            }
+            if (bi == Double.MAX_VALUE) bi = 0.0;
+
+            double denom = Math.max(ai, bi);
+            double si = denom > 0 ? (bi - ai) / denom : 0.0;
+            silhouetteSum += si;
+        }
+
+        return silhouetteSum / size;
+    }
+
+    private static void jacobi3x3(double[][] A, double[] d, double[][] V) {
+        int n = 3;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                V[i][j] = (i == j) ? 1.0 : 0.0;
+            }
+            d[i] = A[i][i];
+        }
+
+        double[][] M = new double[n][n];
+        for (int i = 0; i < n; i++) {
+            System.arraycopy(A[i], 0, M[i], 0, n);
+        }
+
+        int maxIterations = 50;
+        for (int iter = 0; iter < maxIterations; iter++) {
+            int p = 0, q = 1;
+            double maxOff = Math.abs(M[0][1]);
+            if (Math.abs(M[0][2]) > maxOff) { p = 0; q = 2; maxOff = Math.abs(M[0][2]); }
+            if (Math.abs(M[1][2]) > maxOff) { p = 1; q = 2; maxOff = Math.abs(M[1][2]); }
+
+            if (maxOff < 1e-9) {
+                break;
+            }
+
+            double Mpq = M[p][q];
+            double Mpp = M[p][p];
+            double Mqq = M[q][q];
+
+            double phi = 0.5 * Math.atan2(2 * Mpq, Mpp - Mqq);
+            double c = Math.cos(phi);
+            double s = Math.sin(phi);
+
+            double Mpp_new = c * c * Mpp + 2 * s * c * Mpq + s * s * Mqq;
+            double Mqq_new = s * s * Mpp - 2 * s * c * Mpq + c * c * Mqq;
+            M[p][p] = Mpp_new;
+            M[q][q] = Mqq_new;
+            M[p][q] = 0.0;
+            M[q][p] = 0.0;
+
+            for (int r = 0; r < n; r++) {
+                if (r != p && r != q) {
+                    double Mrp = M[r][p];
+                    double Mrq = M[r][q];
+                    M[r][p] = c * Mrp + s * Mrq;
+                    M[p][r] = M[r][p];
+                    M[r][q] = -s * Mrp + c * Mrq;
+                    M[q][r] = M[r][q];
+                }
+            }
+
+            for (int r = 0; r < n; r++) {
+                double Vrp = V[r][p];
+                double Vrq = V[r][q];
+                V[r][p] = c * Vrp + s * Vrq;
+                V[r][q] = -s * Vrp + c * Vrq;
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            d[i] = M[i][i];
+        }
+    }
+
     public Map<String, Object> getPcaFallback(Integer k) {
-        return Map.of(
-            "status", "success",
-            "variance_explained", 0.92,
-            "clusters", List.of(
-                Map.of("id", 1, "size", 120, "description", "Compradores Frecuentes VIP (Simulado)"),
-                Map.of("id", 2, "size", 350, "description", "Compradores Casuales (Simulado)"),
-                Map.of("id", 3, "size", 85, "description", "Buscadores de Ofertas (Simulado)")
-            )
-        );
+        List<Map<String, Object>> rows = new ArrayList<>();
+        try {
+            String query = "SELECT t.user_id, COUNT(*) as cantidad, AVG(t.price) as precio_promedio, SUM(t.price) as gasto_total " +
+                           "FROM tickets t " +
+                           "WHERE t.status != 'cancelled' " +
+                           "GROUP BY t.user_id";
+            rows = jdbcTemplate.queryForList(query);
+        } catch (Exception e) {
+            logger.error("Error retrieving user metrics for PCA: {}", e.getMessage());
+        }
+
+        if (rows.size() < 5) {
+            return Map.of(
+                "status", "insufficient_data",
+                "message", "Datos reales insuficientes en MySQL para realizar la segmentación PCA (mínimo 5 usuarios con compras reales).",
+                "data", List.of(),
+                "clusters", List.of()
+            );
+        }
+
+        int n = rows.size();
+        double[][] X = new double[n][3];
+        for (int i = 0; i < n; i++) {
+            Map<String, Object> r = rows.get(i);
+            X[i][0] = r.get("cantidad") != null ? ((Number) r.get("cantidad")).doubleValue() : 0.0;
+            X[i][1] = r.get("precio_promedio") != null ? ((Number) r.get("precio_promedio")).doubleValue() : 0.0;
+            X[i][2] = r.get("gasto_total") != null ? ((Number) r.get("gasto_total")).doubleValue() : 0.0;
+        }
+
+        // Standardize features
+        double[] mean = new double[3];
+        double[] std = new double[3];
+        for (int j = 0; j < 3; j++) {
+            double sum = 0;
+            for (int i = 0; i < n; i++) {
+                sum += X[i][j];
+            }
+            mean[j] = sum / n;
+            double sumSq = 0;
+            for (int i = 0; i < n; i++) {
+                sumSq += Math.pow(X[i][j] - mean[j], 2);
+            }
+            std[j] = Math.sqrt(sumSq / n);
+            if (std[j] == 0) std[j] = 1.0;
+        }
+
+        double[][] X_scaled = new double[n][3];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < 3; j++) {
+                X_scaled[i][j] = (X[i][j] - mean[j]) / std[j];
+            }
+        }
+
+        // Covariance Matrix (3x3)
+        double[][] cov = new double[3][3];
+        for (int j = 0; j < 3; j++) {
+            for (int kVar = 0; kVar < 3; kVar++) {
+                double sum = 0;
+                for (int i = 0; i < n; i++) {
+                    sum += X_scaled[i][j] * X_scaled[i][kVar];
+                }
+                cov[j][kVar] = sum / (n - 1);
+            }
+        }
+
+        // Eigen decomposition
+        double[] eigenvalues = new double[3];
+        double[][] eigenvectors = new double[3][3];
+        jacobi3x3(cov, eigenvalues, eigenvectors);
+
+        Integer[] idxs = {0, 1, 2};
+        Arrays.sort(idxs, (a, b) -> Double.compare(eigenvalues[b], eigenvalues[a]));
+
+        double totalVariance = eigenvalues[0] + eigenvalues[1] + eigenvalues[2];
+        List<Double> explainedVariance = new ArrayList<>();
+        if (totalVariance > 0) {
+            explainedVariance.add(Math.round((eigenvalues[idxs[0]] / totalVariance) * 1000.0) / 1000.0);
+            explainedVariance.add(Math.round((eigenvalues[idxs[1]] / totalVariance) * 1000.0) / 1000.0);
+        } else {
+            explainedVariance = List.of(0.65, 0.25);
+        }
+
+        // PCA Projection to 2D
+        double[][] X_pca = new double[n][2];
+        for (int i = 0; i < n; i++) {
+            X_pca[i][0] = X_scaled[i][0] * eigenvectors[0][idxs[0]] +
+                          X_scaled[i][1] * eigenvectors[1][idxs[0]] +
+                          X_scaled[i][2] * eigenvectors[2][idxs[0]];
+            X_pca[i][1] = X_scaled[i][0] * eigenvectors[0][idxs[1]] +
+                          X_scaled[i][1] * eigenvectors[1][idxs[1]] +
+                          X_scaled[i][2] * eigenvectors[2][idxs[1]];
+        }
+
+        int kVal = k != null ? Math.min(k, n) : 3;
+        KMeansResult kmRes = runKMeans(X_pca, kVal);
+
+        // Group and label clusters
+        double[] clusterSpentSum = new double[kVal];
+        double[] clusterTicketsSum = new double[kVal];
+        int[] clusterSizes = new int[kVal];
+        for (int i = 0; i < n; i++) {
+            int c = kmRes.assignments[i];
+            clusterSpentSum[c] += X[i][2];
+            clusterTicketsSum[c] += X[i][0];
+            clusterSizes[c]++;
+        }
+
+        List<Map<String, Object>> clusterStats = new ArrayList<>();
+        for (int c = 0; c < kVal; c++) {
+            if (clusterSizes[c] == 0) continue;
+            Map<String, Object> stat = new HashMap<>();
+            stat.put("cluster", c);
+            stat.put("size", clusterSizes[c]);
+            stat.put("avg_spent", clusterSpentSum[c] / clusterSizes[c]);
+            stat.put("avg_tickets", clusterTicketsSum[c] / clusterSizes[c]);
+            clusterStats.add(stat);
+        }
+
+        clusterStats.sort((a, b) -> Double.compare((Double) b.get("avg_spent"), (Double) a.get("avg_spent")));
+
+        List<Map<String, Object>> clusterSummary = new ArrayList<>();
+        for (int rank = 0; rank < clusterStats.size(); rank++) {
+            Map<String, Object> stat = clusterStats.get(rank);
+            int c = (Integer) stat.get("cluster");
+            int size = (Integer) stat.get("size");
+            double avgSpent = (Double) stat.get("avg_spent");
+            double avgTickets = (Double) stat.get("avg_tickets");
+
+            String label;
+            String desc;
+            if (rank == 0) {
+                label = "Súper Fans (VIP)";
+                desc = "Alta rentabilidad. Clientes muy leales que compran frecuentemente eventos premium.";
+            } else if (rank == clusterStats.size() - 1) {
+                label = "Compradores Casuales";
+                desc = "Buscan precio y compran rara vez. Sensibles a promociones y descuentos.";
+            } else if (avgTickets > 3) {
+                label = "Fans Recurrentes";
+                desc = "Asisten regularmente pero cuidan su presupuesto. Ideales para programas de lealtad.";
+            } else {
+                label = "Público General";
+                desc = "Compradores estándar. Rentables en volumen pero sin una lealtad clara aún.";
+            }
+
+            clusterSummary.add(Map.of(
+                "name", "Segmento " + (c + 1) + " - " + label,
+                "size", size,
+                "centroid_summary", String.format(Locale.US, "Gasto Promedio: $%.2f | Tickets Promedio: %.1f", avgSpent, avgTickets),
+                "description", desc
+            ));
+        }
+
+        List<Map<String, Object>> dataPoints = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            Map<String, Object> r = rows.get(i);
+            dataPoints.add(Map.of(
+                "pca", List.of(Math.round(X_pca[i][0] * 1000.0) / 1000.0, Math.round(X_pca[i][1] * 1000.0) / 1000.0),
+                "cluster", kmRes.assignments[i],
+                "metrics", Map.of(
+                    "tickets", ((Number) r.get("cantidad")).intValue(),
+                    "total", ((Number) r.get("gasto_total")).doubleValue(),
+                    "uid", String.valueOf(r.get("user_id"))
+                )
+            ));
+        }
+
+        double silhouette = calculateSilhouetteScore(X_pca, kmRes.assignments);
+
+        if (mongoTemplate != null) {
+            try {
+                Map<String, Object> run = new HashMap<>();
+                run.put("timestamp", LocalDateTime.now().toString());
+                run.put("algorithm", "K-Means-PCA-Resilience-Java");
+                run.put("k", kVal);
+                run.put("wcss", kmRes.wcss);
+                run.put("silhouette", silhouette);
+                
+                List<List<Double>> centersList = new ArrayList<>();
+                for (double[] center : kmRes.centroids) {
+                    centersList.add(List.of(center[0], center[1]));
+                }
+                run.put("centroids", centersList);
+                mongoTemplate.insert(run, "ml_centroids_history");
+            } catch (Exception e) {
+                logger.warn("Could not save PCA centroids to MongoDB: {}", e.getMessage());
+            }
+        }
+
+        Map<String, Object> finalResult = new HashMap<>();
+        finalResult.put("status", "success");
+        finalResult.put("data", dataPoints);
+        finalResult.put("clusters", clusterSummary);
+        finalResult.put("variance_explained", explainedVariance);
+        finalResult.put("silhouette_score", Math.round(silhouette * 1000.0) / 1000.0);
+        finalResult.put("wcss", Math.round(kmRes.wcss * 100.0) / 100.0);
+        finalResult.put("summary", "Segmentación de Usuarios (Clustering PCA). Los perfiles te ayudan a dirigir campañas específicas.");
+        finalResult.put("insights", List.of(
+            "Analizando comportamiento de " + n + " usuarios únicos en MySQL",
+            "Detección de Súper Fans (VIP) basada en comportamiento real de compra",
+            "Reducción dimensional PCA para segmentación de lealtad realizada localmente en Java"
+        ));
+
+        return finalResult;
     }
 
     public Map<String, Object> getElbowFallback(Integer maxK) {
+        int maxKVal = maxK != null ? maxK : 8;
+        
+        List<Map<String, Object>> rows = new ArrayList<>();
+        try {
+            String query = "SELECT t.user_id, COUNT(*) as cantidad, AVG(t.price) as precio_promedio, SUM(t.price) as gasto_total " +
+                           "FROM tickets t " +
+                           "WHERE t.status != 'cancelled' " +
+                           "GROUP BY t.user_id";
+            rows = jdbcTemplate.queryForList(query);
+        } catch (Exception e) {
+            logger.error("Error retrieving user metrics for Elbow: {}", e.getMessage());
+        }
+
+        if (rows.size() < 5) {
+            return Map.of(
+                "status", "insufficient_data",
+                "message", "Datos reales insuficientes en MySQL para calcular el Método del Codo (mínimo 5 usuarios con compras reales)."
+            );
+        }
+
+        int n = rows.size();
+        double[][] X = new double[n][3];
+        for (int i = 0; i < n; i++) {
+            Map<String, Object> r = rows.get(i);
+            X[i][0] = r.get("cantidad") != null ? ((Number) r.get("cantidad")).doubleValue() : 0.0;
+            X[i][1] = r.get("precio_promedio") != null ? ((Number) r.get("precio_promedio")).doubleValue() : 0.0;
+            X[i][2] = r.get("gasto_total") != null ? ((Number) r.get("gasto_total")).doubleValue() : 0.0;
+        }
+
+        // Standardize features
+        double[] mean = new double[3];
+        double[] std = new double[3];
+        for (int j = 0; j < 3; j++) {
+            double sum = 0;
+            for (int i = 0; i < n; i++) {
+                sum += X[i][j];
+            }
+            mean[j] = sum / n;
+            double sumSq = 0;
+            for (int i = 0; i < n; i++) {
+                sumSq += Math.pow(X[i][j] - mean[j], 2);
+            }
+            std[j] = Math.sqrt(sumSq / n);
+            if (std[j] == 0) std[j] = 1.0;
+        }
+
+        double[][] X_scaled = new double[n][3];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < 3; j++) {
+                X_scaled[i][j] = (X[i][j] - mean[j]) / std[j];
+            }
+        }
+
+        // Covariance Matrix (3x3)
+        double[][] cov = new double[3][3];
+        for (int j = 0; j < 3; j++) {
+            for (int kVar = 0; kVar < 3; kVar++) {
+                double sum = 0;
+                for (int i = 0; i < n; i++) {
+                    sum += X_scaled[i][j] * X_scaled[i][kVar];
+                }
+                cov[j][kVar] = sum / (n - 1);
+            }
+        }
+
+        // Jacobi Eigen decomposition
+        double[] eigenvalues = new double[3];
+        double[][] eigenvectors = new double[3][3];
+        jacobi3x3(cov, eigenvalues, eigenvectors);
+
+        Integer[] idxs = {0, 1, 2};
+        Arrays.sort(idxs, (a, b) -> Double.compare(eigenvalues[b], eigenvalues[a]));
+
+        // PCA Projection to 2D
+        double[][] X_pca = new double[n][2];
+        for (int i = 0; i < n; i++) {
+            X_pca[i][0] = X_scaled[i][0] * eigenvectors[0][idxs[0]] +
+                          X_scaled[i][1] * eigenvectors[1][idxs[0]] +
+                          X_scaled[i][2] * eigenvectors[2][idxs[0]];
+            X_pca[i][1] = X_scaled[i][0] * eigenvectors[0][idxs[1]] +
+                          X_scaled[i][1] * eigenvectors[1][idxs[1]] +
+                          X_scaled[i][2] * eigenvectors[2][idxs[1]];
+        }
+
+        List<Map<String, Object>> wcssCurve = new ArrayList<>();
+        int upperK = Math.min(maxKVal, n);
+        for (int k = 2; k <= upperK; k++) {
+            KMeansResult kmRes = runKMeans(X_pca, k);
+            wcssCurve.add(Map.of("k", k, "wcss", kmRes.wcss));
+        }
+
+        // Determine optimal K
+        int optimalK = 3;
+        double maxDropRatio = 0.0;
+        for (int i = 1; i < wcssCurve.size() - 1; i++) {
+            double drop1 = ((Double) wcssCurve.get(i - 1).get("wcss")) - ((Double) wcssCurve.get(i).get("wcss"));
+            double drop2 = ((Double) wcssCurve.get(i).get("wcss")) - ((Double) wcssCurve.get(i + 1).get("wcss"));
+            if (drop1 > 0 && drop2 > 0) {
+                double ratio = drop1 / drop2;
+                if (ratio > maxDropRatio) {
+                    maxDropRatio = ratio;
+                    optimalK = (Integer) wcssCurve.get(i).get("k");
+                }
+            }
+        }
+
         return Map.of(
             "status", "success",
-            "optimal_k", 3,
-            "wcss", List.of(
-                Map.of("k", 1, "wcss", 150000),
-                Map.of("k", 2, "wcss", 80000),
-                Map.of("k", 3, "wcss", 35000),
-                Map.of("k", 4, "wcss", 30000),
-                Map.of("k", 5, "wcss", 28000)
-            ),
-            "recommendation", "Se recomienda dividir en 3 segmentos de clientes para máxima retención. (Motor Resiliencia Activo)"
+            "optimal_k", optimalK,
+            "wcss_curve", wcssCurve,
+            "wcss", wcssCurve,
+            "summary", "Optimización del Método del Codo completada con éxito.",
+            "recommendation", "Se recomienda dividir en " + optimalK + " segmentos de clientes para máxima retención. (Motor de Resiliencia Real en Java)"
         );
     }
 
     public Map<String, Object> getAnomalyFallback(Integer managerId) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        try {
+            String query = "SELECT t.user_id, u.email, u.first_name, u.last_name, " +
+                           "COUNT(t.id) as total_tickets, " +
+                           "COUNT(DISTINCT t.event_id) as distinct_events, " +
+                           "COALESCE(SUM(t.price), 0) as total_spent " +
+                           "FROM tickets t " +
+                           "JOIN users u ON t.user_id = u.id " +
+                           "LEFT JOIN events e ON t.event_id = e.id " +
+                           "WHERE t.status != 'cancelled' ";
+            if (managerId != null) {
+                query += "AND (e.created_by = ? OR e.assigned_manager_id = ?) ";
+                query += "GROUP BY t.user_id";
+                rows = jdbcTemplate.queryForList(query, managerId, managerId);
+            } else {
+                query += "GROUP BY t.user_id";
+                rows = jdbcTemplate.queryForList(query);
+            }
+        } catch (Exception e) {
+            logger.error("Error retrieving user metrics for Anomaly detection: {}", e.getMessage());
+        }
+
+        if (rows.size() < 10) {
+            return Map.of(
+                "status", "insufficient_data",
+                "message", "Datos reales insuficientes en MySQL para realizar el análisis de anomalías (mínimo 10 usuarios con compras reales)."
+            );
+        }
+
+        int n = rows.size();
+        double[][] X = new double[n][4];
+        for (int i = 0; i < n; i++) {
+            Map<String, Object> r = rows.get(i);
+            double tickets = r.get("total_tickets") != null ? ((Number) r.get("total_tickets")).doubleValue() : 0.0;
+            double events = r.get("distinct_events") != null ? ((Number) r.get("distinct_events")).doubleValue() : 0.0;
+            double spent = r.get("total_spent") != null ? ((Number) r.get("total_spent")).doubleValue() : 0.0;
+            double avgSpent = tickets > 0 ? spent / tickets : 0.0;
+
+            X[i][0] = tickets;
+            X[i][1] = events;
+            X[i][2] = spent;
+            X[i][3] = avgSpent;
+        }
+
+        // Calculate means and std devs
+        double[] mean = new double[4];
+        double[] std = new double[4];
+        for (int j = 0; j < 4; j++) {
+            double sum = 0;
+            for (int i = 0; i < n; i++) {
+                sum += X[i][j];
+            }
+            mean[j] = sum / n;
+            double sumSq = 0;
+            for (int i = 0; i < n; i++) {
+                sumSq += Math.pow(X[i][j] - mean[j], 2);
+            }
+            std[j] = Math.sqrt(sumSq / n);
+            if (std[j] == 0) std[j] = 1.0;
+        }
+
+        List<Map<String, Object>> anomalies = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            double zTickets = (X[i][0] - mean[0]) / std[0];
+            double zEvents = (X[i][1] - mean[1]) / std[1];
+            double zSpent = (X[i][2] - mean[2]) / std[2];
+            double zAvgSpent = (X[i][3] - mean[3]) / std[3];
+
+            double maxZ = Math.max(Math.max(Math.abs(zTickets), Math.abs(zEvents)), Math.max(Math.abs(zSpent), Math.abs(zAvgSpent)));
+            if (maxZ > 3.0) {
+                Map<String, Object> r = rows.get(i);
+                anomalies.add(Map.of(
+                    "user_id", r.get("user_id"),
+                    "name", (r.get("first_name") != null ? r.get("first_name") : "") + " " + (r.get("last_name") != null ? r.get("last_name") : ""),
+                    "email", r.get("email") != null ? r.get("email") : "",
+                    "total_tickets", ((Number) r.get("total_tickets")).intValue(),
+                    "distinct_events", ((Number) r.get("distinct_events")).intValue(),
+                    "total_spent", ((Number) r.get("total_spent")).doubleValue(),
+                    "risk_score", String.format(Locale.US, "High (Z-Score outlier: %.2f)", maxZ)
+                ));
+            }
+        }
+
         return Map.of(
             "status", "success",
-            "anomalies_detected", 12,
-            "anomaly_rate", 0.045,
-            "risk_level", "medium",
-            "action_required", "Bloquear 12 transacciones sospechosas detectadas por Isolation Forest. (Motor Resiliencia Activo)",
-            "top_anomalies", List.of(
-                Map.of("id", 105, "anomaly_score", -0.85, "reason", "Alta frecuencia de compra en IP"),
-                Map.of("id", 210, "anomaly_score", -0.72, "reason", "Monto inusual")
-            )
+            "total_users_analyzed", n,
+            "anomalies_detected", anomalies.size(),
+            "anomalies", anomalies,
+            "summary", "Escaneo Anti-Bot completado usando análisis estadístico Z-Score sobre datos reales de MySQL."
         );
     }
 }

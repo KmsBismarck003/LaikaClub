@@ -95,12 +95,23 @@ export const OPERADOR_SIDEBAR_ITEMS = [
     id: 'o_main',
     label: 'CONTROL OPERADOR',
     items: [
-      { id: 'o_dashboard', path: '/staff/dashboard',        icon: 'dashboard',    label: 'Panel de Staff' },
-      { id: 'o_staff',     path: '/staff?tab=scanner',      icon: 'checkCircle',  label: 'Lector de Entradas' },
+      { id: 'o_dashboard', path: '/staff/dashboard',        icon: 'dashboard',    label: 'Panel de Control Staff' },
+      { id: 'o_staff',     path: '/staff?tab=scanner',      icon: 'checkCircle',  label: 'Terminal de Validación' },
       { id: 'o_helpdesk',  path: '/staff?tab=helpdesk',     icon: 'search',       label: 'Soporte de Entrada' },
-      { id: 'o_boxoffice', path: '/staff?tab=boxoffice',    icon: 'shoppingBag',  label: 'Venta Presencial' },
+      { id: 'o_boxoffice', path: '/staff?tab=boxoffice',    icon: 'shoppingBag',  label: 'Taquilla y Ventas' },
       { id: 'o_history',   path: '/staff/history',          icon: 'history',      label: 'Registro de Accesos' },
-      { id: 'o_incidents', path: '/staff/incidents',        icon: 'alertTriangle',label: 'Reporte de Problemas' }
+      { id: 'o_incidents', path: '/staff/incidents',        icon: 'alertTriangle',label: 'Reporte de Incidencias' },
+      { id: 'o_events',    path: '/staff/events',           icon: 'calendar',     label: 'Mis Asignaciones' }
+    ]
+  }
+]
+
+export const MATIS_SIDEBAR_ITEMS = [
+  {
+    id: 'matis_main',
+    label: 'CENTRO INTELIGENCIA MATIS',
+    items: [
+      { id: 'matis_dashboard',   path: '/matis',             icon: 'dashboard',   label: 'Consola Central' }
     ]
   }
 ]
@@ -130,9 +141,10 @@ export const ADMIN_SUPERVISION_SECTIONS = [
     label: 'OPERADOR (Supervisión)',
     isCollapsible: true,
     items: [
-      { id: 'o_staff_s',    path: '/staff',           icon: 'checkCircle',   label: 'Terminal de Staff' },
+      { id: 'o_staff_s',    path: '/staff',           icon: 'checkCircle',   label: 'Terminal de Validación' },
       { id: 'o_history_s',  path: '/staff/history',   icon: 'history',       label: 'Registro de Accesos' },
-      { id: 'o_incidents_s',path: '/staff/incidents', icon: 'alertTriangle', label: 'Control de Reportes' }
+      { id: 'o_incidents_s',path: '/staff/incidents', icon: 'alertTriangle', label: 'Control de Incidencias' },
+      { id: 'o_events_s',   path: '/staff/events',    icon: 'calendar',      label: 'Asignaciones de Staff' }
     ]
   },
   {

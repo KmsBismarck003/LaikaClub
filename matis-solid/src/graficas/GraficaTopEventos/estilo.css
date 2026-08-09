@@ -1,0 +1,54 @@
+/* =========================================================================
+/* ESTILOS PARA EL GRÁFICO DE TOP EVENTOS (BARRAS HORIZONTALES)
+/* ========================================================================= */
+
+/* Estilo para las barras horizontales estándar */
+.gte-bar {
+  fill: #94a3b8; /* Gris pizarra (Slate 400) de alto contraste en proyectores e impresiones */
+  stroke: #94a3b8;
+  stroke-width: 1;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+/* Estilo para la barra destacada en primer lugar (Preatentivo) */
+.gte-bar-highlight {
+  fill: var(--color-preattentive); /* Naranja de alto contraste y rápida identificación */
+  stroke: var(--color-preattentive);
+}
+
+/* Efecto hover sobre las barras */
+.gte-bar:hover {
+  fill: var(--accent-color);
+  stroke: var(--accent-color);
+  cursor: pointer;
+}
+
+/* Estilo para el eje vertical */
+.gte-axis {
+  stroke: var(--border-color);
+  stroke-width: 1.5;
+}
+
+/* Estilo para las marcas de cuadrícula de fondo */
+.gte-grid-line {
+  stroke: var(--border-color);
+  stroke-width: 1;
+  stroke-dasharray: 4,4;
+}
+
+/* Estilo del texto que contiene el nombre del evento a la izquierda */
+.gte-text {
+  fill: var(--text-primary);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Estilo del valor numérico a la derecha de cada barra */
+.gte-value {
+  fill: var(--text-secondary);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+}

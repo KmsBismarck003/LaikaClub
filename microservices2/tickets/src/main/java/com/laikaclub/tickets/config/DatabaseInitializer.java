@@ -72,6 +72,28 @@ public class DatabaseInitializer implements CommandLineRunner {
                             "created_at DATETIME DEFAULT CURRENT_TIMESTAMP" +
                             ")");
 
+                    stmt.execute("CREATE TABLE IF NOT EXISTS ticket_validation_logs (" +
+                            "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                            "ticket_id BIGINT NOT NULL, " +
+                            "ticket_code VARCHAR(100) NOT NULL, " +
+                            "user_id BIGINT NOT NULL, " +
+                            "event_id BIGINT NOT NULL, " +
+                            "event_function_id BIGINT DEFAULT NULL, " +
+                            "selected_event_id BIGINT DEFAULT NULL, " +
+                            "selected_function_id BIGINT DEFAULT NULL, " +
+                            "operator_id BIGINT DEFAULT NULL, " +
+                            "operator_name VARCHAR(150) DEFAULT NULL, " +
+                            "platform VARCHAR(50) NOT NULL, " +
+                            "device_info VARCHAR(255) DEFAULT NULL, " +
+                            "access_point VARCHAR(100) NOT NULL, " +
+                            "action_type VARCHAR(50) NOT NULL, " +
+                            "result_status VARCHAR(50) NOT NULL, " +
+                            "notes TEXT DEFAULT NULL, " +
+                            "validation_date VARCHAR(20) NOT NULL, " +
+                            "validation_time VARCHAR(20) NOT NULL, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                            ")");
+
                     try {
                         stmt.execute("ALTER TABLE payments MODIFY COLUMN payment_method VARCHAR(50)");
                     } catch (Exception ignored) {}
@@ -117,6 +139,28 @@ public class DatabaseInitializer implements CommandLineRunner {
                             "claimed_by INTEGER DEFAULT NULL, " +
                             "claimed_at TEXT DEFAULT NULL, " +
                             "is_used INTEGER DEFAULT 0, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                            ")");
+
+                    stmt.execute("CREATE TABLE IF NOT EXISTS ticket_validation_logs (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "ticket_id INTEGER NOT NULL, " +
+                            "ticket_code TEXT NOT NULL, " +
+                            "user_id INTEGER NOT NULL, " +
+                            "event_id INTEGER NOT NULL, " +
+                            "event_function_id INTEGER DEFAULT NULL, " +
+                            "selected_event_id INTEGER DEFAULT NULL, " +
+                            "selected_function_id INTEGER DEFAULT NULL, " +
+                            "operator_id INTEGER DEFAULT NULL, " +
+                            "operator_name TEXT DEFAULT NULL, " +
+                            "platform TEXT NOT NULL, " +
+                            "device_info TEXT DEFAULT NULL, " +
+                            "access_point TEXT NOT NULL, " +
+                            "action_type TEXT NOT NULL, " +
+                            "result_status TEXT NOT NULL, " +
+                            "notes TEXT DEFAULT NULL, " +
+                            "validation_date TEXT NOT NULL, " +
+                            "validation_time TEXT NOT NULL, " +
                             "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                             ")");
                 }

@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
-import { Card, Table, Button, Input, Icon, Badge } from '../../../components';
+import { Table, Button, Input, Icon, Badge } from '../../../components';
 import { managerAPI } from '../../../services/managerService';
 import { ticketAPI } from '../../../services/ticketService';
 import { useNotification } from '../../../context/NotificationContext';
+import '../StaffDashboard.css';
 
 const StaffHelpDesk = ({ eventId }) => {
     const { success, error: showError } = useNotification();
     const [searchQuery, setSearchQuery] = useState('');
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
 
     const handleSearch = async (e) => {
         if (e) e.preventDefault();
         if (!searchQuery.trim()) return;
 
         setLoading(true);
+        setHasSearched(true);
         try {
-            // Using managerAPI attendees for now, but filtering by query
-            // In a real app, this would be a specialized search endpoint
             const allAttendees = await managerAPI.getAttendees(eventId);
             const filtered = allAttendees.filter(a => 
                 (a.name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -26,7 +27,7 @@ const StaffHelpDesk = ({ eventId }) => {
             );
             setResults(filtered);
         } catch (error) {
-            showError('Error al buscar asistente');
+            showError('Error en consulta al servicio de asistentes');
         } finally {
             setLoading(false);
         }
@@ -35,59 +36,72 @@ const StaffHelpDesk = ({ eventId }) => {
     const handleManualRedeem = async (ticketCode) => {
         try {
             await ticketAPI.redeem(ticketCode);
-            success('Ingreso manual registrado correctamente');
+            success('Acceso manual validado y registrado en bitácora del sistema');
             handleSearch(); // Refresh list
         } catch (error) {
-            showError(error.message || 'Error al validar');
+            showError(error.message || 'Fallo al procesar validación manual en servidor');
         }
     };
 
     const columns = [
-        { key: 'name', header: 'Nombre' },
-        { key: 'email', header: 'Email' },
-        { key: 'ticket', header: 'Boleto' },
+        { key: 'name', header: 'Nombre del Asistente' },
+        { key: 'email', header: 'Correo Electrónico' },
+        { key: 'ticket', header: 'Código de Boleto' },
         { 
             key: 'status', 
-            header: 'Estado',
+            header: 'Estatus',
             render: (status) => (
-                <Badge variant={status === 'checked-in' ? 'success' : 'default'}>
-                    {status === 'checked-in' ? 'INGRESADO' : 'PENDIENTE'}
+                <Badge variant={status === 'checked-in' ? 'success' : 'warning'}>
+                    {status === 'checked-in' ? 'INGRESADO EN PUERTA' : 'PENDIENTE DE ACCESO'}
                 </Badge>
             )
         },
         {
             key: 'actions',
-            header: 'Acción',
+            header: 'Validación Manual',
             render: (_, row) => (
-                row.status !== 'checked-in' && (
+                row.status !== 'checked-in' ? (
                     <Button size="small" variant="success" onClick={() => handleManualRedeem(row.ticket)}>
-                        Validar
+                        Validar Acceso
                     </Button>
+                ) : (
+                    <span style={{ fontSize: '0.8rem', color: 'var(--staff-text-muted)', fontWeight: 700 }}>Canjeado</span>
                 )
             )
         }
     ];
 
     return (
-        <div className="staff-help-desk">
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                <Input 
-                    placeholder="Buscar por Nombre, Email o Código..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    fullWidth
-                />
-                <Button type="submit" variant="primary" loading={loading}>
-                    <Icon name="search" size={16} />
+        <div className="staff-help-desk-view">
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '260px' }}>
+                    <Input 
+                        placeholder="Ingresa Nombre, Email, DNI o Código de boleto para localizar en lista..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        fullWidth
+                    />
+                </div>
+                <Button type="submit" variant="primary" loading={loading} style={{ padding: '0 2rem', minHeight: '44px' }}>
+                    <Icon name="search" size={18} className="mr-2" />
+                    Consultar Bitácora
                 </Button>
             </form>
 
-            <Table 
-                columns={columns}
-                data={results}
-                emptyMessage="Realiza una búsqueda para ver resultados"
-                hoverable
-            />
+            {!hasSearched ? (
+                <div className="staff-empty-state">
+                    <Icon name="search" size={36} style={{ color: 'var(--staff-text-muted)', marginBottom: '0.5rem', opacity: 0.5 }} />
+                    <h3 className="staff-empty-title">Soporte de Puerta y Resolución de Problemas</h3>
+                    <p className="staff-empty-desc">Utiliza la barra de búsqueda superior para localizar el registro de cualquier asistente del evento en caso de falla con su dispositivo o pérdida del código de lectura.</p>
+                </div>
+            ) : (
+                <Table 
+                    columns={columns}
+                    data={results}
+                    emptyMessage="No se localizaron asistentes que coincidan con el criterio ingresado para este evento."
+                    hoverable
+                />
+            )}
         </div>
     );
 };

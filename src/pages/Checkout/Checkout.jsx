@@ -1,95 +1,200 @@
 import React from 'react';
-import { useCheckoutFlow } from './hooks/useCheckoutFlow';
-import OrderSummaryPanel from './components/OrderSummaryPanel';
-import PaymentPanel from './components/PaymentPanel';
-import ShippingPanel from './components/ShippingPanel';
-import Step4_Success from './components/Step4_Success';
 import Icon from '../../components/Icons/Icons';
+import { useCheckoutFlow } from './hooks/useCheckoutFlow';
 import './Checkout.css';
+import './components/Payment/Payment.css';
 
-/**
- * Checkout principal — flujo lineal de una sola página:
- * 1. Resumen del pedido (siempre visible)
- * 2. Método de pago
- * 3. Opcionalmente: datos de envío (si merch o boleto físico)
- * 4. Total + botón de pago
- */
+import CheckoutStepper from './components/CheckoutStepper';
+import PhaseSummary from './components/PhaseSummary';
+import PhaseDelivery from './components/PhaseDelivery';
+import PhasePayment from './components/PhasePayment';
+import PhaseConfirmation from './components/PhaseConfirmation';
+import Step4_Success from './components/Step4_Success';
+
 const Checkout = () => {
-    const flow = useCheckoutFlow();
+    const {
+        cart,
+        ticketItems,
+        merchItems,
+        hasMerch,
+        hasTickets,
+        orderType,
+        checkoutPhases,
+        currentPhase,
+        currentPhaseIndex,
+        goToNextPhase,
+        goToPrevPhase,
+        jumpToPhase,
+        total,
+        serviceFee,
+        discount,
+        finalTotal,
+        shippingCost,
+        grandTotal,
+        checkoutError,
+        setCheckoutError,
+        deliveryType,
+        setDeliveryType,
+        needsShippingForm,
+        shippingData,
+        handleShippingChange,
+        savedAddresses,
+        selectedAddressId,
+        setSelectedAddressId,
+        saveNewAddress,
+        setSaveNewAddress,
+        editingAddressId,
+        setEditingAddressId,
+        addAddress,
+        updateAddress,
+        removeAddress,
+        setDefaultAddress,
+        paymentMethod,
+        setPaymentMethod,
+        processing,
+        cardData,
+        handleCardChange,
+        savedCards,
+        removeCard,
+        updateCard,
+        editingCardId,
+        setEditingCardId,
+        handleFinalPayment,
+    } = useCheckoutFlow();
 
-    if (flow.step === 2) {
-        return (
-            <div className="checkout-page-container">
-                <Step4_Success
-                    paymentMethod={flow.paymentMethod}
-                    lastReference={flow.cardData.lastReference}
-                />
-            </div>
-        );
-    }
+    // Resolver nombre del siguiente paso para el botón de resumen
+    const getNextPhaseLabel = () => {
+        const nextKey = checkoutPhases[currentPhaseIndex + 1];
+        if (nextKey === 'delivery') return 'Logística de Entrega';
+        if (nextKey === 'payment') return 'Método de Pago';
+        if (nextKey === 'confirmation') return 'Confirmación Final';
+        return 'Siguiente Paso';
+    };
 
     return (
         <div className="checkout-page-container">
-            <header className="checkout-main-header">
-                <h1 className="checkout-page-title">Finalizar Compra</h1>
-                <p className="checkout-page-subtitle">
-                    Revisa tu pedido y selecciona cómo quieres pagar
-                </p>
-            </header>
+            {/* Encabezado principal de la página (solo si no se ha terminado la compra) */}
+            {currentPhase !== 'success' && (
+                <header className="checkout-main-header">
+                    <h1 className="checkout-page-title">Caja Rápida de LaikaClub</h1>
+                    <span className="checkout-page-subtitle">
+                        {orderType === 'digital_only' ? 'Proceso ágil de boletos digitales' : 'Proceso unificado de compra y logística'}
+                    </span>
+                </header>
+            )}
 
-            <div className="checkout-unified-layout">
-                {/* Columna principal */}
-                <main className="checkout-main-content">
-                    {flow.checkoutError && (
-                        <div className="checkout-error-banner animate-fade-in">
-                            <div className="checkout-error-banner-content">
-                                <Icon name="alert-circle" size={20} className="error-icon" />
-                                <span>{flow.checkoutError}</span>
-                            </div>
-                            <button
-                                type="button"
-                                className="checkout-error-banner-close"
-                                onClick={() => flow.setCheckoutError(null)}
-                                aria-label="Cerrar error"
-                            >
-                                <Icon name="x" size={16} />
-                            </button>
-                        </div>
-                    )}
+            {/* Barra de Progreso Inteligente */}
+            <CheckoutStepper
+                phases={checkoutPhases}
+                currentPhaseIndex={currentPhaseIndex}
+                onSelectStep={jumpToPhase}
+            />
 
-                    {/* SECCIÓN 1: Resumen del pedido */}
-                    <OrderSummaryPanel
-                        ticketItems={flow.ticketItems}
-                        merchItems={flow.merchItems}
-                        total={flow.total}
-                        serviceFee={flow.serviceFee}
-                        discount={flow.discount}
-                        shippingCost={flow.shippingCost}
-                        grandTotal={flow.grandTotal}
+            {/* Banner de error de pago o validación */}
+            {checkoutError && currentPhase !== 'success' && (
+                <div className="checkout-error-banner animate-fade-in" role="alert">
+                    <div className="checkout-error-banner-content">
+                        <Icon name="alertTriangle" size={18} className="error-icon" />
+                        <span>{checkoutError}</span>
+                    </div>
+                    <button 
+                        type="button" 
+                        className="checkout-error-banner-close"
+                        onClick={() => setCheckoutError(null)}
+                        title="Cerrar aviso"
+                    >
+                        <Icon name="x" size={16} />
+                    </button>
+                </div>
+            )}
+
+            {/* Contenedor de Fase Activa */}
+            <main className="checkout-phase-wrapper">
+                {currentPhase === 'summary' && (
+                    <PhaseSummary
+                        ticketItems={ticketItems}
+                        merchItems={merchItems}
+                        total={total}
+                        serviceFee={serviceFee}
+                        discount={discount}
+                        shippingCost={shippingCost}
+                        grandTotal={grandTotal}
+                        onNext={goToNextPhase}
+                        orderType={orderType}
+                        nextPhaseName={getNextPhaseLabel()}
                     />
+                )}
 
-                    {/* SECCIÓN 2: Método de pago */}
-                    <PaymentPanel
-                        paymentMethod={flow.paymentMethod}
-                        setPaymentMethod={flow.setPaymentMethod}
-                        cardData={flow.cardData}
-                        handleCardChange={flow.handleCardChange}
-                        savedCards={flow.savedCards}
-                        removeCard={flow.removeCard}
-                        processing={flow.processing}
-                        grandTotal={flow.grandTotal}
-                        handleFinalPayment={flow.handleFinalPayment}
-                        // Delivery
-                        deliveryType={flow.deliveryType}
-                        setDeliveryType={flow.setDeliveryType}
-                        hasMerch={flow.hasMerch}
-                        needsShippingForm={flow.needsShippingForm}
-                        // Shipping form (embedded when needed)
-                        shippingData={flow.shippingData}
-                        handleShippingChange={flow.handleShippingChange}
+                {currentPhase === 'delivery' && (
+                    <PhaseDelivery
+                        deliveryType={deliveryType}
+                        setDeliveryType={setDeliveryType}
+                        hasMerch={hasMerch}
+                        needsShippingForm={needsShippingForm}
+                        shippingData={shippingData}
+                        handleShippingChange={handleShippingChange}
+                        savedAddresses={savedAddresses}
+                        selectedAddressId={selectedAddressId}
+                        setSelectedAddressId={setSelectedAddressId}
+                        saveNewAddress={saveNewAddress}
+                        setSaveNewAddress={setSaveNewAddress}
+                        editingAddressId={editingAddressId}
+                        setEditingAddressId={setEditingAddressId}
+                        addAddress={addAddress}
+                        updateAddress={updateAddress}
+                        removeAddress={removeAddress}
+                        setDefaultAddress={setDefaultAddress}
+                        onNext={goToNextPhase}
+                        onPrev={goToPrevPhase}
                     />
-                </main>
-            </div>
+                )}
+
+                {currentPhase === 'payment' && (
+                    <PhasePayment
+                        paymentMethod={paymentMethod}
+                        setPaymentMethod={setPaymentMethod}
+                        cardData={cardData}
+                        handleCardChange={handleCardChange}
+                        savedCards={savedCards}
+                        removeCard={removeCard}
+                        updateCard={updateCard}
+                        editingCardId={editingCardId}
+                        setEditingCardId={setEditingCardId}
+                        onNext={goToNextPhase}
+                        onPrev={goToPrevPhase}
+                    />
+                )}
+
+                {currentPhase === 'confirmation' && (
+                    <PhaseConfirmation
+                        cart={cart}
+                        ticketItems={ticketItems}
+                        merchItems={merchItems}
+                        orderType={orderType}
+                        deliveryType={deliveryType}
+                        shippingData={shippingData}
+                        paymentMethod={paymentMethod}
+                        cardData={cardData}
+                        savedCards={savedCards}
+                        total={total}
+                        serviceFee={serviceFee}
+                        shippingCost={shippingCost}
+                        discount={discount}
+                        grandTotal={grandTotal}
+                        processing={processing}
+                        onConfirm={goToNextPhase}
+                        onPrev={goToPrevPhase}
+                        onJumpToPhase={jumpToPhase}
+                    />
+                )}
+
+                {currentPhase === 'success' && (
+                    <Step4_Success
+                        paymentMethod={paymentMethod}
+                        lastReference={cardData.lastReference}
+                    />
+                )}
+            </main>
         </div>
     );
 };

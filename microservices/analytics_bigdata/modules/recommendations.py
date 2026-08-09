@@ -31,7 +31,17 @@ class RecommendationsModule:
             """
             cursor.execute(query, (limit,))
             low_occupancy_events = cursor.fetchall()
+            
+            # Verificar si hay eventos registrados en absoluto
+            cursor.execute("SELECT COUNT(*) as count FROM events")
+            total_events = cursor.fetchone()["count"]
             conn.close()
+            
+            if total_events == 0:
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos reales insuficientes en MySQL para realizar el análisis de audiencia objetiva. No hay eventos registrados."
+                }
             
             if not low_occupancy_events:
                  return {
@@ -46,7 +56,10 @@ class RecommendationsModule:
             
             latest_model = db["ml_centroids_history"].find_one(sort=[("timestamp", -1)])
             if not latest_model:
-                return {"status": "error", "message": "No hay modelo entrenado. Ejecuta Clasificación de Fans primero."}
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos reales insuficientes: No hay modelo entrenado aún. Ejecuta la clasificación de fans primero."
+                }
                 
             centroids = latest_model.get("centroids", [])
             
@@ -151,6 +164,12 @@ class RecommendationsModule:
             cursor.execute(query, tuple(params))
             recs = cursor.fetchall()
             conn.close()
+            
+            if not recs:
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos reales insuficientes en MySQL para generar recomendaciones de eventos."
+                }
             
             return {
                 "status": "success",

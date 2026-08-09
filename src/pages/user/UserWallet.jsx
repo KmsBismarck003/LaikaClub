@@ -299,41 +299,7 @@ function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer }) {
       {/* TRANSFER BUTTON — visible only for active tickets */}
       {canTransfer && (
         <div style={{ borderTop:'1px solid rgba(255,255,255,.05)', padding:'.6rem 1rem' }}>
-          <button
-            id={`transfer-btn-${ticket.id || idx}`}
-            onClick={e => { e.stopPropagation(); onTransfer(ticket); }}
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: '.55rem 1rem',
-              background: 'rgba(121,40,202,.08)',
-              border: '1px solid rgba(121,40,202,.18)',
-              borderRadius: '10px',
-              color: '#a78bfa',
-              fontSize: '.62rem',
-              fontWeight: 800,
-              letterSpacing: '.08em',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-              transition: 'all .2s',
-            }}
-            onMouseOver={e => {
-              e.currentTarget.style.background = 'rgba(121,40,202,.16)';
-              e.currentTarget.style.borderColor = 'rgba(121,40,202,.32)';
-            }}
-            onMouseOut={e => {
-              e.currentTarget.style.background = 'rgba(121,40,202,.08)';
-              e.currentTarget.style.borderColor = 'rgba(121,40,202,.18)';
-            }}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-            Transferir Boleto
-          </button>
+          
         </div>
       )}
     </div>

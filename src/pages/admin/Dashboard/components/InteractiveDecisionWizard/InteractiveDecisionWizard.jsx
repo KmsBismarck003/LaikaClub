@@ -428,7 +428,17 @@ const InteractiveDecisionWizard = ({ managerId = null, eventsList = [], onSimula
                             Acciones Comerciales por Evento
                         </h4>
 
-                        {mlData.predictions && mlData.predictions.length > 0 ? (
+                        {mlData?.status === 'insufficient_data' ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: '#dc2626', background: '#fef2f2', border: '1px dashed #fee2e2', borderRadius: '16px' }}>
+                                <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                    <RenderIcon name="AlertTriangle" size={18} />
+                                    <span>DATOS REALES INSUFICIENTES</span>
+                                </div>
+                                <p style={{ fontSize: '0.8rem', color: '#475569', margin: '0', lineHeight: '1.5' }}>
+                                    {mlData.message}
+                                </p>
+                            </div>
+                        ) : mlData.predictions && mlData.predictions.length > 0 ? (
                             mlData.predictions.map((p, idx) => {
                                 const cardStyle = getCardStyle(p.classification);
                                 return (

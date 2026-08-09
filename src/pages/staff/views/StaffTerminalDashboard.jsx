@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Icon, AnimatedCounter } from '../../../components';
+import { Icon, AnimatedCounter } from '../../../components';
 import { useAuth } from '../../../context/AuthContext';
+import '../StaffDashboard.css';
 
 const StaffTerminalDashboard = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [displayText, setDisplayText] = useState('');
-    const fullText = `¡Hola, ${user?.firstName || 'Operador'}!`;
+    const fullText = `Consola Operativa • ${user?.firstName || 'Staff'}`;
 
     const [sessionStats, setSessionStats] = useState({
         scansToday: 0,
@@ -22,24 +23,23 @@ const StaffTerminalDashboard = () => {
             setDisplayText(fullText.slice(0, index + 1));
             index++;
             if (index >= fullText.length) clearInterval(timer);
-        }, 100);
+        }, 60);
         return () => clearInterval(timer);
     }, [fullText]);
 
     useEffect(() => {
-        // Cargar estadísticas reales del historial de escaneo
         const savedHistory = localStorage.getItem('staff_scan_history');
         if (savedHistory) {
             try {
                 const history = JSON.parse(savedHistory);
-                const valids = history.filter(h => h.status === 'valid' || h.status === 'used').length;
-                const invalids = history.filter(h => h.status === 'invalid').length;
+                const valids = history.filter(h => h.status === 'valid' || h.status === 'used' || (h.valid && !h.alreadyUsed)).length;
+                const invalids = history.filter(h => h.status === 'invalid' || (!h.valid && !h.alreadyUsed)).length;
                 
                 setSessionStats({
                     scansToday: history.length,
                     valids: valids,
                     incidents: invalids,
-                    hoursActive: 0
+                    hoursActive: 1
                 });
             } catch (e) {
                 console.error('Error loading staff session stats', e);
@@ -48,86 +48,84 @@ const StaffTerminalDashboard = () => {
     }, []);
 
     const shortcuts = [
-        { id: 'scan', label: 'Terminal Escaneo', path: '/staff', icon: 'checkCircle' },
-        { id: 'history', label: 'Historial Entradas', path: '/staff/history', icon: 'history' },
-        { id: 'incidents', label: 'Incidencias', path: '/staff/incidents', icon: 'alertTriangle' },
+        { id: 'scan', label: 'Terminal Validación', path: '/staff?tab=scanner', icon: 'checkCircle' },
+        { id: 'helpdesk', label: 'Soporte de Entrada', path: '/staff?tab=helpdesk', icon: 'search' },
+        { id: 'boxoffice', label: 'Taquilla y Ventas', path: '/staff?tab=boxoffice', icon: 'shoppingBag' },
+        { id: 'history', label: 'Registro de Accesos', path: '/staff/history', icon: 'history' },
+        { id: 'incidents', label: 'Reporte Incidencias', path: '/staff/incidents', icon: 'alertTriangle' },
         { id: 'events', label: 'Mis Asignaciones', path: '/staff/events', icon: 'calendar' }
     ];
 
     return (
-        <div className="admin-dashboard-page">
-            <header className="dashboard-header">
-                <div className="welcome-banner">
-                    <h1 className="welcome-greeting">{displayText}</h1>
-                    <p className="welcome-date">Panel de Control Operativo Staff</p>
+        <div className="staff-dashboard-page">
+            <header className="staff-header">
+                <div className="staff-header-content">
+                    <h1>
+                        <Icon name="shield" size={28} style={{ color: 'var(--staff-accent-primary)' }} />
+                        {displayText}
+                    </h1>
+                    <p className="staff-subtitle">Gestión de Control de Acceso y Servicios de Campo</p>
                 </div>
-            </header>
-
-            <div className="stats-grid">
-                <Card className="stat-card">
-                    <div className="stat-info">
-                        <p className="stat-label">Escaneos Hoy</p>
-                        <h2 className="stat-value"><AnimatedCounter value={sessionStats.scansToday} /></h2>
-                    </div>
-                    <div className="stat-icon"><Icon name="checkCircle" size={20} /></div>
-                </Card>
-
-                <Card className="stat-card">
-                    <div className="stat-info">
-                        <p className="stat-label">Válidos</p>
-                        <h2 className="stat-value"><AnimatedCounter value={sessionStats.valids} /></h2>
-                    </div>
-                    <div className="stat-icon" style={{ backgroundColor: '#28a745', color: '#fff' }}><Icon name="check" size={20} /></div>
-                </Card>
-
-                <Card className="stat-card hero-stat-dark">
-                    <div className="stat-info">
-                        <p className="stat-label">Incidencias</p>
-                        <h2 className="stat-value"><AnimatedCounter value={sessionStats.incidents} /></h2>
-                    </div>
-                    <div className="stat-icon" style={{ backgroundColor: '#dc3545', color: '#fff' }}><Icon name="alertTriangle" size={20} /></div>
-                </Card>
-
-                <Card className="stat-card">
-                    <div className="stat-info">
-                        <p className="stat-label">Horas Activo</p>
-                        <h2 className="stat-value"><AnimatedCounter value={sessionStats.hoursActive} />h</h2>
-                    </div>
-                    <div className="stat-icon"><Icon name="history" size={20} /></div>
-                </Card>
-            </div>
-
-            <div className="dashboard-shortcuts">
-                <div className="shortcuts-section">
-                    <h3 className="section-title"><Icon name="shield" size={16} /> Operaciones Staff</h3>
-                    <div className="shortcuts-grid">
-                        {shortcuts.map(item => (
-                            <div key={item.id} className="shortcut-card" onClick={() => navigate(item.path)}>
-                                <p className="shortcut-label">{item.label}</p>
-                                <div className="icon-container"><Icon name={item.icon} size={18} /></div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <div className="dashboard-footer-grid">
-                <div className="health-panel premium-vitals" style={{ background: '#fff' }}>
-                    <div className="health-item">
-                        <div className="status-dot online"></div>
-                        <div>
-                            <span className="health-label">Estado Staff</span>
-                            <div className="health-value">EN SERVICIO</div>
+                <div className="staff-health-info" style={{ background: 'var(--staff-bg-card)', padding: '0.75rem 1.25rem', borderRadius: '8px', border: '1px solid var(--staff-border)' }}>
+                    <div className="staff-health-item">
+                        <span className="staff-health-label">Estado Operacional</span>
+                        <div className="staff-health-value">
+                            <div className="staff-status-dot online"></div>
+                            <span>SERVICIO ACTIVO</span>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <style>{`
-                .section-title { font-size: 0.8rem; font-weight: 900; letter-spacing: 0.15em; color: #000; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
-                .health-label { font-size: 0.6rem; font-weight: 800; color: #999; }
-                .health-value { font-size: 0.75rem; font-weight: 800; color: #000; }
-            `}</style>
+            </header>
+
+            <section aria-label="Metricas Operativas de Sesion">
+                <div className="staff-metrics-grid">
+                    <div className="staff-metric-card">
+                        <div className="staff-metric-data">
+                            <span className="staff-metric-label">Total Procesados</span>
+                            <div className="staff-metric-number"><AnimatedCounter value={sessionStats.scansToday} /></div>
+                        </div>
+                        <div className="staff-metric-icon"><Icon name="checkCircle" size={22} /></div>
+                    </div>
+
+                    <div className="staff-metric-card">
+                        <div className="staff-metric-data">
+                            <span className="staff-metric-label">Accesos Válidos</span>
+                            <div className="staff-metric-number" style={{ color: 'var(--staff-status-valid)' }}><AnimatedCounter value={sessionStats.valids} /></div>
+                        </div>
+                        <div className="staff-metric-icon success"><Icon name="check" size={22} /></div>
+                    </div>
+
+                    <div className="staff-metric-card">
+                        <div className="staff-metric-data">
+                            <span className="staff-metric-label">Incidencias y Alertas</span>
+                            <div className="staff-metric-number" style={{ color: 'var(--staff-status-error)' }}><AnimatedCounter value={sessionStats.incidents} /></div>
+                        </div>
+                        <div className="staff-metric-icon error"><Icon name="alertTriangle" size={22} /></div>
+                    </div>
+
+                    <div className="staff-metric-card">
+                        <div className="staff-metric-data">
+                            <span className="staff-metric-label">Tiempo en Turno</span>
+                            <div className="staff-metric-number"><AnimatedCounter value={sessionStats.hoursActive} />h</div>
+                        </div>
+                        <div className="staff-metric-icon"><Icon name="history" size={22} /></div>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-label="Accesos Directos de Operacion">
+                <h2 className="staff-section-title">
+                    <Icon name="dashboard" size={16} /> Central de Comandos de Campo
+                </h2>
+                <div className="staff-shortcuts-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+                    {shortcuts.map(item => (
+                        <div key={item.id} className="staff-shortcut-card" onClick={() => navigate(item.path)} role="button" tabIndex={0} onKeyPress={(e) => e.key === 'Enter' && navigate(item.path)}>
+                            <p className="staff-shortcut-label">{item.label}</p>
+                            <div className="staff-shortcut-icon"><Icon name={item.icon} size={20} /></div>
+                        </div>
+                    ))}
+                </div>
+            </section>
         </div>
     );
 };

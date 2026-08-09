@@ -228,6 +228,13 @@ class UserDemandAnalyticsModule:
             cursor.execute(query_churn)
             rows_churn = cursor.fetchall()
             
+            if len(rows_churn) < 5:
+                conn.close()
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos reales insuficientes en MySQL para realizar el análisis de comportamiento de usuarios (mínimo 5 usuarios registrados)."
+                }
+            
             churn_risk_distribution = {"Low": 0, "Medium": 0, "High": 0}
             churn_candidates = []
             
@@ -457,6 +464,13 @@ class UserDemandAnalyticsModule:
             cursor.execute(query_events)
             rows_events = cursor.fetchall()
             
+            if len(rows_events) < 5:
+                conn.close()
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos reales insuficientes en MySQL para realizar la predicción de demanda (mínimo 5 eventos registrados)."
+                }
+            
             events_attendance = []
             for r in rows_events:
                 total_tickets = r["total_tickets"] if r["total_tickets"] else 100
@@ -563,7 +577,10 @@ class UserDemandAnalyticsModule:
             conn.close()
             
             if len(rows) < 10:
-                return {"status": "success", "anomalies": [], "summary": "Datos insuficientes para entrenar el modelo de anomalías."}
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos reales insuficientes en MySQL para entrenar el modelo de detección de anomalías (mínimo 10 usuarios con compras reales)."
+                }
                 
             X = []
             users_map = {}

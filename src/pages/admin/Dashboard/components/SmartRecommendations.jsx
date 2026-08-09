@@ -146,6 +146,18 @@ const ExplorationInsights = ({ canonicalData, sqlRecs }) => {
 const RegressionInsights = ({ mlData }) => {
   if (!mlData) return <EmptyState mode="Regresión ML" />;
 
+  if (mlData?.status === 'insufficient_data') {
+     return (
+        <div className="rec-card rec-card--warning" style={{ gridColumn: '1 / -1', padding: '1.5rem', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '12px' }}>
+           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b45309', fontWeight: 800, fontSize: '0.85rem', marginBottom: '6px' }}>
+              <AlertTriangle size={16} />
+              <span>DATOS REALES INSUFICIENTES</span>
+           </div>
+           <p style={{ fontSize: '0.75rem', color: '#78350f', margin: 0, lineHeight: 1.4 }}>{mlData.message}</p>
+        </div>
+     );
+  }
+
   const r2    = mlData.r2_score ?? mlData.score ?? mlData.metrics?.r2 ?? null;
   const rmse  = mlData.rmse ?? mlData.metrics?.rmse ?? null;
   const coefArr = mlData.coefficients ?? mlData.coef ?? [];
@@ -233,6 +245,18 @@ const RegressionInsights = ({ mlData }) => {
 /* ──── ÁRBOL DE DECISIÓN ──────────────────────────────────── */
 const DecisionTreeInsights = ({ mlData }) => {
   if (!mlData) return <EmptyState mode="Árbol de Decisión" />;
+
+  if (mlData?.status === 'insufficient_data') {
+     return (
+        <div className="rec-card rec-card--warning" style={{ gridColumn: '1 / -1', padding: '1.5rem', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '12px' }}>
+           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b45309', fontWeight: 800, fontSize: '0.85rem', marginBottom: '6px' }}>
+              <AlertTriangle size={16} />
+              <span>DATOS REALES INSUFICIENTES</span>
+           </div>
+           <p style={{ fontSize: '0.75rem', color: '#78350f', margin: 0, lineHeight: 1.4 }}>{mlData.message}</p>
+        </div>
+     );
+  }
 
   const acc      = mlData.accuracy ?? mlData.metrics?.accuracy ?? null;
   const accPct   = acc != null ? (acc * 100).toFixed(1) : null;

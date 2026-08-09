@@ -61,7 +61,6 @@ const EmailManager = lazy(() => import('../pages/admin/EmailManager/EmailManager
 const NewsTickerAdmin = lazy(() => import('../pages/admin/NewsTicker/NewsTickerAdmin'))
 const AdminVenueMap = lazy(() => import('../pages/admin/VenueMap/AdminVenueMap'))
 const BigDataAnalytics = lazy(() => import('../pages/admin/BigDataAnalytics'))
-const WelcomePortal = lazy(() => import('../pages/admin/Dashboard/WelcomePortal'))
 const LuckySeatConfig = lazy(() => import('../pages/admin/Config/LuckySeatConfig'))
 const MerchandiseApproval = lazy(() => import('../pages/admin/MerchandiseApproval'))
 const PushManager = lazy(() => import('../specialFun/PushNotifications/PushAdminPanel'))
@@ -72,6 +71,19 @@ const B2BManager = lazy(() => import('../pages/admin/B2B/B2BManager'))
 const ManagerStatsPage = lazy(() => import('../pages/manager/ManagerStatsPage'))
 const ManagerAds = lazy(() => import('../pages/manager/ManagerAds'))
 const ManagerMerchandise = lazy(() => import('../pages/manager/ManagerMerchandise'))
+
+// Módulo MATIS
+const MatisDashboard = lazy(() => import('../matis/pages/MatisDashboard'))
+const MatisExecutive = lazy(() => import('../matis/pages/MatisExecutive'))
+const MatisSales = lazy(() => import('../matis/pages/MatisSales'))
+const MatisEvents = lazy(() => import('../matis/pages/MatisEvents'))
+const MatisVenues = lazy(() => import('../matis/pages/MatisVenues'))
+const MatisCustomers = lazy(() => import('../matis/pages/MatisCustomers'))
+const MatisProducts = lazy(() => import('../matis/pages/MatisProducts'))
+const MatisGeography = lazy(() => import('../matis/pages/MatisGeography'))
+const MatisOperational = lazy(() => import('../matis/pages/MatisOperational'))
+const MatisPredictive = lazy(() => import('../matis/pages/MatisPredictive'))
+const MatisQuality = lazy(() => import('../matis/pages/MatisQuality'))
 
 /**
  * Rutas públicas (sin autenticación requerida)
@@ -506,6 +518,89 @@ export const staffRoutes = [
 ]
 
 /**
+ * Rutas de MATIS
+ */
+export const matisRoutes = [
+  {
+    path: '/matis',
+    element: MatisDashboard,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Consola Central'
+  },
+  {
+    path: '/matis/executive',
+    element: MatisExecutive,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Inteligencia Ejecutiva'
+  },
+  {
+    path: '/matis/sales',
+    element: MatisSales,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Inteligencia de Ventas'
+  },
+  {
+    path: '/matis/events',
+    element: MatisEvents,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Inteligencia de Eventos'
+  },
+  {
+    path: '/matis/venues',
+    element: MatisVenues,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Inteligencia de Recintos'
+  },
+  {
+    path: '/matis/customers',
+    element: MatisCustomers,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Inteligencia de Clientes'
+  },
+  {
+    path: '/matis/products',
+    element: MatisProducts,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Inteligencia de Productos'
+  },
+  {
+    path: '/matis/geography',
+    element: MatisGeography,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Inteligencia Geográfica'
+  },
+  {
+    path: '/matis/operational',
+    element: MatisOperational,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Telemetría Operativa'
+  },
+  {
+    path: '/matis/predictive',
+    element: MatisPredictive,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Modelos Predictivos'
+  },
+  {
+    path: '/matis/quality',
+    element: MatisQuality,
+    layout: 'dashboard',
+    allowedRoles: ['admin', 'matis'],
+    title: 'MATIS: Calidad de Datos'
+  }
+]
+
+/**
  * Todas las rutas combinadas
  */
 export const allRoutes = [
@@ -513,7 +608,8 @@ export const allRoutes = [
   ...protectedRoutes,
   ...adminRoutes,
   ...managerRoutes,
-  ...staffRoutes
+  ...staffRoutes,
+  ...matisRoutes
 ]
 
 /**
@@ -537,9 +633,10 @@ export const getRoutesByRole = role => {
  */
 export const getDefaultRouteByRole = role => {
   const routeMap = {
-    admin: '/welcome',
-    gestor: '/welcome',
-    operador: '/welcome',
+    admin: '/admin',
+    gestor: '/events/manage',
+    operador: '/staff/dashboard',
+    matis: '/matis',
     usuario: '/'
   }
 

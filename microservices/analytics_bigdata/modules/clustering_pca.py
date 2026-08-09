@@ -5,6 +5,7 @@ from pyspark.ml.functions import vector_to_array
 from pyspark.sql.functions import count, avg, sum, col
 from datetime import datetime
 from pymongo import MongoClient
+import pymysql
 
 class ClusteringModule:
     """Módulo de Agrupamiento (K-Means) y Reducción de Dimensionalidad (PCA)."""
@@ -23,6 +24,14 @@ class ClusteringModule:
                 avg("price").alias("precio_promedio"),
                 sum("price").alias("gasto_total")
             ).fillna(0)
+            
+            if df_ml.count() < 5:
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos reales insuficientes en MySQL para realizar la segmentación PCA (mínimo 5 usuarios con compras reales).",
+                    "data": [],
+                    "clusters": []
+                }
 
             assembler = VectorAssembler(
                 inputCols=["cantidad", "precio_promedio", "gasto_total"],
@@ -151,66 +160,248 @@ class ClusteringModule:
             return {"error": str(e)}
 
     def _run_pca_lightweight(self, k=3):
-        """Simulación inteligente de PCA cuando Spark no está disponible."""
-        import random
-        import time
-        
-        # Simular delay de cómputo
-        time.sleep(0.5)
-        
-        data = []
-        # Generar 3 centros de clústeres
-        centers = [
-            {"x": 1.0, "y": 1.0, "c": 0, "name": "Casual"},
-            {"x": -1.0, "y": -1.0, "c": 1, "name": "Regular"},
-            {"x": 0.0, "y": -2.0, "c": 2, "name": "Whale"}
-        ]
-        
-        for i in range(100):
-            center = random.choice(centers)
-            x = center["x"] + random.uniform(-0.8, 0.8)
-            y = center["y"] + random.uniform(-0.8, 0.8)
+        """Cálculo real de PCA y K-Means usando numpy sobre datos de MySQL cuando Spark no está disponible."""
+        try:
+            import numpy as np
             
-            data.append({
-                "pca": [x, y],
-                "cluster": center["c"],
-                "metrics": {
-                    "tickets": random.randint(1, 20),
-                    "total": random.uniform(50, 2000),
-                    "uid": f"USR-{random.randint(1000, 9999)}"
+            # 1. Consultar rendimiento de usuarios reales
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            query = """
+                SELECT t.user_id, 
+                       COUNT(*) as cantidad, 
+                       AVG(t.price) as precio_promedio, 
+                       SUM(t.price) as gasto_total
+                FROM tickets t
+                WHERE t.status != 'cancelled'
+                GROUP BY t.user_id
+            """
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            conn.close()
+            
+            if len(rows) < 5:
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos reales insuficientes en MySQL para realizar la segmentación PCA (mínimo 5 usuarios con compras reales).",
+                    "data": [],
+                    "clusters": []
                 }
-            })
+                
+            X = np.array([[float(r["cantidad"]), float(r["precio_promedio"]), float(r["gasto_total"])] for r in rows])
             
-        return {
-            "status": "success",
-            "data": data,
-            "resilience": True,
-            "summary": "Análisis PCA (Motor de Resiliencia Activo). Los clústeres son aproximaciones estadísticas.",
-            "insights": [
-                "Motor de Big Data Spark inicializándose...",
-                "Usando proyección heurística de lealtad",
-                "Segmentación preliminar de 3 niveles completada"
-            ],
-            "varianza_explicada": [0.65, 0.25, 0.10][:k],
-            "silhouette_score": 0.72,
-            "wcss": 15420.5
-        }
+            # Normalizar features
+            X_mean = X.mean(axis=0)
+            X_std = X.std(axis=0)
+            X_std[X_std == 0] = 1.0
+            X_scaled = (X - X_mean) / X_std
+            
+            # Calcular PCA a 2 componentes
+            cov_matrix = np.cov(X_scaled.T)
+            eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
+            idx = np.argsort(eigenvalues)[::-1]
+            eigenvalues = eigenvalues[idx]
+            eigenvectors = eigenvectors[:, idx]
+            X_pca = np.dot(X_scaled, eigenvectors[:, :2])
+            
+            # K-Means usando scikit-learn
+            from sklearn.cluster import KMeans as SKKMeans
+            from sklearn.metrics import silhouette_score
+            
+            k_val = min(k, len(X_pca))
+            kmeans = SKKMeans(n_clusters=k_val, random_state=42, n_init='auto')
+            clusters = kmeans.fit_predict(X_pca)
+            centroids = kmeans.cluster_centers_
+            wcss = float(kmeans.inertia_)
+            
+            # Silhouette Score de forma eficiente
+            n_points = len(X_pca)
+            if n_points > 1:
+                # Si es muy grande, calculamos silhouette sobre una muestra aleatoria de max 1000 puntos para optimizar recursos
+                if n_points > 1000:
+                    sample_indices = np.random.choice(n_points, size=1000, replace=False)
+                    silhouette = float(silhouette_score(X_pca[sample_indices], clusters[sample_indices]))
+                else:
+                    silhouette = float(silhouette_score(X_pca, clusters))
+            else:
+                silhouette = 0.0
+                
+            # Persistencia MLOps en MongoDB
+            try:
+                if hasattr(self, 'mongo_uri') and self.mongo_uri:
+                    client = MongoClient(self.mongo_uri, tlsAllowInvalidCertificates=True, serverSelectionTimeoutMS=3000)
+                    db = client[self.mongo_db]
+                    
+                    centroids_col = db["ml_centroids_history"]
+                    centers_list = [center.tolist() for center in centroids]
+                    centroids_col.insert_one({
+                        "timestamp": datetime.now(),
+                        "algorithm": "K-Means-PCA-Resilience",
+                        "k": k_val,
+                        "wcss": float(wcss),
+                        "silhouette": float(silhouette),
+                        "centroids": centers_list
+                    })
+                    
+                    segments_col = db["user_segments"]
+                    segments_col.delete_many({})
+                    segments_docs = [{"user_id": int(r["user_id"]), "cluster": int(clusters[idx_pt])} for idx_pt, r in enumerate(rows)]
+                    if segments_docs:
+                        segments_col.insert_many(segments_docs)
+            except Exception as mongo_e:
+                print(f"[MLOps-Resilience] Error guardando en MongoDB: {mongo_e}")
+                
+            # Agrupar y etiquetar clusters
+            cluster_summary = []
+            cluster_stats = []
+            for c in range(k_val):
+                c_mask = (clusters == c)
+                size = int(np.sum(c_mask))
+                if size == 0:
+                    continue
+                avg_spent = float(np.mean(X[c_mask, 2]))
+                avg_tickets = float(np.mean(X[c_mask, 0]))
+                cluster_stats.append({
+                    "cluster": c,
+                    "size": size,
+                    "avg_spent": avg_spent,
+                    "avg_tickets": avg_tickets
+                })
+                
+            stats_sorted = sorted(cluster_stats, key=lambda x: x["avg_spent"], reverse=True)
+            
+            for c in cluster_stats:
+                rank = stats_sorted.index(c)
+                if rank == 0:
+                    label = "Súper Fans (VIP)"
+                    desc = "Alta rentabilidad. Clientes muy leales que compran frecuentemente eventos premium."
+                elif rank == len(stats_sorted) - 1:
+                    label = "Compradores Casuales"
+                    desc = "Buscan precio y compran rara vez. Sensibles a promociones y descuentos."
+                elif c["avg_tickets"] > 3:
+                    label = "Fans Recurrentes"
+                    desc = "Asisten regularmente pero cuidan su presupuesto. Ideales para programas de lealtad."
+                else:
+                    label = "Público General"
+                    desc = "Compradores estándar. Rentables en volumen pero sin una lealtad clara aún."
+                
+                cluster_summary.append({
+                    "name": f"Segmento {c['cluster'] + 1} - {label}",
+                    "size": c["size"],
+                    "centroid_summary": f"Gasto Promedio: ${c['avg_spent']:.2f} | Tickets Promedio: {c['avg_tickets']:.1f}",
+                    "description": desc
+                })
+                
+            data_res = []
+            for idx_pt, r in enumerate(rows):
+                data_res.append({
+                    "pca": [float(X_pca[idx_pt, 0]), float(X_pca[idx_pt, 1])],
+                    "cluster": int(clusters[idx_pt]),
+                    "metrics": {"tickets": int(r["cantidad"]), "total": float(r["gasto_total"]), "uid": str(r["user_id"])}
+                })
+                
+            total_variance = np.sum(eigenvalues)
+            explained_variance = [float(eigenvalues[i] / total_variance) for i in range(min(2, len(eigenvalues)))] if total_variance > 0 else [0.65, 0.25]
+            
+            return {
+                "status": "success",
+                "data": data_res,
+                "clusters": cluster_summary,
+                "resilience": True,
+                "summary": "Análisis PCA y K-Means (Motor de Resiliencia Real sobre datos MySQL).",
+                "insights": [
+                    f"Analizando comportamiento de {len(rows)} usuarios únicos en MySQL",
+                    "Detección de Súper Fans (VIP) basada en comportamiento real de compra",
+                    "Reducción dimensional PCA para segmentación de lealtad realizada localmente"
+                ],
+                "varianza_explicada": explained_variance,
+                "silhouette_score": silhouette,
+                "wcss": wcss
+            }
+        except Exception as e:
+            print(f"Fallback PCA fail: {e}")
+            return {"status": "error", "message": f"Fallback PCA fail: {str(e)}"}
 
     def run_elbow_method_optimization(self, max_k=8):
         """Implementa el Método del Codo para hallar dinámicamente el K óptimo."""
         if self.resilience_mode:
-            return {
-                "status": "success", 
-                "optimal_k": 3, 
-                "wcss_curve": [
-                    {"k": 2, "wcss": 20000},
-                    {"k": 3, "wcss": 8000},
-                    {"k": 4, "wcss": 7500},
-                    {"k": 5, "wcss": 7100}
-                ], 
-                "resilience": True,
-                "summary": "Modo Resiliencia: Método del Codo estimando K óptimo = 3 basado en histórico."
-            }
+            try:
+                conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                query = """
+                    SELECT t.user_id, 
+                           COUNT(*) as cantidad, 
+                           AVG(t.price) as precio_promedio, 
+                           SUM(t.price) as gasto_total
+                    FROM tickets t
+                    WHERE t.status != 'cancelled'
+                    GROUP BY t.user_id
+                """
+                cursor.execute(query)
+                rows = cursor.fetchall()
+                conn.close()
+                
+                if len(rows) < 5:
+                    return {
+                        "status": "insufficient_data",
+                        "message": "Datos reales insuficientes en MySQL para calcular el Método del Codo (mínimo 5 usuarios con compras reales)."
+                    }
+                
+                import numpy as np
+                X = np.array([[float(r["cantidad"]), float(r["precio_promedio"]), float(r["gasto_total"])] for r in rows])
+                
+                X_mean = X.mean(axis=0)
+                X_std = X.std(axis=0)
+                X_std[X_std == 0] = 1.0
+                X_scaled = (X - X_mean) / X_std
+                
+                cov_matrix = np.cov(X_scaled.T)
+                eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
+                idx = np.argsort(eigenvalues)[::-1]
+                eigenvectors = eigenvectors[:, idx]
+                X_pca = np.dot(X_scaled, eigenvectors[:, :3])
+                
+                wcss_curve = []
+                for k_val in range(2, min(max_k, len(X_pca)) + 1):
+                    np.random.seed(42)
+                    centroids_idx = np.random.choice(len(X_pca), k_val, replace=False)
+                    centroids = X_pca[centroids_idx]
+                    
+                    for _ in range(15):
+                        distances = np.linalg.norm(X_pca[:, np.newaxis] - centroids, axis=2)
+                        clusters = np.argmin(distances, axis=1)
+                        new_centroids = np.array([X_pca[clusters == c].mean(axis=0) if np.sum(clusters == c) > 0 else centroids[c] for c in range(k_val)])
+                        if np.allclose(centroids, new_centroids):
+                            break
+                        centroids = new_centroids
+                        
+                    wcss = 0.0
+                    for c in range(k_val):
+                        c_mask = (clusters == c)
+                        if np.sum(c_mask) > 0:
+                            wcss += np.sum((X_pca[c_mask] - centroids[c]) ** 2)
+                    wcss_curve.append({"k": k_val, "wcss": float(wcss)})
+                
+                optimal_k = 3
+                max_drop_ratio = 0
+                for i in range(1, len(wcss_curve)-1):
+                    drop1 = wcss_curve[i-1]["wcss"] - wcss_curve[i]["wcss"]
+                    drop2 = wcss_curve[i]["wcss"] - wcss_curve[i+1]["wcss"]
+                    if drop1 > 0 and drop2 > 0:
+                        ratio = drop1 / drop2
+                        if ratio > max_drop_ratio:
+                            max_drop_ratio = ratio
+                            optimal_k = wcss_curve[i]["k"]
+                            
+                return {
+                    "status": "success",
+                    "optimal_k": optimal_k,
+                    "wcss_curve": wcss_curve,
+                    "summary": f"Optimización completada (Resilience). El Método del Codo sugiere un K óptimo de {optimal_k} segmentos."
+                }
+            except Exception as e:
+                print(f"Elbow Method Fallback Fail: {e}")
+                return {"status": "error", "message": str(e)}
         
         try:
             df_tickets = self._read_mysql("tickets")

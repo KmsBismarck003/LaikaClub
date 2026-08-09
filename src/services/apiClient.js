@@ -19,7 +19,7 @@ class ApiClient {
         const headers = {
             'Content-Type': 'application/json'
         }
-        if (token) {
+        if (token && token !== 'undefined' && token !== 'null') {
             headers['Authorization'] = `Bearer ${token}`
         }
         return headers
@@ -34,14 +34,6 @@ class ApiClient {
             data = await response.text()
         }
         if (!response.ok) {
-            // Handle unauthorized
-            if (response.status === 401 && !window.location.pathname.includes('/login')) {
-                localStorage.removeItem('token')
-                localStorage.removeItem('user')
-                sessionStorage.removeItem('token')
-                sessionStorage.removeItem('user')
-                window.location.href = '/login'
-            }
             let errorMessage = 'Error en la petición'
             if (data) {
                 if (typeof data.message === 'string') {

@@ -21,6 +21,7 @@ import {
   DEFAULT_ADMIN_SECTIONS,
   GESTOR_SIDEBAR_ITEMS,
   OPERADOR_SIDEBAR_ITEMS,
+  MATIS_SIDEBAR_ITEMS,
   ADMIN_SUPERVISION_SECTIONS,
   SIDEBAR_STORAGE_KEY,
   SIDEBAR_VERSION_SENTINEL
@@ -106,6 +107,7 @@ const useSidebar = (user) => {
 
     if (user.role === 'gestor') return GESTOR_SIDEBAR_ITEMS
     if (user.role === 'operador') return OPERADOR_SIDEBAR_ITEMS
+    if (user.role === 'matis') return MATIS_SIDEBAR_ITEMS
 
     if (user.role === 'usuario') {
       const userItems = [

@@ -10,8 +10,16 @@ export const ticketAPI = {
         const url = functionId ? `/tickets/busy-seats/${eventId}?function_id=${functionId}` : `/tickets/busy-seats/${eventId}`;
         return apiClient.get(url);
     },
-    verify: ticketCode => apiClient.post('/tickets/verify', { ticketCode }),
-    redeem: ticketCode => apiClient.post('/tickets/redeem', { ticketCode }),
+    verify: (ticketCodeOrObj, context = {}) => {
+        const payload = typeof ticketCodeOrObj === 'object' ? ticketCodeOrObj : { ticketCode: ticketCodeOrObj, ...context };
+        return apiClient.post('/tickets/verify', payload);
+    },
+    redeem: (ticketCodeOrObj, context = {}) => {
+        const payload = typeof ticketCodeOrObj === 'object' ? ticketCodeOrObj : { ticketCode: ticketCodeOrObj, ...context };
+        return apiClient.post('/tickets/redeem', payload);
+    },
+    getValidationHistory: () => apiClient.get('/tickets/validations/history'),
+    getTicketHistory: (ticketCode) => apiClient.get(`/tickets/validations/ticket/${ticketCode}`),
     getByCode: ticketCode => apiClient.get(`/tickets/${ticketCode}`),
     cancel: ticketId => apiClient.delete(`/tickets/${ticketId}`),
     refund: refundData => apiClient.post('/refunds', refundData),

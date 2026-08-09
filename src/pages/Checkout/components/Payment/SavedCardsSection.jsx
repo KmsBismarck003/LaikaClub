@@ -6,7 +6,8 @@ const SavedCardsSection = ({
     selectedSavedCard, 
     onSelectCard, 
     onSelectNewCard,
-    onDeleteCard 
+    onDeleteCard,
+    onEditCard
 }) => {
     // Helper to identify Visa vs MasterCard (or default)
     const getCardBrand = (number = '') => {
@@ -51,20 +52,35 @@ const SavedCardsSection = ({
                                         </span>
                                     </div>
                                     
-                                    {/* Delete Button */}
-                                    <button 
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation(); // Avoid selecting card when deleting
-                                            if (window.confirm('¿Estás seguro de eliminar esta tarjeta?')) {
-                                                onDeleteCard(card.id);
-                                            }
-                                        }}
-                                        className="card-trash-btn"
-                                        title="Eliminar tarjeta"
-                                    >
-                                        <Icon name="trash2" size={14} />
-                                    </button>
+                                    {/* Action Buttons */}
+                                    <div style={{ display: 'flex', gap: '6px', zIndex: 15 }}>
+                                        {onEditCard && (
+                                            <button 
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onEditCard(card);
+                                                }}
+                                                className="card-action-btn edit-btn"
+                                                title="Editar datos de tarjeta"
+                                            >
+                                                <Icon name="edit2" size={14} />
+                                            </button>
+                                        )}
+                                        <button 
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Avoid selecting card when deleting
+                                                if (window.confirm('¿Estás seguro de eliminar esta tarjeta?')) {
+                                                    onDeleteCard(card.id);
+                                                }
+                                            }}
+                                            className="card-action-btn trash-btn"
+                                            title="Eliminar tarjeta"
+                                        >
+                                            <Icon name="trash2" size={14} />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div style={{ marginTop: 'auto' }}>

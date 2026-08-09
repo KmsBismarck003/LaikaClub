@@ -131,6 +131,16 @@ public class UserService {
     }
 
     @Transactional
+    public User updateProfile(Long id, String firstName, String lastName, String phone) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        if (firstName != null) user.setFirstName(firstName.trim());
+        if (lastName != null) user.setLastName(lastName.trim());
+        if (phone != null) user.setPhone(phone.trim());
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public User updatePermissions(Long id, String role, Map<String, Boolean> permissions) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
@@ -153,6 +163,10 @@ public class UserService {
             if ("admin".equalsIgnoreCase(role)) {
                 mergedPermissions.put("canManageUsers", true);
             }
+        } else if ("matis".equalsIgnoreCase(role)) {
+            mergedPermissions.put("canViewDashboard", true);
+            mergedPermissions.put("canViewMatis", true);
+            mergedPermissions.put("canViewEventAnalytics", true);
         }
         
         user.setPermissions(mergedPermissions);

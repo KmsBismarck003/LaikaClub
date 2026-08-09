@@ -35,6 +35,8 @@ services:
     url: ${EVENTS_SERVICE_URL:http://localhost:8002}
   auth:
     url: ${AUTH_SERVICE_URL:http://localhost:8001}
+  wearables:
+    url: ${WEARABLES_SERVICE_URL:http://localhost:3010}
 
 # MongoDB Sync properties
 mongo:

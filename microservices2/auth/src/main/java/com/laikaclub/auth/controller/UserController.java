@@ -39,6 +39,23 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toProfileResponse(user));
     }
 
+    @PutMapping("/me")
+    public ResponseEntity<UserProfileResponse> updateMe(
+            @RequestBody Map<String, String> updates,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        
+        String firstName = updates.get("first_name");
+        if (firstName == null) firstName = updates.get("firstName");
+        
+        String lastName = updates.get("last_name");
+        if (lastName == null) lastName = updates.get("lastName");
+        
+        String phone = updates.get("phone");
+        
+        User user = userService.updateProfile(principal.getId(), firstName, lastName, phone);
+        return ResponseEntity.ok(UserMapper.toProfileResponse(user));
+    }
+
     @PostMapping("/me/avatar")
     public ResponseEntity<Map<String, Object>> uploadAvatar(
             @RequestParam("file") MultipartFile file,

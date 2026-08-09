@@ -8,6 +8,7 @@ import EventForm from './EventForm'
 import EventSettingsModal from './components/EventSettingsModal'
 import EventsFilters from './components/EventsFilters'
 import PreviewMonitor from '../../../components/Admin/PreviewMonitor'
+import EventSalesModal from './components/EventSalesModal'
 import { getImageUrl } from '../../../utils/imageUtils'
 import './admin.css'
 
@@ -42,6 +43,7 @@ const Events = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isSalesModalOpen, setIsSalesModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [eventToDelete, setEventToDelete] = useState(null)
@@ -112,6 +114,11 @@ const Events = () => {
     } catch (error) {
       console.error("Error al cargar preview:", error)
     }
+  }
+
+  const handleViewSalesClick = (event) => {
+    setSelectedEvent(event)
+    setIsSalesModalOpen(true)
   }
 
   const handleTogglePublish = async (event) => {
@@ -194,6 +201,9 @@ const Events = () => {
               {row.status === 'published' ? 'OCULTAR' : 'PUBLICAR'}
             </Button>
           )}
+          <Button variant="info" size="small" onClick={() => handleViewSalesClick(row)} title="Ver Ventas y Asistencia">
+            <Icon name="trending-up" size={12} className="mr-1" /> VENTAS
+          </Button>
           <Button variant="ghost" size="small" onClick={() => handleSettingsClick(row)} title="Configuración y Permisos">
             <Icon name="settings" size={14} />
           </Button>
@@ -287,6 +297,17 @@ const Events = () => {
             <PreviewMonitor type="event" data={selectedEvent} />
           </div>
         </Modal>
+      )}
+
+      {isSalesModalOpen && selectedEvent && (
+        <EventSalesModal
+          isOpen={true}
+          event={selectedEvent}
+          onClose={() => {
+            setIsSalesModalOpen(false)
+            setSelectedEvent(null)
+          }}
+        />
       )}
     </div>
   )

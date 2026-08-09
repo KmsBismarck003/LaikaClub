@@ -1,0 +1,10 @@
+.gvt-wedge {
+  stroke: var(--bw-white);
+  stroke-width: 2;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.gvt-wedge:hover {
+  opacity: 0.9;
+  cursor: pointer;
+}

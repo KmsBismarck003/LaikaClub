@@ -1,0 +1,54 @@
+/* =========================================================================
+/* ESTILOS PARA EL GRÁFICO DE CATEGORÍAS (BARRAS VERTICALES)
+/* ========================================================================= */
+
+/* Estilo general para las barras ordinarias */
+.gc-bar {
+  fill: #94a3b8; /* Gris pizarra (Slate 400) para asegurar visibilidad en proyectores */
+  stroke: #94a3b8;
+  stroke-width: 1;
+  transition: fill 0.2s ease, stroke 0.2s ease; /* Transición suave al hacer hover */
+}
+
+/* Estilo destacado para la primera barra (Líder / Atributo Preatentivo) */
+.gc-bar-highlight {
+  fill: var(--color-preattentive); /* Naranja vibrante para capturar la atención en <5 seg */
+  stroke: var(--color-preattentive);
+}
+
+/* Efecto al pasar el cursor sobre cualquier barra */
+.gc-bar:hover {
+  fill: var(--accent-color); /* Cambia a azul en hover */
+  stroke: var(--accent-color);
+  cursor: pointer;
+}
+
+/* Estilo de los ejes del gráfico */
+.gc-axis {
+  stroke: var(--border-color);
+  stroke-width: 1.5;
+}
+
+/* Estilo para las marcas de graduación de los ejes */
+.gc-tick {
+  stroke: var(--border-color);
+  stroke-width: 1;
+}
+
+/* Estilo de los textos descriptivos de las categorías del eje X */
+.gc-label {
+  fill: var(--text-primary);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Estilo de los valores flotantes impresos directamente sobre cada barra */
+.gc-value-label {
+  fill: var(--text-secondary);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  text-anchor: middle;
+}

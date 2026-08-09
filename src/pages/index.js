@@ -10,10 +10,11 @@ export { default as Maintenance } from './Maintenance/Maintenance'
 export { default as EventManagerDashboard } from './EventManagerDashboard/EventManagerDashboard'
 
 // Módulo de Staff
-export { default as StaffDashboard } from './staff/StaffDashboard'
+export { default as StaffDashboard } from './staff/views/StaffTerminalDashboard'
 export { default as StaffTerminal } from './staff/StaffTerminal'
 export { default as StaffHistory } from './staff/StaffHistory'
-export { default as StaffIncidents } from './staff/StaffIncidents'
+export { default as StaffIncidents } from './staff/views/StaffIncidents'
+export { default as AssignedEvents } from './staff/views/AssignedEvents'
 
 // Módulo de Usuario (Sub-páginas)
 export { default as UserLayout } from './user/UserLayout'
@@ -28,7 +29,6 @@ export { default as RefundTracker } from './user/RefundTracker'
 
 // Módulo Admin (Consolidado)
 export { default as AdminDashboard } from './admin/Dashboard/Dashboard'
-export { default as WelcomePortal } from './admin/Dashboard/WelcomePortal'
 export { default as AdminUsers } from './admin/Users/Users'
 export { default as AdminEvents } from './admin/Events/Events'
 export { default as AdminDatabase } from './admin/Database/Database'

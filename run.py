@@ -36,6 +36,7 @@ IS_WINDOWS = platform.system() == "Windows"
 # Variables globales para los procesos
 backend_proc = None
 frontend_proc = None
+matis_proc = None
 
 def kill_process_tree(proc):
     """Mata un proceso y todos sus hijos."""
@@ -88,8 +89,8 @@ def start_backend():
         print(f"{YELLOW}[!] El backend ya está corriendo.{RESET}")
         return
 
-    # Liberar puertos del backend (8000 al 8008) antes de iniciar
-    for port in range(8000, 8009):
+    # Liberar puertos del backend (8000 al 8008 y 3010) antes de iniciar
+    for port in list(range(8000, 8009)) + [3010]:
         kill_port_owner(port)
 
     print(f"{GREEN}[+] Iniciando Backend...{RESET}")
@@ -125,13 +126,14 @@ def restart_backend():
     start_backend()
 
 def start_frontend():
-    global frontend_proc
+    global frontend_proc, matis_proc
     if frontend_proc and frontend_proc.poll() is None:
         print(f"{YELLOW}[!] El frontend ya está corriendo.{RESET}")
         return
 
-    # Liberar puerto del frontend (3000) antes de iniciar
+    # Liberar puerto del frontend (3000) y de MATIS (3015) antes de iniciar
     kill_port_owner(3000)
+    kill_port_owner(3015)
 
     print(f"{GREEN}[+] Iniciando Frontend...{RESET}")
     if IS_WINDOWS:
@@ -142,14 +144,22 @@ def start_frontend():
             shell=True,
             creationflags=subprocess.CREATE_NEW_CONSOLE
         )
+        print(f"{GREEN}[+] Iniciando MATIS SolidJS Dashboard en puerto 3015...{RESET}")
+        matis_proc = subprocess.Popen(
+            "npm run dev",
+            cwd=os.path.join(ROOT, "matis-solid"),
+            shell=True,
+            creationflags=subprocess.CREATE_NEW_CONSOLE
+        )
     else:
         frontend_proc = subprocess.Popen(["npm", "start"], cwd=ROOT)
+        matis_proc = subprocess.Popen(["npm", "run", "dev"], cwd=os.path.join(ROOT, "matis-solid"))
     
     time.sleep(1)
 
 
 def stop_frontend():
-    global frontend_proc
+    global frontend_proc, matis_proc
     if not frontend_proc or frontend_proc.poll() is not None:
         print(f"{RED}[!] El frontend no está corriendo.{RESET}")
         frontend_proc = None
@@ -158,6 +168,11 @@ def stop_frontend():
     print(f"{RED}[-] Deteniendo Frontend...{RESET}")
     kill_process_tree(frontend_proc)
     frontend_proc = None
+
+    if matis_proc:
+        print(f"{RED}[-] Deteniendo MATIS SolidJS Dashboard...{RESET}")
+        kill_process_tree(matis_proc)
+        matis_proc = None
 
 def restart_frontend():
     print(f"{CYAN}[*] Reiniciando Frontend...{RESET}")
@@ -192,6 +207,7 @@ def print_status():
     print(f"\n{CYAN}──────────────────────────────────────────────────────────────────{RESET}")
     print(f"  Backend:  {BOLD}http://localhost:8000/api{RESET}")
     print(f"  Frontend: {BOLD}http://localhost:3000{RESET}")
+    print(f"  MATIS:    {BOLD}http://localhost:3015{RESET}")
     print(f"{CYAN}──────────────────────────────────────────────────────────────────{RESET}")
     print(f"\n  Esperando comando... ", end="", flush=True)
 

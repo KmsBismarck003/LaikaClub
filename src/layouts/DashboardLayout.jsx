@@ -158,6 +158,15 @@ const DashboardLayout = () => {
               { id: 'u_vip', path: '/user/profile', icon: 'shield', label: 'Área VIP', adnPermission: 'canUseVipServices' }
             ].filter(item => hasPermission(item.adnPermission))
           }
+        ],
+        matis: [
+          {
+            id: 'matis_main',
+            label: 'CENTRO INTELIGENCIA MATIS',
+            items: [
+              { id: 'matis_dashboard', path: '/matis', icon: 'dashboard', label: 'Consola Central' }
+            ]
+          }
         ]
       }
       return roleItems[user.role] || []
@@ -267,7 +276,8 @@ const DashboardLayout = () => {
     const titles = {
       admin: 'Panel de Administración',
       gestor: 'Gestión de Eventos',
-      operador: 'Panel de Operación'
+      operador: 'Panel de Operación',
+      matis: 'Consola de Inteligencia MATIS'
     }
     return titles[user?.role] || 'Dashboard'
   }

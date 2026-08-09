@@ -262,6 +262,57 @@ public class EventQueryService {
         return summary;
     }
 
+    public List<Map<String, Object>> getEventAttendees(Long eventId) {
+        try {
+            String sql = "SELECT " +
+                    "    t.ticket_code as ticket, " +
+                    "    CONCAT(u.first_name, ' ', u.last_name) as name, " +
+                    "    u.email as email, " +
+                    "    vl.access_point as entry, " +
+                    "    CONCAT(vl.validation_date, ' ', vl.validation_time) as time, " +
+                    "    t.status as ticket_status " +
+                    "FROM laika_tickets.tickets t " +
+                    "LEFT JOIN laika_auth.users u ON t.user_id = u.id " +
+                    "LEFT JOIN laika_tickets.ticket_validation_logs vl ON t.id = vl.ticket_id AND vl.result_status = 'SUCCESS' " +
+                    "WHERE t.event_id = :eventId " +
+                    "ORDER BY t.purchase_date DESC";
+
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, new MapSqlParameterSource("eventId", eventId));
+            List<Map<String, Object>> attendees = new ArrayList<>();
+            for (Map<String, Object> row : rows) {
+                Map<String, Object> attendee = new HashMap<>();
+                
+                String customerName = row.get("name") != null ? String.valueOf(row.get("name")).trim() : "";
+                if (customerName.isEmpty()) {
+                    customerName = "Invitado Especial";
+                }
+                
+                attendee.put("name", customerName);
+                attendee.put("email", row.get("email") != null ? row.get("email") : "N/A");
+                attendee.put("ticket", row.get("ticket") != null ? row.get("ticket") : "");
+                
+                String entry = row.get("entry") != null ? String.valueOf(row.get("entry")) : "N/A";
+                attendee.put("entry", entry);
+                
+                String timeVal = row.get("time") != null ? String.valueOf(row.get("time")) : "N/A";
+                attendee.put("time", timeVal);
+                
+                String ticketStatus = String.valueOf(row.get("ticket_status"));
+                if ("used".equalsIgnoreCase(ticketStatus) || "redeemed".equalsIgnoreCase(ticketStatus)) {
+                    attendee.put("status", "checked-in");
+                } else {
+                    attendee.put("status", "pending");
+                }
+                
+                attendees.add(attendee);
+            }
+            return attendees;
+        } catch (Exception e) {
+            logger.warn("Could not load attendees for event {}: {}. Returning empty list.", eventId, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     public Map<String, Object> getEventRevenueAnalytics(Long eventId) {
         Map<String, Object> summary = new HashMap<>();
         

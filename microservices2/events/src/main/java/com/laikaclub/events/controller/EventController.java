@@ -116,6 +116,11 @@ public class EventController {
         return eventQueryService.getEventRevenueAnalytics(eventId);
     }
 
+    @GetMapping("/manager/events/{event_id}/attendees")
+    public List<Map<String, Object>> getEventAttendees(@PathVariable("event_id") Long eventId) {
+        return eventQueryService.getEventAttendees(eventId);
+    }
+
     @PostMapping("/manager/events/upload-image")
     public Map<String, Object> uploadEventImage(@RequestParam("file") MultipartFile file) {
         try {

@@ -29,6 +29,14 @@ const b2bAPI = {
         const response = await b2bClient.post(`/b2b/organizations`, data);
         return response.data;
     },
+    updateOrganization: async (orgId, data) => {
+        const response = await b2bClient.put(`/b2b/organizations/${orgId}`, data);
+        return response.data;
+    },
+    deleteOrganization: async (orgId) => {
+        const response = await b2bClient.delete(`/b2b/organizations/${orgId}`);
+        return response.data;
+    },
 
     // Contracts
     getContracts: async () => {
@@ -43,8 +51,30 @@ const b2bAPI = {
         const response = await b2bClient.post(`/b2b/contracts`, data);
         return response.data;
     },
+    updateContract: async (contractId, data) => {
+        const response = await b2bClient.put(`/b2b/contracts/${contractId}`, data);
+        return response.data;
+    },
+    deleteContract: async (contractId) => {
+        const response = await b2bClient.delete(`/b2b/contracts/${contractId}`);
+        return response.data;
+    },
     extendContract: async (contractId, data) => {
         const response = await b2bClient.patch(`/b2b/contracts/${contractId}/extend`, data);
+        return response.data;
+    },
+
+    // Contract Managers
+    getContractManagers: async (contractId) => {
+        const response = await b2bClient.get(`/b2b/contracts/${contractId}/managers`);
+        return response.data;
+    },
+    assignContractManager: async (data) => {
+        const response = await b2bClient.post(`/b2b/managers/assign`, data);
+        return response.data;
+    },
+    unassignContractManager: async (contractId, userId) => {
+        const response = await b2bClient.delete(`/b2b/contracts/${contractId}/managers/${userId}`);
         return response.data;
     }
 };

@@ -86,9 +86,28 @@ export const useStaffTerminal = () => {
         setIsScanning(false);
 
         try {
-            const response = await api.ticket.verify(codeToVerify);
+            const context = {
+                platform: 'WEB_OPERATOR',
+                accessPoint: accessPoint
+            };
+            const response = await api.ticket.verify(codeToVerify, context);
+            
+            let mappedStatus = 'invalid';
+            if (response.actionable || (response.valid && !response.alreadyUsed)) mappedStatus = 'valid';
+            else if (response.alreadyUsed || response.statusCode === 'ALREADY_REDEEMED') mappedStatus = 'used';
+            else if (response.statusCode === 'FUTURE_EVENT') mappedStatus = 'future';
+            else if (response.statusCode === 'CONCLUDED_EVENT') mappedStatus = 'concluded';
+            else if (response.statusCode === 'WRONG_FUNCTION') mappedStatus = 'warning';
+
             const result = {
                 valid: response.valid || false,
+                actionable: response.actionable !== undefined ? response.actionable : (response.valid && !response.alreadyUsed),
+                isError: response.isError || false,
+                statusCode: response.statusCode || mappedStatus,
+                statusTitle: response.statusTitle || null,
+                operatorMessage: response.operatorMessage || response.message || null,
+                timeRemainingSeconds: response.timeRemainingSeconds || 0,
+                status: mappedStatus,
                 ticketCode: codeToVerify,
                 eventName: response.event?.name || response.eventName || 'Evento desconocido',
                 customerName: response.customer?.name || response.customerName || 'Usuario',
@@ -97,24 +116,19 @@ export const useStaffTerminal = () => {
                 scannedAt: new Date().toISOString(),
                 alreadyUsed: response.alreadyUsed || response.already_used || false,
                 ticketId: response.id || response.ticketId,
-                message: response.message
+                message: response.operatorMessage || response.message
             };
 
             setVerificationResult(result);
             setTicketCode('');
+            setScanHistory(prev => [result, ...prev.slice(0, 19)]);
 
-            let status = 'invalid';
-            if (result.valid && !result.alreadyUsed) status = 'valid';
-            else if (result.alreadyUsed) status = 'used';
-
-            setScanHistory(prev => [{ ...result, status }, ...prev.slice(0, 19)]);
-
-            if (result.valid && !result.alreadyUsed) {
+            if (result.actionable || (result.valid && !result.alreadyUsed)) {
                 success('Boleto válido y listo para ingreso');
-            } else if (result.alreadyUsed) {
-                showError('¡ALERTA! Boleto YA USADO');
+            } else if (result.alreadyUsed || result.statusCode === 'ALREADY_REDEEMED') {
+                showError('ALERTA: Boleto YA USADO');
             } else {
-                showError('Boleto inválido');
+                showError(result.operatorMessage || 'Boleto inválido o en estado no canjeable');
             }
         } catch (error) {
             console.error('Error al verificar:', error);
@@ -125,13 +139,17 @@ export const useStaffTerminal = () => {
     };
 
     const handleRedeemTicket = async () => {
-        if (!verificationResult || !verificationResult.valid || verificationResult.alreadyUsed) return;
+        if (!verificationResult || (!verificationResult.actionable && !verificationResult.valid) || verificationResult.alreadyUsed) return;
         try {
-            await api.ticket.redeem(verificationResult.ticketCode);
+            const context = {
+                platform: 'WEB_OPERATOR',
+                accessPoint: accessPoint
+            };
+            await api.ticket.redeem(verificationResult.ticketCode, context);
             success('Entrada registrada exitosamente');
-            setVerificationResult(prev => ({ ...prev, alreadyUsed: true, status: 'used' }));
+            setVerificationResult(prev => ({ ...prev, alreadyUsed: true, actionable: false, status: 'used', statusCode: 'REDEEMED_SUCCESS', statusTitle: 'INGRESO REGISTRADO' }));
             setScanHistory(prev => prev.map((item, index) =>
-                index === 0 ? { ...item, alreadyUsed: true, status: 'used' } : item
+                index === 0 ? { ...item, alreadyUsed: true, actionable: false, status: 'used', statusCode: 'REDEEMED_SUCCESS' } : item
             ));
         } catch (error) {
             showError(error.message || 'Error al registrar entrada');

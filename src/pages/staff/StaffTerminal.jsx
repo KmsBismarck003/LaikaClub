@@ -1,27 +1,36 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { Card, Button, Input, Alert, Icon, PermissionWall, Badge, AnimatedCounter } from '../../components'
-import { Camera, Ticket, Search, ShoppingBag, BarChart2, Activity } from 'lucide-react'
-import api from '../../services/api'
-import { useAuth } from '../../context/AuthContext'
-import { useNotification } from '../../context/NotificationContext'
-import QRScanner from './components/QRScanner'
-import TicketInfo from './components/TicketInfo'
-import StatusMessage from './components/StatusMessage'
-import StaffStats from './components/StaffStats'
-import StaffHelpDesk from './components/StaffHelpDesk'
-import StaffBoxOffice from './components/StaffBoxOffice'
-import './StaffDashboard.css'
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Button, Input, Icon, PermissionWall, AnimatedCounter } from '../../components';
+import { Camera, Search, ShoppingBag, Activity, ShieldCheck, AlertCircle } from 'lucide-react';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
+import QRScanner from './components/QRScanner';
+import TicketInfo from './components/TicketInfo';
+import StatusMessage from './components/StatusMessage';
+import StaffStats from './components/StaffStats';
+import StaffHelpDesk from './components/StaffHelpDesk';
+import StaffBoxOffice from './components/StaffBoxOffice';
+import './StaffDashboard.css';
 
 const StaffTerminal = () => {
     const { user } = useAuth();
-    const { success, error: showError, info: showInfo } = useNotification()
-    const navigate = useNavigate()
-    const location = useLocation()
+    const { success, error: showError } = useNotification();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    const [activeTab, setActiveTab] = useState('scanner')
+    const [activeTab, setActiveTab] = useState('scanner');
+    const [selectedEventId, setSelectedEventId] = useState('');
+    const [events, setEvents] = useState([]);
+    
+    const [ticketCode, setTicketCode] = useState('');
+    const [verificationResult, setVerificationResult] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [alert, setAlert] = useState(null);
+    const [scanHistory, setScanHistory] = useState([]);
+    const [isScanning, setIsScanning] = useState(false);
+    const [accessPoint, setAccessPoint] = useState(() => localStorage.getItem('staff_access_point') || 'Puerta Principal - Acceso 1');
 
-    // Sync activeTab with URL query parameter
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const tab = params.get('tab');
@@ -33,285 +42,356 @@ const StaffTerminal = () => {
     const handleTabChange = (tab) => {
         setActiveTab(tab);
         navigate(`/staff?tab=${tab}`);
-    }
-    const [selectedEventId, setSelectedEventId] = useState('')
-    const [events, setEvents] = useState([])
-    
-    const [ticketCode, setTicketCode] = useState('')
-    const [verificationResult, setVerificationResult] = useState(null)
-    const [loading, setLoading] = useState(false)
-    const [alert, setAlert] = useState(null)
-    const [scanHistory, setScanHistory] = useState([])
-    const [isScanning, setIsScanning] = useState(false)
-    const [accessPoint, setAccessPoint] = useState(() => localStorage.getItem('staff_access_point') || 'Puerta Principal')
+    };
 
     const sessionStats = {
         total: scanHistory.length,
-        valids: scanHistory.filter(h => h.status === 'valid' || h.status === 'used').length,
-        invalids: scanHistory.filter(h => h.status === 'invalid').length,
+        valids: scanHistory.filter(h => h.status === 'valid' || h.status === 'used' || (h.valid && !h.alreadyUsed)).length,
+        invalids: scanHistory.filter(h => h.status === 'invalid' || (!h.valid && !h.alreadyUsed)).length,
         startTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
+    };
 
     useEffect(() => {
-        fetchEvents()
-        const savedHistory = localStorage.getItem('staff_scan_history')
+        fetchEvents();
+        const savedHistory = localStorage.getItem('staff_scan_history');
         if (savedHistory) {
             try {
-                setScanHistory(JSON.parse(savedHistory))
+                setScanHistory(JSON.parse(savedHistory));
             } catch (e) {
-                console.error('Error parsing scan history', e)
+                console.error('Error parsing scan history', e);
             }
         }
-    }, [])
+    }, []);
 
     useEffect(() => {
-        localStorage.setItem('staff_scan_history', JSON.stringify(scanHistory))
-    }, [scanHistory])
+        localStorage.setItem('staff_scan_history', JSON.stringify(scanHistory));
+    }, [scanHistory]);
 
     const fetchEvents = async () => {
         try {
-            const data = await api.event.getAll({ status_filter: 'published' })
-            setEvents(data)
-            if (data.length > 0) setSelectedEventId(data[0].id)
+            const data = await api.event.getAll({ status_filter: 'published' });
+            setEvents(data);
+            if (data.length > 0) setSelectedEventId(data[0].id);
         } catch (err) {
-            console.error('Error fetching events:', err)
+            console.error('Error fetching events:', err);
         }
-    }
+    };
 
     const handleVerifyTicket = async (code) => {
-        const codeToVerify = code || ticketCode
+        const codeToVerify = code || ticketCode;
         if (!codeToVerify || !codeToVerify.trim()) {
-            setAlert({ type: 'error', message: 'Ingresa un código de boleto' })
-            return
+            setAlert({ type: 'error', message: 'Ingresa un código de boleto para continuar' });
+            return;
         }
 
-        setLoading(true)
-        setAlert(null)
-        setIsScanning(false)
+        setLoading(true);
+        setAlert(null);
+        setIsScanning(false);
 
         try {
-            const response = await api.ticket.verify(codeToVerify)
+            const context = {
+                platform: 'WEB_OPERATOR',
+                accessPoint: accessPoint,
+                selectedEventId: selectedEventId ? Number(selectedEventId) : null,
+                operatorName: user?.name || 'Staff Operador'
+            };
+            const response = await api.ticket.verify(codeToVerify, context);
+            
+            let mappedStatus = 'invalid';
+            if (response.actionable || (response.valid && !response.alreadyUsed)) mappedStatus = 'valid';
+            else if (response.alreadyUsed || response.statusCode === 'ALREADY_REDEEMED') mappedStatus = 'used';
+            else if (response.statusCode === 'FUTURE_EVENT') mappedStatus = 'future';
+            else if (response.statusCode === 'CONCLUDED_EVENT') mappedStatus = 'concluded';
+            else if (response.statusCode === 'WRONG_FUNCTION') mappedStatus = 'warning';
+
             const result = {
                 valid: response.valid || false,
+                actionable: response.actionable !== undefined ? response.actionable : (response.valid && !response.alreadyUsed),
+                isError: response.isError || false,
+                statusCode: response.statusCode || mappedStatus,
+                statusTitle: response.statusTitle || null,
+                operatorMessage: response.operatorMessage || response.message || null,
+                timeRemainingSeconds: response.timeRemainingSeconds || 0,
+                status: mappedStatus,
                 ticketCode: codeToVerify,
-                eventName: response.event?.name || response.eventName || 'Evento desconocido',
-                customerName: response.customer?.name || response.customerName || 'Usuario',
-                ticketType: response.ticketType || response.ticket_type || 'General',
+                eventName: response.event?.name || response.eventName || 'Evento Asignado',
+                customerName: response.customer?.name || response.customerName || 'Asistente Registrado',
+                ticketType: response.ticketType || response.ticket_type || 'Acceso General',
+                sectionName: response.sectionName || response.section_name || 'General',
+                seatId: response.seatId || response.seat_id || 'N/A',
                 purchaseDate: response.purchaseDate || response.purchase_date || new Date().toISOString(),
                 scannedAt: new Date().toISOString(),
                 alreadyUsed: response.alreadyUsed || response.already_used || false,
                 ticketId: response.id || response.ticketId,
-                message: response.message
-            }
+                message: response.operatorMessage || response.message
+            };
 
-            setVerificationResult(result)
-            setTicketCode('')
+            setVerificationResult(result);
+            setTicketCode('');
+            setScanHistory(prev => [result, ...prev.slice(0, 29)]);
 
-            let status = 'invalid'
-            if (result.valid && !result.alreadyUsed) status = 'valid'
-            else if (result.alreadyUsed) status = 'used'
-
-            setScanHistory(prev => [{ ...result, status }, ...prev.slice(0, 19)])
-
-            if (result.valid && !result.alreadyUsed) {
-                success('Boleto válido y listo para ingreso')
-            } else if (result.alreadyUsed) {
-                showError('¡ALERTA! Boleto YA USADO')
+            if (result.actionable || (result.valid && !result.alreadyUsed)) {
+                success('Acceso Autorizado • Boleto válido en ventana permitida');
+            } else if (result.alreadyUsed || result.statusCode === 'ALREADY_REDEEMED') {
+                showError('ALERTA DE SEGURIDAD • Boleto previamente canjeado');
+            } else if (result.statusCode === 'FUTURE_EVENT') {
+                showError('ALERTA DE HORARIO • El evento aún no abre puertas');
+            } else if (result.statusCode === 'CONCLUDED_EVENT') {
+                showError('ALERTA TEMPORAL • Evento ya concluido');
+            } else if (result.statusCode === 'WRONG_FUNCTION') {
+                showError('ALERTA DE EVENTO • Corresponde a otra función');
             } else {
-                showError('Boleto inválido')
+                showError('ACCESO DENEGADO • Boleto inválido o revocado');
             }
         } catch (error) {
-            console.error('Error al verificar:', error)
-            setAlert({ type: 'error', message: error.message || 'Error de conexión' })
+            console.error('Error al verificar:', error);
+            setAlert({ type: 'error', message: error.message || 'Fallo en conexión con el servidor de validación' });
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     const handleRedeemTicket = async () => {
-        if (!verificationResult || !verificationResult.valid || verificationResult.alreadyUsed) return
+        if (!verificationResult || (!verificationResult.actionable && !verificationResult.valid) || verificationResult.alreadyUsed) return;
         try {
-            await api.ticket.redeem(verificationResult.ticketCode)
-            success('Entrada registrada exitosamente')
-            setVerificationResult(prev => ({ ...prev, alreadyUsed: true, status: 'used' }))
+            const context = {
+                platform: 'WEB_OPERATOR',
+                accessPoint: accessPoint,
+                selectedEventId: selectedEventId ? Number(selectedEventId) : null,
+                operatorName: user?.name || 'Staff Operador'
+            };
+            await api.ticket.redeem(verificationResult.ticketCode, context);
+            success('Ingreso registrado y canjeado exitosamente');
+            setVerificationResult(prev => ({ ...prev, alreadyUsed: true, actionable: false, status: 'used', statusCode: 'REDEEMED_SUCCESS', statusTitle: 'INGRESO REGISTRADO', message: 'Boleto canjeado exitosamente en el punto de acceso.' }));
             setScanHistory(prev => prev.map((item, index) =>
-                index === 0 ? { ...item, alreadyUsed: true, status: 'used' } : item
-            ))
+                index === 0 ? { ...item, alreadyUsed: true, actionable: false, status: 'used', statusCode: 'REDEEMED_SUCCESS', statusTitle: 'INGRESO REGISTRADO' } : item
+            ));
         } catch (error) {
-            showError(error.message || 'Error al registrar entrada')
+            showError(error.message || 'Error al procesar el registro de ingreso');
         }
-    }
+    };
 
     const resetScanner = () => {
-        setVerificationResult(null)
-        setAlert(null)
-        setTicketCode('')
-        setIsScanning(true)
-    }
+        setVerificationResult(null);
+        setAlert(null);
+        setTicketCode('');
+        setIsScanning(true);
+    };
 
     return (
         <PermissionWall permission="canValidateTickets" label="Terminal de Validación">
-        <div className="staff-terminal-container">
-            <div className="staff-terminal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                    <h1>Panel de Operación Staff</h1>
-                    <div className="subtitle">Gestión de accesos y servicios en tiempo real</div>
-                </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <span style={{ fontSize: '0.65rem', fontWeight: '900', color: '#888', textTransform: 'uppercase' }}>Evento Seleccionado</span>
+            <div className="staff-terminal-container">
+                <header className="staff-header">
+                    <div className="staff-header-content">
+                        <h1>
+                            <ShieldCheck size={28} color="var(--staff-accent-primary)" />
+                            Terminal de Control en Campo
+                        </h1>
+                        <p className="staff-subtitle">Consola en tiempo real para validación, soporte en puerta y venta en taquilla</p>
+                    </div>
+                    
+                    <div className="staff-event-selector">
+                        <label htmlFor="select-event">Evento en Operación:</label>
                         <select 
+                            id="select-event"
                             value={selectedEventId}
                             onChange={(e) => setSelectedEventId(e.target.value)}
-                            className="input-select-mini"
-                            style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '6px 16px', fontSize: '0.9rem', fontWeight: '700' }}
+                            className="staff-select-input"
                         >
-                            {events.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
+                            {events.length === 0 ? (
+                                <option value="">Sin eventos publicados disponibles</option>
+                            ) : (
+                                events.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)
+                            )}
                         </select>
                     </div>
-                </div>
-            </div>
+                </header>
 
-            <div className="health-banner-staff">
-                <div style={{ display: 'flex', gap: '2rem' }}>
-                    <div>
-                        <div className="status-label">Punto de Control</div>
-                        <div className="status-value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Activity size={16} color="var(--success)" />
-                            {accessPoint}
-                            <button onClick={() => {
-                                const p = prompt('Cambiar Punto de Acceso:', accessPoint);
-                                if(p) setAccessPoint(p);
-                            }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', display: 'flex', alignItems: 'center' }}>
-                                <Icon name="edit" size={12} />
-                            </button>
+                <div className="staff-health-strip">
+                    <div className="staff-health-info">
+                        <div className="staff-health-item">
+                            <span className="staff-health-label">Punto de Control</span>
+                            <div className="staff-health-value">
+                                <Activity size={16} color="var(--staff-status-valid)" />
+                                <span>{accessPoint}</span>
+                                <button
+                                    type="button" 
+                                    className="staff-edit-btn" 
+                                    title="Modificar Punto de Acceso"
+                                    onClick={() => {
+                                        const p = prompt('Ingresa el nombre del Punto de Acceso actual:', accessPoint);
+                                        if (p && p.trim()) {
+                                            setAccessPoint(p.trim());
+                                            localStorage.setItem('staff_access_point', p.trim());
+                                        }
+                                    }}
+                                >
+                                    <Icon name="edit" size={14} />
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div className="staff-health-item">
+                            <span className="staff-health-label">Estado de Red</span>
+                            <div className="staff-health-value">
+                                <div className="staff-status-dot online"></div>
+                                <span>Sincronización Activa</span>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <div className="status-label">Estado de Red</div>
-                        <div className="status-value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)' }}></div>
-                            Sincronizado
-                        </div>
+
+                    <div className="staff-nav-tabs">
+                        <button 
+                            type="button"
+                            className={`staff-tab-btn ${activeTab === 'scanner' ? 'active' : ''}`}
+                            onClick={() => handleTabChange('scanner')}
+                        >
+                            <Camera size={16} /> Validación de Entradas
+                        </button>
+                        <button 
+                            type="button"
+                            className={`staff-tab-btn ${activeTab === 'helpdesk' ? 'active' : ''}`}
+                            onClick={() => handleTabChange('helpdesk')}
+                        >
+                            <Search size={16} /> Soporte en Puerta
+                        </button>
+                        <button 
+                            type="button"
+                            className={`staff-tab-btn ${activeTab === 'boxoffice' ? 'active' : ''}`}
+                            onClick={() => handleTabChange('boxoffice')}
+                        >
+                            <ShoppingBag size={16} /> Taquilla Presencial
+                        </button>
                     </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button 
-                        size="small" 
-                        variant={activeTab === 'scanner' ? 'primary' : 'secondary'}
-                        onClick={() => handleTabChange('scanner')}
-                    >
-                        <Camera size={14} className="mr-2" /> Scanner
-                    </Button>
-                    <Button 
-                        size="small" 
-                        variant={activeTab === 'helpdesk' ? 'primary' : 'secondary'}
-                        onClick={() => handleTabChange('helpdesk')}
-                    >
-                        <Search size={14} className="mr-2" /> Ayuda
-                    </Button>
-                    <Button 
-                        size="small" 
-                        variant={activeTab === 'boxoffice' ? 'primary' : 'secondary'}
-                        onClick={() => handleTabChange('boxoffice')}
-                    >
-                        <ShoppingBag size={14} className="mr-2" /> Taquilla
-                    </Button>
+
+                <div className="staff-metrics-grid">
+                    <div className="staff-metric-card">
+                        <div className="staff-metric-data">
+                            <span className="staff-metric-label">Procesados en Turno</span>
+                            <div className="staff-metric-number"><AnimatedCounter value={sessionStats.total} /></div>
+                        </div>
+                        <div className="staff-metric-icon"><Icon name="checkCircle" size={20} /></div>
+                    </div>
+                    
+                    <div className="staff-metric-card">
+                        <div className="staff-metric-data">
+                            <span className="staff-metric-label">Ingresos Válidos</span>
+                            <div className="staff-metric-number" style={{ color: 'var(--staff-status-valid)' }}><AnimatedCounter value={sessionStats.valids} /></div>
+                        </div>
+                        <div className="staff-metric-icon success"><Icon name="check" size={20} /></div>
+                    </div>
+                    
+                    <div className="staff-metric-card">
+                        <div className="staff-metric-data">
+                            <span className="staff-metric-label">Alertas de Ingreso</span>
+                            <div className="staff-metric-number" style={{ color: 'var(--staff-status-error)' }}><AnimatedCounter value={sessionStats.invalids} /></div>
+                        </div>
+                        <div className="staff-metric-icon error"><Icon name="alertTriangle" size={20} /></div>
+                    </div>
+                    
+                    <div className="staff-metric-card">
+                        <div className="staff-metric-data">
+                            <span className="staff-metric-label">Flujo Operativo</span>
+                            <div className="staff-metric-number">
+                                <AnimatedCounter value={Math.floor(sessionStats.total / Math.max(1, (new Date() - new Date(new Date().setHours(new Date().getHours() - 1))) / 60000)) || 0} /> <span style={{ fontSize: '1rem', fontWeight: 600, opacity: 0.6 }}>/min</span>
+                            </div>
+                        </div>
+                        <div className="staff-metric-icon"><Activity size={20} /></div>
+                    </div>
                 </div>
-            </div>
 
-            <div className="staff-metrics-strip">
-                <Card className="metric-mini">
-                    <small>Escaneos Sesión</small>
-                    <strong><AnimatedCounter value={sessionStats.total} /></strong>
-                </Card>
-                <Card className="metric-mini">
-                    <small>Válidos Hoy</small>
-                    <strong style={{ color: 'var(--success)' }}><AnimatedCounter value={sessionStats.valids} /></strong>
-                </Card>
-                <Card className="metric-mini">
-                    <small>Incidencias</small>
-                    <strong style={{ color: 'var(--error)' }}><AnimatedCounter value={sessionStats.invalids} /></strong>
-                </Card>
-                <Card className="metric-mini">
-                    <small>Flujo (asist/min)</small>
-                    <strong style={{ color: '#000' }}>
-                        <AnimatedCounter value={Math.floor(sessionStats.total / Math.max(1, (new Date() - new Date(sessionStats.startTime)) / 60000)) || 0} />
-                    </strong>
-                </Card>
-            </div>
-
-            <div className="staff-tab-content">
-                {activeTab === 'scanner' && (
-                    <div className="verification-section">
-                        {!verificationResult ? (
-                            <Card className="scanner-card">
-                                {isScanning ? (
-                                    <>
-                                        <QRScanner onScanSuccess={(text) => handleVerifyTicket(text)} />
-                                        <Button variant="outline" fullWidth onClick={() => setIsScanning(false)} style={{ marginTop: '1rem' }}>
-                                            Ingresar Código Manualmente
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <div className="scanner-container">
-                                        <div className="qr-scanner-placeholder" onClick={() => setIsScanning(true)}>
-                                            <Camera size={64} className="scanner-icon" />
-                                            <p>Tocar para activar cámara</p>
-                                        </div>
-                                        <div className="scanner-divider"><span>O</span></div>
-                                        <form onSubmit={(e) => { e.preventDefault(); handleVerifyTicket(); }}>
-                                            <Input
-                                                label="Código del Boleto"
-                                                value={ticketCode}
-                                                onChange={(e) => setTicketCode(e.target.value)}
-                                                placeholder="Ej: TKT-12345678"
-                                                fullWidth
-                                            />
-                                            <Button type="submit" variant="primary" size="large" fullWidth loading={loading} disabled={!ticketCode.trim()} style={{ marginTop: '1rem' }}>
-                                                Verificar Boleto
-                                            </Button>
-                                        </form>
-                                    </div>
-                                )}
-                            </Card>
-                        ) : (
-                            <Card className={`result-card ${verificationResult.status}`}>
-                                <StatusMessage status={verificationResult.status} message={verificationResult.message} />
-                                <TicketInfo ticket={verificationResult} />
-                                {verificationResult.status === 'valid' && (
-                                    <Button variant="success" size="large" fullWidth onClick={handleRedeemTicket} style={{ marginTop: '1rem' }}>
-                                        Registrar Entrada
-                                    </Button>
-                                )}
-                                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                                    <Button variant="outline" fullWidth onClick={() => {
-                                        api.ticket.resendTicket(verificationResult.ticketCode);
-                                        success('Boleto reenviado al correo');
-                                    }}>
-                                        Reenviar
-                                    </Button>
-                                    <Button variant="secondary" fullWidth onClick={resetScanner}>
-                                        Siguiente
-                                    </Button>
+                <div className="staff-content-area">
+                    {activeTab === 'scanner' && (
+                        <div className="staff-scanner-view">
+                            {alert && (
+                                <div style={{ marginBottom: '1.5rem', padding: '1rem 1.5rem', borderRadius: '8px', background: 'var(--staff-status-error-bg)', border: '1px solid var(--staff-status-error)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#fff', fontWeight: 600 }}>
+                                    <AlertCircle color="var(--staff-status-error)" size={20} />
+                                    <span>{alert.message}</span>
                                 </div>
-                            </Card>
-                        )}
-                        <StaffStats history={scanHistory} />
-                    </div>
-                )}
+                            )}
 
-                {activeTab === 'helpdesk' && (
-                    <StaffHelpDesk eventId={selectedEventId} />
-                )}
+                            {!verificationResult ? (
+                                <div className="staff-scanner-container">
+                                    {isScanning ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                            <QRScanner onScanSuccess={(text) => handleVerifyTicket(text)} />
+                                            <Button variant="secondary" fullWidth onClick={() => setIsScanning(false)}>
+                                                Cambiar a Ingreso Manual
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <div className="staff-scanner-trigger" onClick={() => setIsScanning(true)} role="button" tabIndex={0}>
+                                                <Camera size={56} className="staff-scanner-icon" />
+                                                <p className="staff-scanner-text">Tocar para Activar Lector Óptico (Camara / QR)</p>
+                                            </div>
 
-                {activeTab === 'boxoffice' && (
-                    <StaffBoxOffice eventId={selectedEventId} />
-                )}
+                                            <div className="staff-divider">INGRESO MANUAL DE CÓDIGO</div>
+
+                                            <form onSubmit={(e) => { e.preventDefault(); handleVerifyTicket(); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                                <Input
+                                                    label="Identificador de Boleto (Código Alfanumérico)"
+                                                    value={ticketCode}
+                                                    onChange={(e) => setTicketCode(e.target.value)}
+                                                    placeholder="Ej. TKT-89324701-XY"
+                                                    fullWidth
+                                                />
+                                                <Button type="submit" variant="primary" size="large" fullWidth loading={loading} disabled={!ticketCode.trim()}>
+                                                    Verificar e Inspeccionar Boleto
+                                                </Button>
+                                            </form>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className={`staff-result-card ${verificationResult.status}`}>
+                                    <StatusMessage 
+                                        status={verificationResult.status} 
+                                        statusCode={verificationResult.statusCode} 
+                                        statusTitle={verificationResult.statusTitle} 
+                                        message={verificationResult.operatorMessage || verificationResult.message} 
+                                        timeRemainingSeconds={verificationResult.timeRemainingSeconds} 
+                                    />
+                                    <TicketInfo ticket={verificationResult} />
+                                    
+                                    {(verificationResult.actionable || (verificationResult.status === 'valid' && !verificationResult.alreadyUsed)) && (
+                                        <Button variant="success" size="large" fullWidth onClick={handleRedeemTicket} style={{ marginBottom: '0.75rem' }}>
+                                            Confirmar Acceso • Registrar Canje
+                                        </Button>
+                                    )}
+                                    
+                                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                                        <Button variant="secondary" style={{ flex: 1, minWidth: '160px' }} onClick={() => {
+                                            api.ticket.resendTicket(verificationResult.ticketCode);
+                                            success('Confirmación de boleto reenviada al correo del asistente');
+                                        }}>
+                                            Reenviar Comprobante
+                                        </Button>
+                                        <Button variant="primary" style={{ flex: 1, minWidth: '160px' }} onClick={resetScanner}>
+                                            Procesar Siguiente Boleto
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div style={{ marginTop: '2.5rem' }}>
+                                <StaffStats history={scanHistory} />
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'helpdesk' && (
+                        <StaffHelpDesk eventId={selectedEventId} />
+                    )}
+
+                    {activeTab === 'boxoffice' && (
+                        <StaffBoxOffice eventId={selectedEventId} />
+                    )}
+                </div>
             </div>
-        </div>
         </PermissionWall>
-    )
-}
+    );
+};
 
 export default StaffTerminal;

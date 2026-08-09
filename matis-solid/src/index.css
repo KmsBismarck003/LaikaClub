@@ -1,0 +1,40 @@
+:root {
+  --bw-white: #ffffff;
+  --bw-black: #0f172a; /* Slate 900 instead of harsh black */
+  --bw-border: #cbd5e1; /* Slate 300 for soft lines */
+  --bw-hover: #f8fafc; /* Slate 50 for clean hover */
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --border-color: #e2e8f0; /* Slate 200 */
+  --text-primary: #0f172a;
+  --text-secondary: #64748b; /* Slate 500 */
+  --accent-color: #3b82f6; /* Modern Blue */
+  --accent-hover: #1d4ed8;
+  --color-preattentive: #f97316; /* Preattentive orange contrast */
+  --color-neutral: #cbd5e1; /* Soft gray for non-highlighted items */
+  --bw-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bw-white);
+  color: var(--bw-black);
+  font-family: var(--bw-font);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+input, select, button {
+  font-family: inherit;
+  font-size: 1rem;
+}

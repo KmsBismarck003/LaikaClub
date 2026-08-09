@@ -24,8 +24,11 @@ class NeuralNetworkModule:
                 sum("price").alias("ingreso")
             ).withColumn("label", when(col("ingreso") > 500, 1).otherwise(0)).collect()
 
-            if len(df_ml) < 4:
-                return {"error": "Datos insuficientes para entrenamiento (mínimo 4 eventos)"}
+            if len(df_ml) < 5:
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos insuficientes para análisis"
+                }
 
             X = np.array([[row.cantidad, row.ingreso] for row in df_ml], dtype=np.float32)
             y = np.array([row.label for row in df_ml], dtype=np.int64)
@@ -70,30 +73,73 @@ class NeuralNetworkModule:
             return {"error": str(e)}
 
     def _run_nn_simulation(self, epochs=50):
-        """Simulación de entrenamiento de Red Neuronal profunda en modo resiliencia."""
-        import random
+        """Entrena una red neuronal real usando MLPClassifier de scikit-learn sobre datos de MySQL."""
+        import pymysql
+        import numpy as np
+        from sklearn.neural_network import MLPClassifier
         from datetime import datetime
         
-        loss_history = []
-        base_loss = 0.8
-        
-        # Generar una curva de pérdida realista (descendiente)
-        for i in range(0, epochs, 5):
-            noise = random.uniform(-0.02, 0.02)
-            # Función de decaimiento exponencial simple para simular aprendizaje
-            current_loss = base_loss * (0.95 ** (i/5)) + noise
-            loss_history.append({"epoch": i, "loss": round(max(0.01, current_loss), 4)})
+        try:
+            # 1. Consultar agregados de eventos reales de MySQL
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            query = """
+                SELECT event_id, 
+                       COUNT(*) as cantidad, 
+                       SUM(price) as ingreso
+                FROM tickets
+                WHERE status != 'cancelled'
+                GROUP BY event_id
+            """
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            conn.close()
             
-        return {
-            "status": "success",
-            "resilience": True,
-            "loss_history": loss_history,
-            "epochs": epochs,
-            "summary": "IA de Aprendizaje Profundo (Modo Resiliencia). Simulación de gradiente descendente completada.",
-            "insights": [
-                "Inicializando pesos de sinapsis locales...",
-                "Optimización Adam (Simulada) convergente",
-                "Predicción de éxito de eventos ajustada al 92%"
-            ],
-            "timestamp": datetime.now().isoformat()
-        }
+            if len(rows) < 5:
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos insuficientes para análisis"
+                }
+                
+            X = np.array([[float(r["cantidad"]), float(r["ingreso"])] for r in rows], dtype=np.float32)
+            y = np.array([1 if float(r["ingreso"]) > 500 else 0 for r in rows], dtype=np.int64)
+            
+            # Normalizar X
+            X_mean = X.mean(axis=0)
+            X_std = X.std(axis=0)
+            X_std[X_std == 0] = 1.0
+            X_scaled = (X - X_mean) / X_std
+            
+            # Entrenar MLPClassifier
+            clf = MLPClassifier(hidden_layer_sizes=(8,), max_iter=epochs, random_state=42, solver='adam', learning_rate_init=0.01)
+            
+            # Controlar warnings de no convergencia si epochs es pequeño
+            import warnings
+            from sklearn.exceptions import ConvergenceWarning
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=ConvergenceWarning)
+                clf.fit(X_scaled, y)
+                
+            # Obtener historia de pérdida
+            loss_history = []
+            if hasattr(clf, 'loss_curve_'):
+                for epoch_idx, loss_val in enumerate(clf.loss_curve_):
+                    if epoch_idx % 5 == 0 or epoch_idx == len(clf.loss_curve_) - 1:
+                        loss_history.append({"epoch": epoch_idx, "loss": round(float(loss_val), 4)})
+                        
+            return {
+                "status": "success",
+                "resilience": True,
+                "loss_history": loss_history,
+                "epochs": len(clf.loss_curve_) if hasattr(clf, 'loss_curve_') else epochs,
+                "summary": f"Entrenamiento de Red Neuronal (MLP Classifier) completado localmente sobre {len(rows)} muestras.",
+                "insights": [
+                    "Inicialización de sinapsis locales completada.",
+                    f"Optimización Adam convergente en {len(clf.loss_curve_) if hasattr(clf, 'loss_curve_') else epochs} épocas.",
+                    f"Precisión media de entrenamiento: {round(clf.score(X_scaled, y) * 100, 1)}%"
+                ],
+                "timestamp": datetime.now().isoformat()
+            }
+        except Exception as e:
+            print(f"Fallback Neural Network Training Fail: {e}")
+            return {"status": "error", "message": f"Fallback Neural Network Training Fail: {str(e)}"}

@@ -867,7 +867,9 @@ const Icon = ({ name, size = 20, className = '', ...props }) => {
     'x': 'close',
     'chart-bar': 'chart',
     'chartBar': 'chart',
-    'activity': 'activity'
+    'activity': 'activity',
+    'trending-up': 'chart',
+    'trendingUp': 'chart'
   };
 
   if (!name) return null;

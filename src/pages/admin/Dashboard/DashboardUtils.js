@@ -36,4 +36,4 @@ export const INITIAL_SECTIONS = [
     }
 ];
 
-export const WELCOME_TEXT = '¡Hola, Admin!';
+export const WELCOME_TEXT = '¡Hola, Empanada de camaron';

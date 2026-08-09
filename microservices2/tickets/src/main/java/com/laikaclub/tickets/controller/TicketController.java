@@ -2,8 +2,12 @@ package com.laikaclub.tickets.controller;
 
 import com.laikaclub.tickets.config.UserPrincipal;
 import com.laikaclub.tickets.domain.Ticket;
+import com.laikaclub.tickets.domain.TicketValidationLog;
 import com.laikaclub.tickets.dto.TicketPurchase;
+import com.laikaclub.tickets.dto.TicketValidationResponse;
 import com.laikaclub.tickets.dto.TicketVerify;
+import com.laikaclub.tickets.repository.TicketValidationLogRepository;
+import com.laikaclub.tickets.service.ContextualValidationService;
 import com.laikaclub.tickets.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,17 +24,23 @@ import java.util.Map;
 public class TicketController {
 
     private final TicketService ticketService;
+    private final ContextualValidationService contextualValidationService;
+    private final TicketValidationLogRepository validationLogRepository;
 
     @Autowired
-    public TicketController(TicketService ticketService) {
+    public TicketController(TicketService ticketService,
+                            ContextualValidationService contextualValidationService,
+                            TicketValidationLogRepository validationLogRepository) {
         this.ticketService = ticketService;
+        this.contextualValidationService = contextualValidationService;
+        this.validationLogRepository = validationLogRepository;
     }
 
     @GetMapping("/health")
     public Map<String, String> health() {
         Map<String, String> resp = new HashMap<>();
         resp.put("status", "alive");
-        resp.put("service", "ticket-service");
+        resp.put("service", "ticket-service-java-v3-contextual");
         return resp;
     }
 
@@ -40,13 +50,23 @@ public class TicketController {
     }
 
     @PostMapping("/verify")
-    public Ticket verifyTicket(@RequestBody TicketVerify data) {
-        return ticketService.verifyTicket(data.getTicketCode());
+    public TicketValidationResponse verifyTicket(@RequestBody TicketVerify data) {
+        return contextualValidationService.verify(data);
     }
 
     @PostMapping("/redeem")
-    public Map<String, Object> redeemTicket(@RequestBody TicketVerify data) {
-        return ticketService.redeemTicket(data.getTicketCode());
+    public TicketValidationResponse redeemTicket(@RequestBody TicketVerify data) {
+        return contextualValidationService.redeem(data);
+    }
+
+    @GetMapping("/validations/history")
+    public List<TicketValidationLog> getValidationHistory() {
+        return validationLogRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    @GetMapping("/validations/ticket/{ticketCode}")
+    public List<TicketValidationLog> getTicketValidationHistory(@PathVariable("ticketCode") String ticketCode) {
+        return validationLogRepository.findByTicketCodeOrderByCreatedAtDesc(ticketCode);
     }
 
     @GetMapping("/busy-seats/{event_id}")
@@ -67,12 +87,24 @@ public class TicketController {
         if (!body.containsKey("amount") || body.get("amount") == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "amount es requerido");
         }
-        Double amount = ((Number) body.get("amount")).doubleValue();
-        Long eventId = body.containsKey("event_id") && body.get("event_id") != null ? 
-                       ((Number) body.get("event_id")).longValue() : null;
+        Double amount;
+        try {
+            amount = Double.valueOf(body.get("amount").toString());
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "amount debe ser numérico");
+        }
+
+        Long eventId = null;
+        if (body.containsKey("event_id") && body.get("event_id") != null) {
+            String evStr = body.get("event_id").toString().replaceAll("[^0-9]", "");
+            if (!evStr.isEmpty()) {
+                eventId = Long.valueOf(evStr);
+            }
+        }
         String method = (String) body.getOrDefault("method", "card");
 
-        return ticketService.createPaymentIntent(user.getId(), amount, eventId, method);
+        Long userId = (user != null) ? user.getId() : 1L;
+        return ticketService.createPaymentIntent(userId, amount, eventId, method);
     }
 
     @PostMapping("/payments/{reference}/confirm")

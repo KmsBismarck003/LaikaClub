@@ -414,6 +414,10 @@ def get_market_gaps(manager_id: int = None):
         raise HTTPException(status_code=500, detail=res.get("message"))
     return res
 
+# Include MATIS routers
+from matis.router import matis_router
+app.include_router(matis_router)
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8007)
 

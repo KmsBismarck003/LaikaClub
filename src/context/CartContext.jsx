@@ -22,11 +22,17 @@ const getCardsKey = (user) => {
     const userId = user.id || user._id || user.email || 'unknown';
     return `savedCards_${userId}`;
 };
+const getAddressesKey = (user) => {
+    if (!user) return 'savedAddresses_guest';
+    const userId = user.id || user._id || user.email || 'unknown';
+    return `savedAddresses_${userId}`;
+};
 
 export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState([]);
     const [total, setTotal] = useState(0);
     const [savedCards, setSavedCards] = useState([]);
+    const [savedAddresses, setSavedAddresses] = useState([]);
     const { success, info } = useNotification();
     const { user } = useAuth();
 
@@ -46,13 +52,15 @@ export const CartProvider = ({ children }) => {
     const closeCart = useCallback(() => setIsCartOpen(false), []);
     const toggleCart = useCallback(() => setIsCartOpen(prev => !prev), []);
 
-    // Cargar carrito y tarjetas guardadas desde LocalStorage cuando el usuario cambia
+    // Cargar carrito, tarjetas y direcciones guardadas desde LocalStorage cuando el usuario cambia
     useEffect(() => {
         const cartKey = getCartKey(user);
         const cardsKey = getCardsKey(user);
+        const addressesKey = getAddressesKey(user);
 
         const storedCart = localStorage.getItem(cartKey);
         const storedCards = localStorage.getItem(cardsKey);
+        const storedAddresses = localStorage.getItem(addressesKey);
 
         let parsedCart = [];
         if (storedCart) {
@@ -110,8 +118,69 @@ export const CartProvider = ({ children }) => {
             }
         }
 
+        // Si el usuario inicia sesión y hay tarjetas de invitado en localStorage, transferirlas
+        if (user) {
+            const guestCardsStr = localStorage.getItem('savedCards_guest');
+            if (guestCardsStr) {
+                try {
+                    const guestCards = JSON.parse(guestCardsStr);
+                    if (Array.isArray(guestCards) && guestCards.length > 0) {
+                        const mergedCards = [...parsedCards];
+                        guestCards.forEach(guestCard => {
+                            const exists = mergedCards.some(c => c.rawLastFour === guestCard.rawLastFour && c.expiry === guestCard.expiry);
+                            if (!exists) mergedCards.push(guestCard);
+                        });
+                        parsedCards = mergedCards;
+                        localStorage.setItem(cardsKey, JSON.stringify(parsedCards));
+                        localStorage.setItem('savedCards_guest', JSON.stringify([]));
+                    }
+                } catch (err) {
+                    console.error("Error al fusionar tarjetas de invitado:", err);
+                }
+            }
+        }
+
+        let parsedAddresses = [];
+        if (storedAddresses) {
+            try {
+                parsedAddresses = JSON.parse(storedAddresses);
+            } catch (e) {
+                console.error("Error cargando direcciones guardadas", e);
+            }
+        } else if (user && parsedAddresses.length === 0) {
+            // Check if there's legacy checkout_shipping in localStorage to migrate as initial saved address
+            const oldShipping = localStorage.getItem('checkout_shipping');
+            if (oldShipping) {
+                try {
+                    const parsedOld = JSON.parse(oldShipping);
+                    if (parsedOld.calle && parsedOld.ciudad) {
+                        parsedAddresses = [{
+                            id: Date.now(),
+                            alias: 'Dirección Principal',
+                            nombre: parsedOld.nombre || user.name || '',
+                            apellidos: parsedOld.apellidos || '',
+                            email: parsedOld.email || user.email || '',
+                            telefono: parsedOld.telefono || '',
+                            calle: parsedOld.calle || '',
+                            numeroExterior: parsedOld.numeroExterior || '',
+                            codigoPostal: parsedOld.codigoPostal || '',
+                            colonia: parsedOld.colonia || '',
+                            ciudad: parsedOld.ciudad || '',
+                            region: parsedOld.region || 'México',
+                            observaciones: parsedOld.observaciones || '',
+                            isDefault: true
+                        }];
+                        localStorage.setItem(addressesKey, JSON.stringify(parsedAddresses));
+                    }
+                } catch (e) {
+                    console.error("Error migrando direccion previa", e);
+                }
+            }
+        }
+
         setCart(parsedCart);
         setSavedCards(parsedCards);
+        setSavedAddresses(parsedAddresses);
 
         // Update the ref to the current user's ID
         loadedUserRef.current = user ? (user.id || user._id || user.email || 'unknown') : 'guest';
@@ -150,6 +219,17 @@ export const CartProvider = ({ children }) => {
         const cardsKey = getCardsKey(user);
         localStorage.setItem(cardsKey, JSON.stringify(savedCards));
     }, [savedCards, user]);
+
+    // Guardar direcciones en LocalStorage cuando cambien
+    useEffect(() => {
+        const currentUserKey = user ? (user.id || user._id || user.email || 'unknown') : 'guest';
+        if (loadedUserRef.current !== currentUserKey) {
+            return;
+        }
+
+        const addressesKey = getAddressesKey(user);
+        localStorage.setItem(addressesKey, JSON.stringify(savedAddresses));
+    }, [savedAddresses, user]);
 
     // Load available coupons when user logs in
     useEffect(() => {
@@ -290,19 +370,81 @@ export const CartProvider = ({ children }) => {
         removeCoupon();
     };
 
+    // --- Tarjetas Guardadas ---
     const addCard = (card) => {
         const newCard = {
-            id: Date.now(),
-            number: `**** **** **** ${card.number.slice(-4)}`,
+            id: card.id || Date.now(),
+            number: card.number?.includes('****') ? card.number : `**** **** **** ${card.number.slice(-4)}`,
+            rawLastFour: card.number ? card.number.slice(-4) : '0000',
             holder: card.holder,
             expiry: card.expiry,
             type: 'visa'
         };
-        setSavedCards(prev => [...prev, newCard]);
+        setSavedCards(prev => {
+            const exists = prev.some(c => c.rawLastFour === newCard.rawLastFour && c.expiry === newCard.expiry);
+            if (exists) {
+                return prev.map(c => (c.rawLastFour === newCard.rawLastFour && c.expiry === newCard.expiry) ? { ...c, ...newCard } : c);
+            }
+            return [...prev, newCard];
+        });
+        success('Método de pago guardado de forma segura');
+        return newCard;
+    };
+
+    const updateCard = (cardId, updatedData) => {
+        setSavedCards(prev => prev.map(c => c.id === cardId ? { ...c, ...updatedData } : c));
+        success('Método de pago actualizado');
     };
 
     const removeCard = (cardId) => {
         setSavedCards(prev => prev.filter(c => c.id !== cardId));
+        info('Método de pago eliminado');
+    };
+
+    // --- Direcciones Guardadas ---
+    const addAddress = (addressData) => {
+        const isFirst = savedAddresses.length === 0;
+        const newAddr = {
+            ...addressData,
+            id: addressData.id || Date.now(),
+            isDefault: addressData.isDefault || isFirst,
+            alias: addressData.alias || `Dirección #${savedAddresses.length + 1}`
+        };
+        setSavedAddresses(prev => {
+            if (newAddr.isDefault) {
+                return [...prev.map(a => ({ ...a, isDefault: false })), newAddr];
+            }
+            return [...prev, newAddr];
+        });
+        success('Dirección guardada exitosamente');
+        return newAddr;
+    };
+
+    const updateAddress = (addressId, updatedData) => {
+        setSavedAddresses(prev => {
+            const nextList = prev.map(a => a.id === addressId ? { ...a, ...updatedData } : a);
+            if (updatedData.isDefault) {
+                return nextList.map(a => a.id === addressId ? a : { ...a, isDefault: false });
+            }
+            return nextList;
+        });
+        success('Dirección actualizada');
+    };
+
+    const removeAddress = (addressId) => {
+        setSavedAddresses(prev => {
+            const nextList = prev.filter(a => a.id !== addressId);
+            if (nextList.length > 0 && !nextList.some(a => a.isDefault)) {
+                nextList[0].isDefault = true;
+            }
+            return nextList;
+        });
+        info('Dirección eliminada');
+    };
+
+    const setDefaultAddress = (addressId) => {
+        setSavedAddresses(prev => prev.map(a => ({ ...a, isDefault: a.id === addressId })));
+        success('Dirección principal actualizada');
     };
 
     const finalTotal = Math.max(0, total + serviceFee - discount);
@@ -312,13 +454,19 @@ export const CartProvider = ({ children }) => {
             cart,
             total,
             savedCards,
+            savedAddresses,
             addToCart,
             addMerchToCart,
             removeFromCart,
             updateQuantity,
             clearCart,
             addCard,
+            updateCard,
             removeCard,
+            addAddress,
+            updateAddress,
+            removeAddress,
+            setDefaultAddress,
             cartCount: cart.reduce((acc, item) => acc + item.quantity, 0),
 
             // Coupon & fee state
@@ -332,7 +480,7 @@ export const CartProvider = ({ children }) => {
             removeCoupon,
             consumeAppliedCoupon,
             loadCoupons,
-
+            
             // Cart Visibility
             isCartOpen,
             openCart,
@@ -343,3 +491,4 @@ export const CartProvider = ({ children }) => {
         </CartContext.Provider>
     );
 };
+

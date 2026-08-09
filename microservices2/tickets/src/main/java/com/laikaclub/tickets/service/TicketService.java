@@ -34,6 +34,9 @@ public class TicketService {
     @Value("${services.events.url}")
     private String eventServiceUrl;
 
+    @Value("${services.wearables.url}")
+    private String wearablesServiceUrl;
+
     @Autowired
     public TicketService(TicketRepository ticketRepository,
                          PaymentRepository paymentRepository,
@@ -52,6 +55,15 @@ public class TicketService {
             for (Ticket tkt : tickets) {
                 Map<String, Object> tktMap = serializeTicket(tkt);
                 populateEventDetails(tktMap, tkt.getEventId(), tkt.getEventFunctionId());
+                
+                if ("active".equalsIgnoreCase(tkt.getStatus()) || "confirmed".equalsIgnoreCase(tkt.getStatus())) {
+                    if (isEventConcluded(tktMap)) {
+                        tkt.setStatus("unutilized");
+                        ticketRepository.save(tkt);
+                        tktMap.put("status", "unutilized");
+                    }
+                }
+
                 result.add(tktMap);
             }
 
@@ -63,7 +75,7 @@ public class TicketService {
     }
 
     public List<String> getBusySeats(Long eventId, Long functionId) {
-        List<String> statuses = List.of("active", "used");
+        List<String> statuses = List.of("active", "used", "redeemed", "unutilized", "expired", "transferred", "confirmed");
         if (functionId != null) {
             return ticketRepository.findSeatIdsByEventIdAndEventFunctionIdAndStatusIn(eventId, functionId, statuses);
         } else {
@@ -149,6 +161,8 @@ public class TicketService {
                 respItem.put("seat", seat);
                 purchased.add(respItem);
             }
+
+            notifyWearablesService(userId, "purchase");
 
             return purchased;
         } catch (Exception e) {
@@ -251,6 +265,8 @@ public class TicketService {
 
             paymentRepository.save(refundPayment);
 
+            notifyWearablesService(userId, "refund");
+
             Map<String, Object> response = new HashMap<>();
             response.put("status", "success");
             response.put("message", "Reembolso procesado y asiento liberado");
@@ -330,6 +346,8 @@ public class TicketService {
             ticket.setStatus("used");
             ticket.setRedeemedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
             ticketRepository.save(ticket);
+
+            notifyWearablesService(ticket.getUserId(), "ticket_used");
 
             Map<String, Object> response = new HashMap<>();
             response.put("status", "success");
@@ -551,6 +569,29 @@ public class TicketService {
         tkt.put("venue", "Lugar no especificado");
     }
 
+    private boolean isEventConcluded(Map<String, Object> tktMap) {
+        try {
+            String dateStr = (String) tktMap.get("event_date");
+            String timeStr = (String) tktMap.get("event_time");
+            if (dateStr == null || dateStr.trim().isEmpty() || "N/A".equals(dateStr)) return false;
+
+            java.time.LocalDate evDate = java.time.LocalDate.parse(dateStr.substring(0, 10));
+            java.time.LocalTime evTime = java.time.LocalTime.of(20, 0);
+            try {
+                if (timeStr != null && !timeStr.trim().isEmpty() && !timeStr.contains("N/A")) {
+                    String[] p = timeStr.split(":");
+                    evTime = java.time.LocalTime.of(Integer.parseInt(p[0]), Integer.parseInt(p[1]));
+                }
+            } catch (Exception ignored) {}
+
+            java.time.LocalDateTime evStart = java.time.LocalDateTime.of(evDate, evTime);
+            java.time.LocalDateTime now = java.time.LocalDateTime.now(java.time.ZoneId.of("America/Mexico_City"));
+            return now.isAfter(evStart.plusHours(4)) || (now.toLocalDate().isAfter(evDate) && now.isAfter(evStart.plusHours(2)));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public List<Map<String, Object>> getInternalPurchases() {
         List<Object[]> raw = ticketRepository.getInternalPurchasesRaw();
         List<Map<String, Object>> result = new ArrayList<>();
@@ -613,5 +654,19 @@ public class TicketService {
         item.setFunctionId(functionId);
 
         return purchaseTickets(userId, List.of(item), "free");
+    }
+
+    private void notifyWearablesService(Long userId, String reason) {
+        try {
+            if (wearablesServiceUrl == null || wearablesServiceUrl.trim().isEmpty()) {
+                logger.warn("Wearables Service URL no configurada.");
+                return;
+            }
+            String url = wearablesServiceUrl + "/api/wearables/user/" + userId + "/update-tickets?reason=" + reason;
+            restTemplate.postForObject(url, null, Map.class);
+            logger.info("Notificación enviada a Wearables Service para usuario: {}, razón: {}", userId, reason);
+        } catch (Exception e) {
+            logger.warn("No se pudo notificar a Wearables Service: {}", e.getMessage());
+        }
     }
 }

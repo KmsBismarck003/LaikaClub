@@ -39,3 +39,9 @@ tiradero/
 build/asset-manifest.json
 build/index.html
 build/static/
+
+# Separate repositories
+LaikaMobile/
+laikaWear/
+microservices/wearables_backend/
+

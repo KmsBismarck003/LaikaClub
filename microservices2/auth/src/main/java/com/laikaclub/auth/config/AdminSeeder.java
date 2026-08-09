@@ -55,6 +55,27 @@ public class AdminSeeder implements CommandLineRunner {
             } else {
                 logger.info("[AUTH SERVICE] La base de datos ya cuenta con usuarios registrados (Count: {}). Omitiendo sembrado.", count);
             }
+
+            // Sembrado de MATIS
+            if (!userRepository.findByEmailIgnoreCase("matis@laikaclub.com").isPresent()) {
+                logger.info("[AUTH SERVICE] Sembrando usuario de inteligencia MATIS...");
+                User matisUser = new User();
+                matisUser.setFirstName("MATIS");
+                matisUser.setLastName("Intelligence");
+                matisUser.setEmail("matis@laikaclub.com");
+                matisUser.setPasswordHash(passwordEncoder.encode("matis2026"));
+                matisUser.setRole("matis");
+                matisUser.setStatus("active");
+
+                Map<String, Boolean> permissions = new HashMap<>();
+                permissions.put("canViewDashboard", true);
+                permissions.put("canViewMatis", true);
+                permissions.put("canViewEventAnalytics", true);
+                matisUser.setPermissions(permissions);
+
+                userRepository.save(matisUser);
+                logger.info("[AUTH SERVICE] Usuario MATIS sembrado exitosamente: matis@laikaclub.com / matis2026");
+            }
         } catch (Exception e) {
             logger.error("[AUTH SERVICE] Error al verificar o sembrar administrador inicial", e);
         }

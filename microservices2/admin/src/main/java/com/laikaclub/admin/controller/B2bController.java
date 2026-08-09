@@ -36,6 +36,17 @@ public class B2bController {
         return ResponseEntity.ok(b2bService.getOrganizationById(id));
     }
 
+    @PutMapping("/organizations/{id}")
+    public ResponseEntity<Organization> updateOrganization(@PathVariable Long id, @RequestBody OrganizationDTO dto) {
+        return ResponseEntity.ok(b2bService.updateOrganization(id, dto));
+    }
+
+    @DeleteMapping("/organizations/{id}")
+    public ResponseEntity<Void> deleteOrganization(@PathVariable Long id) {
+        b2bService.deleteOrganization(id);
+        return ResponseEntity.noContent().build();
+    }
+
     // --- Contracts ---
     @PostMapping("/contracts")
     public ResponseEntity<Contract> createContract(@RequestBody ContractDTO dto) {
@@ -62,6 +73,17 @@ public class B2bController {
         return ResponseEntity.ok(b2bService.extendContract(id, dto));
     }
 
+    @PutMapping("/contracts/{id}")
+    public ResponseEntity<Contract> updateContract(@PathVariable Long id, @RequestBody ContractDTO dto) {
+        return ResponseEntity.ok(b2bService.updateContract(id, dto));
+    }
+
+    @DeleteMapping("/contracts/{id}")
+    public ResponseEntity<Void> deleteContract(@PathVariable Long id) {
+        b2bService.deleteContract(id);
+        return ResponseEntity.noContent().build();
+    }
+
     // --- Contract Managers ---
     @PostMapping("/managers/assign")
     public ResponseEntity<ContractManager> assignManager(@RequestBody ContractManagerDTO dto) {
@@ -71,6 +93,12 @@ public class B2bController {
     @GetMapping("/contracts/{contractId}/managers")
     public ResponseEntity<List<ContractManager>> getManagersByContract(@PathVariable Long contractId) {
         return ResponseEntity.ok(b2bService.getManagersByContract(contractId));
+    }
+
+    @DeleteMapping("/contracts/{contractId}/managers/{userId}")
+    public ResponseEntity<Void> unassignManager(@PathVariable Long contractId, @PathVariable Long userId) {
+        b2bService.unassignManagerFromContract(contractId, userId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/managers/{userId}/contracts")

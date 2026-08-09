@@ -81,8 +81,6 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async (redirect = true) => {
     if (redirect) {
       setLoggingOut(true)
-      // Simular cierre de sesión premium (2 segundos)
-      await new Promise(resolve => setTimeout(resolve, 2000))
     }
 
     try {

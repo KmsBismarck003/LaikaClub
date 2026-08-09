@@ -167,6 +167,23 @@ export default function FinancialRegressionChart({ mlData, mlLoading, eventsList
         );
     }
 
+    if (mlData?.status === 'insufficient_data') {
+        return (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#dc2626', background: '#fef2f2', border: '1px dashed #fee2e2', borderRadius: '16px' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    <TrendingUp size={18} />
+                    <span>DATOS REALES INSUFICIENTES</span>
+                </div>
+                <p style={{ fontSize: '0.8rem', color: '#475569', margin: '0 0 12px 0', lineHeight: '1.5' }}>
+                    {mlData.message}
+                </p>
+                <button onClick={onRefresh} style={{ display: 'block', margin: '0 auto', padding: '8px 16px', background: '#dc2626', color: '#fff', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}>
+                    Reintentar Análisis
+                </button>
+            </div>
+        );
+    }
+
     if (!mlData || !predictions || predictions.length === 0) {
         return (
             <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
