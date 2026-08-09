@@ -101,6 +101,9 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_tickets
+      - EVENTS_SERVICE_URL=http://events:8002
+      - AUTH_SERVICE_URL=http://auth:8001
+      - WEARABLES_SERVICE_URL=http://laika_wearables:3010
     depends_on:
       laika_db:
         condition: service_healthy
@@ -241,6 +244,40 @@ services:
       - gateway
     stdin_open: true
     tty: true
+
+  # Wearables IoT Service
+  wearables_backend:
+    build:
+      context: ./microservices/wearables_backend
+      dockerfile: Dockerfile
+    container_name: laika_wearables
+    ports:
+      - "3010:3010"
+    environment:
+      - DB_HOST=laika_db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=laika_club3_v2
+      - DB_PORT=3306
+      - PORT=3010
+    depends_on:
+      laika_db:
+        condition: service_healthy
+
+  # MATIS SolidJS Dashboard
+  matis:
+    build:
+      context: ./matis-solid
+      dockerfile: Dockerfile
+    container_name: laika_matis
+    ports:
+      - "3015:3015"
+    volumes:
+      - ./matis-solid/src:/app/src
+    environment:
+      - PORT=3015
+    depends_on:
+      - gateway
 
 networks:
   default:
