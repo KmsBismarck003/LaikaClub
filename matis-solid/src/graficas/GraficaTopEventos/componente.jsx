@@ -1,95 +1,131 @@
-// Importa la directiva lúdica For de SolidJS para mapear arreglos en SVG
+// Importa la directiva For de SolidJS
 import { For } from "solid-js";
-// Importa el formateador de monedas para imprimir la recaudación
+// Importa el formateador de monedas
 import { formatCurrency } from "../../funciones/formatters";
 // Importa el archivo de estilos local
 import "./estilo.css";
 
 export default function Componente(props) {
-  // Define las dimensiones fijas del lienzo de dibujo vectorial
   const width = 500;
   const height = 300;
-  // Define márgenes amplios en el lado izquierdo para evitar el corte de los nombres largos de eventos (left: 160)
-  const padding = { top: 20, right: 90, bottom: 35, left: 160 };
+  const padding = { top: 20, right: 100, bottom: 45, left: 240 };
+
+  const chartWidth = width - padding.left - padding.right;
+
+  const maxVal = () =>
+    props.bars && props.bars.length > 0
+      ? Math.max(...props.bars.map((b) => b.revenue), 1)
+      : 1;
+
+  // 4 posiciones de escala en el eje X
+  const xLevels = () => {
+    const max = maxVal();
+    return [0, 0.33, 0.66, 1].map((frac) => ({
+      label: frac === 0 ? "$0" : formatCurrency(max * frac),
+      x: padding.left + frac * chartWidth,
+    }));
+  };
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} style="width: 100%; height: 100%; display: block;">
-      
-      {/* LÍNEAS DE CUADRÍCULA VERTICALES (Para facilitar la comparación visual en proyectores) */}
-      <line 
-        x1={padding.left + (width - padding.left - padding.right) / 2} 
-        y1={padding.top} 
-        x2={padding.left + (width - padding.left - padding.right) / 2} 
-        y2={height - padding.bottom} 
-        class="gte-grid-line" 
-      />
-      <line 
-        x1={width - padding.right} 
-        y1={padding.top} 
-        x2={width - padding.right} 
-        y2={height - padding.bottom} 
-        class="gte-grid-line" 
-      />
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      style="width: 100%; height: 100%; display: block;"
+      aria-label="Eventos con mayor recaudación por venta de boletos"
+    >
 
-      {/* EJES PRINCIPALES */}
-      {/* Eje de referencia vertical (Y) */}
-      <line 
-        x1={padding.left} 
-        y1={padding.top} 
-        x2={padding.left} 
-        y2={height - padding.bottom} 
-        class="gte-axis" 
-      />
+      {/* CUADRÍCULA VERTICAL */}
+      <For each={xLevels()}>
+        {(level) => (
+          <line
+            x1={level.x}
+            y1={padding.top}
+            x2={level.x}
+            y2={height - padding.bottom}
+            class="gte-grid-line"
+          />
+        )}
+      </For>
 
-      {/* TÍTULO DE EJE VERTICAL (Rotado lateralmente a la izquierda) */}
-      <text
-        transform="rotate(-90)"
-        x={-((height - padding.bottom + padding.top) / 2)}
-        y={15}
-        fill="var(--text-secondary)"
-        style="font-size: 9px; font-weight: 800; text-anchor: middle; text-transform: uppercase; letter-spacing: 0.05em;"
-      >
-        Eventos Principales
-      </text>
+      {/* EJES */}
+      <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} class="gte-axis" />
+      <line x1={padding.left} y1={height - padding.bottom} x2={width - padding.right} y2={height - padding.bottom} class="gte-axis" />
 
-      {/* TÍTULO DE EJE HORIZONTAL (Centrado en el fondo) */}
-      <text
-        x={(width - padding.left - padding.right) / 2 + padding.left}
-        y={height - 6}
-        fill="var(--text-secondary)"
-        style="font-size: 9px; font-weight: 800; text-anchor: middle; text-transform: uppercase; letter-spacing: 0.05em;"
-      >
-        Ingresos Totales Acumulados (MXN)
-      </text>
 
-      {/* BUCLE DE RENDERIZADO DE BARRAS HORIZONTALES */}
+      {/* ESCALA DEL EJE X — con fondo blanco */}
+      <For each={xLevels()}>
+        {(level) => (
+          <g>
+            <rect
+              x={level.x - 25}
+              y={height - padding.bottom + 5}
+              width="50"
+              height="14"
+              fill="#ffffff"
+              opacity="0.9"
+            />
+            <text
+              x={level.x}
+              y={height - padding.bottom + 17}
+              class="gte-scale-label"
+              text-anchor="middle"
+            >
+              {level.label}
+            </text>
+          </g>
+        )}
+      </For>
+
+      {/* BARRAS Y ETIQUETAS */}
       <For each={props.bars}>
         {(bar, index) => (
           <g>
-            {/* Texto descriptivo a la izquierda (Alineado a la derecha, recortado a 22 caracteres si es muy largo) */}
+            {/* Nombre del evento — con fondo blanco para sobrevivir proyector */}
+            <rect
+              x={0}
+              y={bar.y + bar.height / 2 - 10}
+              width={padding.left - 6}
+              height="14"
+              fill="#ffffff"
+              opacity="0.9"
+            />
             <text
-              x={padding.left - 10}
-              y={bar.y + bar.height / 2 + 4}
+              x={padding.left - 8}
+              y={bar.y + bar.height / 2 + 3}
               class="gte-text"
               text-anchor="end"
             >
-              {bar.name.length > 22 ? `${bar.name.substring(0, 20)}...` : bar.name}
+              {bar.name.length > 22 ? `${bar.name.substring(0, 20)}…` : bar.name}
             </text>
 
+            {/* 
+              BARRA HORIZONTAL
+              Para cambiar su color normal y su color cuando es el #1,
+              abre 'estilo.css' y modifica '.gte-bar' y '.gte-bar-highlight'
+            */}
             <rect
               x={bar.x}
               y={bar.y}
               width={bar.width}
               height={bar.height}
               class={index() === 0 ? "gte-bar gte-bar-highlight" : "gte-bar"}
-              onMouseMove={(e) => props.onHover(e, bar.name, bar.revenue, bar.ticketsSold)}
+              onMouseMove={(e) =>
+                props.onHover(e, bar.name, bar.revenue, bar.ticketsSold)
+              }
               onMouseLeave={props.onLeave}
             />
 
-            {/* Etiqueta de valor exacto de ingresos al costado derecho de la barra */}
+            {/* Valor con fondo blanco para evitar que se pierda sobre la cuadrícula */}
+            <rect
+              x={bar.x + bar.width + 4}
+              y={bar.y + bar.height / 2 - 9}
+              width="84"
+              height="14"
+              fill="#ffffff"
+              opacity="0.9"
+            />
             <text
               x={bar.x + bar.width + 8}
-              y={bar.y + bar.height / 2 + 4}
+              y={bar.y + bar.height / 2 + 3}
               class="gte-value"
               text-anchor="start"
             >
@@ -98,17 +134,35 @@ export default function Componente(props) {
           </g>
         )}
       </For>
+      {/* TÍTULO EJE VERTICAL */}
+      <rect
+        transform="rotate(-90)"
+        x={-((height - padding.bottom + padding.top) / 2) - 22}
+        y={4}
+        width="44"
+        height="14"
+        fill="#ffffff"
+        opacity="0.9"
+      />
+      <text
+        transform="rotate(-90)"
+        x={-((height - padding.bottom + padding.top) / 2)}
+        y={15}
+        fill="#0f172a"
+        style="font-size: 10px; font-weight: 800; text-anchor: middle; text-transform: uppercase; letter-spacing: 0.05em;"
+      >
+        Eventos
+      </text>
 
-      {/* ANOTACIÓN DIRECTA DE CONTEXTO */}
-      <g transform={`translate(${width - 240}, ${height - padding.bottom - 40})`}>
-        <rect width="140" height="30" fill="var(--bg-main)" stroke="var(--border-color)" stroke-width="1" rx="4" />
-        <text x="8" y="12" fill="var(--text-primary)" style="font-size: 7.5px; font-weight: 800; text-transform: uppercase;">
-          Líder de Recaudación
-        </text>
-        <text x="8" y="22" fill="var(--text-secondary)" style="font-size: 7px; font-weight: 600;">
-          Supera los objetivos de venta
-        </text>
-      </g>
+      {/* TÍTULO EJE HORIZONTAL */}
+      <text
+        x={padding.left + chartWidth / 2}
+        y={height - 7}
+        fill="#0f172a"
+        style="font-size: 10px; font-weight: 800; text-anchor: middle; text-transform: uppercase; letter-spacing: 0.05em;"
+      >
+        Ingresos Totales (MXN)
+      </text>
     </svg>
   );
 }

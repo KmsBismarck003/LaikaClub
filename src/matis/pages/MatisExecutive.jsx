@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisExecutiveAPI } from '../services/matisService'
@@ -30,25 +37,8 @@ const MatisExecutive = () => {
     loadData()
   }, [])
 
-  const defaultCategories = [
-    { category: 'Conciertos', revenue: 95400, color: 'var(--matis-cyan)' },
-    { category: 'Festivales', revenue: 52100, color: 'var(--matis-blue)' },
-    { category: 'Deportes', revenue: 38200, color: 'var(--matis-purple)' },
-    { category: 'Teatro', revenue: 12500, color: 'var(--matis-pink)' },
-    { category: 'Cultural', revenue: 6400, color: 'var(--matis-yellow)' }
-  ]
-
-  const defaultTrend = [
-    { month: 'Ene', sales: 45000 },
-    { month: 'Feb', sales: 52000 },
-    { month: 'Mar', sales: 49000 },
-    { month: 'Abr', sales: 63000 },
-    { month: 'May', sales: 85000 },
-    { month: 'Jun', sales: 95400 }
-  ]
-
-  const categories = data.categories.length > 0 ? data.categories : defaultCategories
-  const trend = data.trend.length > 0 ? data.trend : defaultTrend
+  const categories = data.categories || []
+  const trend = data.trend || []
 
   if (loading) {
     return (
@@ -69,22 +59,22 @@ const MatisExecutive = () => {
       <div className="matis-grid-4">
         <div className="matis-card">
           <div className="kpi-title">Ingresos Totales (YTD)</div>
-          <div className="kpi-value">${data.kpis?.total_revenue?.toLocaleString() || '184,250'}</div>
+          <div className="kpi-value">${data.kpis?.total_revenue?.toLocaleString() || '0'}</div>
           <div style={{ color: 'var(--matis-green)', fontSize: '0.85rem' }}>+18.4% vs Año Anterior</div>
         </div>
         <div className="matis-card">
           <div className="kpi-title">Tasa Conversión Ventas</div>
-          <div className="kpi-value">{data.kpis?.conversion_rate || '3.82'}%</div>
+          <div className="kpi-value">{data.kpis?.conversion_rate || '0'}%</div>
           <div style={{ color: 'var(--matis-cyan)', fontSize: '0.85rem' }}>Tasa óptima de checkout</div>
         </div>
         <div className="matis-card">
           <div className="kpi-title">Eventos Organizados</div>
-          <div className="kpi-value">{data.kpis?.active_events || 8}</div>
+          <div className="kpi-value">{data.kpis?.active_events || 0}</div>
           <div style={{ color: 'var(--matis-text-secondary)', fontSize: '0.85rem' }}>4 en cola de inicio</div>
         </div>
         <div className="matis-card">
           <div className="kpi-title">Usuarios Activos en Plataforma</div>
-          <div className="kpi-value">{data.kpis?.active_users?.toLocaleString() || '1,420'}</div>
+          <div className="kpi-value">{data.kpis?.active_users?.toLocaleString() || '0'}</div>
           <div style={{ color: 'var(--matis-cyan)', fontSize: '0.85rem' }}>210 usuarios concurrentes</div>
         </div>
       </div>

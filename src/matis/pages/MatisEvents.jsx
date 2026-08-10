@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisEventsAPI } from '../services/matisService'
@@ -30,14 +37,7 @@ const MatisEvents = () => {
     loadData()
   }, [])
 
-  const defaultOccupancy = [
-    { eventName: 'Rock Fest 2026', occupancyRate: 92, ticketsSold: 4600, capacity: 5000 },
-    { eventName: 'Gamer Championship', occupancyRate: 78, ticketsSold: 2340, capacity: 3000 },
-    { eventName: 'Pop Symphony Night', occupancyRate: 64, ticketsSold: 1280, capacity: 2000 },
-    { eventName: 'StandUp Marathon', occupancyRate: 48, ticketsSold: 480, capacity: 1000 }
-  ]
-
-  const occupancy = data.occupancy.length > 0 ? data.occupancy : defaultOccupancy
+  const occupancy = data.occupancy || []
 
   if (loading) {
     return (
@@ -58,17 +58,17 @@ const MatisEvents = () => {
       <div className="matis-grid-4">
         <div className="matis-card">
           <div className="kpi-title">Boletos Emitidos</div>
-          <div className="kpi-value">{data.status?.total_tickets || '8,700'}</div>
+          <div className="kpi-value">{data.status?.total_tickets || '0'}</div>
           <div style={{ color: 'var(--matis-cyan)', fontSize: '0.85rem' }}>General + VIP</div>
         </div>
         <div className="matis-card">
           <div className="kpi-title">Boletos Escaneados / Usados</div>
-          <div className="kpi-value">{data.status?.scanned_tickets || '4,120'}</div>
+          <div className="kpi-value">{data.status?.scanned_tickets || '0'}</div>
           <div style={{ color: 'var(--matis-green)', fontSize: '0.85rem' }}>Asistencia presencial confirmada</div>
         </div>
         <div className="matis-card">
           <div className="kpi-title">Boletos Cancelados</div>
-          <div className="kpi-value">{data.status?.cancelled_tickets || '120'}</div>
+          <div className="kpi-value">{data.status?.cancelled_tickets || '0'}</div>
           <div style={{ color: 'var(--matis-red)', fontSize: '0.85rem' }}>1.3% del aforo total emitido</div>
         </div>
         <div className="matis-card">

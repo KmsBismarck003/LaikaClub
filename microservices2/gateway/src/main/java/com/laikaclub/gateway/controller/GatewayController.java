@@ -60,6 +60,9 @@ public class GatewayController {
     @Value("${services.merchandise}")
     private String merchandiseUrl;
 
+    @Value("${services.analytics_bigdata:http://localhost:8009}")
+    private String analyticsBigdataUrl;
+
     @GetMapping("/")
     public ResponseEntity<Map<String, Object>> root() {
         Map<String, Object> services = new HashMap<>();
@@ -70,6 +73,7 @@ public class GatewayController {
         services.put("admin", adminUrl);
         services.put("achievements", achievementsUrl);
         services.put("analytics", analyticsUrl);
+        services.put("analytics_bigdata", analyticsBigdataUrl);
         services.put("merchandise", merchandiseUrl);
 
         Map<String, Object> response = new HashMap<>();

@@ -30,6 +30,9 @@ public class RouteMapper {
     @Value("${services.merchandise}")
     private String merchandiseUrl;
 
+    @Value("${services.analytics_bigdata:http://localhost:8009}")
+    private String analyticsBigdataUrl;
+
     public static class TargetRoute {
         private final String targetUrl;
         private final boolean cacheable;
@@ -95,6 +98,8 @@ public class RouteMapper {
             targetUrl = adminUrl + path.substring("/api".length());
         } else if (path.startsWith("/api/achievements")) {
             targetUrl = achievementsUrl + path.substring("/api/achievements".length());
+        } else if (path.startsWith("/api/analytics/matis")) {
+            targetUrl = analyticsBigdataUrl + path;
         } else if (path.startsWith("/api/analytics")) {
             targetUrl = analyticsUrl + path;
         }

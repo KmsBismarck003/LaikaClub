@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisProductsAPI } from '../services/matisService'
@@ -28,21 +35,8 @@ const MatisProducts = () => {
     loadData()
   }, [])
 
-  const defaultSales = [
-    { productName: 'Gorra Oficial Laika Club', unitsSold: 320, revenue: 9600 },
-    { productName: 'T-Shirt Concert Black XL', unitsSold: 180, revenue: 5400 },
-    { productName: 'Poster Coleccionista Rock', unitsSold: 95, revenue: 1900 },
-    { productName: 'Vaso Luminoso Recargable', unitsSold: 510, revenue: 1530 }
-  ]
-
-  const defaultAlerts = [
-    { name: 'T-Shirt Concert Black', variant: 'XL', stockLeft: 3, criticalLevel: 'CRITICAL' },
-    { name: 'Vaso Luminoso Recargable', variant: 'Verde', stockLeft: 12, criticalLevel: 'WARNING' },
-    { name: 'Gorra Oficial Laika Club', variant: 'Ajustable', stockLeft: 8, criticalLevel: 'WARNING' }
-  ]
-
-  const sales = data.sales.length > 0 ? data.sales : defaultSales
-  const alerts = data.alerts.length > 0 ? data.alerts : defaultAlerts
+  const sales = data.sales || []
+  const alerts = data.alerts || []
 
   if (loading) {
     return (

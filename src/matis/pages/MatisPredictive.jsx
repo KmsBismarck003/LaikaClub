@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisPredictiveAPI } from '../services/matisService'
@@ -30,23 +37,8 @@ const MatisPredictive = () => {
     loadData()
   }, [])
 
-  const defaultRegression = {
-    models: [
-      { name: 'Regresión Lineal Simple', r2: 0.824, complexity: 'Baja', status: 'Estable' },
-      { name: 'Regresión Polinomial (Grado 2)', r2: 0.887, complexity: 'Media', status: 'Estable' },
-      { name: 'Regresión Ridge (Regularizada L2)', r2: 0.841, complexity: 'Baja', status: 'Estable' },
-      { name: 'Regresión Lasso (Regularizada L1)', r2: 0.838, complexity: 'Baja', status: 'Estable' }
-    ]
-  }
-
-  const defaultForecast = [
-    { eventName: 'Rock Fest 2026', daysToSoldOut: 3, probability: 94, recommendedPrice: 850 },
-    { eventName: 'Gamer Championship', daysToSoldOut: 9, probability: 78, recommendedPrice: 420 },
-    { eventName: 'Pop Symphony Night', daysToSoldOut: 18, probability: 52, recommendedPrice: 650 }
-  ]
-
-  const modelsList = regression.models || defaultRegression.models
-  const forecastList = forecast.length > 0 ? forecast : defaultForecast
+  const modelsList = regression.models || []
+  const forecastList = forecast || []
 
   return (
     <div className="matis-container">

@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisSalesAPI } from '../services/matisService'
@@ -30,23 +37,8 @@ const MatisSales = () => {
     loadData()
   }, [])
 
-  const defaultMethods = [
-    { name: 'Tarjetas Crédito', value: 55, color: 'var(--matis-cyan)' },
-    { name: 'Stripe Pay', value: 25, color: 'var(--matis-blue)' },
-    { name: 'PayPal', value: 15, color: 'var(--matis-purple)' },
-    { name: 'Oxxo / Cash', value: 5, color: 'var(--matis-pink)' }
-  ]
-
-  const defaultRanges = [
-    { range: '$0 - $300', count: 120 },
-    { range: '$300 - $600', count: 240 },
-    { range: '$600 - $1200', count: 480 },
-    { range: '$1200 - $2500', count: 150 },
-    { range: '$2500+', count: 45 }
-  ]
-
-  const methods = data.methods.length > 0 ? data.methods : defaultMethods
-  const ranges = data.ranges.length > 0 ? data.ranges : defaultRanges
+  const methods = data.methods || []
+  const ranges = data.ranges || []
 
   if (loading) {
     return (
@@ -67,22 +59,22 @@ const MatisSales = () => {
       <div className="matis-grid-4">
         <div className="matis-card">
           <div className="kpi-title">Valor Promedio de Ticket</div>
-          <div className="kpi-value">${data.summary?.average_ticket_price?.toFixed(2) || '750.50'}</div>
+          <div className="kpi-value">${data.summary?.average_ticket_price?.toFixed(2) || '0'}</div>
           <div style={{ color: 'var(--matis-cyan)', fontSize: '0.85rem' }}>Optimizado en base a demanda</div>
         </div>
         <div className="matis-card">
           <div className="kpi-title">Tasa de Pago Exitoso</div>
-          <div className="kpi-value">{data.summary?.success_rate || '98.9'}%</div>
+          <div className="kpi-value">{data.summary?.success_rate || '0'}%</div>
           <div style={{ color: 'var(--matis-green)', fontSize: '0.85rem' }}>Gateway estable</div>
         </div>
         <div className="matis-card">
           <div className="kpi-title">Transacciones Procesadas</div>
-          <div className="kpi-value">{data.summary?.total_transactions || '2,450'}</div>
+          <div className="kpi-value">{data.summary?.total_transactions || '0'}</div>
           <div style={{ color: 'var(--matis-text-secondary)', fontSize: '0.85rem' }}>Últimas 24h</div>
         </div>
         <div className="matis-card">
           <div className="kpi-title">Volumen Reembolsos (YTD)</div>
-          <div className="kpi-value">${data.summary?.total_refunds?.toLocaleString() || '1,850'}</div>
+          <div className="kpi-value">${data.summary?.total_refunds?.toLocaleString() || '0'}</div>
           <div style={{ color: 'var(--matis-red)', fontSize: '0.85rem' }}>0.5% del volumen total</div>
         </div>
       </div>

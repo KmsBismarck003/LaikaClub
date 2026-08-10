@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisVenuesAPI } from '../services/matisService'
@@ -22,14 +29,7 @@ const MatisVenues = () => {
     loadData()
   }, [])
 
-  const defaultProspects = [
-    { name: 'Foro Sol México', address: 'CDMX, México', similarity_score: 94.5, classification: 'High', justification: 'Alta capacidad coincidente con patrón de festivales masivos y volumen de taquilla de gran escala.' },
-    { name: 'Estadio BBVA', address: 'Monterrey, México', similarity_score: 88.2, classification: 'High', justification: 'Demanda regional para eventos deportivos y patrocinio B2B premium.' },
-    { name: 'Arena Guadalajara', address: 'Jalisco, México', similarity_score: 72.1, classification: 'Medium', justification: 'Ajuste adecuado para conciertos de pop y eventos corporativos.' },
-    { name: 'Teatro Metropólitan', address: 'CDMX, México', similarity_score: 55.4, classification: 'Low', justification: 'Capacidad limitada; no obstante, excelente conversión para shows de comedia.' }
-  ]
-
-  const dataList = prospects.length > 0 ? prospects : defaultProspects
+  const dataList = prospects || []
 
   return (
     <div className="matis-container">

@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisQualityAPI } from '../services/matisService'
@@ -40,15 +47,8 @@ const MatisQuality = () => {
     }
   }
 
-  const defaultDetails = [
-    { table_name: 'users', rows_evaluated: 120, null_or_empty_cells: 4, duplicate_rows: 0, integrity_score: 96.6 },
-    { table_name: 'events', rows_evaluated: 24, null_or_empty_cells: 0, duplicate_rows: 0, integrity_score: 100.0 },
-    { table_name: 'tickets', rows_evaluated: 1540, null_or_empty_cells: 14, duplicate_rows: 8, integrity_score: 98.2 },
-    { table_name: 'transactions', rows_evaluated: 840, null_or_empty_cells: 2, duplicate_rows: 0, integrity_score: 99.7 }
-  ]
-
-  const details = qualityData.table_details || defaultDetails
-  const overallScore = qualityData.overall_integrity_score || 98.6
+  const details = qualityData.table_details || []
+  const overallScore = qualityData.overall_integrity_score || 0.6
 
   if (loading) {
     return (

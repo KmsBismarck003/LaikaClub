@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisOperationalAPI } from '../services/matisService'
@@ -24,17 +31,7 @@ const MatisOperational = () => {
     return () => clearInterval(interval)
   }, [])
 
-  const defaultTelemetry = {
-    cpu_usage: 24.2,
-    ram_usage: 58.4,
-    db_latency_ms: 12,
-    gateway_status: 'online',
-    db_status: 'healthy',
-    active_workers: 4,
-    cache_hit_rate: 94.2
-  }
-
-  const data = Object.keys(telemetry).length > 0 ? telemetry : defaultTelemetry
+  const data = telemetry || {}
 
   return (
     <div className="matis-container">
@@ -60,14 +57,14 @@ const MatisOperational = () => {
         <div className="matis-card">
           <div className="kpi-title">Latencia Pool DB</div>
           <div className="kpi-value" style={{ color: data.db_latency_ms > 100 ? 'var(--matis-yellow)' : 'var(--matis-cyan)' }}>
-            {data.db_latency_ms || 12} ms
+            {data.db_latency_ms || 0} ms
           </div>
           <div style={{ fontSize: '0.85rem', color: 'var(--matis-text-secondary)' }}>Tiempo de respuesta query</div>
         </div>
 
         <div className="matis-card">
           <div className="kpi-title">Tasa Acierto Cache (Redis)</div>
-          <div className="kpi-value">{data.cache_hit_rate || '94.2'}%</div>
+          <div className="kpi-value">{data.cache_hit_rate || '0'}%</div>
           <div style={{ fontSize: '0.85rem', color: 'var(--matis-green)' }}>Hit óptimo</div>
         </div>
       </div>

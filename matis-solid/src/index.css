@@ -1,17 +1,17 @@
 :root {
   --bw-white: #ffffff;
-  --bw-black: #0f172a; /* Slate 900 instead of harsh black */
-  --bw-border: #cbd5e1; /* Slate 300 for soft lines */
-  --bw-hover: #f8fafc; /* Slate 50 for clean hover */
+  --bw-black: #0f172a; /* Slate 900 */
+  --bw-border: #94a3b8; /* Slate 400 — más oscuro para mejor contraste */
+  --bw-hover: #f1f5f9; /* Slate 100 */
   --bg-main: #f8fafc;
   --bg-card: #ffffff;
-  --border-color: #e2e8f0; /* Slate 200 */
+  --border-color: #cbd5e1; /* Slate 300 — un nivel más oscuro para proyectores */
   --text-primary: #0f172a;
-  --text-secondary: #64748b; /* Slate 500 */
-  --accent-color: #3b82f6; /* Modern Blue */
-  --accent-hover: #1d4ed8;
-  --color-preattentive: #f97316; /* Preattentive orange contrast */
-  --color-neutral: #cbd5e1; /* Soft gray for non-highlighted items */
+  --text-secondary: #475569; /* Slate 600 — más oscuro que Slate 500 */
+  --accent-color: #1d4ed8; /* Blue 700 — más oscuro y contrastante */
+  --accent-hover: #1e3a8a; /* Blue 900 */
+  --color-preattentive: #c2410c; /* Orange 700 — más oscuro, mejor contraste */
+  --color-neutral: #94a3b8; /* Slate 400 */
   --bw-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }
 

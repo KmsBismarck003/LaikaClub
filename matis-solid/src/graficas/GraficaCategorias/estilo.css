@@ -1,54 +1,80 @@
-/* =========================================================================
-/* ESTILOS PARA EL GRÁFICO DE CATEGORÍAS (BARRAS VERTICALES)
-/* ========================================================================= */
+/* =================================================================
+   ESTILOS: GRÁFICA CATEGORÍAS (BARRAS VERTICALES)
+   ================================================================= */
 
-/* Estilo general para las barras ordinarias */
+/* 
+================================================================
+ESTILOS DE LAS BARRAS (CATEGORÍAS)
+================================================================
+Aquí puedes modificar el color de las barras de la gráfica.
+*/
+
+/* Barras estándar */
 .gc-bar {
-  fill: #94a3b8; /* Gris pizarra (Slate 400) para asegurar visibilidad en proyectores */
-  stroke: #94a3b8;
-  stroke-width: 1;
-  transition: fill 0.2s ease, stroke 0.2s ease; /* Transición suave al hacer hover */
+  /* CAMBIAR COLOR DE LAS BARRAS NORMALES: Modifica el valor de 'fill' */
+  fill: #64748b;
+  transition: opacity 0.2s ease, fill 0.2s ease;
+  stroke: #ffffff;
+  stroke-width: 1px;
+  cursor: crosshair;
 }
 
-/* Estilo destacado para la primera barra (Líder / Atributo Preatentivo) */
+/* Patrón a rayas blanco y negro para barras normales (Accesibilidad) */
+.gc-bar-pattern {
+  fill: url(#diagonal-stripe-normal);
+}
+
+/* Barra líder */
 .gc-bar-highlight {
-  fill: var(--color-preattentive); /* Naranja vibrante para capturar la atención en <5 seg */
-  stroke: var(--color-preattentive);
+  /* CAMBIAR COLOR DE LA BARRA DESTACADA (La más alta): Modifica el valor de 'fill' */
+  fill: #1d4ed8;
+  stroke: #ffffff;
+  stroke-width: 2px;
 }
 
-/* Efecto al pasar el cursor sobre cualquier barra */
+/* Hover */
 .gc-bar:hover {
-  fill: var(--accent-color); /* Cambia a azul en hover */
-  stroke: var(--accent-color);
-  cursor: pointer;
+  fill: #0f172a;
+  opacity: 0.9;
+  cursor: crosshair;
 }
 
-/* Estilo de los ejes del gráfico */
+/* Ejes */
 .gc-axis {
-  stroke: var(--border-color);
+  stroke: #0f172a;
+  stroke-width: 2.5;
+}
+
+/* Cuadrícula */
+.gc-grid-line {
+  stroke: #94a3b8;
   stroke-width: 1.5;
+  stroke-dasharray: 6, 4;
 }
 
-/* Estilo para las marcas de graduación de los ejes */
-.gc-tick {
-  stroke: var(--border-color);
-  stroke-width: 1;
-}
-
-/* Estilo de los textos descriptivos de las categorías del eje X */
+/* Etiquetas de categoría y escala — negro, 12px */
 .gc-label {
-  fill: var(--text-primary);
+  fill: #0f172a;
   font-family: inherit;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
-/* Estilo de los valores flotantes impresos directamente sobre cada barra */
+/* Valores directos sobre cada barra — negro, 12px */
 .gc-value-label {
-  fill: var(--text-secondary);
+  fill: #0f172a;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+/* Porcentaje secundario — negro pero más pequeño */
+.gc-pct-label {
+  fill: #334155;
   font-family: inherit;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 700;
   text-anchor: middle;
 }

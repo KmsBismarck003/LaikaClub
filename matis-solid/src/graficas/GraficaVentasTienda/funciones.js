@@ -8,73 +8,39 @@ export function prepareProductData(data, sortBy) {
     return valB - valA;
   });
   
-  if (sorted.length <= 4) {
-    return sorted.map(item => ({
-      name: item.name || "Producto",
-      value: sortBy === "revenue" ? (item.total_revenue || 0) : (item.units_sold || 0),
-      price: item.price || 0,
-      units_sold: item.units_sold || 0,
-      total_revenue: item.total_revenue || 0
-    }));
-  }
-  
-  const top3 = sorted.slice(0, 3).map(item => ({
+  // Take top 10 items instead of 3 + Others
+  return sorted.slice(0, 10).map(item => ({
     name: item.name || "Producto",
     value: sortBy === "revenue" ? (item.total_revenue || 0) : (item.units_sold || 0),
     price: item.price || 0,
     units_sold: item.units_sold || 0,
     total_revenue: item.total_revenue || 0
   }));
-  
-  const others = sorted.slice(3);
-  const othersRevenue = others.reduce((acc, item) => acc + (item.total_revenue || 0), 0);
-  const othersUnits = others.reduce((acc, item) => acc + (item.units_sold || 0), 0);
-  
-  const othersItem = {
-    name: "Otros artículos",
-    value: sortBy === "revenue" ? othersRevenue : othersUnits,
-    price: 0,
-    units_sold: othersUnits,
-    total_revenue: othersRevenue
-  };
-  
-  return [...top3, othersItem];
 }
 
-export function calculatePieSlices(preparedData, cx, cy, radius) {
+export function calculateBars(preparedData, width, height, padding) {
   if (preparedData.length === 0) return [];
   
-  const total = preparedData.reduce((acc, d) => acc + d.value, 0);
-  if (total === 0) return [];
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
   
-  let currentAngle = -Math.PI / 2; // Start at 12 o'clock
-  const colors = ["#3b82f6", "#f97316", "#10b981", "#94a3b8"]; // Modern distinct colors
+  const maxVal = Math.max(...preparedData.map(d => d.value), 1);
+  const barHeight = Math.min(24, (chartHeight / preparedData.length) * 0.7);
   
   return preparedData.map((d, index) => {
-    const percentage = d.value / total;
-    const angleDelta = percentage * 2 * Math.PI;
-    const startAngle = currentAngle;
-    const endAngle = currentAngle + angleDelta;
-    currentAngle = endAngle;
-    
-    // Coordinates
-    const x1 = cx + radius * Math.cos(startAngle);
-    const y1 = cy + radius * Math.sin(startAngle);
-    const x2 = cx + radius * Math.cos(endAngle);
-    const y2 = cy + radius * Math.sin(endAngle);
-    
-    // Large arc flag
-    const largeArcFlag = angleDelta > Math.PI ? 1 : 0;
-    
-    // SVG Path
-    const pathD = `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+    const y = padding.top + index * (chartHeight / preparedData.length) + (chartHeight / preparedData.length - barHeight) / 2;
+    const barWidth = (d.value / maxVal) * chartWidth;
     
     return {
       name: d.name,
       value: d.value,
-      percentage,
-      pathD,
-      color: colors[index % colors.length]
+      x: padding.left,
+      y,
+      width: barWidth,
+      height: barHeight,
+      revenue: d.total_revenue,
+      units: d.units_sold,
+      price: d.price
     };
   });
 }

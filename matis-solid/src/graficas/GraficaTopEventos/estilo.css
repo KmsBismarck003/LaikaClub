@@ -1,54 +1,72 @@
-/* =========================================================================
-/* ESTILOS PARA EL GRÁFICO DE TOP EVENTOS (BARRAS HORIZONTALES)
-/* ========================================================================= */
+/* =================================================================
+   ESTILOS: GRÁFICA TOP EVENTOS (BARRAS HORIZONTALES)
+   ================================================================= */
 
-/* Estilo para las barras horizontales estándar */
+/* 
+================================================================
+ESTILOS DE LAS BARRAS (TOP EVENTOS)
+================================================================
+Aquí puedes modificar el color de las barras horizontales de la gráfica.
+*/
+
+/* Barras estándar (Los demás eventos) */
 .gte-bar {
-  fill: #94a3b8; /* Gris pizarra (Slate 400) de alto contraste en proyectores e impresiones */
-  stroke: #94a3b8;
-  stroke-width: 1;
-  transition: fill 0.2s ease, stroke 0.2s ease;
+  /* CAMBIAR COLOR DE LAS BARRAS NORMALES: */
+  fill: #475569;
+  stroke: #1e293b;
+  stroke-width: 1px;
+  cursor: crosshair;
 }
 
-/* Estilo para la barra destacada en primer lugar (Preatentivo) */
+/* Barra del evento líder (El número 1 en ventas) */
 .gte-bar-highlight {
-  fill: var(--color-preattentive); /* Naranja de alto contraste y rápida identificación */
-  stroke: var(--color-preattentive);
+  /* CAMBIAR COLOR DE LA BARRA DESTACADA: */
+  fill: #1d4ed8;
+  stroke: #1e3a8a;
+  stroke-width: 1px;
 }
 
-/* Efecto hover sobre las barras */
+/* Hover (Color al pasar el cursor) */
 .gte-bar:hover {
-  fill: var(--accent-color);
-  stroke: var(--accent-color);
-  cursor: pointer;
+  fill: #0f172a;
+  stroke: #0f172a;
+  cursor: crosshair;
 }
 
-/* Estilo para el eje vertical */
+/* Ejes */
 .gte-axis {
-  stroke: var(--border-color);
-  stroke-width: 1.5;
+  stroke: #0f172a;
+  stroke-width: 2.5;
 }
 
-/* Estilo para las marcas de cuadrícula de fondo */
+/* Cuadrícula vertical */
 .gte-grid-line {
-  stroke: var(--border-color);
-  stroke-width: 1;
-  stroke-dasharray: 4,4;
+  stroke: #94a3b8;
+  stroke-width: 1.5;
+  stroke-dasharray: 6, 4;
 }
 
-/* Estilo del texto que contiene el nombre del evento a la izquierda */
+/* Nombre del evento a la izquierda */
 .gte-text {
-  fill: var(--text-primary);
+  fill: #0f172a;
   font-family: inherit;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
-/* Estilo del valor numérico a la derecha de cada barra */
+/* Valor numérico a la derecha de la barra */
 .gte-value {
-  fill: var(--text-secondary);
+  fill: #0f172a;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* Etiquetas de escala del eje X */
+.gte-scale-label {
+  fill: #0f172a;
+  font-family: inherit;
+  font-size: 11px;
   font-weight: 800;
 }

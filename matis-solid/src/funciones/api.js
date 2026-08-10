@@ -55,3 +55,12 @@ export async function fetchEventComparison(eventA, eventB, dateFrom, dateTo) {
   return await fetchJson(query);
 }
 
+export async function fetchCategoryPerformanceDetails(category) {
+  const data = await fetchJson(`/executive/category-performance/details?category=${encodeURIComponent(category)}`);
+  return data.events || [];
+}
+
+export async function fetchSalesTrendDetails(month) {
+  const data = await fetchJson(`/executive/sales-trend/details?month=${encodeURIComponent(month)}`);
+  return data.events || [];
+}

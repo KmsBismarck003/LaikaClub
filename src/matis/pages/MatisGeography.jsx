@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisGeographyAPI } from '../services/matisService'
@@ -23,15 +30,7 @@ const MatisGeography = () => {
     loadData()
   }, [])
 
-  const defaultStates = [
-    { state: 'CDMX', sales: 94000, percentage: 51, color: 'var(--matis-cyan)' },
-    { state: 'Nuevo León', sales: 38200, percentage: 21, color: 'var(--matis-blue)' },
-    { state: 'Jalisco', sales: 31200, percentage: 17, color: 'var(--matis-purple)' },
-    { state: 'Puebla', sales: 12800, percentage: 7, color: 'var(--matis-pink)' },
-    { state: 'Querétaro', sales: 8050, percentage: 4, color: 'var(--matis-yellow)' }
-  ]
-
-  const statesData = data.length > 0 ? data : defaultStates
+  const statesData = data || []
 
   if (loading) {
     return (

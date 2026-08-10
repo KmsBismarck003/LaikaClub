@@ -21,4 +21,5 @@ services:
   admin: ${ADMIN_SERVICE_URL:http://localhost:8005}
   achievements: ${ACHIEVEMENTS_SERVICE_URL:http://localhost:8006}
   analytics: ${ANALYTICS_SERVICE_URL:http://localhost:8007}
+  analytics_bigdata: ${ANALYTICS_BIGDATA_SERVICE_URL:http://localhost:8009}
   merchandise: ${MERCHANDISE_SERVICE_URL:http://localhost:8008}

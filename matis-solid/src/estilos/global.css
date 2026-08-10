@@ -222,15 +222,18 @@
 
 .chart-tooltip {
   position: absolute;
-  background-color: var(--bw-black);
-  color: var(--bw-white);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
+  /* Fondo blanco + borde negro = contraste 21:1, visible en cualquier proyector */
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid #000000;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
   text-transform: uppercase;
   font-weight: 700;
   pointer-events: none;
-  z-index: 10;
+  z-index: 100;
+  box-shadow: 3px 3px 0 #000000; /* Sombra sólida visible en proyector */
 }
 
 .table-container {

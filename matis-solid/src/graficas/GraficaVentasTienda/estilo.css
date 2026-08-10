@@ -1,10 +1,72 @@
-.gvt-wedge {
-  stroke: var(--bw-white);
-  stroke-width: 2;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+/* =================================================================
+   ESTILOS: GRÁFICA VENTAS TIENDA — LAIKASHOP (BARRAS HORIZONTALES)
+   ================================================================= */
+
+/* 
+================================================================
+ESTILOS DE LAS BARRAS (VENTAS TIENDA)
+================================================================
+Aquí puedes modificar el color de las barras horizontales de la gráfica.
+*/
+
+/* Barras estándar (Los demás artículos) */
+.gvt-bar {
+  /* CAMBIAR COLOR DE LAS BARRAS NORMALES: */
+  fill: #475569;
+  stroke: #1e293b;
+  stroke-width: 1px;
+  cursor: crosshair;
 }
 
-.gvt-wedge:hover {
-  opacity: 0.9;
-  cursor: pointer;
+/* Barra del artículo líder (El más vendido) */
+.gvt-bar-highlight {
+  /* CAMBIAR COLOR DE LA BARRA DESTACADA: */
+  fill: #1d4ed8;
+  stroke: #1e3a8a;
+  stroke-width: 1px;
+}
+
+/* Hover (Color al pasar el cursor) */
+.gvt-bar:hover {
+  fill: #0f172a;
+  stroke: #0f172a;
+  cursor: crosshair;
+}
+
+/* Ejes */
+.gvt-axis {
+  stroke: #0f172a;
+  stroke-width: 2.5;
+}
+
+/* Cuadrícula */
+.gvt-grid-line {
+  stroke: #94a3b8;
+  stroke-width: 1.5;
+  stroke-dasharray: 6, 4;
+}
+
+/* Nombre del artículo */
+.gvt-label {
+  fill: #0f172a;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Valor numérico */
+.gvt-value {
+  fill: #0f172a;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* Escala eje X */
+.gvt-scale-label {
+  fill: #0f172a;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
 }

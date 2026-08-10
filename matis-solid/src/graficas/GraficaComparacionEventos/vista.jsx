@@ -9,6 +9,12 @@ import { prepareComparisonData, calculateLinePaths } from "./funciones";
 // Importación del componente de dibujo vectorial SVG
 import Componente from "./componente";
 
+// MODO DE EMERGENCIA (PLANTILLAS ALTERNAS)
+// Cambia "default" por: "barras", "linea", "dona", "pastel", "dispersion", "histograma", "boxplot", "mapacalor", "area"
+const TIPO_GRAFICA = "default";
+import GraficaEmergencia from "../PlantillasAlternas/MotorGraficoEmergencia";
+import { BotonExportarPDF } from "../../matispdf";
+
 export default function Vista() {
   // Señales reactivas para almacenar la clave ID del evento A y el evento B
   const [eventA, setEventA] = createSignal(1);
@@ -46,15 +52,16 @@ export default function Vista() {
 
   // Señal reactiva para el tooltip flotante interactivo
   const [tooltip, setTooltip] = createSignal({ show: false, x: 0, y: 0, name: "", value: "" });
+  let containerRef;
 
-  const handleMouseMove = (e, eventName, date, val) => {
-    const container = e.currentTarget.closest('.chart-body');
-    if (!container) return;
-    const rect = container.getBoundingClientRect();
+  const handleHover = (eventName, date, val, clientX, clientY) => {
+    if (!containerRef) return;
+    const rect = containerRef.getBoundingClientRect();
+    
     setTooltip({
       show: true,
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+      x: clientX - rect.left,
+      y: clientY - rect.top,
       name: `${eventName} (${date})`,
       value: `Acumulado: ${formatCurrency(val)}`
     });
@@ -73,7 +80,7 @@ export default function Vista() {
     // Prepara e integra el histórico diario acumulado de ambos espectáculos
     const prepared = prepareComparisonData(compareData().event_a, compareData().event_b);
     // Retorna las curvas calculadas ensanchando el margen derecho (right: 120) para las etiquetas integradas
-    return calculateLinePaths(prepared, 500, 300, { top: 30, right: 120, bottom: 45, left: 80 });
+    return calculateLinePaths(prepared, 500, 300, { top: 40, right: 130, bottom: 55, left: 90 });
   });
 
   // Memo reactivo que unifica los dos flujos de venta diaria para renderizar la tabla comparativa al pie
@@ -115,13 +122,13 @@ export default function Vista() {
       {/* Cabecera del gráfico con títulos explícitos y autodescriptivos */}
       <div class="chart-header">
         <h3 class="chart-title">Comparación de Venta Acumulada de Boletos en Pesos entre Dos Eventos Seleccionados</h3>
-        <p class="chart-subtitle">Permite ver día a día la recaudación acumulada generada por cada espectáculo</p>
+        <p class="chart-subtitle">Permite ver semana a semana la recaudación acumulada generada por cada espectáculo</p>
       </div>
 
       {/* Selectores de filtros interactivos de eventos y rango de fechas */}
       <div class="chart-controls">
         <div class="filter-group" style="min-width: 200px;">
-          <label class="filter-label">Evento A (Línea Continua Azul)</label>
+          <label class="filter-label">Evento A — Línea Continua, Puntos ●</label>
           <select 
             class="filter-select" 
             value={eventA()} 
@@ -135,7 +142,7 @@ export default function Vista() {
         </div>
 
         <div class="filter-group" style="min-width: 200px;">
-          <label class="filter-label">Evento B (Línea Punteada Naranja)</label>
+          <label class="filter-label">Evento B — Línea Guionada, Puntos ◆</label>
           <select 
             class="filter-select" 
             value={eventB()} 
@@ -169,76 +176,84 @@ export default function Vista() {
             onChange={(e) => setDateTo(e.target.value)}
           />
         </div>
+        <div style="margin-left: auto;">
+          <BotonExportarPDF 
+            title="Comparación de Venta Acumulada de Boletos" 
+            subtitle="Permite ver semana a semana la recaudación acumulada generada por cada espectáculo" 
+            chartSelector=".chart-body" 
+            tableSelector=".bw-table" 
+            filename={`Reporte_Comparacion.pdf`} 
+          />
+        </div>
       </div>
 
       {/* Contenedor del gráfico vectorial */}
-      <div class="chart-body" style="height: 480px; display: flex; align-items: center; justify-content: center; position: relative;">
+      <div class="chart-body" ref={containerRef} style="height: 480px; display: flex; align-items: center; justify-content: center; position: relative;">
         {compareData.loading ? (
           // Mensaje durante el cálculo de cruce de datos
           <div style="font-weight: 700; text-transform: uppercase; font-size: 0.9rem;">
             Cruzando datos de venta...
           </div>
         ) : (
-          // Renderiza el componente pasándole las curvas y nombres reales
-          <>
+          <Show when={TIPO_GRAFICA === "default"} fallback={
+            <GraficaEmergencia tipo={TIPO_GRAFICA} rawData={compareData()} />
+          }>
             <Componente 
               layout={layout()} 
               eventNameA={compareData()?.event_a?.name} 
               eventNameB={compareData()?.event_b?.name} 
-              onHover={handleMouseMove} 
+              onHover={handleHover} 
               onLeave={handleMouseLeave} 
             />
             <Show when={tooltip().show}>
-              <div 
-                class="chart-tooltip" 
+              <div
+                class="chart-tooltip"
                 style={{
                   position: 'absolute',
                   left: `${tooltip().x}px`,
                   top: `${tooltip().y}px`,
-                  transform: 'translate(-50%, -100%) translateY(-10px)',
-                  'pointer-events': 'none',
-                  'background-color': 'var(--bw-black)',
-                  color: 'var(--bw-white)',
-                  padding: '0.6rem 1rem',
-                  'border-radius': '6px',
-                  'font-size': '0.75rem',
-                  'text-transform': 'uppercase',
-                  'font-weight': '700',
-                  'z-index': 100,
-                  'box-shadow': '0 4px 12px rgba(0,0,0,0.2)',
-                  border: '1px solid var(--border-color)',
-                  'white-space': 'nowrap',
-                  'line-height': '1.4'
+                  transform: 'translate(-50%, -100%) translateY(-12px)',
+                  whiteSpace: 'nowrap',
+                  lineHeight: '1.5'
                 }}
               >
-                <div style="color: var(--text-secondary); font-size: 0.7rem;">{tooltip().name}</div>
-                <div style="color: var(--color-preattentive, #ff6b00); font-size: 0.85rem; font-weight: 800; margin-top: 2px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #000000; text-transform: uppercase; letter-spacing: 0.04em;">
+                  {tooltip().name}
+                </div>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #000000; margin-top: 3px;">
                   {tooltip().value}
                 </div>
               </div>
             </Show>
-          </>
+          </Show>
         )}
       </div>
 
       {/* Leyenda aclaratoria que replica las convenciones visuales (colores e interlineados) */}
+      {/* Leyenda con doble codificación: forma + color + tipo de línea */}
       <div class="chart-legend" style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; margin-bottom: 1.5rem;">
         <div class="legend-item">
-          {/* Marcador azul continuo */}
-          <div class="legend-marker solid" style="background-color: var(--accent-color); border-color: var(--accent-color);" />
-          <span>{compareData()?.event_a?.name || "Evento A"}</span>
+          {/* Línea continua azul + círculo */}
+          <svg width="32" height="12" style="flex-shrink:0;">
+            <line x1="0" y1="6" x2="32" y2="6" stroke="#1d4ed8" stroke-width="3" />
+            <circle cx="16" cy="6" r="5" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.5" />
+          </svg>
+          <span style="color:#0f172a; font-weight:700;">● {compareData()?.event_a?.name || "Evento A"} (línea continua)</span>
         </div>
         <div class="legend-item">
-          {/* Marcador naranja discontinuo */}
-          <div class="legend-marker dashed" style="border-color: var(--color-preattentive);" />
-          <span>{compareData()?.event_b?.name || "Evento B"}</span>
+          {/* Línea guionada naranja + diamante */}
+          <svg width="32" height="12" style="flex-shrink:0;">
+            <line x1="0" y1="6" x2="32" y2="6" stroke="#c2410c" stroke-width="3" stroke-dasharray="7,4" />
+            <rect x="11" y="2" width="10" height="10" transform="rotate(45,16,7)" fill="#ffffff" stroke="#c2410c" stroke-width="2.5" />
+          </svg>
+          <span style="color:#0f172a; font-weight:700;">◆ {compareData()?.event_b?.name || "Evento B"} (línea guionada)</span>
         </div>
       </div>
 
       {/* Tabla detallada del comportamiento diario de recaudación */}
       <div class="table-container" style="border-top: 2px solid var(--border-color); padding-top: 1rem;">
         <h4 style="margin-bottom: 0.75rem; text-transform: uppercase; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.05em; color: var(--text-primary);">
-          Detalle Diario de Recaudación Comparativa
+          Detalle Semanal de Recaudación Comparativa
         </h4>
         <table class="bw-table">
           <thead>

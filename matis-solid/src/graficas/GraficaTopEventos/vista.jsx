@@ -8,6 +8,12 @@ import { filterAndLimitEvents, calculateHorizontalBarLayout } from "./funciones"
 // Importación del componente de visualización SVG del gráfico
 import Componente from "./componente";
 
+// MODO DE EMERGENCIA (PLANTILLAS ALTERNAS)
+// Cambia "default" por: "barras", "linea", "dona", "pastel", "dispersion", "histograma", "boxplot", "mapacalor", "area"
+const TIPO_GRAFICA = "default";
+import GraficaEmergencia from "../PlantillasAlternas/MotorGraficoEmergencia";
+import { BotonExportarPDF } from "../../matispdf";
+
 export default function Vista() {
   // Señal reactiva para limitar la cantidad de barras visibles (Top 5 o Top 10)
   const [limit, setLimit] = createSignal(5);
@@ -45,8 +51,8 @@ export default function Vista() {
 
   // Memo reactivo que calcula las coordenadas exactas de las barras horizontales para el SVG de 500x300
   const bars = createMemo(() => {
-    // Retorna la disposición con márgenes adaptados a nombres largos de eventos a la izquierda (left: 160)
-    return calculateHorizontalBarLayout(filteredData(), 500, 300, { top: 20, right: 90, bottom: 35, left: 160 });
+    // Retorna la disposición con márgenes adaptados a nombres largos de eventos a la izquierda (left: 240)
+    return calculateHorizontalBarLayout(filteredData(), 500, 300, { top: 20, right: 100, bottom: 45, left: 240 });
   });
 
   // Memo reactivo que extrae la lista única de categorías disponibles para alimentar el filtro desplegable
@@ -94,6 +100,15 @@ export default function Vista() {
             ))}
           </select>
         </div>
+        <div style="margin-left: auto;">
+          <BotonExportarPDF 
+            title="Eventos con Mayor Recaudación de Dinero por Venta de Boletos" 
+            subtitle="Muestra los eventos principales que han generado mayores ingresos totales acumulados en pesos (MXN)" 
+            chartSelector=".chart-body" 
+            tableSelector=".bw-table" 
+            filename={`Reporte_TopEventos_${category()}.pdf`} 
+          />
+        </div>
       </div>
 
       {/* Cuerpo principal del gráfico */}
@@ -104,43 +119,35 @@ export default function Vista() {
             Calculando top de ventas...
           </div>
         ) : (
-          // Renderiza el componente visual SVG pasándole los datos calculados de las barras
-          <>
+          <Show when={TIPO_GRAFICA === "default"} fallback={
+            <GraficaEmergencia tipo={TIPO_GRAFICA} rawData={filteredData()} />
+          }>
             <Componente 
               bars={bars()} 
               onHover={handleMouseMove} 
               onLeave={handleMouseLeave} 
             />
             <Show when={tooltip().show}>
-              <div 
-                class="chart-tooltip" 
+              <div
+                class="chart-tooltip"
                 style={{
                   position: 'absolute',
                   left: `${tooltip().x}px`,
                   top: `${tooltip().y}px`,
-                  transform: 'translate(-50%, -100%) translateY(-10px)',
-                  'pointer-events': 'none',
-                  'background-color': 'var(--bw-black)',
-                  color: 'var(--bw-white)',
-                  padding: '0.6rem 1rem',
-                  'border-radius': '6px',
-                  'font-size': '0.75rem',
-                  'text-transform': 'uppercase',
-                  'font-weight': '700',
-                  'z-index': 100,
-                  'box-shadow': '0 4px 12px rgba(0,0,0,0.2)',
-                  border: '1px solid var(--border-color)',
-                  'white-space': 'nowrap',
-                  'line-height': '1.4'
+                  transform: 'translate(-50%, -100%) translateY(-12px)',
+                  whiteSpace: 'nowrap',
+                  lineHeight: '1.5'
                 }}
               >
-                <div style="color: var(--text-secondary); font-size: 0.7rem;">{tooltip().name}</div>
-                <div style="color: var(--color-preattentive, #ff6b00); font-size: 0.85rem; font-weight: 800; margin-top: 2px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #000000; text-transform: uppercase; letter-spacing: 0.04em;">
+                  {tooltip().name}
+                </div>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #000000; margin-top: 3px;">
                   {tooltip().value}
                 </div>
               </div>
             </Show>
-          </>
+          </Show>
         )}
       </div>
 

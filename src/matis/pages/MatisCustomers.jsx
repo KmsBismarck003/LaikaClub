@@ -1,3 +1,10 @@
+/**
+ * Módulo MATIS - Analytics Platform
+ * Esta vista interactúa con la API para extraer datos reales del negocio.
+ * SE HA ELIMINADO EL USO DE MOCKS (DATOS FALSOS) PARA ASEGURAR INTEGRIDAD ANALÍTICA.
+ * Si la API no retorna datos, las gráficas se renderizarán vacías,
+ * respetando el principio fundamental de no mostrar información falsa.
+ */
 import React, { useEffect, useState } from 'react'
 import MatisHeader from '../components/MatisHeader'
 import { matisCustomersAPI } from '../services/matisService'
@@ -28,21 +35,8 @@ const MatisCustomers = () => {
     loadData()
   }, [])
 
-  const defaultSegments = [
-    { segmentName: 'VIP / Corporativos', userCount: 180, totalSpend: 154000, description: 'Clientes corporativos con alta tasa de compra y boletos Platino.' },
-    { segmentName: 'Recurrentes', userCount: 540, totalSpend: 98000, description: 'Usuarios que asisten a más de 3 eventos por semestre.' },
-    { segmentName: 'Ocasionales', userCount: 1200, totalSpend: 42000, description: 'Asistentes que solo compran boletos durante preventas o descuentos.' },
-    { segmentName: 'Nuevos Registros', userCount: 420, totalSpend: 8200, description: 'Registrados en el último mes con compras iniciales en proceso.' }
-  ]
-
-  const defaultChurn = [
-    { email: 'user.inactive1@laikaclub.com', daysInactive: 95, score: 'HIGH RISK', actionRecommended: 'Enviar cupón de descuento y alerta push reactivación.' },
-    { email: 'carlos.mora@gmail.com', daysInactive: 62, score: 'MEDIUM RISK', actionRecommended: 'Recomendar eventos de categoría Rock/Conciertos.' },
-    { email: 'sofia.garcia@outlook.com', daysInactive: 48, score: 'MEDIUM RISK', actionRecommended: 'Notificar sobre preventa de boletos preferentes.' }
-  ]
-
-  const segments = data.segments.length > 0 ? data.segments : defaultSegments
-  const churn = data.churn.length > 0 ? data.churn : defaultChurn
+  const segments = data.segments || []
+  const churn = data.churn || []
 
   if (loading) {
     return (

@@ -1,6 +1,6 @@
 import { createSignal, createResource, createMemo, For, Show } from "solid-js";
 // Importación de las funciones para llamadas de API de datos de categorías
-import { fetchCategoryPerformance } from "../../funciones/api";
+import { fetchCategoryPerformance, fetchCategoryPerformanceDetails } from "../../funciones/api";
 // Importación de utilidades para dar formato legible de moneda y enteros
 import { formatCurrency, formatInteger } from "../../funciones/formatters";
 // Importación de preparadores lógicos y utilidades matemáticas para coordenadas
@@ -8,12 +8,30 @@ import { prepareCategoryData, calculateBarLayout } from "./funciones";
 // Importación del componente visual SVG
 import Componente from "./componente";
 
+// MODO DE EMERGENCIA (PLANTILLAS ALTERNAS)
+// Cambia "default" por: "barras", "linea", "dona", "pastel", "dispersion", "histograma", "boxplot", "mapacalor", "area"
+const TIPO_GRAFICA = "default";
+import GraficaEmergencia from "../PlantillasAlternas/MotorGraficoEmergencia";
+import { BotonExportarPDF } from "../../matispdf";
+
 export default function Vista() {
   // Señal reactiva para gestionar la métrica actual seleccionada: "revenue" (Ingresos) o "tickets" (Cantidad de boletos)
   const [metric, setMetric] = createSignal("revenue");
   
   // Recurso reactivo para obtener los datos de la base de datos de rendimiento de categorías
   const [data] = createResource(fetchCategoryPerformance);
+  
+  // ============================================================================
+  // LÓGICA DE DRILL-DOWN (INTERACTIVIDAD AL CLIC)
+  // ============================================================================
+  // selectedCategory guarda el nombre de la categoría en la que el usuario hizo clic.
+  // Si es null, significa que estamos en la vista general (Resumen).
+  const [selectedCategory, setSelectedCategory] = createSignal(null);
+  
+  // Recurso reactivo que se activa SOLO cuando selectedCategory tiene un valor.
+  // Llama a la API fetchCategoryPerformanceDetails para traer los eventos exactos.
+  const [detailsData] = createResource(selectedCategory, fetchCategoryPerformanceDetails);
+  // ============================================================================
   
   // Señal reactiva para el tooltip flotante interactivo
   const [tooltip, setTooltip] = createSignal({ show: false, x: 0, y: 0, name: "", value: "" });
@@ -46,7 +64,7 @@ export default function Vista() {
   // Memo reactivo que calcula el ancho, alto y coordenadas (X, Y) de cada barra en el SVG de 500x300
   const bars = createMemo(() => {
     // Retorna las barras con márgenes definidos para dar espacio a títulos de ejes y etiquetas
-    return calculateBarLayout(prepared(), 500, 300, { top: 35, right: 20, bottom: 45, left: 75 });
+    return calculateBarLayout(prepared(), 500, 300, { top: 45, right: 20, bottom: 55, left: 85 });
   });
 
   // Memo reactivo para calcular la sumatoria de todos los valores y poder derivar los porcentajes
@@ -90,6 +108,15 @@ export default function Vista() {
             <option value="tickets">Boletos Vendidos</option>
           </select>
         </div>
+        <div style="margin-left: auto;">
+          <BotonExportarPDF 
+            title={chartTitle()} 
+            subtitle={chartSubtitle()} 
+            chartSelector=".chart-body" 
+            tableSelector=".bw-table" 
+            filename={`Reporte_Categorias_${metric()}.pdf`} 
+          />
+        </div>
       </div>
       
       {/* Contenedor principal donde se renderiza la gráfica SVG */}
@@ -100,76 +127,117 @@ export default function Vista() {
             Analizando base de datos...
           </div>
         ) : (
-          // Renderiza el SVG pasándole las coordenadas calculadas y la métrica activa
-          <>
+          <Show when={TIPO_GRAFICA === "default"} fallback={
+            <GraficaEmergencia tipo={TIPO_GRAFICA} rawData={data()} preparedData={prepared()} />
+          }>
+            {/* Renderiza el SVG pasándole las coordenadas calculadas y la métrica activa */}
             <Componente 
               bars={bars()} 
               metric={metric()} 
               onHover={handleMouseMove} 
-              onLeave={handleMouseLeave} 
+              onLeave={handleMouseLeave}
+              // Al hacer clic, alterna la categoría. Si haces clic en la misma, la deselecciona (vuelve a null)
+              onClick={(cat) => setSelectedCategory(cat === selectedCategory() ? null : cat)}
             />
             <Show when={tooltip().show}>
-              <div 
-                class="chart-tooltip" 
+              <div
+                class="chart-tooltip"
                 style={{
                   position: 'absolute',
                   left: `${tooltip().x}px`,
                   top: `${tooltip().y}px`,
-                  transform: 'translate(-50%, -100%) translateY(-10px)',
-                  'pointer-events': 'none',
-                  'background-color': 'var(--bw-black)',
-                  color: 'var(--bw-white)',
-                  padding: '0.6rem 1rem',
-                  'border-radius': '6px',
-                  'font-size': '0.75rem',
-                  'text-transform': 'uppercase',
-                  'font-weight': '700',
-                  'z-index': 100,
-                  'box-shadow': '0 4px 12px rgba(0,0,0,0.2)',
-                  border: '1px solid var(--border-color)',
-                  'white-space': 'nowrap',
-                  'line-height': '1.4'
+                  transform: 'translate(-50%, -100%) translateY(-12px)',
+                  whiteSpace: 'nowrap',
+                  lineHeight: '1.5'
                 }}
               >
-                <div style="color: var(--text-secondary); font-size: 0.7rem;">{tooltip().name}</div>
-                <div style="color: var(--color-preattentive, #ff6b00); font-size: 0.85rem; font-weight: 800; margin-top: 2px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #000000; text-transform: uppercase; letter-spacing: 0.04em;">
+                  {tooltip().name}
+                </div>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #000000; margin-top: 3px;">
                   {tooltip().value}
                 </div>
               </div>
             </Show>
-          </>
+          </Show>
         )}
       </div>
 
       {/* Tabla detallada al pie del gráfico para auditoría y verificación rápida */}
       <div class="table-container" style="margin-top: 1.5rem; border-top: 2px solid var(--border-color); padding-top: 1rem;">
-        <table class="bw-table">
-          <thead>
-            <tr>
-              <th>Categoría de Evento</th>
-              <th style="text-align: right;">{metric() === "revenue" ? "Ingresos Totales" : "Boletos Vendidos"}</th>
-              <th style="text-align: right;">Participación porcentual</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Itera sobre los datos preparados para rellenar las filas de la tabla */}
-            <For each={prepared()}>
-              {(item) => (
+        
+        {/* Renderizado condicional (Show):
+            - Si hay una categoría seleccionada y los detalles ya cargaron, muestra la tabla de desglose.
+            - Si no (fallback), muestra la tabla del resumen general de categorías.
+        */}
+        <Show when={selectedCategory() && detailsData()} fallback={
+          <>
+            <h4 style="margin-bottom: 1rem; font-weight: 700; color: #000;">Resumen General de Categorías</h4>
+            <table class="bw-table">
+              <thead>
                 <tr>
-                  <td style="font-weight: 700;">{item.label}</td>
-                  <td style="text-align: right;">
-                    {/* Da formato correspondiente según el tipo de métrica en la tabla */}
-                    {metric() === "revenue" ? formatCurrency(item.value) : formatInteger(item.value)}
-                  </td>
-                  <td style="text-align: right; font-weight: 700;">
-                    {/* Calcula la proporción porcentual */}
-                    {((item.value / totalValue()) * 100).toFixed(1)}%
-                  </td>
+                  <th>Categoría de Evento</th>
+                  <th style="text-align: right;">{metric() === "revenue" ? "Ingresos Totales" : "Boletos Vendidos"}</th>
+                  <th style="text-align: right;">Participación porcentual</th>
                 </tr>
-              )}
-            </For>
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {/* Itera sobre los datos preparados para rellenar las filas de la tabla */}
+                <For each={prepared()}>
+                  {(item) => (
+                    <tr>
+                      <td style="font-weight: 700;">{item.label}</td>
+                      <td style="text-align: right;">
+                        {/* Da formato correspondiente según el tipo de métrica en la tabla */}
+                        {metric() === "revenue" ? formatCurrency(item.value) : formatInteger(item.value)}
+                      </td>
+                      <td style="text-align: right; font-weight: 700;">
+                        {/* Calcula la proporción porcentual */}
+                        {((item.value / totalValue()) * 100).toFixed(1)}%
+                      </td>
+                    </tr>
+                  )}
+                </For>
+              </tbody>
+            </table>
+          </>
+        }>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="font-weight: 700; color: #000;">Desglose de Eventos: {selectedCategory()}</h4>
+            <button 
+              onClick={() => setSelectedCategory(null)}
+              style="padding: 4px 8px; border: 2px solid #000; background: transparent; font-weight: 700; cursor: pointer; font-size: 0.8rem; text-transform: uppercase;"
+            >
+              Volver al Resumen
+            </button>
+          </div>
+          <table class="bw-table">
+            <thead>
+              <tr>
+                <th>Evento</th>
+                <th style="text-align: right;">{metric() === "revenue" ? "Ingresos (MXN)" : "Boletos"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <Show when={!detailsData.loading} fallback={<tr><td colspan="2">Cargando desglose...</td></tr>}>
+                <For each={detailsData()}>
+                  {(item) => {
+                    // Decide the value to show based on metric
+                    const val = metric() === "revenue" ? item.revenue : item.tickets_sold;
+                    return (
+                      <tr>
+                        <td style="font-weight: 700;">{item.name}</td>
+                        <td style="text-align: right;">
+                          {metric() === "revenue" ? formatCurrency(val) : formatInteger(val)}
+                        </td>
+                      </tr>
+                    );
+                  }}
+                </For>
+              </Show>
+            </tbody>
+          </table>
+        </Show>
       </div>
     </div>
   );

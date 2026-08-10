@@ -5,7 +5,8 @@ export function prepareTrendData(data) {
   return data.map(item => ({
     monthName: formatMonthName(item.month),
     revenue: item.revenue || 0,
-    count: item.count || 0
+    count: item.count || 0,
+    originalMonth: item.month
   }));
 }
 
@@ -31,7 +32,7 @@ export function calculateAreaPath(preparedData, width, height, padding) {
   const coords = preparedData.map((d, index) => {
     const x = padding.left + (index / (preparedData.length - 1 || 1)) * chartWidth;
     const y = baselineY - (d.revenue / maxVal) * chartHeight;
-    return { x, y, monthName: d.monthName, revenue: d.revenue };
+    return { x, y, monthName: d.monthName, revenue: d.revenue, originalMonth: d.originalMonth };
   });
   
   // Line Path: M x0 y0 L x1 y1 ...

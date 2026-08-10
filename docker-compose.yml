@@ -34,6 +34,7 @@ services:
       - ADMIN_SERVICE_URL=http://admin:8005
       - ACHIEVEMENTS_SERVICE_URL=http://achievements:8006
       - ANALYTICS_SERVICE_URL=http://analytics:8007
+      - ANALYTICS_BIGDATA_SERVICE_URL=http://analytics_bigdata:8009
       - MERCHANDISE_SERVICE_URL=http://merchandise:8008
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
@@ -246,23 +247,23 @@ services:
     tty: true
 
   # Wearables IoT Service
-  wearables_backend:
-    build:
-      context: ./microservices/wearables_backend
-      dockerfile: Dockerfile
-    container_name: laika_wearables
-    ports:
-      - "3010:3010"
-    environment:
-      - DB_HOST=laika_db
-      - DB_USER=root
-      - DB_PASSWORD=root
-      - DB_NAME=laika_club3_v2
-      - DB_PORT=3306
-      - PORT=3010
-    depends_on:
-      laika_db:
-        condition: service_healthy
+#  wearables_backend:
+#    build:
+#      context: ./microservices/wearables_backend
+#      dockerfile: Dockerfile
+#    container_name: laika_wearables
+#    ports:
+#      - "3010:3010"
+#    environment:
+#      - DB_HOST=laika_db
+#      - DB_USER=root
+#      - DB_PASSWORD=root
+#      - DB_NAME=laika_club3_v2
+#      - DB_PORT=3306
+#      - PORT=3010
+#    depends_on:
+#      laika_db:
+#        condition: service_healthy
 
   # MATIS SolidJS Dashboard
   matis:
@@ -276,6 +277,7 @@ services:
       - ./matis-solid/src:/app/src
     environment:
       - PORT=3015
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - gateway
 

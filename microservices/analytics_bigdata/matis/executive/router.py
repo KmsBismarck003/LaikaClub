@@ -77,10 +77,10 @@ def get_sales_trend():
     try:
         # Monthly sales trend
         query = """
-            SELECT DATE_FORMAT(created_at, '%%Y-%%m') as month, SUM(amount) as revenue, COUNT(*) as sales_count
+            SELECT DATE_FORMAT(created_at, '%Y-%m') as month, SUM(amount) as revenue, COUNT(*) as sales_count
             FROM payments
             WHERE status = 'completed'
-            GROUP BY DATE_FORMAT(created_at, '%%Y-%%m')
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
             ORDER BY month ASC
         """
         rows = execute_query(query)
@@ -88,7 +88,7 @@ def get_sales_trend():
         # Fallback if DATE_FORMAT fails or SQLite is used
         if not rows:
             query = """
-                SELECT strftime('%%Y-%%m', created_at) as month, SUM(amount) as revenue, COUNT(*) as sales_count
+                SELECT strftime('%Y-%m', created_at) as month, SUM(amount) as revenue, COUNT(*) as sales_count
                 FROM payments
                 WHERE status = 'completed'
                 GROUP BY month
@@ -113,3 +113,87 @@ def get_sales_trend():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/category-performance/details")
+def get_category_performance_details(category: str):
+    """
+    DRILL-DOWN: Obtiene los eventos individuales que pertenecen a una categoría específica.
+    Usado cuando el usuario hace clic en una barra de la gráfica de categorías.
+    Calcula la suma real de ingresos y boletos por evento directamente de la base de datos.
+    """
+    try:
+        query = """
+            SELECT e.id, e.name, COUNT(t.id) as tickets_sold, SUM(t.price) as revenue
+            FROM events e
+            JOIN tickets t ON e.id = t.event_id AND t.status != 'cancelled'
+            WHERE LOWER(e.category) = LOWER(%s)
+            GROUP BY e.id, e.name
+            ORDER BY revenue DESC
+        """
+        rows = execute_query(query, (category,))
+        
+        events = []
+        for r in rows:
+            events.append({
+                "id": r["id"],
+                "name": r["name"],
+                "tickets_sold": int(r["tickets_sold"] or 0),
+                "revenue": float(r["revenue"] or 0.0)
+            })
+            
+        return {
+            "status": "success",
+            "events": events
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/sales-trend/details")
+def get_sales_trend_details(month: str):
+    """
+    DRILL-DOWN: Obtiene el desglose de eventos para un mes específico (formato YYYY-MM).
+    Usado cuando el usuario hace clic en un punto de la gráfica de tendencia mensual.
+    """
+    try:
+
+        query = """
+            SELECT e.id, e.name, COUNT(t.id) as tickets_sold, SUM(t.price) as revenue
+            FROM events e
+            JOIN tickets t ON e.id = t.event_id AND t.status != 'cancelled'
+            WHERE DATE_FORMAT(t.purchase_date, '%%Y-%%m') = %s
+            GROUP BY e.id, e.name
+            ORDER BY revenue DESC
+        """
+        rows = execute_query(query, (month,))
+        
+        # Fallback for sqlite
+        if not rows:
+            try:
+                query_fallback = """
+                    SELECT e.id, e.name, COUNT(t.id) as tickets_sold, SUM(t.price) as revenue
+                    FROM events e
+                    JOIN tickets t ON e.id = t.event_id AND t.status != 'cancelled'
+                    WHERE strftime('%%Y-%%m', t.purchase_date) = %s
+                    GROUP BY e.id, e.name
+                    ORDER BY revenue DESC
+                """
+                rows = execute_query(query_fallback, (month,))
+            except Exception:
+                pass
+
+        events = []
+        for r in rows:
+            events.append({
+                "id": r["id"],
+                "name": r["name"],
+                "tickets_sold": int(r["tickets_sold"] or 0),
+                "revenue": float(r["revenue"] or 0.0)
+            })
+            
+        return {
+            "status": "success",
+            "events": events
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
