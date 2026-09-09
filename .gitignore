@@ -45,3 +45,9 @@ LaikaMobile/
 laikaWear/
 microservices/wearables_backend/
 
+
+# Módulos Desacoplados
+/laika-admin/
+/laika-gestor/
+/laika-operador/
+/pilgrim/

@@ -10,7 +10,7 @@ import Componente from "./componente";
 
 // MODO DE EMERGENCIA (PLANTILLAS ALTERNAS)
 // Cambia "default" por: "barras", "linea", "dona", "pastel", "dispersion", "histograma", "boxplot", "mapacalor", "area"
-const TIPO_GRAFICA = "default";
+const TIPO_GRAFICA = "barras";
 import GraficaEmergencia from "../PlantillasAlternas/MotorGraficoEmergencia";
 import { BotonExportarPDF } from "../../matispdf";
 

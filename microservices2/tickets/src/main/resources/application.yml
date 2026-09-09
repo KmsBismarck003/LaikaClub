@@ -1,5 +1,5 @@
 server:
-  port: 8003
+  port: 8202
 
 spring:
   application:
@@ -32,11 +32,11 @@ jwt:
 # External microservice URLs
 services:
   events:
-    url: ${EVENTS_SERVICE_URL:http://localhost:8002}
+    url: ${EVENTS_SERVICE_URL:http://localhost:8201}
   auth:
-    url: ${AUTH_SERVICE_URL:http://localhost:8001}
+    url: ${AUTH_SERVICE_URL:http://localhost:8101}
   wearables:
-    url: ${WEARABLES_SERVICE_URL:http://localhost:3010}
+    url: ${WEARABLES_SERVICE_URL:http://localhost:8204}
 
 # MongoDB Sync properties
 mongo:

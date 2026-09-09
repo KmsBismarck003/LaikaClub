@@ -144,41 +144,7 @@ export default function Componente(props) {
         <path d={props.layout.pathB} class="gce-line-b" />
       </Show>
 
-      {/* 
-        PUNTOS EVENTO A — (Círculo)
-        El color se cambia en 'estilo.css' bajo '.gce-point'.
-        El tamaño se cambia ajustando 'r' aquí mismo.
-      */}
-      <For each={props.layout.coordsA}>
-        {(pt) => (
-          <circle
-            cx={pt.x}
-            cy={pt.y}
-            r={5}
-            class="gce-point"
-            style="pointer-events: none;"
-          />
-        )}
-      </For>
-
-      {/* 
-        PUNTOS EVENTO B — (Diamante: rect rotado 45°)
-        El color se cambia en 'estilo.css' bajo '.gce-point-b'.
-        El tamaño se cambia ajustando 'width' y 'height'.
-      */}
-      <For each={props.layout.coordsB}>
-        {(pt) => (
-          <rect
-            x={pt.x - 4.5}
-            y={pt.y - 4.5}
-            width={9}
-            height={9}
-            transform={`rotate(45, ${pt.x}, ${pt.y})`}
-            class="gce-point-b"
-            style="pointer-events: none;"
-          />
-        )}
-      </For>
+      {/* Los puntos individuales se eliminaron — las líneas (pathA / pathB) ya representan la serie completa */}
 
       {/* ETIQUETAS DIRECTAS AL FINAL DE CADA CURVA
           Con fondo blanco opaco para sobrevivir cualquier proyector */}

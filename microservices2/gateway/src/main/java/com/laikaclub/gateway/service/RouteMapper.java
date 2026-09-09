@@ -66,6 +66,8 @@ public class RouteMapper {
             targetUrl = eventsUrl + "/venues" + path.substring("/api/venues".length());
         } else if (path.startsWith("/api/manager")) {
             targetUrl = eventsUrl + "/manager" + path.substring("/api/manager".length());
+        } else if (path.startsWith("/api/staff")) {
+            targetUrl = ticketsUrl + "/staff" + path.substring("/api/staff".length());
         } else if (path.startsWith("/api/tickets")) {
             targetUrl = ticketsUrl + path.substring("/api/tickets".length());
         } else if (path.startsWith("/api/payments")) {
@@ -79,6 +81,8 @@ public class RouteMapper {
         } else if (path.startsWith("/api/monitoring")) {
             targetUrl = statsUrl + path.substring("/api/monitoring".length());
         } else if (path.startsWith("/api/database")) {
+            targetUrl = adminUrl + path.substring("/api".length());
+        } else if (path.startsWith("/api/restore-audit")) {
             targetUrl = adminUrl + path.substring("/api".length());
         } else if (path.startsWith("/api/ads")) {
             targetUrl = adminUrl + path.substring("/api".length());

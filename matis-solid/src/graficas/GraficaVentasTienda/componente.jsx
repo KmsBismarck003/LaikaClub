@@ -1,11 +1,11 @@
-import { For } from "solid-js";
-import { formatCurrency, formatInteger } from "../../funciones/formatters";
+import { For, Show } from "solid-js";
+import { formatCurrency, formatInteger, formatPeriodo } from "../../funciones/formatters";
 import "./estilo.css";
 
 export default function Componente(props) {
   const width = 500;
-  const height = 300;
-  const padding = { top: 20, right: 100, bottom: 45, left: 260 };
+  const height = 400;
+  const padding = { top: 20, right: 80, bottom: 45, left: 240 };
 
   const chartWidth = width - padding.left - padding.right;
 
@@ -14,10 +14,10 @@ export default function Componente(props) {
     return Math.max(...props.bars.map((b) => (props.isRevenue ? b.revenue : b.units)), 1);
   };
 
-  // 4 niveles de escala en el eje X
+  // 3 niveles de escala en el eje X para evitar que los números largos se amontonen
   const xLevels = () => {
     const max = maxVal();
-    return [0, 0.33, 0.66, 1].map((frac) => ({
+    return [0, 0.5, 1].map((frac) => ({
       label: frac === 0
         ? (props.isRevenue ? "$0" : "0")
         : (props.isRevenue ? formatCurrency(max * frac) : `${formatInteger(Math.round(max * frac))} uds`),
@@ -168,6 +168,41 @@ export default function Componente(props) {
       >
         {props.isRevenue ? "Ingresos Totales (MXN)" : "Unidades Vendidas"}
       </text>
+
+      {/* ── ANOTACIÓN DE PERÍODO TEMPORAL DENTRO DEL SVG ──
+          Responde directamente: ¿de qué fechas son estos datos?
+          Aparece en capturas de pantalla, impresiones y proyector. */}
+      <Show when={props.periodo && props.periodo.fecha_inicio}>
+        {() => {
+          const label = `Período: ${formatPeriodo(props.periodo)}`;
+          const labelWidth = 210;
+          const labelX = width - padding.right - labelWidth;
+          const labelY = padding.top + 14;
+          return (
+            <g>
+              <rect
+                x={labelX - 4}
+                y={labelY - 13}
+                width={labelWidth + 8}
+                height={18}
+                rx={4}
+                fill="#f0f4ff"
+                stroke="#c7d2fe"
+                stroke-width="1"
+                opacity="0.95"
+              />
+              <text
+                x={labelX + labelWidth / 2}
+                y={labelY}
+                fill="#1e3a8a"
+                style="font-size: 9.5px; font-weight: 800; text-anchor: middle; letter-spacing: 0.03em;"
+              >
+                {label}
+              </text>
+            </g>
+          );
+        }}
+      </Show>
     </svg>
   );
 }

@@ -59,7 +59,7 @@ public class EventController {
         return eventQueryService.getAllEvents(limit, countryId, stateId, municipalityId, venueId);
     }
 
-    @GetMapping("/my-events")
+    @GetMapping(value = {"/my-events", "/manager/events"})
     public List<Map<String, Object>> getMyEvents(
             @RequestParam(defaultValue = "100") int limit,
             @AuthenticationPrincipal UserPrincipal principal) {

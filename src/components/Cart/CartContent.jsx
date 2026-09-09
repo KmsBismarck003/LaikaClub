@@ -62,7 +62,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                     <h4 className="ticket-title">{displayName}</h4>
                     {displayVariant && <span style={{ fontSize:'.62rem', color:'#aaa', fontWeight:500 }}>{displayVariant}</span>}
                     {!displayVariant && item.sectionName && <span style={{ fontSize:'.65rem', color:'#EAB308', fontWeight: 700 }}>{item.sectionName}</span>}
-                    {item.functionDate && <span style={{ fontSize:'.6rem', color:'#ccc' }}>📅 {item.functionDate}</span>}
+                    {item.functionDate && <span style={{ fontSize:'.6rem', color:'#ccc' }}> {item.functionDate}</span>}
                     
                     <div style={{ display:'flex', alignItems:'center', gap:'0', marginTop:'0.5rem', width:'fit-content', border:'1px solid rgba(255,255,255,0.2)', borderRadius: '4px' }}>
                         <button onClick={() => updateQuantity(item.eventId, item.quantity - 1, item.functionId, item.sectionId)}

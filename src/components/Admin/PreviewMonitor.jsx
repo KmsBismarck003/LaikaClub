@@ -65,7 +65,7 @@ const PreviewMonitor = ({ type, data, title = "FIELD MONITOR - LIVE FEED", onPos
                                     <div className="preview-glass-panel meta-header">
                                         <h2 className="preview-title">{data.name || 'NOMBRE DEL EVENTO'}</h2>
                                         <div className="preview-meta-row">
-                                            <span>📅 {formatDate(data.event_date)}</span>
+                                            <span> {formatDate(data.event_date)}</span>
                                             {data.event_time && <span> • 🕐 {data.event_time} HRS</span>}
                                         </div>
                                         <div className="preview-meta-row location">

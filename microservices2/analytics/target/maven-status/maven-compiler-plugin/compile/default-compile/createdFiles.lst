@@ -2,7 +2,6 @@ com\laikaclub\analytics\AnalyticsApplication.class
 com\laikaclub\analytics\config\UserPrincipal.class
 com\laikaclub\analytics\service\VaultService.class
 com\laikaclub\analytics\config\DatabaseConfig.class
-com\laikaclub\analytics\service\MatisExecutiveService.class
 com\laikaclub\analytics\service\MerchAnalyticsService.class
 com\laikaclub\analytics\service\AnalyticsEngineService.class
 com\laikaclub\analytics\config\JwtAuthenticationFilter.class
@@ -10,7 +9,6 @@ com\laikaclub\analytics\controller\VaultController.class
 com\laikaclub\analytics\controller\AnalyticsController.class
 com\laikaclub\analytics\controller\MlController.class
 com\laikaclub\analytics\service\AnalyticsEngineService$KMeansResult.class
-com\laikaclub\analytics\controller\MatisController.class
 com\laikaclub\analytics\config\SecurityConfig.class
 com\laikaclub\analytics\service\TokenService.class
 com\laikaclub\analytics\config\JpaConfig.class

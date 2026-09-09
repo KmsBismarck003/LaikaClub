@@ -22,6 +22,18 @@ public class ConfigController {
         return ResponseEntity.ok(configService.getRuntimeConfig());
     }
 
+    @PutMapping("/config")
+    public ResponseEntity<Map<String, Boolean>> updateConfig(@RequestBody Map<String, Object> config) {
+        configService.updateConfig(config);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @GetMapping("/config/{key}")
+    public ResponseEntity<Map<String, Object>> getConfigParam(@PathVariable String key) {
+        Object val = configService.getConfigParam(key);
+        return ResponseEntity.ok(Map.of("key", key, "value", val != null ? val : ""));
+    }
+
     @GetMapping("/config/ticker")
     public ResponseEntity<Map<String, Object>> getTickerConfig() {
         return ResponseEntity.ok(configService.getTickerConfig());

@@ -41,8 +41,8 @@ def benchmark_feature(name, func, *args, **kwargs):
 
 def run_stress_suite():
     print("="*60)
-    print("🚀 LAIKA BIG DATA BENCHMARK - 100,000 REGISTROS")
-    print(f"📅 Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("LAIKA BIG DATA BENCHMARK - 100,000 REGISTROS")
+    print(f" Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60)
     
     engine = AnalyticsEngine()

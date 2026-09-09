@@ -1,7 +1,7 @@
 // Importa los componentes lógicos de bucles y condicionales de SolidJS
 import { For, Show } from "solid-js";
-// Importa las funciones formateadoras de moneda y enteros
-import { formatCurrency, formatInteger } from "../../funciones/formatters";
+// Importa las funciones formateadoras de moneda, enteros y período temporal
+import { formatCurrency, formatInteger, formatPeriodo } from "../../funciones/formatters";
 // Importa el archivo de estilos local del componente
 import "./estilo.css";
 
@@ -187,6 +187,41 @@ export default function Componente(props) {
       >
         Categoría de Evento
       </text>
+
+      {/* ── ANOTACIÓN DE PERÍODO TEMPORAL DENTRO DEL SVG ──
+          Responde directamente: ¿de qué fechas son estos datos?
+          Aparece en capturas de pantalla, impresiones y proyector. */}
+      <Show when={props.periodo && props.periodo.fecha_inicio}>
+        {() => {
+          const label = ` Período: ${formatPeriodo(props.periodo)}`;
+          const labelWidth = 210;
+          const labelX = width - padding.right - labelWidth;
+          const labelY = padding.top;
+          return (
+            <g>
+              <rect
+                x={labelX - 4}
+                y={labelY - 13}
+                width={labelWidth + 8}
+                height={18}
+                rx={4}
+                fill="#f0f4ff"
+                stroke="#c7d2fe"
+                stroke-width="1"
+                opacity="0.95"
+              />
+              <text
+                x={labelX + labelWidth / 2}
+                y={labelY}
+                fill="#1e3a8a"
+                style="font-size: 9.5px; font-weight: 800; text-anchor: middle; letter-spacing: 0.03em;"
+              >
+                {label}
+              </text>
+            </g>
+          );
+        }}
+      </Show>
     </svg>
   );
 }

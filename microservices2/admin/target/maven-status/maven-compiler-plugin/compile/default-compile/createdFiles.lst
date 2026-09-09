@@ -4,6 +4,8 @@ com\laikaclub\admin\controller\DatabaseController$BackupRequest.class
 com\laikaclub\admin\dto\EmailRequest.class
 com\laikaclub\admin\service\TokenService.class
 com\laikaclub\admin\repository\AdRepository.class
+com\laikaclub\admin\domain\RestoreEvent.class
+com\laikaclub\admin\controller\RestoreAuditController.class
 com\laikaclub\admin\config\JpaConfig.class
 com\laikaclub\admin\controller\B2bController.class
 com\laikaclub\admin\controller\DatabaseController.class
@@ -32,6 +34,7 @@ com\laikaclub\admin\config\SecurityConfig.class
 com\laikaclub\admin\service\BackupService$1.class
 com\laikaclub\admin\repository\SystemConfigRepository.class
 com\laikaclub\admin\controller\AdsController.class
+com\laikaclub\admin\repository\RestoreEventRepository.class
 com\laikaclub\admin\repository\AdClickRepository.class
 com\laikaclub\admin\controller\HealthController.class
 com\laikaclub\admin\domain\SystemConfig.class

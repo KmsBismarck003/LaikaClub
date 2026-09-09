@@ -12,7 +12,7 @@ services:
     volumes:
       - laika_db_data:/var/lib/mysql
       # Importa automáticamente el respaldo configurado en init.sql al iniciar por primera vez en un equipo limpio
-      - ./backups/init_split.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./laika_db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -27,15 +27,15 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - AUTH_SERVICE_URL=http://auth:8001
-      - EVENTS_SERVICE_URL=http://events:8002
-      - TICKETS_SERVICE_URL=http://tickets:8003
-      - STATS_SERVICE_URL=http://stats:8004
-      - ADMIN_SERVICE_URL=http://admin:8005
-      - ACHIEVEMENTS_SERVICE_URL=http://achievements:8006
-      - ANALYTICS_SERVICE_URL=http://analytics:8007
-      - ANALYTICS_BIGDATA_SERVICE_URL=http://analytics_bigdata:8009
-      - MERCHANDISE_SERVICE_URL=http://merchandise:8008
+      - AUTH_SERVICE_URL=http://auth:8101
+      - EVENTS_SERVICE_URL=http://events:8201
+      - TICKETS_SERVICE_URL=http://tickets:8202
+      - STATS_SERVICE_URL=http://stats:8103
+      - ADMIN_SERVICE_URL=http://admin:8102
+      - ACHIEVEMENTS_SERVICE_URL=http://achievements:8301
+      - ANALYTICS_SERVICE_URL=http://analytics:8302
+      - ANALYTICS_BIGDATA_SERVICE_URL=http://analytics_bigdata:8303
+      - MERCHANDISE_SERVICE_URL=http://merchandise:8203
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_gateway
@@ -59,8 +59,9 @@ services:
       dockerfile: Dockerfile
     container_name: laika_auth
     ports:
-      - "8001:8001"
+      - "8101:8101"
     environment:
+      - SERVER_PORT=8101
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_auth
@@ -78,8 +79,9 @@ services:
       dockerfile: Dockerfile
     container_name: laika_events
     ports:
-      - "8002:8002"
+      - "8201:8201"
     environment:
+      - SERVER_PORT=8201
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_events
@@ -97,14 +99,15 @@ services:
       dockerfile: Dockerfile
     container_name: laika_tickets
     ports:
-      - "8003:8003"
+      - "8202:8202"
     environment:
+      - SERVER_PORT=8202
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_tickets
-      - EVENTS_SERVICE_URL=http://events:8002
-      - AUTH_SERVICE_URL=http://auth:8001
-      - WEARABLES_SERVICE_URL=http://laika_wearables:3010
+      - EVENTS_SERVICE_URL=http://events:8201
+      - AUTH_SERVICE_URL=http://auth:8101
+      - WEARABLES_SERVICE_URL=http://laika_wearables:8204
     depends_on:
       laika_db:
         condition: service_healthy
@@ -119,8 +122,9 @@ services:
       dockerfile: Dockerfile
     container_name: laika_stats
     ports:
-      - "8004:8004"
+      - "8103:8103"
     environment:
+      - SERVER_PORT=8103
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_stats
@@ -136,8 +140,9 @@ services:
       dockerfile: Dockerfile
     container_name: laika_admin
     ports:
-      - "8005:8005"
+      - "8102:8102"
     environment:
+      - SERVER_PORT=8102
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_admin
@@ -158,8 +163,9 @@ services:
       dockerfile: Dockerfile
     container_name: laika_achievements
     ports:
-      - "8006:8006"
+      - "8301:8301"
     environment:
+      - SERVER_PORT=8301
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_achievements
@@ -175,8 +181,9 @@ services:
       dockerfile: Dockerfile
     container_name: laika_analytics
     ports:
-      - "8007:8007"
+      - "8302:8302"
     environment:
+      - SERVER_PORT=8302
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_analytics
@@ -192,7 +199,7 @@ services:
       dockerfile: Dockerfile
     container_name: laika_analytics_bigdata
     ports:
-      - "8009:8009"
+      - "8303:8303"
     environment:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
@@ -212,8 +219,9 @@ services:
       dockerfile: Dockerfile
     container_name: laika_merchandise
     ports:
-      - "8008:8008"
+      - "8203:8203"
     environment:
+      - SERVER_PORT=8203
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_merchandise
@@ -246,25 +254,6 @@ services:
     stdin_open: true
     tty: true
 
-  # Wearables IoT Service
-#  wearables_backend:
-#    build:
-#      context: ./microservices/wearables_backend
-#      dockerfile: Dockerfile
-#    container_name: laika_wearables
-#    ports:
-#      - "3010:3010"
-#    environment:
-#      - DB_HOST=laika_db
-#      - DB_USER=root
-#      - DB_PASSWORD=root
-#      - DB_NAME=laika_club3_v2
-#      - DB_PORT=3306
-#      - PORT=3010
-#    depends_on:
-#      laika_db:
-#        condition: service_healthy
-
   # MATIS SolidJS Dashboard
   matis:
     build:
@@ -272,11 +261,11 @@ services:
       dockerfile: Dockerfile
     container_name: laika_matis
     ports:
-      - "3015:3015"
+      - "3040:3040"
     volumes:
       - ./matis-solid/src:/app/src
     environment:
-      - PORT=3015
+      - PORT=3040
       - CHOKIDAR_USEPOLLING=true
     depends_on:
       - gateway

@@ -47,6 +47,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/config").permitAll()
                 .requestMatchers(HttpMethod.GET, "/config/ticker").permitAll()
                 .requestMatchers(HttpMethod.POST, "/admin/emails/send").permitAll()
+                .requestMatchers("/error").permitAll()
+                .requestMatchers("/ads/**").hasAnyRole("ADMIN", "GESTOR", "MANAGER")
                 .anyRequest().hasRole("ADMIN")
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

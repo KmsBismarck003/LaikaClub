@@ -184,7 +184,7 @@ export default function UserDashboard() {
                     {nextTicket.event?.name || nextTicket.eventName || 'Evento'}
                   </h2>
                   <p style={{ margin: 0, fontSize: '.75rem', color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>
-                    📅 {nextTicket.event?.date ? new Date(nextTicket.event.date).toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : '—'}
+                     {nextTicket.event?.date ? new Date(nextTicket.event.date).toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : '—'}
                     {nextTicket.event?.venue_name && ` · ${nextTicket.event.venue_name}`}
                   </p>
                 </div>

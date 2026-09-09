@@ -89,8 +89,8 @@ def start_backend():
         print(f"{YELLOW}[!] El backend ya está corriendo.{RESET}")
         return
 
-    # Liberar puertos del backend (8000 al 8008 y 3010) antes de iniciar
-    for port in list(range(8000, 8009)) + [3010]:
+    # Liberar puertos del backend (8000, 8101..8103, 8201..8204, 8301..8303) antes de iniciar
+    for port in [8000, 8101, 8102, 8103, 8201, 8202, 8203, 8204, 8301, 8302, 8303]:
         kill_port_owner(port)
 
     print(f"{GREEN}[+] Iniciando Backend...{RESET}")
@@ -131,9 +131,9 @@ def start_frontend():
         print(f"{YELLOW}[!] El frontend ya está corriendo.{RESET}")
         return
 
-    # Liberar puerto del frontend (3000) y de MATIS (3015) antes de iniciar
+    # Liberar puerto del frontend (3000) y de MATIS (3040) antes de iniciar
     kill_port_owner(3000)
-    kill_port_owner(3015)
+    kill_port_owner(3040)
 
     print(f"{GREEN}[+] Iniciando Frontend...{RESET}")
     if IS_WINDOWS:
@@ -144,7 +144,7 @@ def start_frontend():
             shell=True,
             creationflags=subprocess.CREATE_NEW_CONSOLE
         )
-        print(f"{GREEN}[+] Iniciando MATIS SolidJS Dashboard en puerto 3015...{RESET}")
+        print(f"{GREEN}[+] Iniciando MATIS SolidJS Dashboard en puerto 3040...{RESET}")
         matis_proc = subprocess.Popen(
             "npm run dev",
             cwd=os.path.join(ROOT, "matis-solid"),
@@ -207,7 +207,7 @@ def print_status():
     print(f"\n{CYAN}──────────────────────────────────────────────────────────────────{RESET}")
     print(f"  Backend:  {BOLD}http://localhost:8000/api{RESET}")
     print(f"  Frontend: {BOLD}http://localhost:3000{RESET}")
-    print(f"  MATIS:    {BOLD}http://localhost:3015{RESET}")
+    print(f"  MATIS:    {BOLD}http://localhost:3040{RESET}")
     print(f"{CYAN}──────────────────────────────────────────────────────────────────{RESET}")
     print(f"\n  Esperando comando... ", end="", flush=True)
 

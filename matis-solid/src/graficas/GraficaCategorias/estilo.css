@@ -34,7 +34,7 @@ Aquí puedes modificar el color de las barras de la gráfica.
 
 /* Hover */
 .gc-bar:hover {
-  fill: #0f172a;
+  fill: #000000;
   opacity: 0.9;
   cursor: crosshair;
 }
@@ -63,7 +63,7 @@ Aquí puedes modificar el color de las barras de la gráfica.
 
 /* Valores directos sobre cada barra — negro, 12px */
 .gc-value-label {
-  fill: #0f172a;
+  fill: #000000;
   font-family: inherit;
   font-size: 12px;
   font-weight: 800;

@@ -64,6 +64,11 @@ public class StatsController {
         return statsService.getManagerDashboard(managerId);
     }
 
+    @GetMapping("/staff/dashboard")
+    public Map<String, Object> staffDashboard() {
+        return statsService.getStaffDashboard();
+    }
+
     @GetMapping("/logs")
     public List<Map<String, Object>> getLogs(
             @RequestParam(value = "limit", defaultValue = "50") int limit,

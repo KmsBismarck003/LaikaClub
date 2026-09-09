@@ -596,7 +596,7 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
                                     {functions.map((f, idx) => (
                                         <li key={f.tempId || idx} className="flex justify-between items-center bg-white p-2 rounded border text-sm" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', background: '#fff', border: '1px solid #ddd', padding: '0.5rem' }}>
                                             <span>
-                                                📅 <strong>{f.date}</strong> ⏰ {f.time} <br/>
+                                                 <strong>{f.date}</strong> ⏰ {f.time} <br/>
                                                 <small style={{ color: '#666' }}>📍 {getVenueName(f.venue_id)} {f.room_id ? `| 🚪 ${getRoomName(f.room_id)}` : ''}</small>
                                             </span>
                                             <button type="button" onClick={() => handleRemoveFunction(idx)} className="text-red-500 hover:text-red-700">❌</button>

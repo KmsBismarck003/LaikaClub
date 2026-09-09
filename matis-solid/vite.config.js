@@ -3,8 +3,11 @@ import solidPlugin from "vite-plugin-solid"
 
 export default defineConfig({
   plugins: [solidPlugin()],
+  define: {
+    'process.env': {}
+  },
   server: {
-    port: 3015,
+    port: 3040,
     host: true
   }
 })

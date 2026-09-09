@@ -5,10 +5,10 @@
 // comente una de las siguientes opciones y descomente la otra:
 
 // OPCIÓN A: Formato compacto abreviado con K y M (estilo americano, ej: $1.45M, $32.1K)
-const FORMATO_COMPACTO = true;
+// const FORMATO_COMPACTO = true;
 
 // OPCIÓN B: Formato extendido completo tradicional (estilo estándar, ej: $1,450,000)
-// const FORMATO_COMPACTO = false;
+const FORMATO_COMPACTO = true;
 
 /**
  * Formatea un valor numérico como moneda en pesos mexicanos (MXN).
@@ -92,5 +92,28 @@ export function formatPercent(value) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 1
   }).format(value);
+}
+
+/**
+ * Formatea un objeto de período { fecha_inicio, fecha_fin } en una etiqueta
+ * legible en español para los encabezados de gráficas.
+ * Ejemplo de salida: "Ene 2024 – Ago 2026"
+ *
+ * @param {{ fecha_inicio: string|null, fecha_fin: string|null }} periodo
+ * @returns {string} Cadena de texto con el rango de fechas, o mensaje de indisponibilidad.
+ */
+export function formatPeriodo(periodo) {
+  if (!periodo || !periodo.fecha_inicio || !periodo.fecha_fin) {
+    return "Período no disponible";
+  }
+  const opciones = { year: "numeric", month: "short" };
+  const formatFecha = (isoStr) => {
+    // Usamos T00:00:00 para evitar problemas de zona horaria que desplacen el día
+    const d = new Date(`${isoStr}T00:00:00`);
+    return d.toLocaleDateString("es-MX", opciones);
+  };
+  const inicio = formatFecha(periodo.fecha_inicio);
+  const fin = formatFecha(periodo.fecha_fin);
+  return `${inicio} – ${fin}`;
 }
 

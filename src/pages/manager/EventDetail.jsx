@@ -197,7 +197,7 @@ const EventDetail = () => {
                         {/* Functions List */}
                         {event.functions && event.functions.length > 0 && (
                             <div className="manager-stat-card mb-6" style={{ gridColumn: '1 / -1' }}>
-                                <h3 className="font-bold text-lg mb-3">📅 Fechas Programadas</h3>
+                                <h3 className="font-bold text-lg mb-3"> Fechas Programadas</h3>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>

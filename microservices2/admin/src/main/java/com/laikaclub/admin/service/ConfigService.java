@@ -57,6 +57,19 @@ public class ConfigService {
         return response;
     }
 
+    public Object getConfigParam(String key) {
+        return systemConfigRepository.findByKey(key).map(SystemConfig::getValue).orElse(null);
+    }
+
+    @Transactional
+    public void updateConfig(Map<String, Object> config) {
+        for (Map.Entry<String, Object> entry : config.entrySet()) {
+            if (entry.getValue() != null) {
+                updateConfigParam(entry.getKey(), entry.getValue().toString());
+            }
+        }
+    }
+
     public Map<String, Object> getTickerConfig() {
         SystemConfig tickerConfig = systemConfigRepository.findByKey("news_ticker_config").orElse(null);
         if (tickerConfig != null && tickerConfig.getValue() != null && !tickerConfig.getValue().isEmpty()) {

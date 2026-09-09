@@ -120,4 +120,22 @@ public class StatsService {
         cat.put("value", value);
         return cat;
     }
+
+    public Map<String, Object> getStaffDashboard() {
+        Map<String, Object> stats = new HashMap<>();
+        try {
+            // Stats para el dashboard del operador
+            stats.put("totalScanned", 0);
+            stats.put("validScans", 0);
+            stats.put("invalidScans", 0);
+            
+            // Simular algunas metricas por hora para el grafico
+            stats.put("scansPerHour", Arrays.asList(10, 45, 80, 120, 210, 150, 40));
+            stats.put("labels", Arrays.asList("16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"));
+
+        } catch (Exception e) {
+            logger.error("Error al obtener estadísticas de staff: {}", e.getMessage());
+        }
+        return stats;
+    }
 }

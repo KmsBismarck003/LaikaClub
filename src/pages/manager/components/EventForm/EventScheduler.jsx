@@ -12,7 +12,7 @@ const EventScheduler = ({ functions, onAdd, onRemove, newFunction, setNewFunctio
                 <ul className="mb-4 space-y-2">
                     {functions.map((f, idx) => (
                         <li key={f.tempId || idx} className="flex justify-between items-center bg-white p-2 rounded border text-sm" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', background: '#fff', border: '1px solid #ddd', padding: '0.5rem' }}>
-                            <span>📅 <strong>{f.date}</strong> ⏰ {f.time} 📍 {getVenueName(f.venue_id)}</span>
+                            <span> <strong>{f.date}</strong> ⏰ {f.time} 📍 {getVenueName(f.venue_id)}</span>
                             <button type="button" onClick={() => onRemove(idx)} className="text-red-500 hover:text-red-700">❌</button>
                         </li>
                     ))}

@@ -7,28 +7,24 @@ router = APIRouter(prefix="/api/analytics/matis/executive", tags=["MATIS Executi
 @router.get("/kpis")
 def get_executive_kpis():
     try:
-        # 1. Total revenue & tickets sold
         payments_query = execute_query("SELECT SUM(amount) as revenue, COUNT(*) as txn_count FROM payments WHERE status = 'completed'")
         revenue = float(payments_query[0]["revenue"] or 0.0)
         transactions = int(payments_query[0]["txn_count"] or 0)
-        
+
         tickets_query = execute_query("SELECT COUNT(*) as count, AVG(price) as avg_price FROM tickets WHERE status != 'cancelled'")
         tickets_sold = int(tickets_query[0]["count"] or 0)
         avg_ticket_price = float(tickets_query[0]["avg_price"] or 0.0)
-        
-        # 2. Total active users
+
         users_query = execute_query("SELECT COUNT(*) as count FROM users")
         total_users = int(users_query[0]["count"] or 0)
-        
-        # 3. Active events
+
         events_query = execute_query("SELECT COUNT(*) as count FROM events WHERE event_date >= NOW()")
         active_events = int(events_query[0]["count"] or 0)
-        
-        # 4. Conversion rate (users that bought tickets / total users)
+
         buyers_query = execute_query("SELECT COUNT(DISTINCT user_id) as count FROM tickets WHERE status != 'cancelled'")
         unique_buyers = int(buyers_query[0]["count"] or 0)
         conversion_rate = (unique_buyers / total_users) * 100 if total_users > 0 else 0.0
-        
+
         return {
             "status": "success",
             "kpis": {
@@ -44,18 +40,54 @@ def get_executive_kpis():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/category-performance")
-def get_category_performance():
+def get_category_performance(date_from: str = None, date_to: str = None):
+    """
+    Devuelve el rendimiento acumulado por categoría de evento.
+    Parámetros opcionales date_from y date_to (formato YYYY-MM-DD) filtran
+    las compras de tickets dentro del rango indicado.
+    """
     try:
-        # Group sales by event category
-        query = """
+        # Construir cláusulas de filtro de fecha
+        date_filters = []
+        params = []
+        if date_from:
+            date_filters.append("t.purchase_date >= %s")
+            params.append(date_from)
+        if date_to:
+            date_filters.append("t.purchase_date <= %s")
+            params.append(date_to)
+
+        where_clause = ""
+        if date_filters:
+            where_clause = " AND " + " AND ".join(date_filters)
+
+        # Rango real de fechas de los tickets que pasan el filtro
+        date_range_query = execute_query(
+            f"""
+            SELECT MIN(purchase_date) as fecha_inicio, MAX(purchase_date) as fecha_fin
+            FROM tickets
+            WHERE status != 'cancelled'{where_clause.replace('t.', '')}
+            """,
+            tuple(params) if params else None
+        )
+        fecha_inicio = None
+        fecha_fin = None
+        if date_range_query and date_range_query[0]["fecha_inicio"]:
+            raw_i = date_range_query[0]["fecha_inicio"]
+            raw_f = date_range_query[0]["fecha_fin"]
+            fecha_inicio = raw_i.strftime("%Y-%m-%d") if hasattr(raw_i, 'strftime') else str(raw_i)[:10]
+            fecha_fin = raw_f.strftime("%Y-%m-%d") if hasattr(raw_f, 'strftime') else str(raw_f)[:10]
+
+        query = f"""
             SELECT e.category, COUNT(t.id) as tickets_sold, SUM(t.price) as revenue
             FROM events e
-            LEFT JOIN tickets t ON e.id = t.event_id AND t.status != 'cancelled'
+            LEFT JOIN tickets t ON e.id = t.event_id AND t.status != 'cancelled'{where_clause}
             GROUP BY e.category
         """
-        rows = execute_query(query)
-        
+        rows = execute_query(query, tuple(params) if params else None)
+
         performance = []
         for r in rows:
             category = r["category"] or "other"
@@ -64,18 +96,22 @@ def get_category_performance():
                 "tickets_sold": int(r["tickets_sold"] or 0),
                 "revenue": float(r["revenue"] or 0.0)
             })
-            
+
         return {
             "status": "success",
-            "performance": performance
+            "performance": performance,
+            "periodo": {
+                "fecha_inicio": fecha_inicio,
+                "fecha_fin": fecha_fin
+            }
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/sales-trend")
 def get_sales_trend():
     try:
-        # Monthly sales trend
         query = """
             SELECT DATE_FORMAT(created_at, '%Y-%m') as month, SUM(amount) as revenue, COUNT(*) as sales_count
             FROM payments
@@ -84,8 +120,7 @@ def get_sales_trend():
             ORDER BY month ASC
         """
         rows = execute_query(query)
-        
-        # Fallback if DATE_FORMAT fails or SQLite is used
+
         if not rows:
             query = """
                 SELECT strftime('%Y-%m', created_at) as month, SUM(amount) as revenue, COUNT(*) as sales_count
@@ -98,7 +133,7 @@ def get_sales_trend():
                 rows = execute_query(query)
             except Exception:
                 pass
-                
+
         trend = []
         for r in rows:
             trend.append({
@@ -106,7 +141,7 @@ def get_sales_trend():
                 "revenue": float(r["revenue"] or 0.0),
                 "sales_count": int(r["sales_count"] or 0)
             })
-            
+
         return {
             "status": "success",
             "trend": trend
@@ -114,24 +149,34 @@ def get_sales_trend():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/category-performance/details")
-def get_category_performance_details(category: str):
+def get_category_performance_details(category: str, date_from: str = None, date_to: str = None):
     """
-    DRILL-DOWN: Obtiene los eventos individuales que pertenecen a una categoría específica.
-    Usado cuando el usuario hace clic en una barra de la gráfica de categorías.
-    Calcula la suma real de ingresos y boletos por evento directamente de la base de datos.
+    DRILL-DOWN: Eventos individuales de una categoría, con filtro de fecha opcional.
     """
     try:
-        query = """
+        date_filters = ["LOWER(e.category) = LOWER(%s)"]
+        params = [category]
+        if date_from:
+            date_filters.append("t.purchase_date >= %s")
+            params.append(date_from)
+        if date_to:
+            date_filters.append("t.purchase_date <= %s")
+            params.append(date_to)
+
+        where_clause = " AND ".join(date_filters)
+
+        query = f"""
             SELECT e.id, e.name, COUNT(t.id) as tickets_sold, SUM(t.price) as revenue
             FROM events e
             JOIN tickets t ON e.id = t.event_id AND t.status != 'cancelled'
-            WHERE LOWER(e.category) = LOWER(%s)
+            WHERE {where_clause}
             GROUP BY e.id, e.name
             ORDER BY revenue DESC
         """
-        rows = execute_query(query, (category,))
-        
+        rows = execute_query(query, tuple(params))
+
         events = []
         for r in rows:
             events.append({
@@ -140,7 +185,7 @@ def get_category_performance_details(category: str):
                 "tickets_sold": int(r["tickets_sold"] or 0),
                 "revenue": float(r["revenue"] or 0.0)
             })
-            
+
         return {
             "status": "success",
             "events": events
@@ -148,14 +193,13 @@ def get_category_performance_details(category: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/sales-trend/details")
 def get_sales_trend_details(month: str):
     """
-    DRILL-DOWN: Obtiene el desglose de eventos para un mes específico (formato YYYY-MM).
-    Usado cuando el usuario hace clic en un punto de la gráfica de tendencia mensual.
+    DRILL-DOWN: Desglose de eventos para un mes específico (formato YYYY-MM).
     """
     try:
-
         query = """
             SELECT e.id, e.name, COUNT(t.id) as tickets_sold, SUM(t.price) as revenue
             FROM events e
@@ -165,8 +209,7 @@ def get_sales_trend_details(month: str):
             ORDER BY revenue DESC
         """
         rows = execute_query(query, (month,))
-        
-        # Fallback for sqlite
+
         if not rows:
             try:
                 query_fallback = """
@@ -189,7 +232,7 @@ def get_sales_trend_details(month: str):
                 "tickets_sold": int(r["tickets_sold"] or 0),
                 "revenue": float(r["revenue"] or 0.0)
             })
-            
+
         return {
             "status": "success",
             "events": events
@@ -197,3 +240,33 @@ def get_sales_trend_details(month: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.get("/ticket-buyers")
+def get_ticket_buyers():
+    try:
+        query = """
+            SELECT u.id, CONCAT(u.first_name, ' ', u.last_name) as name, u.email, COUNT(t.id) as tickets_bought, SUM(t.price) as total_spent
+            FROM users u
+            JOIN tickets t ON u.id = t.user_id
+            WHERE t.status != 'cancelled'
+            GROUP BY u.id, u.first_name, u.last_name, u.email
+            ORDER BY total_spent DESC
+        """
+        rows = execute_query(query)
+
+        buyers = []
+        for r in rows:
+            buyers.append({
+                "id": r["id"],
+                "name": r["name"] or "Usuario Anónimo",
+                "email": r["email"] or "N/A",
+                "tickets_bought": int(r["tickets_bought"] or 0),
+                "total_spent": float(r["total_spent"] or 0.0)
+            })
+
+        return {
+            "status": "success",
+            "buyers": buyers
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

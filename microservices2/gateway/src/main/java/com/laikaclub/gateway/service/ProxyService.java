@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,7 +23,7 @@ public class ProxyService {
     private final RestTemplate restTemplate;
 
     public ProxyService() {
-        this.restTemplate = new RestTemplate();
+        this.restTemplate = new RestTemplate(new JdkClientHttpRequestFactory());
         // Configure RestTemplate to NOT throw exceptions on 4xx/5xx errors,
         // so we can pass them back directly to the client.
         this.restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
@@ -46,6 +47,9 @@ public class ProxyService {
         try {
             // Read body
             byte[] body = StreamUtils.copyToByteArray(request.getInputStream());
+            if (body != null && body.length == 0) {
+                body = null;
+            }
 
             // Build headers
             HttpHeaders headers = new HttpHeaders();

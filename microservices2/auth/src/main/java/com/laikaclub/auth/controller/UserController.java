@@ -75,8 +75,26 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toPublicProfileResponse(user));
     }
 
-    @GetMapping("/{userId}/permissions")
+    @PutMapping("/{userId}")
     @PreAuthorize("hasAnyRole('admin', 'gestor')")
+    public ResponseEntity<UserProfileResponse> updateProfile(
+            @PathVariable Long userId,
+            @RequestBody Map<String, String> updates) {
+        
+        String firstName = updates.get("first_name");
+        if (firstName == null) firstName = updates.get("firstName");
+        
+        String lastName = updates.get("last_name");
+        if (lastName == null) lastName = updates.get("lastName");
+        
+        String phone = updates.get("phone");
+        
+        User user = userService.updateProfile(userId, firstName, lastName, phone);
+        return ResponseEntity.ok(UserMapper.toProfileResponse(user));
+    }
+
+    @GetMapping("/{userId}/permissions")
+    @PreAuthorize("hasAnyRole('admin', 'gestor', 'operador')")
     public ResponseEntity<PermissionResponse> getPermissions(@PathVariable Long userId) {
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));

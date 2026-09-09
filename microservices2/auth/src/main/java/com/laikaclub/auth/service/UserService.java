@@ -141,6 +141,16 @@ public class UserService {
     }
 
     @Transactional
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        if ("admin@laikaclub.com".equalsIgnoreCase(user.getEmail())) {
+            throw new UnauthorizedException("No se puede eliminar la cuenta del administrador raíz");
+        }
+        userRepository.delete(user);
+    }
+
+    @Transactional
     public User updatePermissions(Long id, String role, Map<String, Boolean> permissions) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));

@@ -54,6 +54,47 @@ public class AdminController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/admin/users")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Map<String, Object>> createAdminUser(
+            @RequestBody Map<String, String> request) {
+        
+        String firstName = request.getOrDefault("first_name", "");
+        String lastName = request.getOrDefault("last_name", "");
+        String email = request.get("email");
+        String phone = request.getOrDefault("phone", "");
+        String password = request.get("password");
+        
+        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email y contraseña son requeridos");
+        }
+        
+        User user = userService.createUser(firstName, lastName, email, phone, password, "local");
+        
+        String role = request.get("role");
+        if (role != null) {
+            userService.updatePermissions(user.getId(), role, null);
+        }
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("user_id", user.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/admin/users/{userId}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Map<String, Object>> deleteAdminUser(
+            @PathVariable Long userId) {
+        
+        userService.deleteUser(userId);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Usuario eliminado");
+        return ResponseEntity.ok(response);
+    }
+
     @PatchMapping("/admin/users/{userId}/status")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Map<String, Object>> patchUserStatus(

@@ -19,8 +19,8 @@ services:
     build: .
     container_name: laika_auth_hybrid
     ports:
-      - "8001:8001"
-    command: uvicorn microservices.auth.main:app --host 0.0.0.0 --port 8001
+      - "8101:8101"
+    command: uvicorn microservices.auth.main:app --host 0.0.0.0 --port 8101
     environment:
       - PYTHONPATH=/app
     extra_hosts:
@@ -32,8 +32,8 @@ services:
     build: .
     container_name: laika_events_hybrid
     ports:
-      - "8002:8002"
-    command: uvicorn microservices.events.main:app --host 0.0.0.0 --port 8002
+      - "8201:8201"
+    command: uvicorn microservices.events.main:app --host 0.0.0.0 --port 8201
     environment:
       - PYTHONPATH=/app
     extra_hosts:
@@ -45,8 +45,8 @@ services:
     build: .
     container_name: laika_tickets_hybrid
     ports:
-      - "8003:8003"
-    command: uvicorn microservices.tickets.main:app --host 0.0.0.0 --port 8003
+      - "8202:8202"
+    command: uvicorn microservices.tickets.main:app --host 0.0.0.0 --port 8202
     environment:
       - PYTHONPATH=/app
     extra_hosts:
@@ -58,8 +58,8 @@ services:
     build: .
     container_name: laika_stats_hybrid
     ports:
-      - "8004:8004"
-    command: uvicorn microservices.stats.main:app --host 0.0.0.0 --port 8004
+      - "8103:8103"
+    command: uvicorn microservices.stats.main:app --host 0.0.0.0 --port 8103
     environment:
       - PYTHONPATH=/app
     extra_hosts:
@@ -71,8 +71,8 @@ services:
     build: .
     container_name: laika_admin_hybrid
     ports:
-      - "8005:8005"
-    command: uvicorn microservices.admin.main:app --host 0.0.0.0 --port 8005
+      - "8102:8102"
+    command: uvicorn microservices.admin.main:app --host 0.0.0.0 --port 8102
     environment:
       - PYTHONPATH=/app
     extra_hosts:
@@ -84,8 +84,8 @@ services:
     build: .
     container_name: laika_achievements_hybrid
     ports:
-      - "8006:8006"
-    command: uvicorn microservices.achievements.main:app --host 0.0.0.0 --port 8006
+      - "8301:8301"
+    command: uvicorn microservices.achievements.main:app --host 0.0.0.0 --port 8301
     environment:
       - PYTHONPATH=/app
     extra_hosts:
@@ -97,8 +97,8 @@ services:
     build: .
     container_name: laika_analytics_hybrid
     ports:
-      - "8007:8007"
-    command: uvicorn microservices.analytics_bigdata.main:app --host 0.0.0.0 --port 8007
+      - "8302:8302"
+    command: uvicorn microservices.analytics_bigdata.main:app --host 0.0.0.0 --port 8302
     environment:
       - PYTHONPATH=/app
     extra_hosts:
@@ -110,8 +110,8 @@ services:
     build: .
     container_name: laika_merchandise_hybrid
     ports:
-      - "8008:8008"
-    command: uvicorn microservices.merchandise.main:app --host 0.0.0.0 --port 8008
+      - "8203:8203"
+    command: uvicorn microservices.merchandise.main:app --host 0.0.0.0 --port 8203
     environment:
       - PYTHONPATH=/app
     extra_hosts:

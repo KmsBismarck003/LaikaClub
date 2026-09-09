@@ -1,14 +1,14 @@
 // Importa la directiva For de SolidJS
-import { For } from "solid-js";
-// Importa el formateador de monedas
-import { formatCurrency } from "../../funciones/formatters";
+import { For, Show } from "solid-js";
+// Importa el formateador de monedas y período temporal
+import { formatCurrency, formatPeriodo } from "../../funciones/formatters";
 // Importa el archivo de estilos local
 import "./estilo.css";
 
 export default function Componente(props) {
   const width = 500;
-  const height = 300;
-  const padding = { top: 20, right: 100, bottom: 45, left: 240 };
+  const height = 400;
+  const padding = { top: 20, right: 80, bottom: 45, left: 240 };
 
   const chartWidth = width - padding.left - padding.right;
 
@@ -17,10 +17,10 @@ export default function Componente(props) {
       ? Math.max(...props.bars.map((b) => b.revenue), 1)
       : 1;
 
-  // 4 posiciones de escala en el eje X
+  // 3 posiciones de escala en el eje X para evitar empalme con números completos
   const xLevels = () => {
     const max = maxVal();
-    return [0, 0.33, 0.66, 1].map((frac) => ({
+    return [0, 0.5, 1].map((frac) => ({
       label: frac === 0 ? "$0" : formatCurrency(max * frac),
       x: padding.left + frac * chartWidth,
     }));
@@ -163,6 +163,41 @@ export default function Componente(props) {
       >
         Ingresos Totales (MXN)
       </text>
+
+      {/* ── ANOTACIÓN DE PERÍODO TEMPORAL DENTRO DEL SVG ──
+          Responde directamente: ¿de qué fechas son estos datos?
+          Aparece en capturas de pantalla, impresiones y proyector. */}
+      <Show when={props.periodo && props.periodo.fecha_inicio}>
+        {() => {
+          const label = ` Período: ${formatPeriodo(props.periodo)}`;
+          const labelWidth = 210;
+          const labelX = width - padding.right - labelWidth;
+          const labelY = padding.top + 14;
+          return (
+            <g>
+              <rect
+                x={labelX - 4}
+                y={labelY - 13}
+                width={labelWidth + 8}
+                height={18}
+                rx={4}
+                fill="#f0f4ff"
+                stroke="#c7d2fe"
+                stroke-width="1"
+                opacity="0.95"
+              />
+              <text
+                x={labelX + labelWidth / 2}
+                y={labelY}
+                fill="#1e3a8a"
+                style="font-size: 9.5px; font-weight: 800; text-anchor: middle; letter-spacing: 0.03em;"
+              >
+                {label}
+              </text>
+            </g>
+          );
+        }}
+      </Show>
     </svg>
   );
 }

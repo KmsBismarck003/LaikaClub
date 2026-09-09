@@ -52,10 +52,10 @@ class AnalyticsEngine(ClusteringModule, NeuralNetworkModule, UserDemandAnalytics
         self.mongo_db = os.getenv("MONGO_DB", "laika_analytics")
 
         try:
-            print(f"[DEBUG] Inicializando motor Spark de forma síncrona en el hilo principal...")
-            self._safe_initialize_spark()
+            print(f"[DEBUG] Inicializando motor Spark en segundo plano (hilo secundario)...")
+            threading.Thread(target=self._safe_initialize_spark, daemon=True).start()
         except Exception as e:
-            print(f"FAILED to launch spark: {e}")
+            print(f"FAILED to launch spark thread: {e}")
 
     def _safe_initialize_spark(self):
         """Método para ejecutar en segundo plano."""

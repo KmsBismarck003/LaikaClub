@@ -1,4 +1,5 @@
 import { createMemo, For, Show } from "solid-js";
+import { formatCurrency, formatInteger } from "../../funciones/formatters";
 
 // Utilidad para extraer un array estandarizado [{label: "...", value: 123}] de cualquier origen de datos
 const normalizarDatos = (rawData, preparedData) => {
@@ -26,9 +27,14 @@ const normalizarDatos = (rawData, preparedData) => {
 
 const formatVal = (v) => {
   if (typeof v !== 'number' || isNaN(v)) return v;
-  if (v >= 1000000) return `$${(v/1000000).toFixed(1)}M`;
-  if (v >= 1000) return `$${(v/1000).toFixed(1)}k`;
-  return v.toFixed(0);
+  // Usa la configuración central de formatters.js (que respeta la variable FORMATO_COMPACTO)
+  // Si el valor es pequeño (< 1000) o es algo como boletos, usa formatInteger.
+  // Pero aquí asumimos que si es grande, podría ser dinero. Para simplificar, usamos formatCurrency 
+  // si parece dinero, pero no tenemos el tipo. Usaremos formatCurrency por defecto si es > 100,
+  // de lo contrario formatInteger para que no tenga el signo $.
+  // Es mejor usar formatInteger y si era dinero el componente ya lo manejaría, pero en el modo de emergencia
+  // lo generalizamos:
+  return formatCurrency(v);
 };
 
 export default function MotorGraficoEmergencia(props) {

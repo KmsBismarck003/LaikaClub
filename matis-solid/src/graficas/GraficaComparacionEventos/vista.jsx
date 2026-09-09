@@ -121,7 +121,7 @@ export default function Vista() {
     <div class="chart-card full-width-chart">
       {/* Cabecera del gráfico con títulos explícitos y autodescriptivos */}
       <div class="chart-header">
-        <h3 class="chart-title">Comparación de Venta Acumulada de Boletos en Pesos entre Dos Eventos Seleccionados</h3>
+        <h3 class="chart-title">Comparación de venta de boletos entre dos eventos seleccionados</h3>
         <p class="chart-subtitle">Permite ver semana a semana la recaudación acumulada generada por cada espectáculo</p>
       </div>
 

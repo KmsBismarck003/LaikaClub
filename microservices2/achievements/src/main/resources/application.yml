@@ -1,5 +1,5 @@
 server:
-  port: 8006
+  port: 8301
 
 spring:
   application:
@@ -31,5 +31,5 @@ jwt:
 
 # Service URLs
 services:
-  tickets-url: ${TICKETS_SERVICE_URL:http://localhost:8003}
-  auth-url: ${AUTH_SERVICE_URL:http://localhost:8001}
+  tickets-url: ${TICKETS_SERVICE_URL:http://localhost:8202}
+  auth-url: ${AUTH_SERVICE_URL:http://localhost:8101}

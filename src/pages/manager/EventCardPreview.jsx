@@ -102,7 +102,7 @@ const EventCardPreview = ({ eventData }) => {
                                 {name}
                             </h3>
                             <div style={{ display: 'flex', gap: '10px', marginTop: '10px', fontSize: '0.7rem', opacity: 0.9, fontWeight: '600' }}>
-                                <span>📅 {formattedDate}</span>
+                                <span> {formattedDate}</span>
                                 <span>🕒 {formattedTime}</span>
                             </div>
                         </div>
