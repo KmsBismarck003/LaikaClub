@@ -5,12 +5,20 @@ async function check() {
     const connection = await mysql.createConnection({
       host: 'localhost',
       user: 'root',
-      password: '',
-      database: 'laika_club3_v2'
+      password: 'root',
+      database: 'laika_events'
     });
     
-    const [rows] = await connection.execute('SELECT count(*) as count FROM venues');
-    console.log("Total venues in MySQL:", rows[0].count);
+    console.log("Connected to laika_events");
+    
+    let [tables] = await connection.execute('SHOW TABLES');
+    console.log("Tables:", tables.map(t => Object.values(t)[0]));
+    
+    const [venues] = await connection.execute('SELECT * FROM venues');
+    console.log("Venues:", venues);
+    
+    const [rooms] = await connection.execute('SELECT * FROM venue_rooms');
+    console.log("Rooms:", rooms.map(r => ({id: r.id, venue_id: r.venue_id, name: r.name, capacity: r.capacity, has_map: !!r.map_configuration})));
     
     await connection.end();
   } catch (err) {

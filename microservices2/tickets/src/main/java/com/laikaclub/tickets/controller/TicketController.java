@@ -75,6 +75,50 @@ public class TicketController {
         return ticketService.getBusySeats(eventId, functionId);
     }
 
+    @PostMapping("/lock")
+    public Map<String, Object> lockSeat(@RequestBody Map<String, Object> body,
+                                        @AuthenticationPrincipal UserPrincipal user) {
+        Number eventIdNum = (Number) body.get("eventId");
+        if (eventIdNum == null) eventIdNum = (Number) body.get("event_id");
+        if (eventIdNum == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "eventId requerido");
+
+        Number functionIdNum = (Number) body.get("functionId");
+        if (functionIdNum == null) functionIdNum = (Number) body.get("function_id");
+        Long functionId = functionIdNum != null ? functionIdNum.longValue() : null;
+
+        String seatId = (String) body.get("seatId");
+        if (seatId == null) seatId = (String) body.get("seat_id");
+        if (seatId == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "seatId requerido");
+        
+        String sectionName = (String) body.get("sectionName");
+        Number priceNum = (Number) body.get("price");
+        Double price = priceNum != null ? priceNum.doubleValue() : 0.0;
+
+        return ticketService.lockSeat(user.getId(), eventIdNum.longValue(), functionId, seatId, sectionName, price);
+    }
+
+    @DeleteMapping("/lock")
+    public Map<String, Object> unlockSeat(@RequestBody Map<String, Object> body,
+                                          @AuthenticationPrincipal UserPrincipal user) {
+        Number eventIdNum = (Number) body.get("eventId");
+        if (eventIdNum == null) eventIdNum = (Number) body.get("event_id");
+        if (eventIdNum == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "eventId requerido");
+
+        Number functionIdNum = (Number) body.get("functionId");
+        if (functionIdNum == null) functionIdNum = (Number) body.get("function_id");
+        Long functionId = functionIdNum != null ? functionIdNum.longValue() : null;
+
+        String seatId = (String) body.get("seatId");
+        if (seatId == null) seatId = (String) body.get("seat_id");
+        if (seatId == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "seatId requerido");
+
+        ticketService.unlockSeat(user.getId(), eventIdNum.longValue(), functionId, seatId);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        return response;
+    }
+
     @PostMapping("/purchase")
     public List<Map<String, Object>> purchase(@RequestBody TicketPurchase data,
                                               @AuthenticationPrincipal UserPrincipal user) {

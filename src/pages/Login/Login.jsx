@@ -22,6 +22,24 @@ const DECOUPLED_PORTS = {
   operador: 3030
 }
 
+const handleRoleRedirection = (userObj, navigate, from = null) => {
+  const userRole = userObj?.role
+  const targetPort = DECOUPLED_PORTS[userRole]
+  const currentPort = window.location.port ? parseInt(window.location.port, 10) : 80
+
+  if (targetPort && currentPort !== targetPort) {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+    const b64User = btoa(encodeURIComponent(JSON.stringify(userObj)))
+    const targetPath = roleRedirectMap[userRole] || '/'
+    window.location.href = `http://localhost:${targetPort}/auth-sync?token=${token}&user=${b64User}&redirect=${encodeURIComponent(targetPath)}`
+    return true
+  }
+
+  const targetPath = from || roleRedirectMap[userRole] || '/'
+  navigate(targetPath)
+  return false
+}
+
 const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -66,10 +84,7 @@ const Login = () => {
   // 🚀 Redirección si ya está autenticado (evita parpadeo del login)
   useEffect(() => {
     if (!authLoading && user) {
-      const targetPath = ['admin', 'gestor', 'operador'].includes(user.role) 
-        ? roleRedirectMap[user.role] 
-        : (from || roleRedirectMap[user.role] || '/');
-      navigate(targetPath)
+      handleRoleRedirection(user, navigate, from)
     }
   }, [user, authLoading, navigate, from])
 
@@ -150,19 +165,7 @@ const Login = () => {
         
         // Fase 3: Gatillar Bienvenida Global y Redirigir
         triggerWelcomeModal()
-
-        // SSO Desacoplado: Redirigir a la app correcta si es rol administrativo
-        if (['admin', 'gestor', 'operador'].includes(result.user.role)) {
-          const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-          const targetPort = DECOUPLED_PORTS[result.user.role];
-          const b64User = btoa(encodeURIComponent(JSON.stringify(result.user)));
-          const targetPath = roleRedirectMap[result.user.role];
-          window.location.href = `http://localhost:${targetPort}/auth-sync?token=${token}&user=${b64User}&redirect=${encodeURIComponent(targetPath)}`;
-          return;
-        }
-
-        const targetPath = from || roleRedirectMap[result.user.role] || '/';
-        navigate(targetPath)
+        handleRoleRedirection(result.user, navigate, from)
       } else {
         if (result.status === 423) {
           // Bloqueado por el servidor
@@ -207,19 +210,7 @@ const Login = () => {
         
         // Fase 3: Gatillar Bienvenida Global y Redirigir
         triggerWelcomeModal()
-
-        // SSO Desacoplado: Redirigir a la app correcta si es rol administrativo
-        if (['admin', 'gestor', 'operador'].includes(result.user.role)) {
-          const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-          const targetPort = DECOUPLED_PORTS[result.user.role];
-          const b64User = btoa(encodeURIComponent(JSON.stringify(result.user)));
-          const targetPath = roleRedirectMap[result.user.role];
-          window.location.href = `http://localhost:${targetPort}/auth-sync?token=${token}&user=${b64User}&redirect=${encodeURIComponent(targetPath)}`;
-          return;
-        }
-
-        const targetPath = from || roleRedirectMap[result.user.role] || '/';
-        navigate(targetPath)
+        handleRoleRedirection(result.user, navigate, from)
       } else {
         showError(result.error || 'Error al autenticar con Google')
       }

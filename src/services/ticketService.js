@@ -22,6 +22,10 @@ export const ticketAPI = {
     getTicketHistory: (ticketCode) => apiClient.get(`/tickets/validations/ticket/${ticketCode}`),
     getByCode: ticketCode => apiClient.get(`/tickets/${ticketCode}`),
     cancel: ticketId => apiClient.delete(`/tickets/${ticketId}`),
+    lockSeat: (eventId, functionId, seatId, sectionName, price) => 
+        apiClient.post('/tickets/lock', { eventId, functionId, seatId, sectionName, price }),
+    unlockSeat: (eventId, functionId, seatId) => 
+        apiClient.delete('/tickets/lock', { data: { eventId, functionId, seatId } }),
     refund: refundData => apiClient.post('/refunds', refundData),
     luckySeatAssign: (eventId, data) => apiClient.post('/tickets/lucky-seat/assign', { event_id: eventId, ...data }),
     resendTicket: (ticketCode) => apiClient.post(`/tickets/${ticketCode}/resend`)

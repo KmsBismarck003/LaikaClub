@@ -14,12 +14,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TicketService {
@@ -30,6 +34,7 @@ public class TicketService {
     private final PaymentRepository paymentRepository;
     private final MongoSyncService mongoSyncService;
     private final RestTemplate restTemplate;
+    private final ConcurrentHashMap<String, ReentrantLock> seatLocks = new ConcurrentHashMap<>();
 
     @Value("${services.events.url}")
     private String eventServiceUrl;
@@ -75,11 +80,94 @@ public class TicketService {
     }
 
     public List<String> getBusySeats(Long eventId, Long functionId) {
-        List<String> statuses = List.of("active", "used", "redeemed", "unutilized", "expired", "transferred", "confirmed");
+        List<String> statuses = List.of("active", "locked", "used", "redeemed", "unutilized", "transferred", "confirmed");
         if (functionId != null) {
             return ticketRepository.findSeatIdsByEventIdAndEventFunctionIdAndStatusIn(eventId, functionId, statuses);
         } else {
             return ticketRepository.findSeatIdsByEventIdAndStatusIn(eventId, statuses);
+        }
+    }
+
+    private String getLockKey(Long eventId, Long functionId, String seatId) {
+        return eventId + "-" + (functionId != null ? functionId : "null") + "-" + seatId;
+    }
+
+    public Map<String, Object> lockSeat(Long userId, Long eventId, Long functionId, String seatId, String sectionName, Double price) {
+        String lockKey = getLockKey(eventId, functionId, seatId);
+        ReentrantLock lock = seatLocks.computeIfAbsent(lockKey, k -> new ReentrantLock());
+        
+        lock.lock();
+        try {
+            // Verify if it's already busy
+            List<String> statuses = List.of("active", "locked", "used", "redeemed", "unutilized", "transferred", "confirmed");
+            List<String> busySeats;
+            if (functionId != null) {
+                busySeats = ticketRepository.findSeatIdsByEventIdAndEventFunctionIdAndStatusIn(eventId, functionId, statuses);
+            } else {
+                busySeats = ticketRepository.findSeatIdsByEventIdAndStatusIn(eventId, statuses);
+            }
+            
+            if (busySeats.contains(seatId)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "El asiento " + seatId + " ya está ocupado o siendo comprado por otro usuario.");
+            }
+
+            String uniqueCode = "TKT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+            
+            Ticket ticket = new Ticket();
+            ticket.setUserId(userId);
+            ticket.setEventId(eventId);
+            ticket.setEventFunctionId(functionId);
+            ticket.setSeatId(seatId);
+            ticket.setSectionName(sectionName);
+            ticket.setPrice(price != null ? price : 0.0);
+            ticket.setStatus("locked");
+            ticket.setPurchaseDate(LocalDateTime.now());
+            ticket.setTicketCode(uniqueCode);
+            ticket.setQrData(uniqueCode);
+            
+            ticketRepository.save(ticket);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("ticketCode", uniqueCode);
+            return response;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Transactional
+    public void unlockSeat(Long userId, Long eventId, Long functionId, String seatId) {
+        String lockKey = getLockKey(eventId, functionId, seatId);
+        ReentrantLock lock = seatLocks.computeIfAbsent(lockKey, k -> new ReentrantLock());
+        
+        lock.lock();
+        try {
+            Optional<Ticket> lockedTicket;
+            if (functionId != null) {
+                lockedTicket = ticketRepository.findByUserIdAndEventIdAndEventFunctionIdAndSeatIdAndStatus(userId, eventId, functionId, seatId, "locked");
+            } else {
+                lockedTicket = ticketRepository.findByUserIdAndEventIdAndSeatIdAndStatus(userId, eventId, seatId, "locked");
+            }
+            
+            lockedTicket.ifPresent(ticket -> {
+                ticket.setStatus("expired");
+                ticketRepository.save(ticket);
+            });
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Scheduled(fixedRate = 60000)
+    @Transactional
+    public void cleanExpiredLocks() {
+        LocalDateTime expiryTime = LocalDateTime.now().minusMinutes(10);
+        List<Ticket> expiredLocks = ticketRepository.findExpiredLocks(expiryTime);
+        for (Ticket ticket : expiredLocks) {
+            ticket.setStatus("expired");
+            ticketRepository.save(ticket);
+            logger.info("Seat lock expired for ticket: " + ticket.getTicketCode());
         }
     }
 
@@ -127,18 +215,52 @@ public class TicketService {
 
                 String uniqueCode = "TKT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 
-                Ticket ticket = new Ticket();
-                ticket.setUserId(userId);
-                ticket.setEventId(eid);
-                ticket.setTicketCode(uniqueCode);
-                ticket.setQrData(uniqueCode);
-                ticket.setStatus("active");
-                ticket.setPurchaseDate(now);
-                ticket.setSeatId(seat);
-                ticket.setSectionName(section);
-                ticket.setPrice(price);
-                ticket.setPaymentMethod(paymentMethod);
-                ticket.setEventFunctionId(fid);
+                Optional<Ticket> existingLockedTicket;
+                if (fid != null) {
+                    existingLockedTicket = ticketRepository.findByUserIdAndEventIdAndEventFunctionIdAndSeatIdAndStatus(userId, eid, fid, seat, "locked");
+                } else {
+                    existingLockedTicket = ticketRepository.findByUserIdAndEventIdAndSeatIdAndStatus(userId, eid, seat, "locked");
+                }
+                
+                Ticket ticket;
+                if (existingLockedTicket.isPresent()) {
+                    ticket = existingLockedTicket.get();
+                    ticket.setStatus("active");
+                    ticket.setPaymentMethod(paymentMethod);
+                    ticket.setPurchaseDate(now);
+                } else {
+                    // Si no había lock o es compra directa, intentamos crear uno nuevo
+                    // (Idealmente todo pasaría por lock primero)
+                    String lockKey = getLockKey(eid, fid, seat);
+                    ReentrantLock lock = seatLocks.computeIfAbsent(lockKey, k -> new ReentrantLock());
+                    
+                    lock.lock();
+                    try {
+                        List<String> statuses = List.of("active", "locked", "used", "redeemed", "unutilized", "transferred", "confirmed");
+                        List<String> busySeats = fid != null 
+                            ? ticketRepository.findSeatIdsByEventIdAndEventFunctionIdAndStatusIn(eid, fid, statuses)
+                            : ticketRepository.findSeatIdsByEventIdAndStatusIn(eid, statuses);
+                        
+                        if (busySeats.contains(seat)) {
+                            throw new ResponseStatusException(HttpStatus.CONFLICT, "El asiento " + seat + " ya está ocupado.");
+                        }
+                        
+                        ticket = new Ticket();
+                        ticket.setUserId(userId);
+                        ticket.setEventId(eid);
+                        ticket.setTicketCode(uniqueCode);
+                        ticket.setQrData(uniqueCode);
+                        ticket.setStatus("active");
+                        ticket.setPurchaseDate(now);
+                        ticket.setSeatId(seat);
+                        ticket.setSectionName(section);
+                        ticket.setPrice(price);
+                        ticket.setPaymentMethod(paymentMethod);
+                        ticket.setEventFunctionId(fid);
+                    } finally {
+                        lock.unlock();
+                    }
+                }
 
                 ticketRepository.save(ticket);
 

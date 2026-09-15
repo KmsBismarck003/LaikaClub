@@ -26,6 +26,13 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     Optional<Ticket> findByIdAndUserId(Long id, Long userId);
 
+    Optional<Ticket> findByUserIdAndEventIdAndEventFunctionIdAndSeatIdAndStatus(Long userId, Long eventId, Long eventFunctionId, String seatId, String status);
+    
+    Optional<Ticket> findByUserIdAndEventIdAndSeatIdAndStatus(Long userId, Long eventId, String seatId, String status);
+
+    @Query("SELECT t FROM Ticket t WHERE t.status = 'locked' AND t.purchaseDate < :expiryTime")
+    List<Ticket> findExpiredLocks(@Param("expiryTime") java.time.LocalDateTime expiryTime);
+
     @Query(value = "SELECT user_id, COUNT(id) as total_tickets, MAX(purchase_date) as last_purchase " +
                    "FROM tickets " +
                    "WHERE status != 'refunded' " +

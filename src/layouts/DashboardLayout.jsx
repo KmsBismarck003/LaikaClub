@@ -338,13 +338,18 @@ const DashboardLayout = () => {
                     {section.items.map(item => (
                       <button
                         key={item.id}
+                        type="button"
                         className={`sidebar-link ${isActive(item.path) ? 'active' : ''}`}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
                           if (item.path === '#laika-agent') {
                             window.dispatchEvent(new Event('openLaikaAgent'));
                           } else {
                             navigate(item.path);
                           }
+                        }}
+                        onPointerDown={(e) => {
+                          // Permite que el click se registre sin ser suprimido por drag en dispositivos táctiles/ratón
                         }}
                         draggable={user?.role === 'admin' && !section.isCollapsible}
                         onDragStart={(e) => handleDragStart(e, section.id, item.id)}

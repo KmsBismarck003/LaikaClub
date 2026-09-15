@@ -33,7 +33,7 @@ export const CartProvider = ({ children }) => {
     const [total, setTotal] = useState(0);
     const [savedCards, setSavedCards] = useState([]);
     const [savedAddresses, setSavedAddresses] = useState([]);
-    const { success, info } = useNotification();
+    const { success, info, error } = useNotification();
     const { user } = useAuth();
 
     // Ref to prevent user cart overwriting during transition
@@ -291,10 +291,28 @@ export const CartProvider = ({ children }) => {
         }
     }, [appliedCoupon, total]);
 
-    const addToCart = (event, quantity = 1, functionData = null, sectionData = null, seats = []) => {
+    const addToCart = async (event, quantity = 1, functionData = null, sectionData = null, seats = []) => {
+        const functionId = functionData ? functionData.id : null;
+        const sectionId = sectionData ? sectionData.id : null;
+        const price = sectionData ? parseFloat(sectionData.price) : parseFloat(event.price || 0);
+        
+        // Attempt to lock seats on the server first
+        if (seats && seats.length > 0 && !event.id.toString().startsWith('merch_')) {
+            try {
+                const { ticketAPI } = await import('../services/ticketService');
+                for (const seat of seats) {
+                    await ticketAPI.lockSeat(event.id, functionId, seat, sectionData ? sectionData.name : 'General', price);
+                }
+            } catch (err) {
+                console.error("Error locking seats:", err);
+                if (error) {
+                    error(err?.response?.data?.message || "Uno o más asientos seleccionados ya no están disponibles.");
+                }
+                return; // Abort adding to cart
+            }
+        }
+
         setCart(prevCart => {
-            const functionId = functionData ? functionData.id : null;
-            const sectionId = sectionData ? sectionData.id : null;
             const existingItem = prevCart.find(item =>
                 item.eventId === event.id && item.functionId === functionId && item.sectionId === sectionId
             );
@@ -348,7 +366,20 @@ export const CartProvider = ({ children }) => {
         );
     };
 
-    const removeFromCart = (eventId, functionId = null, sectionId = null) => {
+    const removeFromCart = async (eventId, functionId = null, sectionId = null) => {
+        // Unlock seats on the server
+        const itemToRemove = cart.find(item => item.eventId === eventId && item.functionId === functionId && item.sectionId === sectionId);
+        if (itemToRemove && itemToRemove.seats && itemToRemove.seats.length > 0) {
+            try {
+                const { ticketAPI } = await import('../services/ticketService');
+                for (const seat of itemToRemove.seats) {
+                    await ticketAPI.unlockSeat(eventId, functionId, seat);
+                }
+            } catch (err) {
+                console.error("Error unlocking seats:", err);
+            }
+        }
+
         setCart(prevCart => prevCart.filter(item => !(item.eventId === eventId && item.functionId === functionId && item.sectionId === sectionId)));
         removeCoupon();
     };
@@ -365,7 +396,23 @@ export const CartProvider = ({ children }) => {
         removeCoupon();
     };
 
-    const clearCart = () => {
+    const clearCart = async () => {
+        // Unlock all seats in cart
+        if (cart.length > 0) {
+            try {
+                const { ticketAPI } = await import('../services/ticketService');
+                for (const item of cart) {
+                    if (item.seats && item.seats.length > 0) {
+                        for (const seat of item.seats) {
+                            await ticketAPI.unlockSeat(item.eventId, item.functionId, seat);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error unlocking seats on clear:", err);
+            }
+        }
+
         setCart([]);
         removeCoupon();
     };

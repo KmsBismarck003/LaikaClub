@@ -1,0 +1,278 @@
+services:
+  # Base de Datos MySQL
+  laika_db:
+    image: mysql:8.0
+    container_name: laika_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-laika_auth}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
+    ports:
+      - "3306:3306"
+    volumes:
+      - laika_db_data:/var/lib/mysql
+      # Importa automáticamente el respaldo configurado en init.sql al iniciar por primera vez en un equipo limpio
+      - ./laika_db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # API Gateway
+  gateway:
+    build:
+      context: ./microservices2/gateway
+      dockerfile: Dockerfile
+    container_name: laika_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - AUTH_SERVICE_URL=http://auth:8101
+      - EVENTS_SERVICE_URL=http://events:8201
+      - TICKETS_SERVICE_URL=http://tickets:8202
+      - STATS_SERVICE_URL=http://stats:8103
+      - ADMIN_SERVICE_URL=http://admin:8102
+      - ACHIEVEMENTS_SERVICE_URL=http://achievements:8301
+      - ANALYTICS_SERVICE_URL=http://analytics:8302
+      - ANALYTICS_BIGDATA_SERVICE_URL=http://analytics_bigdata:8303
+      - MERCHANDISE_SERVICE_URL=http://merchandise:8203
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_gateway
+    depends_on:
+      - auth
+      - events
+      - tickets
+      - stats
+      - admin
+      - achievements
+      - analytics
+      - merchandise
+    env_file:
+      - .env.docker
+    volumes:
+      - ./uploads:/app/uploads
+
+  auth:
+    build:
+      context: ./microservices2/auth
+      dockerfile: Dockerfile
+    container_name: laika_auth
+    ports:
+      - "8101:8101"
+    environment:
+      - SERVER_PORT=8101
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_auth
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    volumes:
+      - ./uploads:/app/uploads
+
+  events:
+    build:
+      context: ./microservices2/events
+      dockerfile: Dockerfile
+    container_name: laika_events
+    ports:
+      - "8201:8201"
+    environment:
+      - SERVER_PORT=8201
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_events
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    volumes:
+      - ./uploads:/app/uploads
+
+  tickets:
+    build:
+      context: ./microservices2/tickets
+      dockerfile: Dockerfile
+    container_name: laika_tickets
+    ports:
+      - "8202:8202"
+    environment:
+      - SERVER_PORT=8202
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_tickets
+      - EVENTS_SERVICE_URL=http://events:8201
+      - AUTH_SERVICE_URL=http://auth:8101
+      - WEARABLES_SERVICE_URL=http://laika_wearables:8204
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    volumes:
+      - ./uploads:/app/uploads
+
+  stats:
+    build:
+      context: ./microservices2/stats
+      dockerfile: Dockerfile
+    container_name: laika_stats
+    ports:
+      - "8103:8103"
+    environment:
+      - SERVER_PORT=8103
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_stats
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+
+  admin:
+    build:
+      context: ./microservices2/admin
+      dockerfile: Dockerfile
+    container_name: laika_admin
+    ports:
+      - "8102:8102"
+    environment:
+      - SERVER_PORT=8102
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_admin
+      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME:-redjar481@gmail.com}
+      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD:-yvpfindjqyyexjxp}
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    volumes:
+      - ./uploads:/app/uploads
+      - ./backups:/app/backups
+
+  achievements:
+    build:
+      context: ./microservices2/achievements
+      dockerfile: Dockerfile
+    container_name: laika_achievements
+    ports:
+      - "8301:8301"
+    environment:
+      - SERVER_PORT=8301
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_achievements
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+
+  analytics:
+    build:
+      context: ./microservices2/analytics
+      dockerfile: Dockerfile
+    container_name: laika_analytics
+    ports:
+      - "8302:8302"
+    environment:
+      - SERVER_PORT=8302
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_analytics
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+
+  analytics_bigdata:
+    build:
+      context: ./microservices/analytics_bigdata
+      dockerfile: Dockerfile
+    container_name: laika_analytics_bigdata
+    ports:
+      - "8303:8303"
+    environment:
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_analytics
+      - MYSQL_USER=root
+      - MONGO_URI=mongodb://host.docker.internal:27017
+      - SPARK_LOCAL_IP=127.0.0.1
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+
+  merchandise:
+    build:
+      context: ./microservices2/merchandise
+      dockerfile: Dockerfile
+    container_name: laika_merchandise
+    ports:
+      - "8203:8203"
+    environment:
+      - SERVER_PORT=8203
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=laika_merchandise
+    depends_on:
+      laika_db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    volumes:
+      - ./uploads:/app/uploads
+
+  # React Frontend Service
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: laika_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./uploads:/app/public/uploads # Permite al frontend acceder a imágenes cargadas por el admin
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WDS_SOCKET_PORT=0
+      - REACT_APP_API_URL=http://localhost:8000/api
+    depends_on:
+      - gateway
+    stdin_open: true
+    tty: true
+
+  # MATIS SolidJS Dashboard
+  matis:
+    build:
+      context: ./matis-solid
+      dockerfile: Dockerfile
+    container_name: laika_matis
+    ports:
+      - "3040:3040"
+    volumes:
+      - ./matis-solid/src:/app/src
+    environment:
+      - PORT=3040
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - gateway
+
+networks:
+  default:
+    name: laika_network
+
+volumes:
+  laika_db_data:
