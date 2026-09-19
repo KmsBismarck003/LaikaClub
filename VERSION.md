@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.1] - 2026-09-18
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- Rediseño completo del login de laika-admin a un estilo premium (Glassmorphism), acatando estrictamente el estilo de tarjeta de cristal sin bordes de inputs.
+- Refactorización de `Login.jsx` (monolito) dividiéndolo en componentes de UI independientes (`LoginLayout`, `LoginHeader`, `LoginForm`, `LoginFooter`).
+- Reestructuración de colores, layout y variables estéticas priorizando una identidad corporativa limpia.
+
+---
 ## [1.3.0] - 2026-09-18
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>
