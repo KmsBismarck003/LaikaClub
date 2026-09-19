@@ -21,7 +21,7 @@ services:
   # API Gateway
   gateway:
     build:
-      context: ./microservices2/gateway
+      context: ./pilgrim
       dockerfile: Dockerfile
     container_name: laika_gateway
     ports:

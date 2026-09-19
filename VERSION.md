@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.0] - 2026-09-18
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- Integración oficial de API Gateway desacoplado en Python (Pilgrim) reemplazando al gateway de Java en la orquestación.
+- Modificación de los archivos `docker-compose.yml` y `docker-compose.oracle.yml` para enrutar el tráfico principal hacia Pilgrim.
+- Creación de `Dockerfile` específico para Pilgrim, optimizado para despliegues en producción (Oracle Cloud ARM) usando Uvicorn.
+
+---
+
 ## [1.2.0] - 2026-09-14
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>
