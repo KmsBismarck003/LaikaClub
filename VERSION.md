@@ -8,6 +8,8 @@ Kms_Bismarck003 <jreyes6458@gmail.com>
 - Rediseño completo del login de laika-admin a un estilo premium (Glassmorphism), acatando estrictamente el estilo de tarjeta de cristal sin bordes de inputs.
 - Refactorización de `Login.jsx` (monolito) dividiéndolo en componentes de UI independientes (`LoginLayout`, `LoginHeader`, `LoginForm`, `LoginFooter`).
 - Reestructuración de colores, layout y variables estéticas priorizando una identidad corporativa limpia.
+- **laika-gestor:** Rediseño completo del login a *Glassmorphism Premium* con temática Ámbar/Naranja y layout centralizado.
+- **laika-operador:** Rediseño completo del login a *Glassmorphism Premium* con temática Verde/Cian y layout centralizado.
 
 ---
 ## [1.3.0] - 2026-09-18
