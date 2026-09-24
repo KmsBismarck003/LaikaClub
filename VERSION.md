@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.2] - 2026-09-24
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- Actualizaciones en el submódulo LaikaMobil y adición de archivos de pruebas y uploads.
+- **laika-gestor:** Creación de la rama `estilo-alternativo` con rediseño y modificaciones de estilo para el dashboard y vistas de gestión.
+- **laika-operador:** Actualización del componente `TicketInfo`.
+
+---
+
 ## [1.3.1] - 2026-09-18
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>
