@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.4.0] - 2026-09-24
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- Refactorización visual completa al estilo *Bento Box* en las interfaces de `laika-admin` (Ventas, Eventos, Usuarios, Recintos, Configuración y Push).
+- Erradicación de archivos CSS monolíticos locales (`admin.css`, `UserManagement.css`, etc.) forzando un diseño apoyado totalmente en componentes estandarizados.
+- Ajustes críticos en el componente maestro `<Table>` para asegurar legibilidad en tema oscuro y claro (`--text-primary`).
+- Resolución del bug del *Sidebar* deslizante provocado por conflictos con `overflow-x: hidden` y `position: sticky`.
+- Estandarización de elementos dinámicos sin el uso de macros hardcodeados.
+
 ## [1.3.2] - 2026-09-24
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>
