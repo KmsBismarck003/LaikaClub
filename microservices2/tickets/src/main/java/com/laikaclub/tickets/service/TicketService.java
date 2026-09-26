@@ -107,7 +107,7 @@ public class TicketService {
                 busySeats = ticketRepository.findSeatIdsByEventIdAndStatusIn(eventId, statuses);
             }
             
-            if (busySeats.contains(seatId)) {
+            if (seatId != null && busySeats.contains(seatId)) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "El asiento " + seatId + " ya está ocupado o siendo comprado por otro usuario.");
             }
 
@@ -241,7 +241,7 @@ public class TicketService {
                             ? ticketRepository.findSeatIdsByEventIdAndEventFunctionIdAndStatusIn(eid, fid, statuses)
                             : ticketRepository.findSeatIdsByEventIdAndStatusIn(eid, statuses);
                         
-                        if (busySeats.contains(seat)) {
+                        if (seat != null && busySeats.contains(seat)) {
                             throw new ResponseStatusException(HttpStatus.CONFLICT, "El asiento " + seat + " ya está ocupado.");
                         }
                         
@@ -742,7 +742,7 @@ public class TicketService {
     }
 
     @Transactional
-    public List<Map<String, Object>> claimFreeTicket(Long userId, Long eventId, String sectionName, String sectionId, Long functionId, String seatId) {
+    public List<Map<String, Object>> claimFreeTicket(Long userId, Long eventId, String sectionName, String sectionId, Long functionId, String seatId, List<String> seats, Integer quantity) {
         if (eventId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "event_id requerido");
         }
@@ -767,15 +767,34 @@ public class TicketService {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "No se pudo verificar el evento");
         }
 
-        TicketItem item = new TicketItem();
-        item.setEventId(eventId);
-        item.setSeatId(seatId);
-        item.setSectionName(sectionName != null ? sectionName : "General");
-        item.setSectionId(sectionId);
-        item.setPrice(0.0);
-        item.setFunctionId(functionId);
+        List<TicketItem> items = new ArrayList<>();
 
-        return purchaseTickets(userId, List.of(item), "free");
+        if (seats != null && !seats.isEmpty()) {
+            for (String seat : seats) {
+                TicketItem item = new TicketItem();
+                item.setEventId(eventId);
+                item.setSeatId(seat);
+                item.setSectionName(sectionName != null ? sectionName : "General");
+                item.setSectionId(sectionId);
+                item.setPrice(0.0);
+                item.setFunctionId(functionId);
+                items.add(item);
+            }
+        } else {
+            int qty = (quantity != null && quantity > 0) ? quantity : 1;
+            for (int i = 0; i < qty; i++) {
+                TicketItem item = new TicketItem();
+                item.setEventId(eventId);
+                item.setSeatId(seatId);
+                item.setSectionName(sectionName != null ? sectionName : "General");
+                item.setSectionId(sectionId);
+                item.setPrice(0.0);
+                item.setFunctionId(functionId);
+                items.add(item);
+            }
+        }
+
+        return purchaseTickets(userId, items, "free");
     }
 
     private void notifyWearablesService(Long userId, String reason) {

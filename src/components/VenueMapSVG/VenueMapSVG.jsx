@@ -15,6 +15,8 @@ function SeatDot({ seat, isBusy, isSelected, isWinner, onToggle }) {
   const [hovered, setHovered] = useState(false);
   const colors = SEAT_COLORS[seat.type] || SEAT_COLORS.normal;
 
+  const seatIdStr = String(seat.id || `${seat.rowLabel || 'A'}-${seat.number || '1'}`);
+
   let fill = colors.base;
   let stroke = colors.stroke;
   let strokeW = 1;
@@ -39,7 +41,7 @@ function SeatDot({ seat, isBusy, isSelected, isWinner, onToggle }) {
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={() => !isBusy && onToggle && onToggle(seat.id)}
+        onClick={() => !isBusy && onToggle && onToggle(seatIdStr)}
       />
       {seat.type && seat.type !== 'normal' && (
         <text x={seat.x} y={seat.y + 3.5} textAnchor="middle" fontSize={7}
@@ -228,8 +230,8 @@ const VenueMapSVG = memo(({
     });
   };
 
-  const busySet = new Set(busySeats);
-  const selectedSet = new Set(selectedSeats);
+  const busySet = new Set((busySeats || []).map(id => String(id)));
+  const selectedSet = new Set((selectedSeats || []).map(id => String(id)));
 
   if (!mapData.length) {
     return (
@@ -415,16 +417,19 @@ const VenueMapSVG = memo(({
                           <tspan>{block.rowLabel}</tspan>
                         </text>
                       )}
-                      {block.seats.map(seat => (
+                      {block.seats.map((seat, index) => {
+                        const seatIdStr = String(seat.id || `${seat.rowLabel || 'A'}-${seat.number || index}`);
+                        return (
                         <SeatDot
-                          key={seat.id}
+                          key={seatIdStr}
                           seat={seat}
-                          isBusy={busySet.has(seat.id)}
-                          isSelected={selectedSet.has(seat.id)}
+                          isBusy={busySet.has(seatIdStr)}
+                          isSelected={selectedSet.has(seatIdStr)}
                           isWinner={false}
                           onToggle={readOnly ? null : onSeatToggle}
                         />
-                      ))}
+                        );
+                      })}
                     </g>
                   ))}
                 </g>

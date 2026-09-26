@@ -47,6 +47,8 @@ export function useFreeEventFlow(event, selectedSection, { success, error }, onS
         sectionId:    selectedSection?.id,
         functionId:   overrides.functionId ?? null,
         seatId:       overrides.seatId ?? null,
+        seats:        overrides.seats ?? null,
+        quantity:     overrides.quantity ?? 1,
       };
       const result = await freeTicketAPI.claim(payload);
       success('Entrada registrada en tu Wallet');

@@ -12,6 +12,7 @@ import { useTicketEngine } from "./hooks/useTicketEngine";
 import { useLuckySeat } from "./hooks/useLuckySeat";
 import { useVenueMap } from "./hooks/useVenueMap";
 import { useSeatLock } from "./hooks/useSeatLock";
+import { useSeatPolling } from "./hooks/useSeatPolling";
 import { cleanPrice, formatDate, formatTime } from "./utils/helpers";
 import { useFreeEventFlow } from "../../hooks/useFreeEventFlow";
 
@@ -102,7 +103,18 @@ const EventDetail = () => {
     error
   );
 
-  // 6. Free Event Hook
+  // 6. Polling Sincronizador de Asientos
+  useSeatPolling(
+    id,
+    ticketEngine.selectedFunction?.id,
+    fetchBusySeats,
+    ticketEngine.selectedSeats,
+    ticketEngine.setSelectedSeats,
+    busySeats,
+    error
+  );
+
+  // 7. Free Event Hook
   const freeFlow = useFreeEventFlow(
     event,
     ticketEngine.selectedSection,
@@ -176,6 +188,8 @@ const EventDetail = () => {
     } catch(err) {
       ticketEngine.setIsProcessingPayment(false);
       error(err.response?.data?.detail || "Error procesando pago");
+      // Si el pago falla (ej. asiento ocupado - 409 Conflict), forzamos una recarga limpia del mapa
+      fetchBusySeats(id, ticketEngine.selectedFunction?.id);
     }
   };
 
@@ -338,7 +352,11 @@ const EventDetail = () => {
               isRouletteActive={luckySeat.isRouletteActive}
               setShowProbModal={luckySeat.setShowProbModal}
               isFreeEvent={freeFlow.isFreeEvent}
-              onClaimFree={() => requireAuth(() => freeFlow.claimFreeTicket({ functionId: ticketEngine.selectedFunction?.id }))}
+              onClaimFree={() => requireAuth(() => freeFlow.claimFreeTicket({ 
+                functionId: ticketEngine.selectedFunction?.id,
+                seats: ticketEngine.selectedSeats?.length > 0 ? ticketEngine.selectedSeats : null,
+                quantity: ticketEngine.selectedSection?.type === 'seating' ? ticketEngine.selectedSeats.length : ticketEngine.quantity
+              }))}
               isClaimingFree={freeFlow.loading}
             />
             {event.ads_enabled && (

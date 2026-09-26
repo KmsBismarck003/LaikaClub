@@ -197,6 +197,9 @@ public class TicketController {
     @PostMapping("/free")
     public Map<String, Object> claimFreeTicket(@RequestBody Map<String, Object> body,
                                                @AuthenticationPrincipal UserPrincipal user) {
+        System.out.println("=== CLAIM FREE TICKET DEBUG ===");
+        System.out.println("BODY: " + body);
+        System.out.println("===============================");
         Number eventIdNum = (Number) body.get("eventId");
         if (eventIdNum == null) {
             eventIdNum = (Number) body.get("event_id");
@@ -222,7 +225,17 @@ public class TicketController {
         String seatId = body.containsKey("seatId") && body.get("seatId") != null ? body.get("seatId").toString() :
                         body.containsKey("seat_id") && body.get("seat_id") != null ? body.get("seat_id").toString() : null;
 
-        List<Map<String, Object>> result = ticketService.claimFreeTicket(user.getId(), eventIdNum.longValue(), sectionName, sectionId, functionId, seatId);
+        List<String> seats = null;
+        if (body.get("seats") instanceof List) {
+            seats = (List<String>) body.get("seats");
+        }
+
+        Integer quantity = 1;
+        if (body.get("quantity") instanceof Number) {
+            quantity = ((Number) body.get("quantity")).intValue();
+        }
+
+        List<Map<String, Object>> result = ticketService.claimFreeTicket(user.getId(), eventIdNum.longValue(), sectionName, sectionId, functionId, seatId, seats, quantity);
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
