@@ -249,6 +249,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - WDS_SOCKET_PORT=0
       - REACT_APP_API_URL=http://localhost:8000/api
+      - GENERATE_SOURCEMAP=false
     depends_on:
       - gateway
     stdin_open: true
