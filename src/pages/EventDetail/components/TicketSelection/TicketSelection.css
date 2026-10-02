@@ -23,6 +23,13 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Variante con flex-column y gap para el selector geográfico */
+.tsp-header-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
 .tsp-section-label {
   font-size: 0.6rem;
   font-weight: 900;
@@ -30,6 +37,18 @@
   letter-spacing: 0.18em;
   color: rgba(255, 255, 255, 0.35);
   margin: 0 0 0.75rem;
+}
+
+/* ── FILTRO GEOGRÁFICO ───────────────────────────────────────── */
+.tsp-geo-row {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.tsp-geo-col {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ── CHIPS DE FUNCIÓN/FECHA ──────────────────────────────────── */
@@ -62,6 +81,48 @@
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── BLOQUE DE FUNCIONES (lista de horarios/lugares) ─────────── */
+.tsp-function-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+/* Variante full-width para chips de función */
+.tsp-function-chip-full {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 12px;
+  width: 100%;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.tsp-function-time {
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+
+.tsp-function-venue {
+  font-size: 0.62rem;
+  opacity: 0.8;
+  margin-top: 2px;
+  text-align: left;
+}
+
+/* ── SIN FUNCIONES DISPONIBLES ───────────────────────────────── */
+.tsp-no-functions {
+  padding: 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.72rem;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 /* ── LISTA DE SECCIONES/BOLETOS ──────────────────────────────── */
@@ -157,6 +218,12 @@
   color: rgba(255,255,255,0.35);
   font-weight: 500;
   margin-left: 2px;
+}
+
+/* Precio libre */
+.ticket-price--free {
+  color: #22c55e;
+  font-weight: 800;
 }
 
 .mock-radio {
@@ -277,6 +344,7 @@
   text-align: center;
 }
 
+/* Select geográfico */
 .laika-select {
   padding: 8px 28px 8px 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -294,6 +362,10 @@
   min-width: 60px;
   transition: border-color 0.2s;
 }
+
+/* Modificadores del laika-select */
+.laika-select--full { width: 100%; }
+.laika-select--sm { font-size: 0.72rem; padding: 6px 20px 6px 8px; height: 34px; }
 
 .laika-select:focus {
   outline: none;
@@ -322,7 +394,7 @@
   color: #fff;
 }
 
-/* Botón de compra */
+/* ── BOTÓN DE COMPRA BASE ─────────────────────────────────────── */
 .buy-btn-premium {
   background: #ffffff;
   color: #000000;
@@ -358,7 +430,70 @@
   cursor: not-allowed;
 }
 
-/* Lucky Seat */
+/* ── Variante: Evento gratuito (verde) ───────────────────────── */
+.buy-btn-premium--free {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+}
+
+.buy-btn-premium--free:hover:not(:disabled) {
+  background: linear-gradient(135deg, #15803d, #16a34a);
+  box-shadow: 0 8px 28px rgba(34, 197, 94, 0.45);
+}
+
+/* ── Variante: Ghost (añadir al carrito) ─────────────────────── */
+.buy-btn-premium--ghost {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  box-shadow: none;
+}
+
+.buy-btn-premium--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* ── Variante: Pagar directo (blanco, más prominente) ────────── */
+.buy-btn-premium--primary {
+  flex: 1.6;
+}
+
+/* ── Row de acciones de pago ─────────────────────────────────── */
+.tsp-pay-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+/* ── Spinner del evento gratuito ─────────────────────────────── */
+.tsp-free-spinner-wrapper,
+.tsp-free-confirm-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.tsp-free-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Lucky Seat ──────────────────────────────────────────────── */
 .tsp-lucky-block {
   margin: 0 1.5rem 0;
   padding: 1rem 1.25rem;

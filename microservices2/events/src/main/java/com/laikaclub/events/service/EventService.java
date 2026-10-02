@@ -60,6 +60,8 @@ public class EventService {
         event.setTotalTickets(dto.total_tickets);
         event.setAvailableTickets(dto.available_tickets);
         event.setImageUrl(dto.image_url);
+        event.setDurationMinutes(dto.duration_minutes);
+        event.setGalleryUrls(dto.gallery_urls);
         event.setStatus(dto.status != null ? dto.status : "draft");
         event.setCreatedBy(userId);
         event.setGridPositionX(dto.grid_position_x != null ? dto.grid_position_x : 0);
@@ -145,6 +147,8 @@ public class EventService {
         if (dto.total_tickets != null) event.setTotalTickets(dto.total_tickets);
         if (dto.available_tickets != null) event.setAvailableTickets(dto.available_tickets);
         if (dto.image_url != null) event.setImageUrl(dto.image_url);
+        if (dto.duration_minutes != null) event.setDurationMinutes(dto.duration_minutes);
+        if (dto.gallery_urls != null) event.setGalleryUrls(dto.gallery_urls);
         if (dto.status != null) event.setStatus(dto.status);
         if (dto.grid_position_x != null) event.setGridPositionX(dto.grid_position_x);
         if (dto.grid_position_y != null) event.setGridPositionY(dto.grid_position_y);

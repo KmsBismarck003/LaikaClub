@@ -58,6 +58,8 @@ public class EventDTOs {
         public Integer total_tickets;
         public Integer available_tickets;
         public String image_url;
+        public Integer duration_minutes;
+        public String gallery_urls;
         public String status = "draft";
         public Integer grid_position_x;
         public Integer grid_position_y;
@@ -95,6 +97,8 @@ public class EventDTOs {
         public Integer total_tickets;
         public Integer available_tickets;
         public String image_url;
+        public Integer duration_minutes;
+        public String gallery_urls;
         public String status;
         public Integer grid_position_x;
         public Integer grid_position_y;

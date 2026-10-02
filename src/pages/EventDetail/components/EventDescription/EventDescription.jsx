@@ -23,41 +23,54 @@ const getCategoryLabel = (cat) => {
   }
 };
 
+/**
+ * EventDescription — Muestra la descripción e información del evento.
+ *
+ * REGLA: Si no hay descripción, no se muestra texto inventado.
+ * El grid de hechos siempre se muestra si hay datos reales del evento.
+ *
+ * @param {object} event — objeto del evento de la API
+ * @param {boolean} isEventSeating — si el evento tiene asientos numerados
+ */
 export default function EventDescription({ event, isEventSeating }) {
   if (!event) return null;
 
   return (
     <div className="event-description">
       <h2>Acerca del evento</h2>
-      
-      {/* Event Facts Grid */}
+
+      {/* Event Facts Grid — siempre visible si hay datos */}
       <div className="event-facts-grid-premium">
-        <div className="fact-item-glass">
-          <Icon name={getCategoryIcon(event.category)} size={18} className="fact-icon-blue" />
-          <div className="fact-details">
-            <span className="fact-label">Categoría</span>
-            <span className="fact-value">{getCategoryLabel(event.category)}</span>
+        {event.category && (
+          <div className="fact-item-glass">
+            <Icon name={getCategoryIcon(event.category)} size={18} className="fact-icon-blue" />
+            <div className="fact-details">
+              <span className="fact-label">Categoría</span>
+              <span className="fact-value">{getCategoryLabel(event.category)}</span>
+            </div>
           </div>
-        </div>
-        
-        <div className="fact-item-glass">
-          <Icon name="clock" size={18} className="fact-icon-blue" />
-          <div className="fact-details">
-            <span className="fact-label">Duración</span>
-            <span className="fact-value">~2 horas aprox.</span>
+        )}
+
+        {event.duration_minutes && (
+          <div className="fact-item-glass">
+            <Icon name="clock" size={18} className="fact-icon-blue" />
+            <div className="fact-details">
+              <span className="fact-label">Duración</span>
+              <span className="fact-value">{event.duration_minutes} min</span>
+            </div>
           </div>
-        </div>
-        
-        <div className="fact-item-glass">
-          <Icon name="user" size={18} className="fact-icon-blue" />
-          <div className="fact-details">
-            <span className="fact-label">Clasificación</span>
-            <span className="fact-value">
-              {event.category?.toLowerCase() === 'festival' || event.category?.toLowerCase() === 'concert' ? '+18 años' : 'Todo Público'}
-            </span>
+        )}
+
+        {event.age_rating && (
+          <div className="fact-item-glass">
+            <Icon name="user" size={18} className="fact-icon-blue" />
+            <div className="fact-details">
+              <span className="fact-label">Clasificación</span>
+              <span className="fact-value">{event.age_rating}</span>
+            </div>
           </div>
-        </div>
-        
+        )}
+
         <div className="fact-item-glass">
           <Icon name="ticket" size={18} className="fact-icon-blue" />
           <div className="fact-details">
@@ -67,17 +80,14 @@ export default function EventDescription({ event, isEventSeating }) {
         </div>
       </div>
 
-      <div className="description-text-wrapper">
-        {event.description ? (
-          event.description.split('\n').filter(Boolean).map((para, i) => (
+      {/* Descripción del evento — solo si existe en los datos */}
+      {event.description && (
+        <div className="description-text-wrapper">
+          {event.description.split('\n').filter(Boolean).map((para, i) => (
             <p key={i} className="description-paragraph">{para}</p>
-          ))
-        ) : (
-          <p className="description-paragraph">
-            ¡Prepárate para una noche espectacular! Disfruta de este evento exclusivo de {getCategoryLabel(event.category).toLowerCase()} con la mejor producción, iluminación de primer nivel y un sistema de audio de última tecnología diseñado para envolverte en cada momento. Una experiencia inolvidable que no te querrás perder.
-          </p>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

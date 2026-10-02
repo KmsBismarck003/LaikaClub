@@ -14,6 +14,15 @@
   padding: 0;
 }
 
+/* ── LOADING STATE ────────────────────────────────────────── */
+.event-detail-loading {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #080808;
+}
+
 /* Subtle noise texture on the content area */
 .event-detail-page::after {
   content: '';

@@ -39,9 +39,14 @@ public class TokenService {
 
     public boolean validateToken(String token) {
         try {
+            System.err.println("Validating token: " + token);
             Claims claims = parseToken(token);
-            return !claims.getExpiration().before(new Date());
+            boolean isValid = !claims.getExpiration().before(new Date());
+            System.err.println("Token validation result for token: " + isValid);
+            return isValid;
         } catch (Exception e) {
+            System.err.println("Token validation error: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }

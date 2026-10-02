@@ -1,0 +1,128 @@
+/* ════════════════════════════════════════════════════════════════
+   EventRules — Dark Glassmorphism
+   Reemplaza el antiguo tema claro (fondo blanco, texto oscuro)
+   por un diseño coherente con el dark premium del EventDetail.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── CONTENEDOR ───────────────────────────────────────────────── */
+.er-container {
+  background: rgba(8, 8, 8, 0.88);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  overflow: hidden;
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ── HEADER ───────────────────────────────────────────────────── */
+.er-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+
+.er-header-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.er-title {
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+/* ── GRID ─────────────────────────────────────────────────────── */
+.er-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+/* ── ITEM ─────────────────────────────────────────────────────── */
+.er-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  transition:
+    background 0.22s ease,
+    border-color 0.22s ease,
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.er-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  border-left-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ── ICONO ────────────────────────────────────────────────────── */
+.er-icon-wrapper {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.55);
+  transition: background 0.22s ease, color 0.22s ease;
+}
+
+.er-item:hover .er-icon-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ── CONTENIDO ────────────────────────────────────────────────── */
+.er-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.er-item-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.4rem;
+  line-height: 1.3;
+}
+
+.er-item-desc {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  line-height: 1.65;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .er-container {
+    padding: 1.25rem 1.25rem;
+  }
+
+  .er-grid {
+    grid-template-columns: 1fr;
+  }
+}

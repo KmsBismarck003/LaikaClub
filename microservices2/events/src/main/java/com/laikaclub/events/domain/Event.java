@@ -49,6 +49,12 @@ public class Event {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "duration_minutes")
+    private Integer durationMinutes;
+
+    @Column(name = "gallery_urls", columnDefinition = "TEXT")
+    private String galleryUrls;
+
     private String status = "draft";
 
     @Column(name = "created_by")
@@ -229,6 +235,22 @@ public class Event {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Integer getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(Integer durationMinutes) {
+        this.durationMinutes = durationMinutes;
+    }
+
+    public String getGalleryUrls() {
+        return galleryUrls;
+    }
+
+    public void setGalleryUrls(String galleryUrls) {
+        this.galleryUrls = galleryUrls;
     }
 
     public String getStatus() {

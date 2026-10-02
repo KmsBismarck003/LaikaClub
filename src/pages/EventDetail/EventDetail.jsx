@@ -13,6 +13,7 @@ import { useLuckySeat } from "./hooks/useLuckySeat";
 import { useVenueMap } from "./hooks/useVenueMap";
 import { useSeatLock } from "./hooks/useSeatLock";
 import { useSeatPolling } from "./hooks/useSeatPolling";
+import { useDirectPayment } from "./hooks/useDirectPayment";
 import { cleanPrice, formatDate, formatTime } from "./utils/helpers";
 import { useFreeEventFlow } from "../../hooks/useFreeEventFlow";
 
@@ -21,16 +22,23 @@ import TicketSelectionPanel from "./components/TicketSelection/TicketSelectionPa
 import EventModalsManager from "./components/Modals/EventModalsManager";
 import LoginIncentiveModal from "./components/Modals/LoginIncentiveModal";
 import EventLocation from "./components/Location/EventLocation";
-import EventRules from "./components/Rules/EventRules";
+import EventRules from "./components/EventRules/EventRules";
 import EventMerchSection from "./components/MerchSection/EventMerchSection";
 import VenueMapContainer from "./components/VenueMap/VenueMapContainer";
 import EventPoster from "./components/EventPoster/EventPoster";
 import EventDescription from "./components/EventDescription/EventDescription";
+import EventGallery from "./components/EventGallery/EventGallery";
 
 import { LoadingScreen, AdCarousel } from "../../components";
 import { usePresale, PresaleGate } from "../../features/presale";
 import "./EventDetail.css";
 
+/**
+ * EventDetail — Orquestador visual de la página de detalle de evento.
+ *
+ * Responsabilidad: componer sub-componentes y conectar hooks.
+ * Toda la lógica de negocio vive en los custom hooks.
+ */
 const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -77,7 +85,7 @@ const EventDetail = () => {
   // 3. Presale Hook
   const presale = usePresale(event);
 
-  // 3. Venue Map Hook
+  // 4. Venue Map Hook
   const venueMap = useVenueMap();
 
   // Load dynamic map when function changes
@@ -93,17 +101,17 @@ const EventDetail = () => {
     return getSynchronizedZones(ticketEngine.sortedSections);
   }, [getSynchronizedZones, ticketEngine.sortedSections]);
 
-  // 4. Lucky Seat Hook
+  // 5. Lucky Seat Hook
   const luckySeat = useLuckySeat(id, user, navigate, location, { success, error }, api, synchronizedZones, addBusySeats);
 
-  // 5. Seat Lock Hook
+  // 6. Seat Lock Hook
   const { timeLeft, isActive, formatTimeLeft, resetLock } = useSeatLock(
     ticketEngine.selectedSeats,
     ticketEngine.setSelectedSeats,
     error
   );
 
-  // 6. Polling Sincronizador de Asientos
+  // 7. Polling Sincronizador de Asientos
   useSeatPolling(
     id,
     ticketEngine.selectedFunction?.id,
@@ -114,100 +122,31 @@ const EventDetail = () => {
     error
   );
 
-  // 7. Free Event Hook
+  // 8. Free Event Hook
   const freeFlow = useFreeEventFlow(
     event,
     ticketEngine.selectedSection,
     { success, error },
-    (result) => {
+    (_result) => {
       success('Entrada registrada en tu Wallet');
       navigate('/user/tickets');
     }
   );
 
-  // Direct Purchase Flow
-  const confirmDirectPayment = async (method) => {
-    ticketEngine.setIsProcessingPayment(true);
-    try {
-      const amount = cleanPrice(ticketEngine.directTicketData.section?.price || event?.price) * ticketEngine.directTicketData.quantity;
-      const intentResp = await api.payment.createIntent({ amount, method, eventId: id, event_id: id });
-      const paymentId = intentResp.payment_id || intentResp.reference;
+  // 9. Direct Payment Hook (lógica extraída del orquestador)
+  const directPayment = useDirectPayment({
+    id,
+    event,
+    ticketEngine,
+    addBusySeats,
+    fetchBusySeats,
+    resetLock,
+    notifications: { success, error },
+    api,
+    cleanPrice,
+  });
 
-      if (method === 'card') {
-        await api.payment.confirm(paymentId);
-      }
-
-      const purchaseItems = [];
-      const directSeats = ticketEngine.directTicketData.seats;
-      if (directSeats && directSeats.length > 0) {
-        for (const seat of directSeats) {
-          purchaseItems.push({
-            eventId: id, quantity: 1,
-            functionId: ticketEngine.selectedFunction?.id,
-            sectionId: ticketEngine.directTicketData.section?.id,
-            sectionName: ticketEngine.directTicketData.section?.name,
-            price: cleanPrice(ticketEngine.directTicketData.section?.price || event?.price),
-            seatId: seat
-          });
-        }
-      } else {
-        for (let i = 0; i < ticketEngine.directTicketData.quantity; i++) {
-          purchaseItems.push({
-            eventId: id, quantity: 1,
-            functionId: ticketEngine.selectedFunction?.id,
-            sectionId: ticketEngine.directTicketData.section?.id,
-            sectionName: ticketEngine.directTicketData.section?.name,
-            price: cleanPrice(ticketEngine.directTicketData.section?.price || event?.price),
-            seatId: null
-          });
-        }
-      }
-
-      await api.ticket.purchase({ items: purchaseItems, paymentMethod: method, paymentId });
-      resetLock();
-
-      const payload = {
-        id: paymentId,
-        event: ticketEngine.directTicketData.event,
-        section: ticketEngine.directTicketData.section,
-        seats: ticketEngine.directTicketData.seats,
-        quantity: ticketEngine.directTicketData.quantity,
-        total: amount
-      };
-
-      if (ticketEngine.directTicketData.seats?.length > 0) {
-        addBusySeats(ticketEngine.directTicketData.seats);
-      }
-
-      ticketEngine.setPrintingData(payload);
-      ticketEngine.setShowSuccessTicket(true);
-      ticketEngine.setSelectedSeats([]);
-      ticketEngine.setIsProcessingPayment(false);
-      ticketEngine.setShowDirectPayment(false);
-      success("¡Compra realizada con éxito!");
-    } catch(err) {
-      ticketEngine.setIsProcessingPayment(false);
-      error(err.response?.data?.detail || "Error procesando pago");
-      // Si el pago falla (ej. asiento ocupado - 409 Conflict), forzamos una recarga limpia del mapa
-      fetchBusySeats(id, ticketEngine.selectedFunction?.id);
-    }
-  };
-
-  // Local State
-  const [paymentMethod, setPaymentMethod] = useState('card');
-  const [cardData, setCardData] = useState({ number: '', expiry: '', cvv: '' });
-
-  const handleCardChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "number") setCardData({ ...cardData, number: value.replace(/\D/g, "").slice(0, 16) });
-    else if (name === "expiry") {
-      let val = value.replace(/\D/g, "");
-      if (val.length >= 2) val = val.substring(0, 2) + "/" + val.substring(2, 4);
-      setCardData({ ...cardData, expiry: val });
-    }
-    else if (name === "cvv") setCardData({ ...cardData, cvv: value.replace(/\D/g, "").slice(0, 4) });
-  };
-
+  // Merch local state (pertenece al orquestador por ser UI pura)
   const [selectedMerchItem, setSelectedMerchItem] = useState(null);
   const [merchAttributes, setMerchAttributes] = useState({});
   const [merchQty, setMerchQty] = useState(1);
@@ -217,7 +156,7 @@ const EventDetail = () => {
 
   if (loading) {
     return (
-      <div className="event-detail-loading" style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div className="event-detail-loading">
         <LoadingScreen />
       </div>
     );
@@ -234,10 +173,13 @@ const EventDetail = () => {
   const displayVenue = ticketEngine.selectedFunction?.venue_name || event.venue?.name || event.venue || event.location || "Recinto por confirmar";
   const displayCity = ticketEngine.selectedFunction?.venue_city || event.venue?.city || "";
 
-  const customTicketDesign = event.printing_canvas_json ? (() => { try { return JSON.parse(event.printing_canvas_json); } catch(e) { return null; } })() : null;
+  const customTicketDesign = event.printing_canvas_json
+    ? (() => { try { return JSON.parse(event.printing_canvas_json); } catch (e) { return null; } })()
+    : null;
 
   return (
     <div className="event-detail-page">
+
       {/* PRESALE GATE */}
       {presale.needsPresaleGate && (
         <PresaleGate
@@ -250,7 +192,7 @@ const EventDetail = () => {
         />
       )}
 
-      {/* ── HERO (full-bleed, no container wrapper) ── */}
+      {/* ── HERO (full-bleed, sin container wrapper) ── */}
       <EventHeroV2
         heroRef={heroRef}
         imageUrl={imageUrl}
@@ -303,11 +245,16 @@ const EventDetail = () => {
                 handleZoom={venueMap.handleZoom}
                 resetMap={venueMap.resetMap}
               />
+            ) : event.gallery_urls ? (
+              <EventGallery galleryUrls={event.gallery_urls} />
             ) : (
               <EventPoster imageUrl={imageUrl} eventName={event.name} />
             )}
 
             <EventDescription event={event} isEventSeating={isEventSeating} />
+
+            {/* EventRules renderiza null automáticamente si no hay reglas */}
+            <EventRules rules={event.rules} />
 
             <EventMerchSection
               event={event}
@@ -323,7 +270,7 @@ const EventDetail = () => {
             />
 
             <EventLocation displayVenue={displayVenue} displayCity={displayCity} />
-            <EventRules event={event} />
+
             {event.ads_enabled && (
               <div className="event-detail-ad-wrapper left-sidebar mt-4">
                 <AdCarousel position="side_left" eventId={id} />
@@ -352,7 +299,7 @@ const EventDetail = () => {
               isRouletteActive={luckySeat.isRouletteActive}
               setShowProbModal={luckySeat.setShowProbModal}
               isFreeEvent={freeFlow.isFreeEvent}
-              onClaimFree={() => requireAuth(() => freeFlow.claimFreeTicket({ 
+              onClaimFree={() => requireAuth(() => freeFlow.claimFreeTicket({
                 functionId: ticketEngine.selectedFunction?.id,
                 seats: ticketEngine.selectedSeats?.length > 0 ? ticketEngine.selectedSeats : null,
                 quantity: ticketEngine.selectedSection?.type === 'seating' ? ticketEngine.selectedSeats.length : ticketEngine.quantity
@@ -375,16 +322,16 @@ const EventDetail = () => {
         showRoulettePayment={luckySeat.showRoulettePayment}
         setShowRoulettePayment={luckySeat.setShowRoulettePayment}
         isProcessingPayment={luckySeat.isProcessingPayment || ticketEngine.isProcessingPayment}
-        paymentMethod={paymentMethod}
-        setPaymentMethod={setPaymentMethod}
-        cardData={cardData}
-        handleCardChange={handleCardChange}
+        paymentMethod={directPayment.paymentMethod}
+        setPaymentMethod={directPayment.setPaymentMethod}
+        cardData={directPayment.cardData}
+        handleCardChange={directPayment.handleCardChange}
         confirmRoulettePayment={luckySeat.confirmRoulettePayment}
         showDirectPayment={ticketEngine.showDirectPayment}
         setShowDirectPayment={ticketEngine.setShowDirectPayment}
         directTicketData={ticketEngine.directTicketData}
         selectedSection={ticketEngine.selectedSection}
-        confirmDirectPayment={confirmDirectPayment}
+        confirmDirectPayment={directPayment.confirmDirectPayment}
         showSuccessTicket={ticketEngine.showSuccessTicket}
         setShowSuccessTicket={ticketEngine.setShowSuccessTicket}
         customTicketDesign={customTicketDesign}

@@ -83,6 +83,7 @@ public class EventController {
     public Map<String, Object> createEvent(
             @RequestBody EventDTOs.EventCreate dto,
             @AuthenticationPrincipal UserPrincipal principal) {
+        System.err.println("Reached createEvent! Principal is: " + principal);
         if (principal == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }

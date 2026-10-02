@@ -309,9 +309,11 @@ async def verify_ticket(ticket_code: str):
     return {"valid": ticket is not None, "ticket": ticket}
 `
 
-export default {
+const dbConfig = {
   MYSQL_CONFIG,
   MONGODB_CONFIG,
   MYSQL_SCHEMA,
   MONGODB_SCHEMA
-}
+};
+
+export default dbConfig;

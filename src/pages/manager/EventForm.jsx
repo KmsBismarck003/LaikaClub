@@ -47,6 +47,8 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
         available_tickets: 100,
         price: 0,
         image_url: '',
+        duration_minutes: 0,
+        gallery_urls: '',
         map_url: '',
         seat_map_url: '',
         room_id: '',
@@ -67,6 +69,9 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
     const [functions, setFunctions] = useState([]);
     const [newFunction, setNewFunction] = useState({ date: '', time: '', venue_id: '', room_id: '' });
     const [newFunctionRooms, setNewFunctionRooms] = useState([]);
+
+    const [rules, setRules] = useState([]);
+    const [newRule, setNewRule] = useState({ title: '', description: '', icon: 'info' });
 
     // Draft Auto-Save Feature
     const draftKey = event && event.id 
@@ -204,6 +209,8 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
                 total_tickets: event.total_tickets || 100,
                 price: event.price || 0,
                 image_url: event.image_url || '',
+                duration_minutes: event.duration_minutes || 0,
+                gallery_urls: event.gallery_urls || '',
                 ads_enabled: !!event.ads_enabled,
                 max_ads: event.max_ads || 5,
                 merch_enabled: !!event.merch_enabled,
@@ -227,6 +234,10 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
                     time: formatTime(f.time),
                     venue_id: f.venue_id
                 })));
+            }
+
+            if (event.rules && Array.isArray(event.rules)) {
+                setRules(event.rules);
             }
         }
     }, [event]);
@@ -396,7 +407,8 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
                     time: f.time,
                     venue_id: parseInt(f.venue_id || formData.venue_id || 1),
                     room_id: f.room_id ? parseInt(f.room_id) : null
-                }))
+                })),
+                rules: rules
             };
 
             // Conversions and Defaults
@@ -585,6 +597,17 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
                                     </p>
                                 )}
                             </div>
+                            <div className="form-group">
+                                <Input
+                                    label="Duración (minutos)"
+                                    name="duration_minutes"
+                                    type="number"
+                                    min="0"
+                                    value={formData.duration_minutes}
+                                    onChange={handleChange}
+                                    placeholder="Ej. 120"
+                                />
+                            </div>
                         </div>
 
                         {/* Functions / Scheduling Section */}
@@ -673,6 +696,42 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
                             ></textarea>
                         </div>
 
+                        {/* Rules Section */}
+                        <div className="form-group mb-6 p-4 border rounded bg-gray-50" style={{ border: '1px solid #eee', background: '#f9fafb', borderRadius: '8px', padding: '1rem' }}>
+                            <label className="block text-sm font-bold text-gray-700 mb-3">Reglas de Acceso (Opcional)</label>
+                            {rules.length > 0 && (
+                                <ul className="mb-4 space-y-2">
+                                    {rules.map((r, idx) => (
+                                        <li key={idx} className="flex justify-between items-center bg-white p-2 border rounded shadow-sm" style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.25rem', marginBottom: '0.5rem' }}>
+                                            <div>
+                                                <strong>{r.title}</strong>: {r.description}
+                                            </div>
+                                            <Button type="button" size="small" variant="ghost" onClick={() => setRules(prev => prev.filter((_, i) => i !== idx))} style={{ color: 'red' }}>Eliminar</Button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-end" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.5rem', alignItems: 'end' }}>
+                                <div>
+                                    <label className="text-xs font-bold block mb-1">Título de la Regla</label>
+                                    <input value={newRule.title} onChange={e => setNewRule({...newRule, title: e.target.value})} className="w-full p-1 border rounded text-sm" style={{ width: '100%', padding: '0.25rem', borderRadius: '0.25rem', border: '1px solid #ccc' }} placeholder="Ej. Prohibido fumar" />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold block mb-1">Descripción</label>
+                                    <input value={newRule.description} onChange={e => setNewRule({...newRule, description: e.target.value})} className="w-full p-1 border rounded text-sm" style={{ width: '100%', padding: '0.25rem', borderRadius: '0.25rem', border: '1px solid #ccc' }} placeholder="Ej. No se permite el uso de cigarros..." />
+                                </div>
+                                <div>
+                                    <Button type="button" size="small" variant="secondary" onClick={() => {
+                                        if(newRule.title) {
+                                            setRules(prev => [...prev, newRule]);
+                                            setNewRule({ title: '', description: '', icon: 'info' });
+                                        }
+                                    }}>Agregar Regla</Button>
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-2">* Estas reglas aparecerán listadas públicamente para que los asistentes las conozcan antes de comprar.</p>
+                        </div>
+
                         <div className="form-group mb-6">
                             <label className="block text-sm font-bold text-gray-700 mb-3">Imagen del Evento (Vector Preview)</label>
 
@@ -738,6 +797,22 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
                                     onChange={handleChange}
                                     placeholder="https://..."
                                 />
+                            </div>
+
+                            <div style={{ marginTop: '1rem' }}>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Galería (Fotos / Videos del Evento)</label>
+                                <textarea
+                                    name="gallery_urls"
+                                    value={formData.gallery_urls}
+                                    onChange={handleChange}
+                                    rows="3"
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    style={{ width: '100%', padding: '0.625rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}
+                                    placeholder="Agrega múltiples URLs separadas por coma. Ej. https://..., https://..."
+                                ></textarea>
+                                <p style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
+                                    Estas imágenes aparecerán en un carrusel dentro del evento para convencer a los usuarios.
+                                </p>
                             </div>
                         </div>
 

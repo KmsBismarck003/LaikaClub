@@ -79,6 +79,15 @@ const EventHeroV2 = ({
   const location = [displayVenue, displayCity && displayCity !== displayVenue ? displayCity : null]
     .filter(Boolean).join(', ');
 
+  let statusBadge = null;
+  if (event?.available_tickets === 0) {
+    statusBadge = <span className="event-status-badge badge-soldout">Agotado</span>;
+  } else if (event?.presale_enabled && new Date(event?.presale_start) > new Date()) {
+    statusBadge = <span className="event-status-badge badge-soon">Próximamente</span>;
+  } else {
+    statusBadge = <span className="event-status-badge badge-available">Disponible</span>;
+  }
+
   const handleShare = async () => {
     try {
       if (navigator.share) {
@@ -159,6 +168,7 @@ const EventHeroV2 = ({
         <div className="event-hero-v2__eyebrow">
           <span className="event-hero-v2__eyebrow-dot" aria-hidden="true" />
           {category}
+          {statusBadge}
         </div>
 
         {/* Title */}

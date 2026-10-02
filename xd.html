@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAIKA Club - Detalles del Evento</title>
+    <style>
+        /* Paleta de colores y variables */
+        :root {
+            --bg-color: #050505;
+            --surface-color: #141414;
+            --surface-light: #1A1A1A;
+            --accent-red: #E50000;
+            --text-main: #F5F5F5;
+            --text-muted: #A0A0A0;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            padding: 2rem;
+        }
+
+        /* Contenedor Grid Asimétrico 70/30 */
+        .layout-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        /* ================= COLUMNA IZQUIERDA ================= */
+        .breadcrumb {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+
+        .breadcrumb:hover { color: var(--text-main); }
+
+        .tags { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .tag.active { background: rgba(229, 0, 0, 0.15); color: var(--accent-red); }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-meta {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Mapa de Asientos (Simulación) */
+        .seat-map-container {
+            background-color: var(--surface-color);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .seat-map-title {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 8px;
+            justify-content: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .seat {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #333; /* Ocupado por defecto */
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .seat.available { background-color: #666; }
+        .seat.selected { background-color: var(--accent-red); box-shadow: 0 0 10px rgba(229, 0, 0, 0.5); }
+        
+        .seat.available:hover {
+            transform: scale(1.15);
+            background-color: #888;
+        }
+
+        /* ================= COLUMNA DERECHA (STICKY) ================= */
+        .checkout-panel {
+            background-color: var(--surface-color);
+            border-radius: 16px;
+            padding: 2rem;
+            position: sticky;
+            top: 2rem; /* Distancia desde arriba al hacer scroll */
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .ticket-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .ticket-row.total {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-red);
+            color: #FFF;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #ff1a1a;
+            box-shadow: 0 0 20px rgba(229, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .layout-container {
+                grid-template-columns: 1fr;
+            }
+            .checkout-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                border-radius: 24px 24px 0 0;
+                z-index: 100;
+                border-top: 1px solid var(--border-color);
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+            }
+            body { padding-bottom: 250px; } /* Espacio para que el panel no tape el mapa */
+            .hero-title { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout-container">
+        <!-- Columna Izquierda: Detalles y Mapa -->
+        <main class="main-content">
+            <div class="breadcrumb">❮ REGRESAR</div>
+            
+            <div class="tags">
+                <span class="tag">Concierto</span>
+                <span class="tag active">Disponible</span>
+            </div>
+
+            <h1 class="hero-title">LAIKA Masterclass<br>(Simulación)</h1>
+            <p class="event-meta">🗓️ TBD &nbsp; | &nbsp; 📍 CDMX &nbsp; | &nbsp; 🔞 +18 Años</p>
+
+            <div class="seat-map-container">
+                <div class="seat-map-title">Selecciona tus asientos</div>
+                
+                <div class="seat-grid">
+                    <!-- Fila 1 -->
+                    <div class="seat"></div><div class="seat"></div><div class="seat available"></div>
+                    <div class="seat available"></div><div class="seat selected"></div><div class="seat selected"></div>
+                    <div class="seat available"></div><div class="seat available"></div><div class="seat"></div>
+                    <div class="seat"></div><div class="seat"></div><div class="seat"></div>
+                    
+                    <!-- Fila 2 -->
+                    <div class="seat"></div><div class="seat available"></div><div class="seat available"></div>
+                    <div class="seat available"></div><div class="seat available"></div><div class="seat available"></div>
+                    <div class="seat available"></div><div class="seat available"></div><div class="seat available"></div>
+                    <div class="seat available"></div><div class="seat available"></div><div class="seat"></div>
+                </div>
+            </div>
+            
+            <!-- Aquí irían las tarjetas Bento de reglas y el mapa de Google -->
+            <div style="background: var(--surface-color); padding: 2rem; border-radius: 16px; color: var(--text-muted); border: 1px solid var(--border-color);">
+                <h3>Acerca del Evento</h3><br>
+                <p>Experimenta la brutalidad de la producción en vivo. Únete a la simulación inmersiva diseñada para productores de todos los niveles. Aprende técnicas avanzadas y lleva tu sonido al siguiente nivel.</p>
+            </div>
+        </main>
+
+        <!-- Columna Derecha: Panel de Compra Sticky -->
+        <aside class="checkout-panel">
+            <div class="panel-title">Tu Selección</div>
+            
+            <div class="ticket-row">
+                <span>Boleto General - Fila A5</span>
+                <span>GRATIS</span>
+            </div>
+            <div class="ticket-row">
+                <span>Boleto General - Fila A6</span>
+                <span>GRATIS</span>
+            </div>
+            
+            <div class="ticket-row total">
+                <span>TOTAL</span>
+                <span>$0.00 MXN</span>
+            </div>
+
+            <button class="btn-primary">Obtener Entradas</button>
+        </aside>
+    </div>
+
+</body>
+</html>

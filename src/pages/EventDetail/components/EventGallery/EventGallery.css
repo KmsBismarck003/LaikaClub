@@ -1,0 +1,369 @@
+/* ════════════════════════════════════════════════════════════════
+   EventGallery — Dark Premium Carousel
+   Reemplaza el diseño de tema claro por glassmorphism oscuro
+   coherente con el resto de EventDetail.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── CONTENEDOR PRINCIPAL ─────────────────────────────────────── */
+.eg-container {
+  background: rgba(8, 8, 8, 0.88);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ── HEADER ───────────────────────────────────────────────────── */
+.eg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.eg-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+}
+
+.eg-title-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.eg-counter {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.eg-counter-sep {
+  opacity: 0.4;
+  margin: 0 0.1rem;
+}
+
+/* ── VISOR PRINCIPAL ──────────────────────────────────────────── */
+.eg-main-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #050505;
+  overflow: hidden;
+}
+
+/* ── MEDIA WRAPPER (animación de transición) ─────────────────── */
+.eg-media-wrapper {
+  position: absolute;
+  inset: 0;
+  will-change: opacity, transform;
+  transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estado de transición — slide + fade */
+.eg-media-wrapper.eg-transitioning.eg-dir-next {
+  opacity: 0;
+  transform: translateX(28px);
+}
+
+.eg-media-wrapper.eg-transitioning.eg-dir-prev {
+  opacity: 0;
+  transform: translateX(-28px);
+}
+
+/* ── MEDIA (imagen o video) ───────────────────────────────────── */
+.eg-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ── VIGNETTE OVERLAY ─────────────────────────────────────────── */
+.eg-media-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 45%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0%, transparent 30%);
+  pointer-events: none;
+}
+
+/* ── VIDEO BADGE ──────────────────────────────────────────────── */
+.eg-video-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  pointer-events: none;
+}
+
+/* ── BOTONES DE NAVEGACIÓN ────────────────────────────────────── */
+.eg-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+}
+
+/* Mostrar botones al hover del viewport */
+.eg-main-viewport:hover .eg-nav-btn,
+.eg-main-viewport:focus-within .eg-nav-btn {
+  opacity: 1;
+}
+
+.eg-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.38);
+  color: #fff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.eg-nav-btn:active {
+  transform: translateY(-50%) scale(0.97);
+}
+
+.eg-nav-prev {
+  left: 1rem;
+}
+
+.eg-nav-next {
+  right: 1rem;
+}
+
+/* ── DOTS DE POSICIÓN ─────────────────────────────────────────── */
+.eg-dots {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 5;
+}
+
+.eg-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  padding: 0;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.25s ease;
+  flex-shrink: 0;
+}
+
+.eg-dot.active {
+  width: 20px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.eg-dot:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* ── THUMBNAILS ───────────────────────────────────────────────── */
+.eg-thumbnails {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.eg-thumbnails::-webkit-scrollbar {
+  height: 3px;
+}
+
+.eg-thumbnails::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.eg-thumbnails::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+/* ── THUMBNAIL ITEM ───────────────────────────────────────────── */
+.eg-thumb {
+  position: relative;
+  flex: 0 0 80px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background: transparent;
+  opacity: 0.45;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.eg-thumb:hover {
+  opacity: 0.78;
+  transform: scale(1.04);
+}
+
+.eg-thumb.active {
+  opacity: 1;
+}
+
+.eg-thumb:focus-visible {
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Media dentro de thumbnail */
+.eg-thumb-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+/* Wrapper de video en thumbnail */
+.eg-thumb-video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Overlay de play en thumbnail de video */
+.eg-thumb-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.eg-thumb-play-overlay svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── RING ACTIVO DEL THUMBNAIL ────────────────────────────────── */
+.eg-thumb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: border-color 0.22s ease,
+              box-shadow 0.22s ease;
+  pointer-events: none;
+}
+
+.eg-thumb.active .eg-thumb-ring {
+  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .eg-header {
+    padding: 1rem 1.25rem 0.75rem;
+  }
+
+  .eg-nav-btn {
+    /* En móvil siempre visible (sin hover state) */
+    opacity: 1;
+    width: 38px;
+    height: 38px;
+  }
+
+  .eg-nav-prev { left: 0.6rem; }
+  .eg-nav-next { right: 0.6rem; }
+
+  .eg-thumbnails {
+    padding: 0.75rem 1rem;
+    gap: 0.4rem;
+  }
+
+  .eg-thumb {
+    flex: 0 0 64px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .eg-container {
+    border-radius: 14px;
+  }
+
+  .eg-thumb {
+    flex: 0 0 56px;
+    height: 38px;
+    border-radius: 6px;
+  }
+}
