@@ -39,6 +39,15 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toProfileResponse(user));
     }
 
+    @DeleteMapping("/me")
+    public ResponseEntity<Map<String, Object>> deleteMe(@AuthenticationPrincipal UserPrincipal principal) {
+        userService.deleteUser(principal.getId());
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Cuenta eliminada");
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/me")
     public ResponseEntity<UserProfileResponse> updateMe(
             @RequestBody Map<String, String> updates,

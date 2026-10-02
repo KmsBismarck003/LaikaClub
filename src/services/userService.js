@@ -96,6 +96,13 @@ export const userAPI = {
         return apiClient.delete('/users/me/photo')
     },
 
+    /**
+     * Eliminar cuenta propia (Usuario Final)
+     */
+    deleteMe: () => {
+        return apiClient.delete('/users/me')
+    },
+
     getPermissions: userId => apiClient.get(`/users/${userId}/permissions`),
     updatePermissions: (userId, permissionsData) =>
         apiClient.put(`/users/${userId}/permissions`, permissionsData),

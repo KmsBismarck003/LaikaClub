@@ -116,9 +116,7 @@ export default function UserProfile() {
     
     setDeletingAccount(true)
     try {
-      const userId = cu?.id || cu?._id;
-      if (!userId) throw new Error("ID de usuario no encontrado")
-      await api.user.delete(userId);
+      await api.user.deleteMe();
       await logout(true);
     } catch (err) {
       showError(err.message || err.response?.data?.message || 'Error al eliminar cuenta');
