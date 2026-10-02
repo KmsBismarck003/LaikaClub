@@ -9,9 +9,10 @@ const API_HOST = process.env.REACT_APP_API_HOST || 'http://localhost:8000'
 
 export default function UserProfile() {
   const { success, error: showError } = useNotification()
-  const { user: cu, updateUser } = useAuth()
+  const { user: cu, updateUser, logout } = useAuth()
   const [loading, setLoading]   = useState(true)
   const [saving,  setSaving]    = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
   const [savedOk, setSavedOk]   = useState(false)
   const [avatarHover, setAvatarHover] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
@@ -108,6 +109,21 @@ export default function UserProfile() {
       success('Foto eliminada') 
     }
     catch { showError('Error al eliminar la foto') }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar tu cuenta? Perderás todos tus boletos, historial e información personal. Esta acción es IRREVERSIBLE.")) return;
+    
+    setDeletingAccount(true)
+    try {
+      const userId = cu?.id || cu?._id;
+      if (!userId) throw new Error("ID de usuario no encontrado")
+      await api.user.delete(userId);
+      await logout(true);
+    } catch (err) {
+      showError(err.message || err.response?.data?.message || 'Error al eliminar cuenta');
+      setDeletingAccount(false);
+    }
   }
 
   const initials = () => ((data.firstName?.[0]||'')+(data.lastName?.[0]||'')).toUpperCase()||'U'
@@ -271,13 +287,30 @@ export default function UserProfile() {
         <p style={{fontSize:'.78rem',color:'#666',margin:'0 0 1rem'}}>
           Administra tu contraseña y configuraciones de seguridad de tu cuenta.
         </p>
-        <button style={{
-          background:'rgba(239,68,68,.1)',color:'#ef4444',
-          border:'1px solid rgba(239,68,68,.25)',
-          padding:'.6rem 1.25rem',fontSize:'.62rem',fontWeight:900,
-          textTransform:'uppercase',letterSpacing:'1.5px',
-          borderRadius:'99px',cursor:'pointer',transition:'all .2s'
-        }}>Cambiar Contraseña</button>
+        <div style={{display:'flex',gap:'.75rem',flexWrap:'wrap'}}>
+          <button style={{
+            background:'rgba(239,68,68,.1)',color:'#ef4444',
+            border:'1px solid rgba(239,68,68,.25)',
+            padding:'.6rem 1.25rem',fontSize:'.62rem',fontWeight:900,
+            textTransform:'uppercase',letterSpacing:'1.5px',
+            borderRadius:'99px',cursor:'pointer',transition:'all .2s'
+          }}>Cambiar Contraseña</button>
+          
+          <button 
+            onClick={handleDeleteAccount}
+            disabled={deletingAccount}
+            style={{
+              background: deletingAccount ? 'rgba(239,68,68,.5)' : 'rgba(239,68,68,1)',
+              color:'#fff',
+              border:'1px solid rgba(239,68,68,1)',
+              padding:'.6rem 1.25rem',fontSize:'.62rem',fontWeight:900,
+              textTransform:'uppercase',letterSpacing:'1.5px',
+              borderRadius:'99px',
+              cursor: deletingAccount ? 'wait' : 'pointer',
+              transition:'all .2s'
+            }}
+          >{deletingAccount ? 'Eliminando...' : 'Eliminar cuenta y perder todo'}</button>
+        </div>
       </div>
 
     </div>
