@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../../context/CartContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -53,6 +53,9 @@ export const useCheckoutFlow = () => {
     const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
     const currentPhase = checkoutPhases[currentPhaseIndex] || 'summary';
     const [checkoutError, setCheckoutError] = useState(null);
+
+    // Motor Anti-Doble-Cobro
+    const idempotencyKey = useRef(`idem_web_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
 
     // Método de entrega (predeterminado a standard si hay merch, digital si solo boletos)
     const [deliveryType, setDeliveryType] = useState(() => hasMerch ? 'standard' : 'digital');
@@ -270,6 +273,7 @@ export const useCheckoutFlow = () => {
     };
 
     const handleFinalPayment = async () => {
+        if (processing) return; // Bloqueo instantáneo anti-doble-click
         if (currentPhase === 'delivery' && !validateDelivery()) return;
         if (!validatePayment()) return;
 
@@ -287,6 +291,7 @@ export const useCheckoutFlow = () => {
                 method: paymentMethod,
                 eventId,
                 event_id: eventId,
+                idempotencyKey: idempotencyKey.current,
             });
             const paymentId = intentResp.payment_id || intentResp.reference;
 
@@ -338,6 +343,7 @@ export const useCheckoutFlow = () => {
                     items: purchaseItems,
                     paymentMethod,
                     paymentId,
+                    idempotencyKey: idempotencyKey.current, // Llave de Idempotencia para tickets
                     shippingInfo: (needsShippingForm || deliveryType !== 'digital') ? shippingData : null,
                     shippingMethod: deliveryType,
                 });
