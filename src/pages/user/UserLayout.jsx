@@ -8,6 +8,7 @@ import LaikaAgent from '../../components/LaikaAgent/LaikaAgent';
 import Icon from '../../components/Icons/Icons';
 import CartModal from '../../components/Cart/CartModal';
 import { useNotification } from '../../context/NotificationContext';
+import { useTheme } from '../../context/ThemeContext';
 
 // ✅ Import the SAME CSS as the admin DashboardLayout
 import '../../layouts/DashboardLayout.css';
@@ -16,6 +17,7 @@ const UserLayout = () => {
     const { user, logout } = useAuth();
     const { cartCount, openCart } = useCart();
     const { selectedNotification, setSelectedNotification } = useNotification();
+    const { isDark } = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -59,7 +61,7 @@ const UserLayout = () => {
                 <div className="sidebar-header">
                     <div className="sidebar-brand" onClick={() => navigate('/')}>
                         <img
-                            src="/logob.png"
+                            src={isDark ? "/LogoClaro.png" : "/LogoOsc.png"}
                             alt="LAIKA Club"
                             className="sidebar-brand-logo"
                             style={{ width: '32px', height: '32px', objectFit: 'contain' }}

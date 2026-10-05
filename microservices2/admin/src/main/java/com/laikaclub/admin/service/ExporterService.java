@@ -40,13 +40,15 @@ public class ExporterService {
     }
 
     public List<String> getAllTables() throws SQLException {
-        List<String> tables = new ArrayList<>();
+        Set<String> tables = new HashSet<>();
         try (Connection conn = dataSource.getConnection()) {
             DatabaseMetaData meta = conn.getMetaData();
             String dbProduct = meta.getDatabaseProductName().toLowerCase();
             
-            // For SQLite, standard catalog/schema patterns vary, so we query directly or use '%'
-            try (ResultSet rs = meta.getTables(null, null, "%", new String[]{"TABLE"})) {
+            // Use specific catalog/schema if possible, and set to avoid duplicates
+            String catalog = conn.getCatalog();
+            String schema = conn.getSchema();
+            try (ResultSet rs = meta.getTables(catalog, schema, "%", new String[]{"TABLE"})) {
                 while (rs.next()) {
                     String tableName = rs.getString("TABLE_NAME");
                     if (!tableName.startsWith("sqlite_")) {
@@ -55,8 +57,9 @@ public class ExporterService {
                 }
             }
         }
-        Collections.sort(tables);
-        return tables;
+        List<String> result = new ArrayList<>(tables);
+        Collections.sort(result);
+        return result;
     }
 
     public Map<String, List<Map<String, Object>>> getDatabaseData() throws Exception {

@@ -107,6 +107,9 @@ public class DatabaseController {
     // --- Delete Backup ---
     @DeleteMapping("/database/backups/{backupId}")
     public ResponseEntity<?> deleteBackup(@PathVariable String backupId) {
+        if (backupId == null || !backupId.matches("^[a-zA-Z0-9_-]+$")) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "ID inválido"));
+        }
         backupHistoryRepository.deleteByBackupIdOrIdString(backupId);
         
         // Find and delete files
@@ -123,6 +126,9 @@ public class DatabaseController {
     // --- Streaming Download Backup ---
     @GetMapping("/database/backups/{backupId}/download")
     public ResponseEntity<Resource> downloadBackup(@PathVariable String backupId) throws IOException {
+        if (backupId == null || !backupId.matches("^[a-zA-Z0-9_-]+$")) {
+            return ResponseEntity.badRequest().build();
+        }
         Path backupDir = Paths.get("backups");
         Path filePath = backupDir.resolve(backupId + ".sql");
         
@@ -343,11 +349,12 @@ public class DatabaseController {
             nextBackupStr = backupService.calculateNextBackup(config).toString();
         }
 
-        return ResponseEntity.ok(Map.of(
-            "config", config,
-            "lastBackup", lastBackupStr,
-            "nextBackup", nextBackupStr
-        ));
+        Map<String, Object> response = new HashMap<>();
+        response.put("config", config);
+        response.put("lastBackup", lastBackupStr);
+        response.put("nextBackup", nextBackupStr);
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/database/automatic-backup/config")

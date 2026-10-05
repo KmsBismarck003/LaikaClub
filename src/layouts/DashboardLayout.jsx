@@ -288,7 +288,7 @@ const DashboardLayout = () => {
         <div className='sidebar-header'>
           <div className='sidebar-brand' onClick={() => navigate('/')}>
             <img
-              src="/logob.png"
+              src={isDark ? "/LogoClaro.png" : "/LogoOsc.png"}
               alt="LAIKA Club"
               className="sidebar-brand-logo"
               style={{ width: '32px', height: '32px', objectFit: 'contain' }}

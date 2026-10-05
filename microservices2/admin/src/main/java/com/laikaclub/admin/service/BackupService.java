@@ -126,6 +126,10 @@ public class BackupService {
 
     @Async
     public void doBackupAsync(String backupId, String backupType, List<String> tables) {
+        if (backupId == null || !backupId.matches("^[a-zA-Z0-9_-]+$")) {
+            logger.error("[BACKUP] ID de respaldo inválido: {}", backupId);
+            return;
+        }
         logger.info("[BACKUP] Iniciando mysqldump en segundo plano para: {}", backupId);
         
         File outFile = BACKUP_DIR.resolve(backupId + ".sql").toFile();
@@ -141,23 +145,26 @@ public class BackupService {
         cmd.add("--user=" + user);
         cmd.add("--skip-ssl");
 
-        if (pwd != null && !pwd.isEmpty()) {
-            cmd.add("--password=" + pwd);
-        }
-
         if ("selectivo".equalsIgnoreCase(backupType) && tables != null && !tables.isEmpty()) {
             cmd.add("--single-transaction");
             cmd.add(dbName);
-            cmd.addAll(tables);
+            for (String t : tables) {
+                if (t != null && t.matches("^[a-zA-Z0-9_$]+$")) {
+                    cmd.add(t);
+                }
+            }
         } else {
             cmd.add("--single-transaction");
             cmd.add("--routines");
             cmd.add("--triggers");
-            cmd.add(dbName);
+            cmd.add("--all-databases");
         }
 
         try {
             ProcessBuilder pb = new ProcessBuilder(cmd);
+            if (pwd != null && !pwd.isEmpty()) {
+                pb.environment().put("MYSQL_PWD", pwd);
+            }
             pb.redirectOutput(ProcessBuilder.Redirect.to(outFile));
             pb.redirectError(ProcessBuilder.Redirect.PIPE);
 
@@ -207,32 +214,40 @@ public class BackupService {
 
     @Async
     public void doMongoBackupAsync(String backupId) {
+        if (backupId == null || !backupId.matches("^[a-zA-Z0-9_-]+$")) {
+            logger.error("[BACKUP] ID de respaldo inválido: {}", backupId);
+            return;
+        }
         logger.info("[BACKUP] Iniciando volcado de MongoDB en segundo plano para: {}", backupId);
         
         File outFile = BACKUP_DIR.resolve(backupId + ".json").toFile();
 
         try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
             MongoDatabase db = mongoClient.getDatabase(mongoDbName);
-            Map<String, List<Document>> dumpData = new HashMap<>();
-
-            for (String collName : db.listCollectionNames()) {
-                if (collName.startsWith("system.")) {
-                    continue;
-                }
-                
-                MongoCollection<Document> collection = db.getCollection(collName);
-                List<Document> docs = new ArrayList<>();
-                
-                // Exclude _id field as done in Python
-                for (Document doc : collection.find()) {
-                    doc.remove("_id");
-                    docs.add(doc);
-                }
-                dumpData.put(collName, docs);
-            }
 
             try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
-                objectMapper.writerWithDefaultPrettyPrinter().writeValue(writer, dumpData);
+                writer.write("{\n");
+                boolean firstColl = true;
+                for (String collName : db.listCollectionNames()) {
+                    if (collName.startsWith("system.")) {
+                        continue;
+                    }
+                    if (!firstColl) writer.write(",\n");
+                    writer.write("\"" + collName + "\": [\n");
+                    
+                    MongoCollection<Document> collection = db.getCollection(collName);
+                    boolean firstDoc = true;
+                    
+                    for (Document doc : collection.find()) {
+                        if (!firstDoc) writer.write(",\n");
+                        writer.write(doc.toJson());
+                        firstDoc = false;
+                    }
+                    
+                    writer.write("\n]");
+                    firstColl = false;
+                }
+                writer.write("\n}");
             }
 
             double sizeMb = (double) outFile.length() / (1024.0 * 1024.0);
@@ -262,6 +277,12 @@ public class BackupService {
     public Map<String, Object> restoreBackup(String backupId) {
         Map<String, Object> response = new HashMap<>();
         
+        if (backupId == null || !backupId.matches("^[a-zA-Z0-9_-]+$")) {
+            response.put("success", false);
+            response.put("message", "ID de respaldo inválido");
+            return response;
+        }
+
         File file = BACKUP_DIR.resolve(backupId + ".sql").toFile();
         if (!file.exists()) {
             // Search by prefix
@@ -278,27 +299,30 @@ public class BackupService {
         try {
             if (file.getName().endsWith(".json")) {
                 // Restore MongoDB
-                Map<String, List<Document>> dumpData;
+                com.fasterxml.jackson.databind.JsonNode rootNode;
                 try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-                    dumpData = objectMapper.readValue(reader, new TypeReference<Map<String, List<Document>>>() {});
+                    rootNode = objectMapper.readTree(reader);
                 }
 
                 try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
                     MongoDatabase db = mongoClient.getDatabase(mongoDbName);
-                    List<String> restoredCols = new ArrayList<>();
                     
-                    for (Map.Entry<String, List<Document>> entry : dumpData.entrySet()) {
+                    rootNode.fields().forEachRemaining(entry -> {
                         String collName = entry.getKey();
-                        List<Document> docs = entry.getValue();
+                        com.fasterxml.jackson.databind.JsonNode docsNode = entry.getValue();
                         
                         MongoCollection<Document> collection = db.getCollection(collName);
                         collection.drop(); // Clear previous
                         
-                        if (!docs.isEmpty()) {
-                            collection.insertMany(docs);
+                        List<Document> docsToInsert = new ArrayList<>();
+                        for (com.fasterxml.jackson.databind.JsonNode docNode : docsNode) {
+                            docsToInsert.add(Document.parse(docNode.toString()));
                         }
-                        restoredCols.add(collName);
-                    }
+                        
+                        if (!docsToInsert.isEmpty()) {
+                            collection.insertMany(docsToInsert);
+                        }
+                    });
                     response.put("success", true);
                     response.put("message", "MongoDB restaurada con éxito desde " + file.getName());
                 }
@@ -313,25 +337,50 @@ public class BackupService {
             String mysqlExe = getDbToolPath("MYSQL_EXE_PATH", "mysql");
             String mysqladminExe = getDbToolPath("MYSQLADMIN_EXE_PATH", "mysqladmin");
 
-            // Recreate DB if it doesn't exist
-            List<String> createDbCmd = new ArrayList<>();
-            createDbCmd.add(mysqladminExe);
-            createDbCmd.add("-h");
-            createDbCmd.add(host);
-            createDbCmd.add("-u");
-            createDbCmd.add(user);
-            createDbCmd.add("--skip-ssl");
-            if (pwd != null && !pwd.isEmpty()) {
-                createDbCmd.add("-p" + pwd);
+            // Validate SQL Backup
+            boolean isValidSql = false;
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+                char[] buffer = new char[2048];
+                int read = br.read(buffer, 0, 2048);
+                if (read > 0) {
+                    String header = new String(buffer, 0, read);
+                    // Standard mysqldump or mariadb dump headers
+                    if (header.contains("MariaDB dump") || header.contains("MySQL dump") || 
+                        header.contains("/*!40101 SET @OLD_CHARACTER_SET_CLIENT") || 
+                        header.contains("CREATE DATABASE")) {
+                        isValidSql = true;
+                    }
+                }
             }
-            createDbCmd.add("create");
-            createDbCmd.add(dbName);
+            if (!isValidSql) {
+                response.put("success", false);
+                response.put("message", "Archivo de respaldo SQL inválido, corrupto o vacío");
+                return response;
+            }
 
-            try {
-                ProcessBuilder pbCreate = new ProcessBuilder(createDbCmd);
-                pbCreate.start().waitFor();
-            } catch (Exception e) {
-                // Ignore if database already exists
+            // Recreate DB if it doesn't exist (Only if not full backup, since full backup contains CREATE DATABASE)
+            boolean isFullBackup = backupId.contains("_full_") || backupId.contains("_completo_");
+            
+            if (!isFullBackup) {
+                List<String> createDbCmd = new ArrayList<>();
+                createDbCmd.add(mysqladminExe);
+                createDbCmd.add("-h");
+                createDbCmd.add(host);
+                createDbCmd.add("-u");
+                createDbCmd.add(user);
+                createDbCmd.add("--skip-ssl");
+                createDbCmd.add("create");
+                createDbCmd.add(dbName);
+
+                try {
+                    ProcessBuilder pbCreate = new ProcessBuilder(createDbCmd);
+                    if (pwd != null && !pwd.isEmpty()) {
+                        pbCreate.environment().put("MYSQL_PWD", pwd);
+                    }
+                    pbCreate.start().waitFor();
+                } catch (Exception e) {
+                    // Ignore if database already exists
+                }
             }
 
             // Restore from file using standard input redirect
@@ -342,12 +391,15 @@ public class BackupService {
             restoreCmd.add("-u");
             restoreCmd.add(user);
             restoreCmd.add("--skip-ssl");
-            if (pwd != null && !pwd.isEmpty()) {
-                restoreCmd.add("-p" + pwd);
+            
+            if (!isFullBackup) {
+                restoreCmd.add(dbName);
             }
-            restoreCmd.add(dbName);
 
             ProcessBuilder pbRestore = new ProcessBuilder(restoreCmd);
+            if (pwd != null && !pwd.isEmpty()) {
+                pbRestore.environment().put("MYSQL_PWD", pwd);
+            }
             pbRestore.redirectInput(ProcessBuilder.Redirect.from(file));
             pbRestore.redirectError(ProcessBuilder.Redirect.PIPE);
 
@@ -428,7 +480,11 @@ public class BackupService {
 
     public LocalDateTime calculateNextBackup(AutomaticBackupConfig config) {
         LocalDateTime now = LocalDateTime.now();
-        String[] timeParts = config.getTime().split(":");
+        String timeStr = config.getTime() != null ? config.getTime() : "02:00";
+        if (timeStr.trim().isEmpty() || !timeStr.contains(":")) {
+            timeStr = "02:00";
+        }
+        String[] timeParts = timeStr.split(":");
         int hour = Integer.parseInt(timeParts[0]);
         int minute = Integer.parseInt(timeParts[1]);
 

@@ -7,6 +7,7 @@ import Footer from '../components/Footer'
 import LaikaAgent from '../components/LaikaAgent/LaikaAgent'
 import Icon from '../components/Icons/Icons'
 import { useSkeletonContext } from '../context/SkeletonContext'
+import { useTheme } from '../context/ThemeContext'
 import { venueAPI } from '../services/managerService'
 import './MainLayout.css'
 
@@ -16,6 +17,7 @@ const MainLayout = () => {
   const { user, logout } = useAuth()
   const { cartCount, toggleCart } = useCart()
   const { showSkeleton } = useSkeletonContext()
+  const { isDark } = useTheme()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [showUserDropdown, setShowUserDropdown] = useState(false)
@@ -202,7 +204,7 @@ const MainLayout = () => {
               </button>
               <div className="brand-nav-group">
                 <div className='main-navbar-brand' onClick={() => navigate('/')}>
-                  <img src="/logob.png" alt="LAIKA Club" style={{ height: '32px' }} />
+                  <img src={isDark ? "/LogoClaro.png" : "/LogoOsc.png"} alt="LAIKA Club" style={{ height: '32px' }} />
                 </div>
                 <nav className='main-navbar-nav desktop-nav'>
                   <button className='main-nav-link' onClick={() => navigate('/?category=concert')}>Conciertos y Festivales</button>
@@ -359,7 +361,7 @@ const MainLayout = () => {
       <div className={`main-mobile-nav ${isMobileMenuOpen ? 'main-mobile-nav--open' : ''}`}>
         <div className="main-mobile-nav-header">
           <img 
-            src="/logob.png" 
+            src={isDark ? "/LogoClaro.png" : "/LogoOsc.png"} 
             alt="LAIKA Club" 
             className="mobile-menu-logo" 
             onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }} 

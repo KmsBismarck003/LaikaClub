@@ -43,16 +43,30 @@ export function useBackupActions(onSuccess, showNotification) {
     }
   }, [selectedTables, onSuccess, showNotification]);
 
-  const handleDownloadBackup = useCallback((backupId, format = 'sql') => {
+  const handleDownloadBackup = useCallback(async (backupId, format = 'sql') => {
     try {
+      if (showNotification) showNotification('Iniciando descarga...', '', 'info');
       const url = api.database.downloadBackupUrl(backupId);
+      
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const headers = {};
+      if (token && token !== 'undefined' && token !== 'null') {
+          headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(url, { headers });
+      
+      if (!response.ok) throw new Error('Error al descargar');
+      
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = objectUrl;
       link.setAttribute('download', `${backupId}.${format}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      if (showNotification) showNotification('Iniciando descarga...', '', 'info');
+      window.URL.revokeObjectURL(objectUrl);
     } catch (err) {
       if (showNotification) showNotification('Error en la descarga', '', 'error');
     }

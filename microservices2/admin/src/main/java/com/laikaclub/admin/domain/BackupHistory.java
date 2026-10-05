@@ -2,6 +2,7 @@ package com.laikaclub.admin.domain;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "backup_history")
@@ -11,6 +12,7 @@ public class BackupHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty("backup_id")
     @Column(name = "backup_id", unique = true, nullable = false)
     private String backupId;
 
@@ -20,18 +22,23 @@ public class BackupHistory {
     @Column(name = "status")
     private String status;
 
+    @JsonProperty("scheduled_at")
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
 
+    @JsonProperty("created_at")
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonProperty("completed_at")
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
+    @JsonProperty("size_mb")
     @Column(name = "size_mb")
     private Double sizeMb;
 
+    @JsonProperty("error_message")
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
