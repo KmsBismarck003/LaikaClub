@@ -2,6 +2,7 @@ package com.laikaclub.auth.domain;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "auth_logs")
@@ -11,9 +12,11 @@ public class AuthLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty("user_id")
     @Column(name = "user_id")
     private Long userId;
 
+    @JsonProperty("user_name")
     @Column(name = "user_name", length = 255)
     private String userName = "";
 
@@ -23,18 +26,22 @@ public class AuthLog {
     @Column(length = 50)
     private String role = "";
 
+    @JsonProperty("event_type")
     @Column(name = "event_type", length = 100, nullable = false)
     private String eventType;
 
+    @JsonProperty("ip_address")
     @Column(name = "ip_address", length = 50)
     private String ipAddress = "N/A";
 
+    @JsonProperty("user_agent")
     @Column(name = "user_agent", columnDefinition = "TEXT")
     private String userAgent = "N/A";
 
     @Column(columnDefinition = "TEXT")
     private String summary = "";
 
+    @JsonProperty("created_at")
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

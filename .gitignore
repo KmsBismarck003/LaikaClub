@@ -53,3 +53,9 @@ microservices/wearables_backend/
 /pilgrim/
 
 /referencias/
+
+# Scratch logs
+headers.txt
+headers_limit.txt
+scratch_audit.json
+scratch_curl.json

@@ -163,7 +163,7 @@ public class AdminController {
     public ResponseEntity<List<AuthLog>> getAuditLogs(
             @RequestParam(defaultValue = "200") int limit,
             @RequestParam(required = false) String role,
-            @RequestParam(required = false) String eventType) {
+            @RequestParam(name = "event_type", required = false) String eventType) {
         
         List<AuthLog> logs = auditService.getAuthLogs(limit, role, eventType);
         return ResponseEntity.ok(logs);
