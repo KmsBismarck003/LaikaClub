@@ -14,6 +14,19 @@
 
 .usupport-count { margin: 0; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #444; }
 
+/* Bloque mas utiles */
+.usupport-top { display: flex; flex-direction: column; gap: .5rem; }
+.usupport-top-label { font-size: .62rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #555; }
+.usupport-top-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+.usupport-top-chip { background: #111; border: 1px solid #2a2a2a; color: #ddd; border-radius: 12px; padding: .5rem .8rem; font-size: .7rem; font-weight: 700; text-align: left; cursor: pointer; max-width: 100%; }
+.usupport-top-chip:hover { border-color: #fff; color: #fff; }
+
+/* Herramientas: contador + expandir/colapsar */
+.usupport-tools { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
+.usupport-tools-row { display: flex; gap: .5rem; }
+.usupport-tool { background: transparent; border: 1px solid #2a2a2a; color: #aaa; border-radius: 99px; padding: .4rem .9rem; font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; }
+.usupport-tool:hover { color: #fff; border-color: #fff; }
+
 .usupport-group { background: #0d0d0d; border: 1px solid #1e1e1e; border-left: 3px solid #2a2a2a; border-radius: 16px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .6rem; }
 .usupport-group-title { margin: 0; display: flex; align-items: center; gap: .5rem; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
 .usupport-item { border: 1px solid #1e1e1e; border-radius: 12px; background: #111; overflow: hidden; }
@@ -37,6 +50,12 @@
 .usupport-vote button { background: transparent; border: 1px solid #333; color: #ddd; border-radius: 99px; padding: .35rem .9rem; font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: background .2s, color .2s; }
 .usupport-vote button:hover { background: #fff; color: #000; border-color: #fff; }
 .usupport-thanks { margin: .8rem 0 0; font-size: .7rem; font-weight: 700; color: #aaa; }
+
+/* Acciones por respuesta: votos + copiar link */
+.usupport-actions { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; margin-top: .8rem; }
+.usupport-actions .usupport-vote { margin-top: 0; }
+.usupport-copy { display: inline-flex; align-items: center; gap: .4rem; background: transparent; border: 1px solid #2a2a2a; color: #aaa; border-radius: 99px; padding: .4rem .9rem; font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
+.usupport-copy:hover { color: #fff; border-color: #fff; }
 
 /* Bloque proactivo de contacto */
 .usupport-cta { background: #0d0d0d; border: 1px solid #1e1e1e; border-left: 3px solid #2a2a2a; border-radius: 16px; padding: 1.25rem; }

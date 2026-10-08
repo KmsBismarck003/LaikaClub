@@ -117,13 +117,37 @@ function resaltar(texto, query) {
   });
 }
 
+// Lista plana con slug estable por pregunta (sobrevive a reordenamientos)
+const FLAT_FAQS = FAQS.flatMap(g =>
+  g.items.map(it => ({ ...it, categoria: g.categoria, slug: slugify(it.pregunta) }))
+);
+
+const VOTOS_KEY = 'usupport-votos';
+
+function leerVotos() {
+  try {
+    return JSON.parse(localStorage.getItem(VOTOS_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+// Atajos por defecto si aun no hay votos locales
+const DEFAULT_TOP = [
+  'no-recibi-mis-boletos-donde-estan',
+  'que-metodos-de-pago-aceptan',
+  'mi-cuenta-esta-bloqueada-cuanto-dura'
+];
+
 export default function UserSupport() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState('');
   const [categoriaActiva, setCategoriaActiva] = useState('Todas');
-  const [abierta, setAbierta] = useState(null);
-  const [votos, setVotos] = useState({}); // { [id]: 'util' | 'no' }
+  const [abiertas, setAbiertas] = useState(() => new Set());
+  // Votos persistentes en localStorage: { [slug]: 'util' | 'no' }
+  const [votos, setVotos] = useState(leerVotos);
   const [ticketMsg, setTicketMsg] = useState('');
+  const [copiado, setCopiado] = useState(null);
 
   const categorias = useMemo(() => ['Todas', ...FAQS.map(f => f.categoria)], []);
 
@@ -134,7 +158,10 @@ export default function UserSupport() {
       .map(g => ({
         ...g,
         items: g.items
-          .map((it, idx) => ({ ...it, _idx: idx, _score: q ? fuzzyScore(it.pregunta, it.respuesta, q) : 1 }))
+          .map(it => {
+            const slug = slugify(it.pregunta);
+            return { ...it, slug, _score: q ? fuzzyScore(it.pregunta, it.respuesta, q) : 1 };
+          })
           .filter(it => !q || it._score >= 0.5)
       }))
       .filter(g => g.items.length > 0);
@@ -142,30 +169,84 @@ export default function UserSupport() {
 
   const totalRespuestas = resultados.reduce((n, g) => n + g.items.length, 0);
 
+  // Top 3 mas utiles: primero las votadas util, luego atajos por defecto
+  const topUtiles = useMemo(() => {
+    const votadasUtil = FLAT_FAQS.filter(f => votos[f.slug] === 'util');
+    const lista = [...votadasUtil];
+    for (const slug of DEFAULT_TOP) {
+      if (lista.length >= 3) break;
+      const f = FLAT_FAQS.find(x => x.slug === slug);
+      if (f && !lista.some(x => x.slug === slug)) lista.push(f);
+    }
+    return lista.slice(0, 3);
+  }, [votos]);
+
   // Deep link: si la URL trae ?q=slug, abre esa pregunta al cargar
   useEffect(() => {
     const slug = searchParams.get('q');
     if (!slug) return;
-    for (const g of FAQS) {
-      for (let i = 0; i < g.items.length; i++) {
-        if (slugify(g.items[i].pregunta) === slug) {
-          setCategoriaActiva('Todas');
-          setAbierta(`${g.categoria}-${i}`);
-          return;
-        }
-      }
+    const hit = FLAT_FAQS.find(f => f.slug === slug);
+    if (hit) {
+      setCategoriaActiva('Todas');
+      setAbiertas(new Set([slug]));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const toggle = (id, pregunta) => {
-    const next = abierta === id ? null : id;
-    setAbierta(next);
-    if (next) setSearchParams({ q: slugify(pregunta) });
-    else setSearchParams({});
+  const toggle = (slug) => {
+    setAbiertas(prev => {
+      const next = new Set(prev);
+      if (next.has(slug)) {
+        next.delete(slug);
+        setSearchParams({});
+      } else {
+        next.add(slug);
+        setSearchParams({ q: slug });
+      }
+      return next;
+    });
   };
 
-  const votar = (id, valor) => setVotos(p => ({ ...p, [id]: valor }));
+  const irATop = (slug) => {
+    setQuery('');
+    setCategoriaActiva('Todas');
+    setAbiertas(new Set([slug]));
+    setSearchParams({ q: slug });
+  };
+
+  const expandirTodo = () => {
+    const ids = resultados.flatMap(g => g.items.map(it => it.slug));
+    setAbiertas(new Set(ids));
+  };
+
+  const colapsarTodo = () => {
+    setAbiertas(new Set());
+    setSearchParams({});
+  };
+
+  // Voto persistente: se puede cambiar de opinion, queda en localStorage
+  const votar = (slug, valor) => {
+    setVotos(prev => {
+      const next = { ...prev, [slug]: valor };
+      try {
+        localStorage.setItem(VOTOS_KEY, JSON.stringify(next));
+      } catch {
+        // almacenamiento no disponible: se mantiene solo en memoria
+      }
+      return next;
+    });
+  };
+
+  const copiarLink = async (slug) => {
+    const url = `${window.location.origin}/user/support?q=${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      console.log('[soporte] link para compartir:', url);
+    }
+    setCopiado(slug);
+    setTimeout(() => setCopiado(cur => (cur === slug ? null : cur)), 2000);
+  };
 
   // Acciones simuladas: solo frontend, sin backend
   const simularTicket = () => {
@@ -202,23 +283,44 @@ export default function UserSupport() {
         )}
       </div>
 
+      <div className="usupport-top">
+        <span className="usupport-top-label">Más útiles</span>
+        <div className="usupport-top-row">
+          {topUtiles.map(f => (
+            <button key={f.slug} type="button" className="usupport-top-chip" onClick={() => irATop(f.slug)}>
+              {f.pregunta}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="usupport-cats">
         {categorias.map(c => (
           <button
             key={c}
             type="button"
             className={`usupport-cat ${categoriaActiva === c ? 'active' : ''}`}
-            onClick={() => { setCategoriaActiva(c); setAbierta(null); setSearchParams({}); }}
+            onClick={() => { setCategoriaActiva(c); setAbiertas(new Set()); setSearchParams({}); }}
           >
             {c}
           </button>
         ))}
       </div>
 
-      <p className="usupport-count" aria-live="polite">
-        {totalRespuestas} respuesta{totalRespuestas === 1 ? '' : 's'}
-        {query && <> para “{query}”</>}
-      </p>
+      <div className="usupport-tools">
+        <p className="usupport-count" aria-live="polite">
+          {totalRespuestas} respuesta{totalRespuestas === 1 ? '' : 's'}
+          {query && <> para “{query}”</>}
+        </p>
+        <div className="usupport-tools-row">
+          <button type="button" className="usupport-tool" onClick={expandirTodo}>
+            Expandir todo
+          </button>
+          <button type="button" className="usupport-tool" onClick={colapsarTodo}>
+            Colapsar todo
+          </button>
+        </div>
+      </div>
 
       {resultados.length === 0 ? (
         <div className="usupport-empty">
@@ -233,15 +335,15 @@ export default function UserSupport() {
               <Icon name={grupo.icon} size={15} /> {grupo.categoria}
             </h3>
             {grupo.items.map(it => {
-              const id = `${grupo.categoria}-${it._idx}`;
-              const open = abierta === id;
+              const id = it.slug;
+              const open = abiertas.has(id);
               const voto = votos[id];
               return (
                 <div key={id} className={`usupport-item ${open ? 'open' : ''}`}>
                   <button
                     type="button"
                     className="usupport-q"
-                    onClick={() => toggle(id, it.pregunta)}
+                    onClick={() => toggle(id)}
                     aria-expanded={open}
                     aria-controls={`ans-${id}`}
                   >
@@ -253,15 +355,29 @@ export default function UserSupport() {
                   <div id={`ans-${id}`} className={`usupport-a-wrap ${open ? 'open' : ''}`}>
                     <div className="usupport-a-inner">
                       <p className="usupport-a">{it.respuesta}</p>
-                      {!voto ? (
-                        <div className="usupport-vote">
-                          <span>¿Te sirvió esta respuesta?</span>
-                          <button type="button" onClick={() => votar(id, 'util')}>Útil</button>
-                          <button type="button" onClick={() => votar(id, 'no')}>No útil</button>
-                        </div>
-                      ) : (
-                        <p className="usupport-thanks">Gracias por tu feedback</p>
-                      )}
+                      <div className="usupport-actions">
+                        {!voto ? (
+                          <div className="usupport-vote">
+                            <span>¿Te sirvió esta respuesta?</span>
+                            <button type="button" onClick={() => votar(id, 'util')}>Útil</button>
+                            <button type="button" onClick={() => votar(id, 'no')}>No útil</button>
+                          </div>
+                        ) : (
+                          <div className="usupport-vote">
+                            <span className="usupport-thanks">Gracias por tu feedback</span>
+                            <button type="button" onClick={() => votar(id, 'util')}>
+                              {voto === 'util' ? 'Votaste útil' : 'Útil'}
+                            </button>
+                            <button type="button" onClick={() => votar(id, 'no')}>
+                              {voto === 'no' ? 'Votaste no útil' : 'No útil'}
+                            </button>
+                          </div>
+                        )}
+                        <button type="button" className="usupport-copy" onClick={() => copiarLink(id)}>
+                          <Icon name="copy" size={13} />
+                          {copiado === id ? 'Link copiado' : 'Copiar link'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
