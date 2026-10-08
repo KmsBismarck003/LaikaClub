@@ -45,6 +45,10 @@
 /* Resaltado de busqueda dentro de la paleta */
 .usupport-mark { background: #e5e5e5; color: #000; padding: 0 3px; border-radius: 3px; }
 
+/* Enlaces internos dentro de las respuestas: mismo texto, subrayado sutil */
+.support-link { color: #ddd; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: pointer; transition: text-decoration-thickness .15s ease; }
+.support-link:hover { text-decoration-thickness: 2px; }
+
 /* Votacion simulada */
 .usupport-vote { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; font-size: .68rem; color: #777; font-weight: 600; }
 .usupport-vote button { background: transparent; border: 1px solid #333; color: #ddd; border-radius: 99px; padding: .35rem .9rem; font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: background .2s, color .2s; }

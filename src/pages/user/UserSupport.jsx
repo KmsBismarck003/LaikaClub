@@ -10,23 +10,23 @@ const FAQS = [
     items: [
       {
         pregunta: '¿Cómo creo mi cuenta?',
-        respuesta: 'Ve a /register, completa nombre, correo y contraseña. Recibirás acceso inmediato a Mi LAIKA (boletos, logros e historial).'
+        respuesta: 'Ve a [[/register|registro]], completa nombre, correo y contraseña. Recibirás acceso inmediato a Mi LAIKA (boletos, logros e historial).'
       },
       {
         pregunta: 'No puedo iniciar sesión, ¿qué hago?',
-        respuesta: 'Verifica correo y contraseña. Usa “¿Olvidaste tu contraseña?” en /login. Tras 5 intentos fallidos la cuenta se bloquea temporalmente por seguridad.'
+        respuesta: 'Verifica correo y contraseña. Usa “¿Olvidaste tu contraseña?” en [[/login|inicio de sesión]]. Tras 5 intentos fallidos la cuenta se bloquea temporalmente por seguridad.'
       },
       {
         pregunta: 'Mi cuenta está bloqueada, ¿cuánto dura?',
-        respuesta: 'El bloqueo es temporal (unos minutos). Espera e intenta de nuevo o escríbenos desde /info/contacto si persiste.'
+        respuesta: 'El bloqueo es temporal (unos minutos). Espera e intenta de nuevo o escríbenos desde [[/info/contacto|contacto]] si persiste.'
       },
       {
         pregunta: '¿Puedo entrar con Google o Apple?',
-        respuesta: 'Sí. En /login usa los botones de Google o Apple. Se vincula a tu correo y tendrás el mismo acceso a Mi LAIKA.'
+        respuesta: 'Sí. En [[/login|inicio de sesión]] usa los botones de Google o Apple. Se vincula a tu correo y tendrás el mismo acceso a Mi LAIKA.'
       },
       {
         pregunta: '¿Cómo cambio mi foto o mis datos?',
-        respuesta: 'Entra a Mi Perfil (/user/profile): ahí actualizas avatar, nombre y datos de contacto.'
+        respuesta: 'Entra a [[/user/profile|Mi Perfil]]: ahí actualizas avatar, nombre y datos de contacto.'
       }
     ]
   },
@@ -36,15 +36,15 @@ const FAQS = [
     items: [
       {
         pregunta: '¿Cómo compro boletos?',
-        respuesta: 'Elige un evento, selecciona zona/asientos, agrega al carrito y continúa a /checkout. Puedes comprar con o sin cuenta (modo invitado).'
+        respuesta: 'Elige un evento, selecciona zona/asientos, agrega al carrito y continúa a [[/checkout|checkout]]. Puedes comprar con o sin cuenta (modo invitado).'
       },
       {
         pregunta: '¿Recibiré boletos físicos?',
-        respuesta: 'No. Son e-tickets con QR. Los verás en /user/tickets (Mis Boletos) y también llegan a tu correo. Revisa spam si no los ves.'
+        respuesta: 'No. Son e-tickets con QR. Los verás en [[/user/tickets|Mis Boletos]] y también llegan a tu correo. Revisa spam si no los ves.'
       },
       {
         pregunta: 'No recibí mis boletos, ¿dónde están?',
-        respuesta: 'Revisa spam y luego entra a Mis Boletos (/user/tickets). Si el pago fue aprobado, ahí estarán disponibles con su QR.'
+        respuesta: 'Revisa spam y luego entra a [[/user/tickets|Mis Boletos]]. Si el pago fue aprobado, ahí estarán disponibles con su QR.'
       },
       {
         pregunta: 'Compré como invitado, ¿dónde están mis boletos?',
@@ -66,7 +66,7 @@ const FAQS = [
       },
       {
         pregunta: '¿Puedo cancelar y pedir reembolso?',
-        respuesta: 'Depende del evento. Revisa /info/devoluciones y gestiona tu caso en /user/refunds (Reembolsos). Solo eventos cancelados por el organizador tienen reembolso del 100% en 3-5 días hábiles.'
+        respuesta: 'Depende del evento. Revisa la [[/info/devoluciones|Política de Devoluciones]] y gestiona tu caso en [[/user/refunds|Reembolsos]]. Solo eventos cancelados por el organizador tienen reembolso del 100% en 3-5 días hábiles.'
       },
       {
         pregunta: '¿Qué aparece en mi estado de cuenta? ¿Es seguro?',
@@ -74,7 +74,7 @@ const FAQS = [
       },
       {
         pregunta: '¿Cómo sigo mi solicitud de reembolso?',
-        respuesta: 'En Reembolsos (/user/refunds) verás cada solicitud con su estado (Pendiente, En proceso, Aprobado), monto y fecha.'
+        respuesta: 'En [[/user/refunds|Reembolsos]] verás cada solicitud con su estado (Pendiente, En proceso, Aprobado), monto y fecha.'
       }
     ]
   },
@@ -84,11 +84,11 @@ const FAQS = [
     items: [
       {
         pregunta: '¿Cómo entro al evento con mi boleto?',
-        respuesta: 'Abre Mis Boletos (/user/tickets) y muestra el QR en vivo con el brillo alto. El operador lo escanea en puerta. Evita capturas: usa siempre el QR en vivo.'
+        respuesta: 'Abre [[/user/tickets|Mis Boletos]] y muestra el QR en vivo con el brillo alto. El operador lo escanea en puerta. Evita capturas: usa siempre el QR en vivo.'
       },
       {
         pregunta: '¿Puedo transferir mi boleto a otra persona?',
-        respuesta: 'Sí. Desde Mis Boletos genera el link de transferencia y compártelo. Quien lo recibe lo reclama con o sin cuenta y el QR pasa a su nombre.'
+        respuesta: 'Sí. Desde [[/user/tickets|Mis Boletos]] genera el link de transferencia y compártelo. Quien lo recibe lo reclama con o sin cuenta y el QR pasa a su nombre.'
       },
       {
         pregunta: '¿Qué es Lucky Seat?',
@@ -96,7 +96,7 @@ const FAQS = [
       },
       {
         pregunta: '¿Qué pasa si el evento se cancela o cambia de fecha?',
-        respuesta: 'Si lo cancela el organizador, recibes el 100% en 3-5 días hábiles (ver /user/refunds). Si se reprograma, tu boleto sigue válido o puedes pedir reembolso dentro del plazo del aviso.'
+        respuesta: 'Si lo cancela el organizador, recibes el 100% en 3-5 días hábiles (ver [[/user/refunds|Reembolsos]]). Si se reprograma, tu boleto sigue válido o puedes pedir reembolso dentro del plazo del aviso.'
       }
     ]
   },
@@ -110,11 +110,11 @@ const FAQS = [
       },
       {
         pregunta: '¿Qué son los logros y Laika Points?',
-        respuesta: 'Es la gamificación de LAIKA: ganas puntos e insignias por comprar y asistir. Revísalos en Mis Logros (/user/achievements).'
+        respuesta: 'Es la gamificación de LAIKA: ganas puntos e insignias por comprar y asistir. Revísalos en [[/user/achievements|Mis Logros]].'
       },
       {
         pregunta: '¿Dónde veo mi historial de compras?',
-        respuesta: 'En Historial (/user/history) tienes todas tus compras; tus boletos activos viven en Mis Boletos (/user/tickets).'
+        respuesta: 'En [[/user/history|Historial]] tienes todas tus compras; tus boletos activos viven en [[/user/tickets|Mis Boletos]].'
       }
     ]
   },
@@ -128,11 +128,22 @@ const FAQS = [
       },
       {
         pregunta: 'La página o el QR no cargan, ¿qué hago?',
-        respuesta: 'Recarga, prueba otro navegador y verifica tu conexión. Si tu boleto no muestra QR, reabre Mis Boletos o pide ayuda en /info/contacto.'
+        respuesta: 'Recarga, prueba otro navegador y verifica tu conexión. Si tu boleto no muestra QR, reabre Mis Boletos o pide ayuda en [[/info/contacto|contacto]].'
       }
     ]
   }
 ];
+
+// Convierte marcas [[ruta|texto visible]] en <Link> internos.
+// El resto del string se devuelve como texto normal.
+function renderRespuesta(texto) {
+  const partes = texto.split(/(\[\[[^\]]+\]\])/g);
+  return partes.map((p, i) => {
+    const m = p.match(/^\[\[([^\]|]+)\|([^\]]+)\]\]$/);
+    if (!m) return p;
+    return <Link key={i} to={m[1]} className="support-link">{m[2]}</Link>;
+  });
+}
 
 // Normaliza texto: minusculas y sin acentos para busqueda difusa
 const normalize = (s = '') =>
@@ -424,7 +435,7 @@ export default function UserSupport() {
                   </button>
                   <div id={`ans-${id}`} className={`usupport-a-wrap ${open ? 'open' : ''}`}>
                     <div className="usupport-a-inner">
-                      <p className="usupport-a">{it.respuesta}</p>
+                      <p className="usupport-a">{renderRespuesta(it.respuesta)}</p>
                       <div className="usupport-actions">
                         {!voto ? (
                           <div className="usupport-vote">
