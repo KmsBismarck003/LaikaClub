@@ -26,6 +26,7 @@ export { default as Achievements } from './user/Achievements'
 export { default as RefundRequest } from './user/RefundRequest'
 export { default as UserWallet } from './user/UserWallet'
 export { default as RefundTracker } from './user/RefundTracker'
+export { default as UserSupport } from './user/UserSupport'
 
 // Módulo Admin (Consolidado)
 export { default as AdminDashboard } from './admin/Dashboard/Dashboard'

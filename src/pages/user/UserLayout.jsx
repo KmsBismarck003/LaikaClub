@@ -38,6 +38,7 @@ const UserLayout = () => {
             items: [
                 { id: 'profile',  path: '/user/profile',  icon: 'user',         label: 'Mi Perfil' },
                 { id: 'refunds',  path: '/user/refunds',  icon: 'dollarSign',   label: 'Reembolsos' },
+                { id: 'support',  path: '/user/support',  icon: 'info',         label: 'Soporte y FAQ' },
                 { id: 'cart',     path: '__cart__',        icon: 'shoppingCart', label: 'Carrito', badge: cartCount, action: openCart },
             ]
         }

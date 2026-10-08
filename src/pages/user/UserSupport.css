@@ -1,0 +1,29 @@
+.usupport-wrapper { display: flex; flex-direction: column; gap: 1.1rem; padding-bottom: 2rem; }
+.usupport-label { font-size: .62rem; font-weight: 900; text-transform: uppercase; letter-spacing: 4px; color: #555; }
+.usupport-title { margin: .1rem 0 0; font-size: 1.5rem; font-weight: 900; color: #fff; }
+.usupport-subtitle { margin: 0; font-size: .78rem; color: #666; font-weight: 600; }
+
+.usupport-search { display: flex; align-items: center; gap: .6rem; background: #111; border: 1px solid #222; border-radius: 12px; padding: .65rem .95rem; color: #888; }
+.usupport-search input { flex: 1; background: none; border: none; outline: none; color: #fff; font-size: .82rem; }
+.usupport-search input::placeholder { color: #555; }
+.usupport-search button { background: none; border: none; color: #777; cursor: pointer; display: flex; }
+
+.usupport-cats { display: flex; gap: .5rem; flex-wrap: wrap; }
+.usupport-cat { background: #111; border: 1px solid #222; color: #888; font-size: .62rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; padding: .5rem .9rem; border-radius: 99px; cursor: pointer; }
+.usupport-cat.active { background: #fff; color: #000; border-color: #fff; }
+
+.usupport-count { margin: 0; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #444; }
+
+.usupport-group { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 16px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .6rem; }
+.usupport-group-title { margin: 0; display: flex; align-items: center; gap: .5rem; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
+.usupport-item { border: 1px solid #1e1e1e; border-radius: 12px; background: #111; overflow: hidden; }
+.usupport-item.open { border-color: #333; }
+.usupport-q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: .75rem; background: none; border: none; color: #fff; text-align: left; font-size: .82rem; font-weight: 700; padding: .85rem 1rem; cursor: pointer; }
+.usupport-a { margin: 0; padding: 0 1rem 1rem; font-size: .76rem; line-height: 1.55; color: #999; }
+
+.usupport-empty { text-align: center; padding: 2.5rem 1.5rem; background: #0a0a0a; border: 1px dashed #222; border-radius: 16px; color: #666; display: flex; flex-direction: column; align-items: center; gap: .75rem; }
+.usupport-empty a { color: #fff; font-weight: 800; }
+
+.usupport-footer { display: flex; gap: .6rem; align-items: flex-start; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; padding: 1rem 1.2rem; color: #555; }
+.usupport-footer p { margin: 0; font-size: .72rem; font-weight: 600; }
+.usupport-footer a { color: #fff; font-weight: 800; }

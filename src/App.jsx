@@ -31,6 +31,7 @@ import {
   ManagerAttendees,
   StaffIncidents,
   RefundTracker,
+  UserSupport,
   Maintenance,
   Checkout
 } from './pages'
@@ -122,6 +123,7 @@ function AppContent() {
                   <Route path='profile' element={<UserProfile />} />
                   <Route path='achievements' element={<Achievements />} />
                   <Route path='refunds' element={<RefundTracker />} />
+                  <Route path='support' element={<UserSupport />} />
                 </Route>
 
                 {/* Redirect old profile route */}
