@@ -349,8 +349,10 @@ export default function UserSupport() {
         </p>
       </div>
 
-      <div className="usupport-search">
-        <Icon name="search" size={16} />
+      <div className="usupport-search" role="search">
+        <span className="usupport-search-icon">
+          <Icon name="search" size={16} />
+        </span>
         <input
           value={query}
           onChange={e => setQuery(e.target.value)}
@@ -358,13 +360,13 @@ export default function UserSupport() {
           aria-label="Buscar en preguntas frecuentes"
         />
         {query && (
-          <button type="button" onClick={() => setQuery('')} aria-label="Limpiar búsqueda">
+          <button type="button" className="usupport-clear" onClick={() => setQuery('')} aria-label="Limpiar búsqueda">
             <Icon name="close" size={14} />
           </button>
         )}
       </div>
 
-      <div className="usupport-top">
+      <section className="usupport-top" aria-label="Preguntas más útiles">
         <span className="usupport-top-label">Más útiles</span>
         <div className="usupport-top-row">
           {topUtiles.map(f => (
@@ -373,20 +375,24 @@ export default function UserSupport() {
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="usupport-cats">
-        {categorias.map(c => (
-          <button
-            key={c}
-            type="button"
-            className={`usupport-cat ${categoriaActiva === c ? 'active' : ''}`}
-            onClick={() => { setCategoriaActiva(c); setAbiertas(new Set()); setSearchParams({}); }}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
+      <section className="usupport-filters" aria-label="Filtrar por categoría">
+        <span className="usupport-filters-label">Filtrar por tema</span>
+        <div className="usupport-cats">
+          {categorias.map(c => (
+            <button
+              key={c}
+              type="button"
+              className={`usupport-cat ${categoriaActiva === c ? 'active' : ''}`}
+              aria-pressed={categoriaActiva === c}
+              onClick={() => { setCategoriaActiva(c); setAbiertas(new Set()); setSearchParams({}); }}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </section>
 
       <div className="usupport-tools">
         <p className="usupport-count" aria-live="polite">
@@ -428,7 +434,7 @@ export default function UserSupport() {
                     aria-expanded={open}
                     aria-controls={`ans-${id}`}
                   >
-                    <span>{resaltar(it.pregunta, query)}</span>
+                    <span className="usupport-q-text">{resaltar(it.pregunta, query)}</span>
                     <span className={`usupport-chev ${open ? 'rot' : ''}`}>
                       <Icon name="chevronDown" size={16} />
                     </span>
@@ -436,23 +442,20 @@ export default function UserSupport() {
                   <div id={`ans-${id}`} className={`usupport-a-wrap ${open ? 'open' : ''}`}>
                     <div className="usupport-a-inner">
                       <p className="usupport-a">{renderRespuesta(it.respuesta)}</p>
-                      <div className="usupport-actions">
+                      {/* Pie de respuesta: feedback de utilidad + copiar link */}
+                      <div className="usupport-feedback">
                         {!voto ? (
                           <div className="usupport-vote">
-                            <span>¿Te sirvió esta respuesta?</span>
-                            <button type="button" onClick={() => votar(id, 'util')}>Útil</button>
-                            <button type="button" onClick={() => votar(id, 'no')}>No útil</button>
+                            <span className="usupport-vote-label">¿Te sirvió esta respuesta?</span>
+                            <div className="usupport-vote-btns">
+                              <button type="button" className="usupport-pill" onClick={() => votar(id, 'util')}>Útil</button>
+                              <button type="button" className="usupport-pill" onClick={() => votar(id, 'no')}>No útil</button>
+                            </div>
                           </div>
                         ) : (
-                          <div className="usupport-vote">
-                            <span className="usupport-thanks">Gracias por tu feedback</span>
-                            <button type="button" onClick={() => votar(id, 'util')}>
-                              {voto === 'util' ? 'Votaste útil' : 'Útil'}
-                            </button>
-                            <button type="button" onClick={() => votar(id, 'no')}>
-                              {voto === 'no' ? 'Votaste no útil' : 'No útil'}
-                            </button>
-                          </div>
+                          <p className="usupport-thanks">
+                            Gracias por tu feedback. Votaste: <strong>{voto === 'util' ? 'ÚTIL' : 'NO ÚTIL'}</strong>
+                          </p>
                         )}
                         <button type="button" className="usupport-copy" onClick={() => copiarLink(id)}>
                           <Icon name="copy" size={13} />
