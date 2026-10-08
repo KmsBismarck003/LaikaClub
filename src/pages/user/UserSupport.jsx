@@ -19,6 +19,14 @@ const FAQS = [
       {
         pregunta: 'Mi cuenta está bloqueada, ¿cuánto dura?',
         respuesta: 'El bloqueo es temporal (unos minutos). Espera e intenta de nuevo o escríbenos desde /info/contacto si persiste.'
+      },
+      {
+        pregunta: '¿Puedo entrar con Google o Apple?',
+        respuesta: 'Sí. En /login usa los botones de Google o Apple. Se vincula a tu correo y tendrás el mismo acceso a Mi LAIKA.'
+      },
+      {
+        pregunta: '¿Cómo cambio mi foto o mis datos?',
+        respuesta: 'Entra a Mi Perfil (/user/profile): ahí actualizas avatar, nombre y datos de contacto.'
       }
     ]
   },
@@ -37,6 +45,10 @@ const FAQS = [
       {
         pregunta: 'No recibí mis boletos, ¿dónde están?',
         respuesta: 'Revisa spam y luego entra a Mis Boletos (/user/tickets). Si el pago fue aprobado, ahí estarán disponibles con su QR.'
+      },
+      {
+        pregunta: 'Compré como invitado, ¿dónde están mis boletos?',
+        respuesta: 'Llegan a tu correo. Si después creas tu cuenta con el mismo correo, se vinculan solos a tu bóveda en Mis Boletos.'
       }
     ]
   },
@@ -55,6 +67,54 @@ const FAQS = [
       {
         pregunta: '¿Puedo cancelar y pedir reembolso?',
         respuesta: 'Depende del evento. Revisa /info/devoluciones y gestiona tu caso en /user/refunds (Reembolsos). Solo eventos cancelados por el organizador tienen reembolso del 100% en 3-5 días hábiles.'
+      },
+      {
+        pregunta: '¿Qué aparece en mi estado de cuenta? ¿Es seguro?',
+        respuesta: 'El cargo aparece como “LAIKA Club” en una pasarela cifrada. Nunca guardamos el CVV de tu tarjeta.'
+      },
+      {
+        pregunta: '¿Cómo sigo mi solicitud de reembolso?',
+        respuesta: 'En Reembolsos (/user/refunds) verás cada solicitud con su estado (Pendiente, En proceso, Aprobado), monto y fecha.'
+      }
+    ]
+  },
+  {
+    categoria: 'Día del evento',
+    icon: 'mapPin',
+    items: [
+      {
+        pregunta: '¿Cómo entro al evento con mi boleto?',
+        respuesta: 'Abre Mis Boletos (/user/tickets) y muestra el QR en vivo con el brillo alto. El operador lo escanea en puerta. Evita capturas: usa siempre el QR en vivo.'
+      },
+      {
+        pregunta: '¿Puedo transferir mi boleto a otra persona?',
+        respuesta: 'Sí. Desde Mis Boletos genera el link de transferencia y compártelo. Quien lo recibe lo reclama con o sin cuenta y el QR pasa a su nombre.'
+      },
+      {
+        pregunta: '¿Qué es Lucky Seat?',
+        respuesta: 'Es el modo sorpresa del detalle del evento: la ruleta elige un asiento disponible por ti. Puedes confirmar el resultado o girar de nuevo.'
+      },
+      {
+        pregunta: '¿Qué pasa si el evento se cancela o cambia de fecha?',
+        respuesta: 'Si lo cancela el organizador, recibes el 100% en 3-5 días hábiles (ver /user/refunds). Si se reprograma, tu boleto sigue válido o puedes pedir reembolso dentro del plazo del aviso.'
+      }
+    ]
+  },
+  {
+    categoria: 'Merch y extras',
+    icon: 'shoppingBag',
+    items: [
+      {
+        pregunta: '¿Puedo comprar merch del evento?',
+        respuesta: 'Sí. En la sección “Merch del evento” del detalle agregas playeras y productos al carrito junto con tus boletos.'
+      },
+      {
+        pregunta: '¿Qué son los logros y Laika Points?',
+        respuesta: 'Es la gamificación de LAIKA: ganas puntos e insignias por comprar y asistir. Revísalos en Mis Logros (/user/achievements).'
+      },
+      {
+        pregunta: '¿Dónde veo mi historial de compras?',
+        respuesta: 'En Historial (/user/history) tienes todas tus compras; tus boletos activos viven en Mis Boletos (/user/tickets).'
       }
     ]
   },
@@ -87,7 +147,17 @@ const SINONIMOS = {
   pago: ['pago', 'pagar', 'tarjeta', 'cobro'],
   cuenta: ['cuenta', 'sesion', 'login', 'acceso'],
   bloqueada: ['bloqueada', 'bloqueo', 'bloqueada'],
-  metodos: ['metodos', 'metodo', 'formas']
+  metodos: ['metodos', 'metodo', 'formas'],
+  transferir: ['transferir', 'regalar', 'ceder', 'compartir', 'enviar'],
+  reclamar: ['reclamar', 'aceptar', 'recibir'],
+  merch: ['merch', 'merchandising', 'playera', 'sudadera', 'producto'],
+  ruleta: ['ruleta', 'sorpresa', 'lucky', 'azar', 'asiento'],
+  invitado: ['invitado', 'invitada', 'cuenta'],
+  google: ['google', 'apple', 'social'],
+  foto: ['foto', 'avatar', 'imagen', 'perfil'],
+  historial: ['historial', 'historia', 'compras'],
+  puntos: ['puntos', 'logros', 'insignia', 'recompensa'],
+  puerta: ['puerta', 'entrada', 'ingreso']
 };
 
 const expande = (token) => [token, ...(SINONIMOS[token] || [])];
@@ -135,8 +205,8 @@ function leerVotos() {
 // Atajos por defecto si aun no hay votos locales
 const DEFAULT_TOP = [
   'no-recibi-mis-boletos-donde-estan',
-  'que-metodos-de-pago-aceptan',
-  'mi-cuenta-esta-bloqueada-cuanto-dura'
+  'como-entro-al-evento-con-mi-boleto',
+  'puedo-transferir-mi-boleto-a-otra-persona'
 ];
 
 export default function UserSupport() {
