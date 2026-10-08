@@ -1,116 +1,321 @@
-.laika-loading-screen {
+/* ==========================================================================
+   Laika · LoadingScreen
+   Un velo de cristal: calma, aire y una salida que se disuelve.
+   ========================================================================== */
+
+.laika-ls {
+  --ls-ease: cubic-bezier(0.22, 1, 0.36, 1);          /* desaceleración suave */
+  --ls-breathe: cubic-bezier(0.37, 0, 0.63, 1);       /* sinusoidal */
+  --ls-enter: 700ms;
+  --ls-exit: 900ms;                                   /* = EXIT_DURATION_MS */
+
+  /* Light (por defecto, coherente con --bg-primary #f0f2f5) */
+  --ls-veil: rgba(244, 245, 247, 0.74);
+  --ls-title: #1d1d1f;
+  --ls-subtitle: #86868b;
+  --ls-track: rgba(0, 0, 0, 0.06);
+  --ls-beam: rgba(0, 0, 0, 0.55);
+  --ls-brand: 225, 81, 28;                            /* naranja del logo */
+  --ls-aura-alpha: 0.10;
+
+  --ls-font: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text',
+    'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+
   position: fixed;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #000000;
   z-index: 999999;
-}
+  display: grid;
+  place-items: center;
+  overflow: hidden;
 
-.welcome-screen-edge-vibrant {
-  position: fixed;
-  inset: 0;
+  background: var(--ls-veil);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+
+  font-family: var(--ls-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  opacity: 0;
   pointer-events: none;
-  z-index: 10006;
-  box-shadow:
-    inset 0 0 30px rgba(255, 255, 255, 0.4),
-    inset 0 0 60px rgba(255, 255, 255, 0.2);
+  transition: opacity var(--ls-exit) var(--ls-ease);
+}
+
+[data-theme='dark'] .laika-ls {
+  --ls-veil: rgba(8, 8, 10, 0.72);
+  --ls-title: #f5f5f7;
+  --ls-subtitle: rgba(235, 235, 245, 0.5);
+  --ls-track: rgba(255, 255, 255, 0.08);
+  --ls-beam: rgba(255, 255, 255, 0.85);
+  --ls-aura-alpha: 0.14;
+}
+
+.laika-ls--visible {
   opacity: 1;
-  animation: loading-pulse-marco 5s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  pointer-events: auto;
+  transition: opacity var(--ls-enter) var(--ls-ease);
 }
 
-@keyframes loading-pulse-marco {
-  0% {
-    opacity: 0.7;
-    box-shadow:
-      inset 0 15px 30px -10px rgba(255, 255, 255, 0.5),
-      inset 0 -15px 30px -10px rgba(255, 255, 255, 0.5),
-      inset 15px 0 30px -10px rgba(255, 255, 255, 0.5),
-      inset -15px 0 30px -10px rgba(255, 255, 255, 0.5);
-  }
-  100% {
-    opacity: 1;
-    box-shadow:
-      inset 0 30px 50px -15px rgba(255, 255, 255, 0.8),
-      inset 0 -30px 50px -15px rgba(255, 255, 255, 0.8),
-      inset 30px 0 50px -15px rgba(255, 255, 255, 0.8),
-      inset -30px 0 50px -15px rgba(255, 255, 255, 0.8);
-  }
+/* --------------------------------------------------------------------------
+   Aura ambiental (luz cálida, casi imperceptible)
+   -------------------------------------------------------------------------- */
+
+.laika-ls__aura {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 720px;
+  height: 720px;
+  margin: -400px 0 0 -360px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(var(--ls-brand), var(--ls-aura-alpha)) 0%,
+    rgba(var(--ls-brand), 0) 62%
+  );
+  pointer-events: none;
+  animation: laika-ls-aura 7s var(--ls-breathe) infinite;
 }
 
-.loading-content {
-  text-align: center;
+/* --------------------------------------------------------------------------
+   Escenario
+   -------------------------------------------------------------------------- */
+
+.laika-ls__stage {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  padding: 2rem;
+  text-align: center;
+
+  opacity: 0;
+  transform: translateY(14px) scale(0.98);
+  filter: blur(6px);
+  transition:
+    opacity calc(var(--ls-exit) * 0.75) var(--ls-ease),
+    transform var(--ls-exit) var(--ls-ease),
+    filter calc(var(--ls-exit) * 0.75) var(--ls-ease);
 }
 
-.loading-logo-wrapper {
+.laika-ls--visible .laika-ls__stage {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition:
+    opacity 1s var(--ls-ease) 120ms,
+    transform 1.3s var(--ls-ease) 120ms,
+    filter 1s var(--ls-ease) 120ms;
+}
+
+/* Salida: el contenido se acerca levemente y se disuelve, como si lo
+   atravesáramos hacia la app. */
+.laika-ls--leaving .laika-ls__stage {
+  transform: scale(1.04);
+}
+
+/* --------------------------------------------------------------------------
+   Marca
+   -------------------------------------------------------------------------- */
+
+.laika-ls__mark {
   position: relative;
-  width: 120px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 3rem;
 }
 
-.loading-logo {
-  width: 80px;
-  height: auto;
-  z-index: 2;
-  border-radius: 20px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-  animation: logo-pulse-marco 5s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-}
-
-@keyframes logo-pulse-marco {
-  0% {
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.1);
-  }
-  100% {
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 0 0 60px rgba(255, 255, 255, 0.3);
-  }
-}
-
-.loading-orbit {
+.laika-ls__glow {
   position: absolute;
-  width: 100px;
-  height: 100px;
-  border-radius: 16px;
+  inset: -36px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(var(--ls-brand), 0.28) 0%,
+    rgba(var(--ls-brand), 0.06) 40%,
+    rgba(var(--ls-brand), 0) 68%
+  );
+  animation: laika-ls-breathe 4.2s var(--ls-breathe) infinite;
+  will-change: transform, opacity;
 }
 
-.loading-orbit-outer {
-  display: none;
+.laika-ls__logo {
+  position: relative;
+  width: 64px;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 6px 18px rgba(var(--ls-brand), 0.25));
+  animation: laika-ls-float 4.2s var(--ls-breathe) infinite;
 }
 
-.loading-label {
-  font-size: 0.75rem;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
-  margin-top: 1rem;
-  opacity: 0.8;
-  animation: text-flicker 3s linear infinite;
+/* --------------------------------------------------------------------------
+   Tipografía
+   -------------------------------------------------------------------------- */
+
+.laika-ls__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 260px;
 }
 
-.loading-status {
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.4);
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.1em;
-  margin-top: 0.5rem;
+.laika-ls__title {
+  font-family: var(--ls-font);
+  font-size: 1.0625rem;          /* 17px, tamaño "headline" de Apple */
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.021em;
+  color: var(--ls-title);
+  text-transform: none;
+
+  opacity: 0;
+  transform: translateY(6px);
 }
 
-@keyframes text-flicker {
-  0%, 100% { opacity: 0.8; }
-  95% { opacity: 0.8; }
-  96% { opacity: 0.5; }
-  97% { opacity: 0.9; }
-  98% { opacity: 0.4; }
-  99% { opacity: 0.8; }
+.laika-ls__subtitle-wrap {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.laika-ls__subtitle {
+  font-family: var(--ls-font);
+  font-size: 0.8125rem;          /* 13px */
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: -0.003em;
+  color: var(--ls-subtitle);
+  min-height: 1.4em;
+  transition:
+    opacity 450ms var(--ls-ease),
+    transform 450ms var(--ls-ease),
+    filter 450ms var(--ls-ease);
+}
+
+.laika-ls--visible .laika-ls__title {
+  animation: laika-ls-rise 1s var(--ls-ease) 300ms both;
+}
+
+.laika-ls--visible .laika-ls__subtitle-wrap {
+  animation: laika-ls-rise 1s var(--ls-ease) 440ms both;
+}
+
+/* Crossfade del mensaje: sale hacia arriba con un leve desenfoque */
+.laika-ls__subtitle.is-out {
+  opacity: 0;
+  transform: translateY(-4px);
+  filter: blur(3px);
+}
+
+/* --------------------------------------------------------------------------
+   Indicador: un hilo de luz, sin prisa
+   -------------------------------------------------------------------------- */
+
+.laika-ls__track {
+  position: relative;
+  width: 88px;
+  height: 2px;
+  margin-top: 2.25rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--ls-track);
+  opacity: 0;
+}
+
+.laika-ls--visible .laika-ls__track {
+  animation: laika-ls-fade 1s var(--ls-ease) 600ms both;
+}
+
+.laika-ls__beam {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, var(--ls-beam), transparent);
+  animation: laika-ls-glide 2.2s var(--ls-breathe) infinite;
+  will-change: transform;
+}
+
+/* --------------------------------------------------------------------------
+   Fantasma de salida (clon que se disuelve tras un desmontaje abrupto)
+   -------------------------------------------------------------------------- */
+
+.laika-ls--ghost {
+  pointer-events: none;
+}
+
+.laika-ls--ghost .laika-ls__title,
+.laika-ls--ghost .laika-ls__subtitle-wrap,
+.laika-ls--ghost .laika-ls__track {
+  animation: none !important;
+  opacity: 1;
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Keyframes
+   -------------------------------------------------------------------------- */
+
+@keyframes laika-ls-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes laika-ls-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes laika-ls-breathe {
+  0%, 100% { transform: scale(0.86); opacity: 0.6; }
+  50%      { transform: scale(1.1);  opacity: 1; }
+}
+
+@keyframes laika-ls-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+@keyframes laika-ls-aura {
+  0%, 100% { transform: scale(0.94); opacity: 0.75; }
+  50%      { transform: scale(1.04); opacity: 1; }
+}
+
+@keyframes laika-ls-glide {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(250%); }
+}
+
+/* --------------------------------------------------------------------------
+   Adaptaciones
+   -------------------------------------------------------------------------- */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .laika-ls { --ls-veil: rgba(244, 245, 247, 0.97); }
+  [data-theme='dark'] .laika-ls { --ls-veil: rgba(8, 8, 10, 0.96); }
+}
+
+@media (max-width: 480px) {
+  .laika-ls__mark { margin-bottom: 2.5rem; }
+  .laika-ls__aura { width: 520px; height: 520px; margin: -290px 0 0 -260px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .laika-ls__aura,
+  .laika-ls__glow,
+  .laika-ls__logo {
+    animation: none;
+  }
+
+  .laika-ls__stage,
+  .laika-ls--visible .laika-ls__stage,
+  .laika-ls--leaving .laika-ls__stage {
+    transform: none;
+    filter: none;
+  }
+
+  .laika-ls__beam { animation-duration: 4s; }
 }

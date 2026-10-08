@@ -70,7 +70,7 @@ function AppContent() {
     }
   }, [loading, loggingOut])
 
-  if (loggingOut) return <LoadingScreen label="CERRANDO SESIÓN" status="GUARDANDO DATOS DE SESIÓN..." />;
+  if (loggingOut) return <LoadingScreen label="Cerrando tu sesión" status="Guardando todo para tu regreso…" />;
   if (loading || !minDone) return <LoadingScreen />;
 
   return (
@@ -123,7 +123,6 @@ function AppContent() {
                   <Route path='profile' element={<UserProfile />} />
                   <Route path='achievements' element={<Achievements />} />
                   <Route path='refunds' element={<RefundTracker />} />
-                  <Route path='support' element={<UserSupport />} />
                 </Route>
 
                 {/* Redirect old profile route */}
