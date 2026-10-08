@@ -14,12 +14,38 @@
 
 .usupport-count { margin: 0; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #444; }
 
-.usupport-group { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 16px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .6rem; }
+.usupport-group { background: #0d0d0d; border: 1px solid #1e1e1e; border-left: 3px solid #2a2a2a; border-radius: 16px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .6rem; }
 .usupport-group-title { margin: 0; display: flex; align-items: center; gap: .5rem; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #fff; }
 .usupport-item { border: 1px solid #1e1e1e; border-radius: 12px; background: #111; overflow: hidden; }
 .usupport-item.open { border-color: #333; }
 .usupport-q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: .75rem; background: none; border: none; color: #fff; text-align: left; font-size: .82rem; font-weight: 700; padding: .85rem 1rem; cursor: pointer; }
-.usupport-a { margin: 0; padding: 0 1rem 1rem; font-size: .76rem; line-height: 1.55; color: #999; }
+.usupport-chev { display: flex; flex-shrink: 0; transition: transform .25s ease; }
+.usupport-chev.rot { transform: rotate(180deg); }
+
+/* Acordeon con transicion suave de altura */
+.usupport-a-wrap { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .28s ease, opacity .25s ease; }
+.usupport-a-wrap.open { grid-template-rows: 1fr; opacity: 1; }
+.usupport-a-inner { overflow: hidden; padding: 0 1rem; }
+.usupport-a-wrap.open .usupport-a-inner { padding: 0 1rem 1rem; }
+.usupport-a { margin: 0; padding-top: 16px; font-size: .76rem; line-height: 1.55; color: #999; }
+
+/* Resaltado de busqueda dentro de la paleta */
+.usupport-mark { background: #e5e5e5; color: #000; padding: 0 3px; border-radius: 3px; }
+
+/* Votacion simulada */
+.usupport-vote { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; font-size: .68rem; color: #777; font-weight: 600; }
+.usupport-vote button { background: transparent; border: 1px solid #333; color: #ddd; border-radius: 99px; padding: .35rem .9rem; font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: background .2s, color .2s; }
+.usupport-vote button:hover { background: #fff; color: #000; border-color: #fff; }
+.usupport-thanks { margin: .8rem 0 0; font-size: .7rem; font-weight: 700; color: #aaa; }
+
+/* Bloque proactivo de contacto */
+.usupport-cta { background: #0d0d0d; border: 1px solid #1e1e1e; border-left: 3px solid #2a2a2a; border-radius: 16px; padding: 1.25rem; }
+.usupport-cta h3 { margin: 0; color: #fff; font-size: .85rem; font-weight: 900; }
+.usupport-cta p { margin: .3rem 0 0; color: #777; font-size: .72rem; font-weight: 600; }
+.usupport-cta-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .9rem; }
+.usupport-btn { background: transparent; border: 1px solid #333; color: #fff; border-radius: 99px; padding: .6rem 1.2rem; font-size: .65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: transform .2s; }
+.usupport-btn:hover { transform: translateY(-2px); }
+.usupport-btn.primary { background: #fff; color: #000; border-color: #fff; }
 
 .usupport-empty { text-align: center; padding: 2.5rem 1.5rem; background: #0a0a0a; border: 1px dashed #222; border-radius: 16px; color: #666; display: flex; flex-direction: column; align-items: center; gap: .75rem; }
 .usupport-empty a { color: #fff; font-weight: 800; }
