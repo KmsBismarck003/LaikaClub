@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import TicketModal from './components/Wallet/TicketModal';
+import CancelTicketModal from './components/Wallet/CancelTicketModal';
 import TransferModal from '../../components/Transfer/TransferModal';
 import { useTicketTransfer } from '../../hooks/useTicketTransfer';
 import { useNotification } from '../../context/NotificationContext';
@@ -47,19 +48,22 @@ export default function UserWallet() {
   const [loading,  setLoading]  = useState(true);
   const [tab,      setTab]      = useState('upcoming');
   const [qrModal,  setQrModal]  = useState(null);
+  const [cancelModalTicket, setCancelModalTicket] = useState(null);
   const navigate = useNavigate();
   const { success, error } = useNotification();
   const transfer = useTicketTransfer({ success, error });
 
+  const fetchTickets = async () => {
+    try {
+      const resp = await api.ticket.getMyTickets();
+      setTickets(Array.isArray(resp) ? resp : []);
+    } catch {
+      setTickets([]);
+    } finally { setLoading(false); }
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        const resp = await api.ticket.getMyTickets();
-        setTickets(Array.isArray(resp) ? resp : []);
-      } catch {
-        setTickets([]);
-      } finally { setLoading(false); }
-    })();
+    fetchTickets();
   }, []);
 
   const isUpcoming = t => {
@@ -110,7 +114,8 @@ export default function UserWallet() {
             {upcoming.map((t, i) => (
               <BigTicketCard key={t.id||i} ticket={t} idx={i}
                 onQr={() => setQrModal(t)}
-                onTransfer={transfer.openTransfer} />
+                onTransfer={transfer.openTransfer}
+                onCancel={tkt => setCancelModalTicket(tkt)} />
             ))}
           </div>
         )
@@ -125,7 +130,8 @@ export default function UserWallet() {
             {past.map((t, i) => (
               <BigTicketCard key={t.id||i} ticket={t} idx={i}
                 isPast onQr={() => setQrModal(t)}
-                onTransfer={transfer.openTransfer} />
+                onTransfer={transfer.openTransfer}
+                onCancel={tkt => setCancelModalTicket(tkt)} />
             ))}
           </div>
         )
@@ -172,12 +178,23 @@ export default function UserWallet() {
         onConfirm={transfer.confirmAndGenerate}
         onCancel={transfer.cancelTransfer}
       />
+
+      {/* ── CANCEL TICKET MODAL ─────────────────────────────────── */}
+      {cancelModalTicket && (
+        <CancelTicketModal
+          ticket={cancelModalTicket}
+          onClose={() => setCancelModalTicket(null)}
+          onSuccess={() => {
+            fetchTickets();
+          }}
+        />
+      )}
     </div>
   );
 }
 
 /* ── BIG TICKET CARD (Proximos + Pasados full) ───────────────── */
-function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer }) {
+function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer, onCancel }) {
   const acc     = ACCENTS[idx % ACCENTS.length];
   const code    = ticket.ticket_code || ticket.ticketCode || `TKT-${String(ticket.id||idx).padStart(6,'0')}`;
   const name    = ticket.event?.name || ticket.eventName || 'Evento LAIKA';
@@ -296,10 +313,74 @@ function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer }) {
         </div>
       </div>
 
-      {/* TRANSFER BUTTON — visible only for active tickets */}
-      {canTransfer && (
-        <div style={{ borderTop:'1px solid rgba(255,255,255,.05)', padding:'.6rem 1rem' }}>
-          
+      {/* ACTION BUTTONS — Transfer and Cancel visible only for active tickets */}
+      {!isPast && (status === 'active' || status === 'confirmed') && (
+        <div style={{
+          borderTop: '1px solid rgba(255,255,255,.06)',
+          padding: '.6rem 1.25rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'rgba(0,0,0,.25)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', color: '#666', fontSize: '.65rem' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
+            <span>Asiento: {ticket.seat_id || ticket.seatId || 'General'}</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '.6rem' }}>
+            {canTransfer && (
+              <button
+                type="button"
+                onClick={() => onTransfer(ticket)}
+                style={{
+                  background: 'rgba(255,255,255,.06)',
+                  color: '#ccc',
+                  border: '1px solid rgba(255,255,255,.12)',
+                  borderRadius: '8px',
+                  padding: '.35rem .85rem',
+                  fontSize: '.62rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  cursor: 'pointer',
+                  transition: 'all .2s'
+                }}
+                onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,.1)'}
+                onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.06)'}
+              >
+                Transferir
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => onCancel(ticket)}
+              style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                color: '#ef4444',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                borderRadius: '8px',
+                padding: '.35rem .85rem',
+                fontSize: '.62rem',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                cursor: 'pointer',
+                transition: 'all .2s'
+              }}
+              onMouseOver={e => {
+                e.currentTarget.style.background = '#ef4444';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                e.currentTarget.style.color = '#ef4444';
+              }}
+            >
+              Solicitar Cancelación
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -40,11 +40,20 @@ export const paymentAPI = {
 
 export const refundAPI = {
     checkPolicy: eventId => apiClient.get(`/refunds/policy/${eventId}`),
-    requestRefund: (ticketId, reason) => {
-        const body = typeof ticketId === 'object'
-            ? { ticket_id: ticketId.ticketId || ticketId.ticket_id, reason: ticketId.reason, detail: ticketId.detail }
-            : { ticket_id: ticketId, reason: reason };
-        return apiClient.post('/refunds/request', body);
+    getQuote: ticketId => apiClient.get(`/refunds/quote/${ticketId}`),
+    requestRefund: (ticketIdOrObj, reason) => {
+        let rawId = typeof ticketIdOrObj === 'object'
+            ? (ticketIdOrObj.ticketId || ticketIdOrObj.ticket_id || ticketIdOrObj.id)
+            : ticketIdOrObj;
+        const parsedId = !isNaN(Number(rawId)) ? Number(rawId) : rawId;
+        const rReason = typeof ticketIdOrObj === 'object' ? (ticketIdOrObj.reason || reason) : reason;
+        const rDetail = typeof ticketIdOrObj === 'object' ? ticketIdOrObj.detail : undefined;
+        return apiClient.post('/refunds/request', {
+            ticket_id: parsedId,
+            reason: rReason || 'Cancelación solicitada por el usuario',
+            detail: rDetail
+        });
     },
-    getMyRefunds: () => apiClient.get('/refunds/my-refunds')
+    getMyRefunds: () => apiClient.get('/refunds/my-refunds'),
+    getMyRequests: () => apiClient.get('/refunds/my-requests')
 }

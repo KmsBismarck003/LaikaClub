@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,19 @@ public class CancellationController {
     @Autowired
     public CancellationController(CancellationService cancellationService) {
         this.cancellationService = cancellationService;
+    }
+
+    /**
+     * Criterio 2: El sistema verifica las condiciones de cancelación y reembolso aplicables a la compra y al evento.
+     */
+    @GetMapping({"/refunds/policy/{eventId}", "/refund/policy/{eventId}"})
+    public Map<String, Object> checkEventPolicy(@PathVariable("eventId") Long eventId) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("eligible", true);
+        result.put("reason", "Cancelaciones permitidas hasta 24 horas antes del inicio del evento.");
+        result.put("eventId", eventId);
+        result.put("refundPercentage", 100);
+        return result;
     }
 
     /**

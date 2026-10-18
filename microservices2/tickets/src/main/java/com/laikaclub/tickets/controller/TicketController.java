@@ -168,10 +168,84 @@ public class TicketController {
         }
         return ticketService.processRefund(user.getId(), tId.longValue());
     }
+    private Long parseLongField(Map<String, Object> body, String... keys) {
+        if (body == null) return null;
+        for (String key : keys) {
+            Object val = body.get(key);
+            if (val != null) {
+                if (val instanceof Number) {
+                    return ((Number) val).longValue();
+                }
+                String str = val.toString().trim();
+                if (!str.isEmpty()) {
+                    try {
+                        return Long.parseLong(str);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     @GetMapping("/refund/my-refunds")
     public List<Map<String, Object>> getMyRefunds(@AuthenticationPrincipal UserPrincipal user) {
-        return ticketService.getUserRefunds(user.getId());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        List<com.laikaclub.tickets.dto.CancellationDetailResponse> requests = cancellationService.getUserCancellationRequests(user.getId());
+        List<Map<String, Object>> formatted = new java.util.ArrayList<>();
+
+        for (com.laikaclub.tickets.dto.CancellationDetailResponse req : requests) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", req.getId());
+            item.put("status", req.getStatus() != null ? req.getStatus().toLowerCase() : "pending");
+            item.put("statusLabel", req.getStatusLabel());
+            item.put("amount", req.getRefundAmount() != null ? req.getRefundAmount() : req.getOriginalPrice());
+            item.put("refundAmount", req.getRefundAmount());
+            item.put("originalPrice", req.getOriginalPrice());
+            item.put("penaltyFee", req.getPenaltyFee());
+            item.put("reason", req.getCancellationReason());
+            item.put("detail", req.getSeatInfo());
+            item.put("created_at", req.getCreatedAt());
+            item.put("refunded_at", req.getRefundedAt());
+            item.put("paymentMethod", req.getPaymentMethod());
+            item.put("eventName", req.getEventName());
+            item.put("ticketCode", req.getTicketCode());
+            item.put("ticket_id", req.getTicketId());
+
+            Map<String, Object> ticketInfo = new HashMap<>();
+            ticketInfo.put("id", req.getTicketId());
+            ticketInfo.put("ticket_code", req.getTicketCode());
+            ticketInfo.put("eventName", req.getEventName());
+            ticketInfo.put("price", req.getOriginalPrice());
+            ticketInfo.put("seatInfo", req.getSeatInfo());
+            item.put("ticket", ticketInfo);
+
+            formatted.add(item);
+        }
+
+        try {
+            List<Map<String, Object>> legacyRefunds = ticketService.getUserRefunds(user.getId());
+            java.util.Set<Long> existingTicketIds = requests.stream()
+                    .map(com.laikaclub.tickets.dto.CancellationDetailResponse::getTicketId)
+                    .collect(java.util.stream.Collectors.toSet());
+            for (Map<String, Object> leg : legacyRefunds) {
+                Long legTktId = null;
+                Object tktObj = leg.get("ticket");
+                if (tktObj instanceof Map) {
+                    Object rawId = ((Map<?, ?>) tktObj).get("id");
+                    if (rawId instanceof Number) legTktId = ((Number) rawId).longValue();
+                }
+                if (legTktId == null || !existingTicketIds.contains(legTktId)) {
+                    formatted.add(leg);
+                }
+            }
+        } catch (Exception e) {
+            // Log fallback
+        }
+
+        return formatted;
     }
 
     @PostMapping("/refund/request")
@@ -180,37 +254,35 @@ public class TicketController {
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
-        Number tId = (Number) body.get("ticket_id");
-        if (tId == null) {
-            tId = (Number) body.get("ticketId");
-        }
+        Long tId = parseLongField(body, "ticket_id", "ticketId", "id");
         if (tId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ticket_id requerido");
         }
         String reason = (String) body.getOrDefault("reason", "Cancelación solicitada por el usuario");
-        return cancellationService.requestCancellation(user.getId(), tId.longValue(), reason);
+        Object detail = body.get("detail");
+        if (detail != null && !detail.toString().trim().isEmpty()) {
+            reason = reason + " - " + detail.toString().trim();
+        }
+        return cancellationService.requestCancellation(user.getId(), tId, reason);
     }
 
     @PostMapping("/lucky-seat/assign")
     public Map<String, Object> assignLuckySeat(@RequestBody Map<String, Object> body,
-                                               @AuthenticationPrincipal UserPrincipal user) {
-        Number eventIdNum = (Number) body.get("event_id");
+                                                @AuthenticationPrincipal UserPrincipal user) {
+        Long eventIdNum = parseLongField(body, "event_id", "eventId");
         if (eventIdNum == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "event_id es requerido");
         }
-        return ticketService.assignLuckySeat(user.getId(), eventIdNum.longValue());
+        return ticketService.assignLuckySeat(user.getId(), eventIdNum);
     }
 
     @PostMapping("/free")
     public Map<String, Object> claimFreeTicket(@RequestBody Map<String, Object> body,
-                                               @AuthenticationPrincipal UserPrincipal user) {
+                                                @AuthenticationPrincipal UserPrincipal user) {
         System.out.println("=== CLAIM FREE TICKET DEBUG ===");
         System.out.println("BODY: " + body);
         System.out.println("===============================");
-        Number eventIdNum = (Number) body.get("eventId");
-        if (eventIdNum == null) {
-            eventIdNum = (Number) body.get("event_id");
-        }
+        Long eventIdNum = parseLongField(body, "eventId", "event_id");
         if (eventIdNum == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "event_id requerido");
         }
@@ -223,11 +295,7 @@ public class TicketController {
         String sectionId = body.containsKey("sectionId") && body.get("sectionId") != null ? body.get("sectionId").toString() :
                            body.containsKey("section_id") && body.get("section_id") != null ? body.get("section_id").toString() : null;
 
-        Number functionIdNum = (Number) body.get("functionId");
-        if (functionIdNum == null) {
-            functionIdNum = (Number) body.get("function_id");
-        }
-        Long functionId = functionIdNum != null ? functionIdNum.longValue() : null;
+        Long functionId = parseLongField(body, "functionId", "function_id");
 
         String seatId = body.containsKey("seatId") && body.get("seatId") != null ? body.get("seatId").toString() :
                         body.containsKey("seat_id") && body.get("seat_id") != null ? body.get("seat_id").toString() : null;
