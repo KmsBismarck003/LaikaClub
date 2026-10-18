@@ -6,6 +6,7 @@ import CancelTicketModal from './components/Wallet/CancelTicketModal';
 import TransferModal from '../../components/Transfer/TransferModal';
 import { useTicketTransfer } from '../../hooks/useTicketTransfer';
 import { useNotification } from '../../context/NotificationContext';
+import Icon from '../../components/Icons/Icons';
 
 /* ── Accent colors per index ─────────────────────────────────── */
 const ACCENTS = [
@@ -66,13 +67,19 @@ export default function UserWallet() {
     fetchTickets();
   }, []);
 
+  const isCancelled = t => {
+    const st = (t.status || '').toLowerCase();
+    return st === 'cancelled' || st === 'refunded';
+  };
+
   const isUpcoming = t => {
     const d = t.event?.date || t.date;
     return !d || new Date(d) >= new Date();
   };
 
-  const upcoming = tickets.filter(isUpcoming);
-  const past     = tickets.filter(t => !isUpcoming(t));
+  const upcoming  = tickets.filter(t => !isCancelled(t) && isUpcoming(t));
+  const past      = tickets.filter(t => !isCancelled(t) && !isUpcoming(t));
+  const cancelled = tickets.filter(isCancelled);
 
   if (loading) return (
     <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
@@ -84,23 +91,35 @@ export default function UserWallet() {
     <div style={{ display:'flex', flexDirection:'column', gap:'2rem' }}>
 
       {/* ── HEADER ──────────────────────────────────────────────── */}
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'1rem' }}>
         <span style={{ fontSize:'.65rem', fontWeight:900, textTransform:'uppercase',
           letterSpacing:'4px', color:'#666' }}>MIS BOLETOS</span>
 
         <div style={{ display:'flex', background:'rgba(255,255,255,.06)',
-          border:'1px solid rgba(255,255,255,.1)', borderRadius:'99px', padding:'4px' }}>
+          border:'1px solid rgba(255,255,255,.1)', borderRadius:'99px', padding:'4px', gap:'4px' }}>
           {[
-            { id:'upcoming', label:'PROXIMOS' },
-            { id:'past',     label:'PASADOS'  },
+            { id:'upcoming',  label:'PROXIMOS',   count: upcoming.length },
+            { id:'past',      label:'PASADOS',    count: past.length },
+            { id:'cancelled', label:'CANCELADOS', count: cancelled.length },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               background: tab===t.id ? '#fff' : 'transparent',
-              color:      tab===t.id ? '#000' : '#555',
-              border:'none', padding:'.4rem 1.1rem', borderRadius:'99px',
+              color:      tab===t.id ? '#000' : '#666',
+              border:'none', padding:'.4rem 1rem', borderRadius:'99px',
               fontSize:'.62rem', fontWeight:900, letterSpacing:'1.5px',
-              cursor:'pointer', transition:'all .2s'
-            }}>{t.label}</button>
+              cursor:'pointer', transition:'all .2s', display:'flex', alignItems:'center', gap:'.45rem'
+            }}>
+              <span>{t.label}</span>
+              {t.count > 0 && (
+                <span style={{
+                  fontSize:'.52rem', fontWeight:900, padding:'1px 5px', borderRadius:'99px',
+                  background: tab===t.id ? '#000' : 'rgba(255,255,255,.1)',
+                  color: tab===t.id ? '#fff' : '#888'
+                }}>
+                  {t.count}
+                </span>
+              )}
+            </button>
           ))}
         </div>
       </div>
@@ -108,7 +127,7 @@ export default function UserWallet() {
       {/* ── UPCOMING ────────────────────────────────────────────── */}
       {tab === 'upcoming' && (
         upcoming.length === 0 ? (
-          <Empty onExplore={() => navigate('/')} />
+          <Empty onExplore={() => navigate('/')} msg="No tienes eventos próximos activos" />
         ) : (
           <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
             {upcoming.map((t, i) => (
@@ -132,6 +151,20 @@ export default function UserWallet() {
                 isPast onQr={() => setQrModal(t)}
                 onTransfer={transfer.openTransfer}
                 onCancel={tkt => setCancelModalTicket(tkt)} />
+            ))}
+          </div>
+        )
+      )}
+
+      {/* ── CANCELLED ───────────────────────────────────────────── */}
+      {tab === 'cancelled' && (
+        cancelled.length === 0 ? (
+          <Empty msg="No tienes boletos cancelados" />
+        ) : (
+          <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
+            {cancelled.map((t, i) => (
+              <BigTicketCard key={t.id||i} ticket={t} idx={i}
+                isCancelled onNavigateToRefunds={() => navigate('/user/refunds')} />
             ))}
           </div>
         )
@@ -193,8 +226,8 @@ export default function UserWallet() {
   );
 }
 
-/* ── BIG TICKET CARD (Proximos + Pasados full) ───────────────── */
-function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer, onCancel }) {
+/* ── BIG TICKET CARD (Proximos + Pasados full + Cancelados) ──── */
+function BigTicketCard({ ticket, idx, isPast, isCancelled, onQr, onTransfer, onCancel, onNavigateToRefunds }) {
   const acc     = ACCENTS[idx % ACCENTS.length];
   const code    = ticket.ticket_code || ticket.ticketCode || `TKT-${String(ticket.id||idx).padStart(6,'0')}`;
   const name    = ticket.event?.name || ticket.eventName || 'Evento LAIKA';
@@ -206,6 +239,8 @@ function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer, onCancel }) {
     ? new Date(dateRaw).toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'numeric' })
     : '—';
 
+  const isCancelledTicket = isCancelled || status === 'cancelled' || status === 'refunded';
+
   const badgeMap = {
     active:    { label:'ACTIVO',     color:'#fff', bg:'#22c55e' },
     confirmed: { label:'CONFIRMADO', color:'#fff', bg:'#3b82f6' },
@@ -213,22 +248,24 @@ function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer, onCancel }) {
     cancelled: { label:'CANCELADO',  color:'#fff', bg:'#ef4444' },
     refunded:  { label:'REEMBOLSO',  color:'#fff', bg:'#f97316' },
   };
-  const badgeDef = badgeMap[status] || badgeMap.confirmed;
+  const badgeDef = badgeMap[status] || (isCancelledTicket ? badgeMap.cancelled : badgeMap.confirmed);
 
-  const badgeFinal = (status==='confirmed' && dateRaw && new Date(dateRaw) > new Date())
-    ? { label:'PROXIMO', color:'#fff', bg:'#3b82f6' }
-    : badgeDef;
+  const badgeFinal = isCancelledTicket
+    ? (status === 'refunded' ? badgeMap.refunded : badgeMap.cancelled)
+    : (status==='confirmed' && dateRaw && new Date(dateRaw) > new Date())
+      ? { label:'PROXIMO', color:'#fff', bg:'#3b82f6' }
+      : badgeDef;
 
-  const canTransfer = (status === 'active' || status === 'confirmed') && !isPast;
+  const canTransfer = (status === 'active' || status === 'confirmed') && !isPast && !isCancelledTicket;
 
   return (
     <div style={{
       display:'flex', flexDirection:'column',
-      background: isPast ? 'rgba(255,255,255,.03)' : '#111115',
-      border:`1px solid ${isPast ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.1)'}`,
+      background: isCancelledTicket ? 'rgba(239, 68, 68, .03)' : isPast ? 'rgba(255,255,255,.03)' : '#111115',
+      border: isCancelledTicket ? '1px solid rgba(239, 68, 68, .25)' : `1px solid ${isPast ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.1)'}`,
       borderRadius:'18px', overflow:'hidden',
-      filter: isPast ? 'grayscale(.7) opacity(.7)' : 'none',
-      boxShadow: isPast ? 'none' : `0 6px 32px rgba(0,0,0,.4)`,
+      filter: isCancelledTicket ? 'grayscale(.85) opacity(.7)' : isPast ? 'grayscale(.7) opacity(.7)' : 'none',
+      boxShadow: isPast || isCancelledTicket ? 'none' : `0 6px 32px rgba(0,0,0,.4)`,
     }}>
 
       {/* Main ticket row */}
@@ -290,76 +327,81 @@ function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer, onCancel }) {
           borderLeft:'2px dashed rgba(255,255,255,.08)',
           margin:'12px 0', flexShrink:0 }}/>
 
-        {/* RIGHT QR */}
-        <div onClick={e => { e.stopPropagation(); onQr(); }}
-          style={{
-            width:'120px', flexShrink:0,
-            display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-            gap:'.5rem', padding:'0 1rem', cursor:'pointer',
-            transition:'background .2s'
-          }}
-          onMouseOver={e => e.currentTarget.style.background='rgba(255,255,255,.03)'}
-          onMouseOut={e => e.currentTarget.style.background='transparent'}
-        >
-          <div style={{ width:'72px', height:'72px', borderRadius:'8px', overflow:'hidden',
-            border:'1px solid rgba(255,255,255,.1)', background:'#111' }}>
-            <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%' }}/>
+        {/* RIGHT QR / REVOKED AREA */}
+        {isCancelledTicket ? (
+          <div
+            style={{
+              width:'120px', flexShrink:0,
+              display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+              gap:'.4rem', padding:'0 .75rem', cursor:'not-allowed',
+              background: 'rgba(239, 68, 68, 0.04)'
+            }}
+          >
+            <div style={{
+              width:'72px', height:'72px', borderRadius:'8px',
+              border:'1px dashed rgba(239, 68, 68, 0.4)',
+              background:'rgba(20, 10, 10, 0.9)',
+              display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+              color:'#ef4444', gap:'.2rem'
+            }}>
+              <Icon name="close" size={22} color="#ef4444" />
+              <span style={{ fontSize:'.48rem', fontWeight:900, letterSpacing:'1px', textTransform:'uppercase' }}>
+                ANULADO
+              </span>
+            </div>
+            <p style={{ margin:0, fontFamily:'monospace', fontSize:'.46rem',
+              color:'#ef4444', letterSpacing:'1px', textAlign:'center',
+              textDecoration:'line-through',
+              overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>
+              {code}
+            </p>
           </div>
-          <p style={{ margin:0, fontFamily:'monospace', fontSize:'.48rem',
-            color:'#555', letterSpacing:'1px', textAlign:'center',
-            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>
-            {code}
-          </p>
-        </div>
+        ) : (
+          <div onClick={e => { e.stopPropagation(); onQr && onQr(); }}
+            style={{
+              width:'120px', flexShrink:0,
+              display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+              gap:'.5rem', padding:'0 1rem', cursor:'pointer',
+              transition:'background .2s'
+            }}
+            onMouseOver={e => e.currentTarget.style.background='rgba(255,255,255,.03)'}
+            onMouseOut={e => e.currentTarget.style.background='transparent'}
+          >
+            <div style={{ width:'72px', height:'72px', borderRadius:'8px', overflow:'hidden',
+              border:'1px solid rgba(255,255,255,.1)', background:'#111' }}>
+              <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%' }}/>
+            </div>
+            <p style={{ margin:0, fontFamily:'monospace', fontSize:'.48rem',
+              color:'#555', letterSpacing:'1px', textAlign:'center',
+              overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>
+              {code}
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* ACTION BUTTONS — Transfer and Cancel visible only for active tickets */}
-      {!isPast && (status === 'active' || status === 'confirmed') && (
+      {/* ACTION BAR: If cancelled */}
+      {isCancelledTicket ? (
         <div style={{
-          borderTop: '1px solid rgba(255,255,255,.06)',
+          borderTop: '1px solid rgba(239,68,68,.15)',
           padding: '.6rem 1.25rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'rgba(0,0,0,.25)'
+          background: 'rgba(239,68,68,.04)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', color: '#666', fontSize: '.65rem' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
-            <span>Asiento: {ticket.seat_id || ticket.seatId || 'General'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', color: '#ef4444', fontSize: '.65rem', fontWeight: 700 }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444' }} />
+            <span>Boleto cancelado &bull; Acceso revocado en recinto</span>
           </div>
-
-          <div style={{ display: 'flex', gap: '.6rem' }}>
-            {canTransfer && (
-              <button
-                type="button"
-                onClick={() => onTransfer(ticket)}
-                style={{
-                  background: 'rgba(255,255,255,.06)',
-                  color: '#ccc',
-                  border: '1px solid rgba(255,255,255,.12)',
-                  borderRadius: '8px',
-                  padding: '.35rem .85rem',
-                  fontSize: '.62rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
-                  cursor: 'pointer',
-                  transition: 'all .2s'
-                }}
-                onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,.1)'}
-                onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.06)'}
-              >
-                Transferir
-              </button>
-            )}
-
+          {onNavigateToRefunds && (
             <button
               type="button"
-              onClick={() => onCancel(ticket)}
+              onClick={onNavigateToRefunds}
               style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                color: '#ef4444',
-                border: '1px solid rgba(239, 68, 68, 0.25)',
+                background: 'rgba(255,255,255,.06)',
+                color: '#fff',
+                border: '1px solid rgba(255,255,255,.15)',
                 borderRadius: '8px',
                 padding: '.35rem .85rem',
                 fontSize: '.62rem',
@@ -369,19 +411,84 @@ function BigTicketCard({ ticket, idx, isPast, onQr, onTransfer, onCancel }) {
                 cursor: 'pointer',
                 transition: 'all .2s'
               }}
-              onMouseOver={e => {
-                e.currentTarget.style.background = '#ef4444';
-                e.currentTarget.style.color = '#fff';
-              }}
-              onMouseOut={e => {
-                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                e.currentTarget.style.color = '#ef4444';
-              }}
+              onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,.12)'}
+              onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.06)'}
             >
-              Solicitar Cancelación
+              Ver en Reembolsos
             </button>
-          </div>
+          )}
         </div>
+      ) : (
+        /* ACTION BUTTONS — Transfer and Cancel visible only for active tickets */
+        !isPast && (status === 'active' || status === 'confirmed') && (
+          <div style={{
+            borderTop: '1px solid rgba(255,255,255,.06)',
+            padding: '.6rem 1.25rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'rgba(0,0,0,.25)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', color: '#666', fontSize: '.65rem' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
+              <span>Asiento: {ticket.seat_id || ticket.seatId || 'General'}</span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '.6rem' }}>
+              {canTransfer && (
+                <button
+                  type="button"
+                  onClick={() => onTransfer(ticket)}
+                  style={{
+                    background: 'rgba(255,255,255,.06)',
+                    color: '#ccc',
+                    border: '1px solid rgba(255,255,255,.12)',
+                    borderRadius: '8px',
+                    padding: '.35rem .85rem',
+                    fontSize: '.62rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    cursor: 'pointer',
+                    transition: 'all .2s'
+                  }}
+                  onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,.1)'}
+                  onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.06)'}
+                >
+                  Transferir
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => onCancel(ticket)}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: '8px',
+                  padding: '.35rem .85rem',
+                  fontSize: '.62rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  cursor: 'pointer',
+                  transition: 'all .2s'
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.background = '#ef4444';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                  e.currentTarget.style.color = '#ef4444';
+                }}
+              >
+                Solicitar Cancelación
+              </button>
+            </div>
+          </div>
+        )
       )}
     </div>
   );
@@ -396,14 +503,15 @@ function SmallTicketCard({ ticket, idx, onQr }) {
   const venue   = ticket.event?.venue_name || ticket.venue || '';
   const imgUrl  = getEventImageUrl(ticket.event?.image_url || ticket.imageUrl, idx);
   const fmtDate = dateRaw ? new Date(dateRaw).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}) : '—';
+  const isCancelled = ticket.status === 'cancelled' || ticket.status === 'refunded';
 
   return (
     <div style={{
       display:'flex', height:'88px',
       background:'rgba(255,255,255,.03)',
-      border:'1px solid rgba(255,255,255,.06)',
+      border: isCancelled ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(255,255,255,.06)',
       borderRadius:'14px', overflow:'hidden',
-      filter:'grayscale(.65) opacity(.75)'
+      filter: isCancelled ? 'grayscale(.85) opacity(.6)' : 'grayscale(.65) opacity(.75)'
     }}>
       <div style={{ width:'72px', flexShrink:0, position:'relative',
         background:`linear-gradient(135deg, ${acc.from} 0%, ${acc.to} 100%)` }}>
@@ -417,19 +525,33 @@ function SmallTicketCard({ ticket, idx, onQr }) {
         <p style={{ margin:0, fontSize:'.6rem', color:'#555', fontWeight:600 }}>{venue && `${venue}, `}{fmtDate}</p>
       </div>
 
-      <div onClick={e => { e.stopPropagation(); onQr(); }} style={{
-        width:'72px', flexShrink:0, position:'relative',
-        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-        padding:'0 .5rem', gap:'.3rem', cursor:'pointer'
-      }}>
-        <div style={{ width:'42px', height:'42px', overflow:'hidden', borderRadius:'6px', background:'#111' }}>
-          <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%' }}/>
+      <div
+        onClick={e => {
+          e.stopPropagation();
+          if (!isCancelled && onQr) onQr();
+        }}
+        style={{
+          width:'72px', flexShrink:0, position:'relative',
+          display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+          padding:'0 .5rem', gap:'.3rem', cursor: isCancelled ? 'not-allowed' : 'pointer'
+        }}
+      >
+        <div style={{ width:'42px', height:'42px', overflow:'hidden', borderRadius:'6px', background:'#111', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          {isCancelled ? (
+            <Icon name="close" size={20} color="#ef4444" />
+          ) : (
+            <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%' }}/>
+          )}
         </div>
         <span style={{
           fontSize:'.45rem', fontWeight:900, textTransform:'uppercase', letterSpacing:'1px',
-          background:'rgba(60,60,60,.9)', color:'#888', padding:'.18rem .5rem', borderRadius:'99px',
-          border:'1px solid rgba(255,255,255,.08)'
-        }}>USADO</span>
+          background: isCancelled ? 'rgba(239,68,68,.2)' : 'rgba(60,60,60,.9)',
+          color: isCancelled ? '#ef4444' : '#888',
+          padding:'.18rem .5rem', borderRadius:'99px',
+          border: isCancelled ? '1px solid rgba(239,68,68,.3)' : '1px solid rgba(255,255,255,.08)'
+        }}>
+          {isCancelled ? 'ANULADO' : 'USADO'}
+        </span>
       </div>
     </div>
   );

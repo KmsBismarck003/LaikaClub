@@ -127,9 +127,10 @@ public class ContextualValidationService {
             resp.setActionable(false);
             resp.setIsError(true);
             resp.setStatusCode("REVOKED_TICKET");
-            resp.setStatusTitle("ACCESO REVOCADO");
-            resp.setOperatorMessage("Este boleto fue cancelado administrativamente o devuelto por reembolso. Ingreso no autorizado.");
-            logAttempt(request, ticket, "VERIFY", "REVOKED_TICKET", "Boleto revocado/reembolsado");
+            resp.setStatusTitle("BOLETO CANCELADO / REVOCADO");
+            resp.setOperatorMessage("ACCESO DENEGADO: Este boleto fue CANCELADO y reembolsado. El código QR ha sido invalidado permanentemente y no permite ingresar al evento.");
+            resp.setMessage("Boleto cancelado o reembolsado. Acceso inválido.");
+            logAttempt(request, ticket, "VERIFY", "REVOKED_TICKET", "Intento de acceso con boleto cancelado/reembolsado");
             return resp;
         }
 

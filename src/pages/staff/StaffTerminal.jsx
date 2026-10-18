@@ -132,6 +132,8 @@ const StaffTerminal = () => {
 
             if (result.actionable || (result.valid && !result.alreadyUsed)) {
                 success('Acceso Autorizado • Boleto válido en ventana permitida');
+            } else if (result.statusCode === 'REVOKED_TICKET') {
+                showError('ACCESO DENEGADO • BOLETO CANCELADO Y REEMBOLSADO');
             } else if (result.alreadyUsed || result.statusCode === 'ALREADY_REDEEMED') {
                 showError('ALERTA DE SEGURIDAD • Boleto previamente canjeado');
             } else if (result.statusCode === 'FUTURE_EVENT') {

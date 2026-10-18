@@ -39,9 +39,13 @@ const StatusMessage = ({ status, message, statusCode, statusTitle, timeRemaining
       statusClass = 'used';
       title = title || 'EVENTO O FUNCIÓN INCORRECTA';
       break;
+    case 'REVOKED_TICKET':
+      iconComponent = <ShieldAlert size={36} color="var(--staff-status-error, #ef4444)" />;
+      statusClass = 'invalid';
+      title = title || 'BOLETO CANCELADO • ACCESO REVOCADO';
+      break;
     case 'invalid':
     case 'INVALID_CODE':
-    case 'REVOKED_TICKET':
     case 'TRANSFERRED_TICKET':
     default:
       iconComponent = <XCircle size={36} color="var(--staff-status-error, #ef4444)" />;
