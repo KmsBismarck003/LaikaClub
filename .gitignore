@@ -59,3 +59,6 @@ headers.txt
 headers_limit.txt
 scratch_audit.json
 scratch_curl.json
+
+**/target/
+

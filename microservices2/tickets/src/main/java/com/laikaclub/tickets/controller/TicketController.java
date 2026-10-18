@@ -26,14 +26,17 @@ public class TicketController {
     private final TicketService ticketService;
     private final ContextualValidationService contextualValidationService;
     private final TicketValidationLogRepository validationLogRepository;
+    private final com.laikaclub.tickets.service.CancellationService cancellationService;
 
     @Autowired
     public TicketController(TicketService ticketService,
                             ContextualValidationService contextualValidationService,
-                            TicketValidationLogRepository validationLogRepository) {
+                            TicketValidationLogRepository validationLogRepository,
+                            com.laikaclub.tickets.service.CancellationService cancellationService) {
         this.ticketService = ticketService;
         this.contextualValidationService = contextualValidationService;
         this.validationLogRepository = validationLogRepository;
+        this.cancellationService = cancellationService;
     }
 
     @GetMapping("/health")
@@ -172,8 +175,11 @@ public class TicketController {
     }
 
     @PostMapping("/refund/request")
-    public Map<String, Object> requestRefund(@RequestBody Map<String, Object> body,
-                                             @AuthenticationPrincipal UserPrincipal user) {
+    public Object requestRefund(@RequestBody Map<String, Object> body,
+                                @AuthenticationPrincipal UserPrincipal user) {
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
         Number tId = (Number) body.get("ticket_id");
         if (tId == null) {
             tId = (Number) body.get("ticketId");
@@ -181,7 +187,8 @@ public class TicketController {
         if (tId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ticket_id requerido");
         }
-        return ticketService.processRefund(user.getId(), tId.longValue());
+        String reason = (String) body.getOrDefault("reason", "Cancelación solicitada por el usuario");
+        return cancellationService.requestCancellation(user.getId(), tId.longValue(), reason);
     }
 
     @PostMapping("/lucky-seat/assign")
