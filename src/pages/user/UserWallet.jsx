@@ -5,6 +5,7 @@ import TicketModal from './components/Wallet/TicketModal';
 import CancelTicketModal from './components/Wallet/CancelTicketModal';
 import TransferModal from '../../components/Transfer/TransferModal';
 import { useTicketTransfer } from '../../hooks/useTicketTransfer';
+import { transferAPI } from '../../services/transfer.service';
 import { useNotification } from '../../context/NotificationContext';
 import Icon from '../../components/Icons/Icons';
 
