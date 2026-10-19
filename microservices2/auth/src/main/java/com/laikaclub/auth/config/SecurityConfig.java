@@ -54,7 +54,7 @@ public class SecurityConfig {
                 .requestMatchers("/login/apple").permitAll()
                 .requestMatchers("/register").permitAll()
                 .requestMatchers("/check-lockout").permitAll()
-                .requestMatchers("/verify-password").permitAll()
+                .requestMatchers("/verify-password", "/api/auth/verify-password").permitAll()
                 .requestMatchers("/users/*/public").permitAll()
                 .requestMatchers("/api/auth/users/*/public").permitAll()
                 .requestMatchers("/internal/**").permitAll()

@@ -98,7 +98,7 @@ export function useTicketTransfer({ success, error: showError, onComplete }) {
       }
 
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Error al procesar la transferencia';
+      const msg = err?.data?.message || err?.data?.detail || err?.response?.data?.message || err?.message || 'Error al procesar la transferencia';
       setErrorMsg(msg);
       setPhase(TRANSFER_PHASE.CONFIRMING);
       showError(msg);

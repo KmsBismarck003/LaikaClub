@@ -36,7 +36,16 @@ public class TransferController {
         if (recipientEmail == null || recipientEmail.trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "recipient_email requerido");
         }
-        String password = (String) body.getOrDefault("password", "");
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        String password = (String) body.get("password");
+        if (password == null || password.trim().isEmpty()) {
+            password = (String) body.get("password_confirm");
+        }
+        if (password == null) {
+            password = "";
+        }
 
         return transferService.requestTransfer(
                 user.getId(),

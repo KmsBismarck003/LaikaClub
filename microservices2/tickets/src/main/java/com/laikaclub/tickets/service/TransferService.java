@@ -115,9 +115,14 @@ public class TransferService {
                     Map<String, Object> req = new HashMap<>();
                     req.put("user_id", senderId);
                     req.put("password", password);
-                    restTemplate.postForEntity(authServiceUrl + "/api/auth/verify-password", req, Void.class);
+                    restTemplate.postForEntity(authServiceUrl + "/verify-password", req, Void.class);
+                } catch (org.springframework.web.client.HttpClientErrorException e) {
+                    if (e.getStatusCode() == HttpStatus.UNAUTHORIZED || e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Contraseña incorrecta");
+                    }
+                    logger.warn("Verificación de contraseña en auth falló con status {}: {}", e.getStatusCode(), e.getMessage());
                 } catch (Exception e) {
-                    if (e.getMessage() != null && e.getMessage().contains("401")) {
+                    if (e.getMessage() != null && e.getMessage().contains("Contraseña incorrecta")) {
                         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Contraseña incorrecta");
                     }
                     logger.warn("Verificación de contraseña en auth falló o no disponible: {}", e.getMessage());

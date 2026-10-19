@@ -158,7 +158,7 @@ public class AuthController {
         return ResponseEntity.ok(res);
     }
 
-    @PostMapping("/verify-password")
+    @PostMapping({"/verify-password", "/api/auth/verify-password"})
     public ResponseEntity<Map<String, Boolean>> verifyPasswordInternal(@Valid @RequestBody VerifyPasswordRequest request) {
         boolean valid = authService.verifyPasswordInternal(request.getUserId(), request.getPassword());
         if (!valid) {
