@@ -3,9 +3,9 @@
  * Componente presentacional puro; toda la lógica vive en useTicketTransfer.
  *
  * Fases renderizadas:
- *   CONFIRMING → el usuario ingresa su contraseña
- *   GENERATING → spinner mientras se crea el token
- *   DONE       → muestra QR + link copiable con countdown
+ *   CONFIRMING → el usuario ingresa el correo del destinatario y su contraseña
+ *   GENERATING → spinner mientras se procesa la solicitud
+ *   DONE       → confirmación de solicitud enviada o enlace de autoregistro
  */
 import React, { useState } from 'react';
 import { TRANSFER_PHASE } from '../../hooks/useTicketTransfer';
@@ -22,6 +22,19 @@ const Icon = {
   Shield: ({ size = 16 }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  ),
+  Mail: ({ size = 16 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+      <polyline points="22,6 12,13 2,6" />
+    </svg>
+  ),
+  UserCheck: ({ size = 16 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="8.5" cy="7.5" r="4" />
+      <polyline points="17 11 19 13 23 9" />
     </svg>
   ),
   Eye: ({ size = 16 }) => (
@@ -67,16 +80,16 @@ function qrUrl(data) {
 }
 
 function formatSeconds(s) {
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return `${m}:${String(sec).padStart(2, '0')}`;
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return `${h}h ${m}m`;
 }
 
 /* ── Step Indicators ──────────────────────────────────────────── */
 function StepIndicator({ phase }) {
   const steps = [
-    { id: TRANSFER_PHASE.CONFIRMING, label: 'Verificar' },
-    { id: TRANSFER_PHASE.DONE,       label: 'Compartir' },
+    { id: TRANSFER_PHASE.CONFIRMING, label: 'Destinatario' },
+    { id: TRANSFER_PHASE.DONE,       label: 'Resultado' },
   ];
 
   const phaseOrder = [TRANSFER_PHASE.CONFIRMING, TRANSFER_PHASE.GENERATING, TRANSFER_PHASE.DONE];
@@ -112,7 +125,7 @@ function StepIndicator({ phase }) {
 
 /* ── Ticket Preview Strip ──────────────────────────────────────── */
 function TicketStrip({ ticket }) {
-  const name    = ticket?.event?.name || ticket?.eventName || 'Evento';
+  const name    = ticket?.event?.name || ticket?.eventName || 'Evento LAIKA';
   const section = ticket?.section_name || ticket?.sectionName || 'General';
   const imgUrl  = getEventImageUrl(ticket?.event?.image_url || ticket?.imageUrl);
 
@@ -129,7 +142,17 @@ function TicketStrip({ ticket }) {
 }
 
 /* ── Phase: Confirming ─────────────────────────────────────────── */
-function PhaseConfirming({ ticket, password, setPassword, onConfirm, onCancel, errorMsg, loading }) {
+function PhaseConfirming({
+  ticket,
+  recipientEmail,
+  setRecipientEmail,
+  password,
+  setPassword,
+  onConfirm,
+  onCancel,
+  errorMsg,
+  loading
+}) {
   const [showPwd, setShowPwd] = useState(false);
 
   return (
@@ -142,14 +165,30 @@ function PhaseConfirming({ ticket, password, setPassword, onConfirm, onCancel, e
         <div className="trf-security-note">
           <span className="trf-security-note__icon"><Icon.Shield size={15} /></span>
           <p className="trf-security-note__text">
-            Por tu seguridad, confirma tu <strong>contrasena de cuenta</strong>.
-            Esta accion generara un enlace de transferencia que expira en
-            <strong> 10 minutos</strong>.
+            Indica el correo registrado del destinatario. Si la persona aún no tiene cuenta en LAIKA Club, se generará una invitación para que se registre y reclame el boleto.
           </p>
         </div>
 
+        {/* Campo de Correo Electrónico */}
         <div className="trf-field">
-          <label className="trf-field__label">Contrasena de cuenta</label>
+          <label className="trf-field__label">Correo electrónico del destinatario</label>
+          <div className="trf-field__input-wrap">
+            <input
+              id="trf-email-input"
+              className="trf-field__input"
+              type="email"
+              value={recipientEmail}
+              onChange={e => setRecipientEmail(e.target.value)}
+              placeholder="correo@ejemplo.com"
+              autoFocus={true}
+              autoComplete="email"
+            />
+          </div>
+        </div>
+
+        {/* Campo de Contraseña de Confirmación */}
+        <div className="trf-field">
+          <label className="trf-field__label">Contraseña de tu cuenta (confirmación)</label>
           <div className="trf-field__input-wrap">
             <input
               id="trf-password-input"
@@ -158,8 +197,7 @@ function PhaseConfirming({ ticket, password, setPassword, onConfirm, onCancel, e
               value={password}
               onChange={e => setPassword(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && onConfirm()}
-              placeholder="Ingresa tu contrasena"
-              autoFocus={true}
+              placeholder="Ingresa tu contraseña"
               autoComplete="current-password"
             />
             <button
@@ -167,7 +205,7 @@ function PhaseConfirming({ ticket, password, setPassword, onConfirm, onCancel, e
               className="trf-field__toggle"
               onClick={() => setShowPwd(v => !v)}
               tabIndex={-1}
-              aria-label={showPwd ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+              aria-label={showPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             >
               <span style={{ display: showPwd ? 'inline-block' : 'none' }}>
                 <Icon.EyeOff size={16} />
@@ -190,7 +228,7 @@ function PhaseConfirming({ ticket, password, setPassword, onConfirm, onCancel, e
           id="trf-confirm-btn"
           className="trf-btn trf-btn--primary"
           onClick={onConfirm}
-          disabled={loading || !password.trim()}
+          disabled={loading || !recipientEmail.trim()}
         >
           <span className="trf-btn__icon">
             <span className="trf-spinner" style={{ display: loading ? 'inline-block' : 'none' }} />
@@ -199,8 +237,8 @@ function PhaseConfirming({ ticket, password, setPassword, onConfirm, onCancel, e
             </span>
           </span>
           <span className="trf-btn__text">
-            <span style={{ display: loading ? 'inline' : 'none' }}>Verificando...</span>
-            <span style={{ display: loading ? 'none' : 'inline' }}>Confirmar y generar enlace</span>
+            <span style={{ display: loading ? 'inline' : 'none' }}>Procesando...</span>
+            <span style={{ display: loading ? 'none' : 'inline' }}>Confirmar y Transferir</span>
           </span>
         </button>
         <button className="trf-btn trf-btn--ghost" onClick={onCancel}>
@@ -211,67 +249,106 @@ function PhaseConfirming({ ticket, password, setPassword, onConfirm, onCancel, e
   );
 }
 
-/* ── Phase: Done (QR + link) ───────────────────────────────────── */
-function PhaseDone({ claimUrl, tokenData, secondsLeft, onClose }) {
+/* ── Phase: Done (Registered or Invitation link) ──────────────── */
+function PhaseDone({ transferData, claimUrl, secondsLeft, onClose }) {
   const [copied, setCopied] = useState(false);
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(claimUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
+      if (claimUrl) {
+        await navigator.clipboard.writeText(claimUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      }
     } catch {
-      /* fallback: select text manually */
+      /* Fallback manual */
     }
   };
 
-  const isUrgent = secondsLeft > 0 && secondsLeft <= 120;
-  const expired  = secondsLeft === 0;
+  const isRegistered = transferData?.is_registered_user;
 
   return (
     <>
       <div className="trf-body">
         <StepIndicator phase={TRANSFER_PHASE.DONE} />
 
-        <div className="trf-qr-section">
-          <div className="trf-qr-frame">
-            <img 
-              src={claimUrl ? qrUrl(claimUrl) : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'} 
-              alt="QR de transferencia" 
-              style={{ display: claimUrl ? 'block' : 'none' }}
-            />
+        {isRegistered ? (
+          /* Destinatario registrado */
+          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+            <div style={{
+              width: '56px', height: '56px', borderRadius: '50%',
+              background: 'rgba(34, 197, 94, 0.15)', border: '1px solid #22c55e',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#22c55e', margin: '0 auto 1.25rem'
+            }}>
+              <Icon.UserCheck size={28} />
+            </div>
+
+            <h3 style={{ margin: '0 0 .5rem', fontSize: '1.1rem', fontWeight: 900, color: '#fff' }}>
+              Solicitud de Transferencia Enviada
+            </h3>
+            <p style={{ margin: '0 0 1.25rem', fontSize: '.8rem', color: '#aaa', lineHeight: 1.5 }}>
+              Hemos notificado a <strong style={{ color: '#fff' }}>{transferData?.recipient_email}</strong>.
+              El boleto permanecerá congelado y pasará a su cuenta cuando acepte la solicitud.
+            </p>
+
+            <div className="trf-security-note">
+              <span className="trf-security-note__icon"><Icon.Shield size={15} /></span>
+              <p className="trf-security-note__text">
+                Tu código QR original está bloqueado. Si el destinatario rechaza la solicitud o si decides cancelarla antes de que sea aceptada, el boleto regresará a tu Wallet.
+              </p>
+            </div>
           </div>
+        ) : (
+          /* Destinatario NO registrado */
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+              <div style={{
+                width: '56px', height: '56px', borderRadius: '50%',
+                background: 'rgba(59, 130, 246, 0.15)', border: '1px solid #3b82f6',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#3b82f6', margin: '0 auto .75rem'
+              }}>
+                <Icon.Mail size={26} />
+              </div>
 
-          <div className={`trf-countdown ${isUrgent ? 'trf-countdown--urgent' : 'trf-countdown--normal'}`}>
-            <Icon.Clock size={13} />
-            <span>
-              <span style={{ display: expired ? 'inline' : 'none' }}>Enlace expirado</span>
-              <span style={{ display: expired ? 'none' : 'inline' }}>
-                Expira en {formatSeconds(secondsLeft)}
-              </span>
-            </span>
+              <h3 style={{ margin: '0 0 .35rem', fontSize: '1.05rem', fontWeight: 900, color: '#fff' }}>
+                Invitación de Transferencia Creada
+              </h3>
+              <p style={{ margin: 0, fontSize: '.78rem', color: '#888', lineHeight: 1.5 }}>
+                El usuario <strong style={{ color: '#fff' }}>{transferData?.recipient_email}</strong> aún no tiene cuenta. Comparte este enlace protegido para que se registre y reclame el boleto:
+              </p>
+            </div>
+
+            {/* QR de registro */}
+            {claimUrl && (
+              <div className="trf-qr-section" style={{ padding: '.5rem 0' }}>
+                <div className="trf-qr-frame">
+                  <img src={qrUrl(claimUrl)} alt="QR de invitación" />
+                </div>
+              </div>
+            )}
+
+            <div className="trf-link-box">
+              <span className="trf-link-box__url">{claimUrl}</span>
+              <button
+                id="trf-copy-btn"
+                className={`trf-link-box__copy ${copied ? 'trf-link-box__copy--copied' : ''}`}
+                onClick={copyLink}
+              >
+                <span style={{ display: copied ? 'inline' : 'none' }}>Copiado</span>
+                <span style={{ display: copied ? 'none' : 'inline' }}>Copiar Enlace</span>
+              </button>
+            </div>
+
+            <div className="trf-security-note" style={{ marginTop: '1rem' }}>
+              <span className="trf-security-note__icon"><Icon.Shield size={15} /></span>
+              <p className="trf-security-note__text">
+                Al registrarse con este enlace, se le acreditará automáticamente su propio código QR y tu credencial original quedará permanentemente revocada.
+              </p>
+            </div>
           </div>
-        </div>
-
-        <div className="trf-security-note">
-          <span className="trf-security-note__icon"><Icon.Shield size={15} /></span>
-          <p className="trf-security-note__text">
-            Muestra este QR o comparte el enlace con la persona que recibira el boleto.
-            Al reclamarlo, <strong>tu codigo QR original sera invalidado</strong> de forma permanente.
-          </p>
-        </div>
-
-        <div className="trf-link-box">
-          <span className="trf-link-box__url">{claimUrl}</span>
-          <button
-            id="trf-copy-btn"
-            className={`trf-link-box__copy ${copied ? 'trf-link-box__copy--copied' : ''}`}
-            onClick={copyLink}
-          >
-            <span style={{ display: copied ? 'inline' : 'none' }}>Copiado</span>
-            <span style={{ display: copied ? 'none' : 'inline' }}>Copiar</span>
-          </button>
-        </div>
+        )}
       </div>
 
       <div className="trf-footer">
@@ -287,9 +364,11 @@ function PhaseDone({ claimUrl, tokenData, secondsLeft, onClose }) {
 export default function TransferModal({
   phase,
   ticket,
+  recipientEmail,
+  setRecipientEmail,
   password,
   setPassword,
-  tokenData,
+  transferData,
   claimUrl,
   secondsLeft,
   errorMsg,
@@ -322,6 +401,8 @@ export default function TransferModal({
         <div style={{ display: (phase === TRANSFER_PHASE.CONFIRMING || phase === TRANSFER_PHASE.GENERATING) ? 'block' : 'none' }}>
           <PhaseConfirming
             ticket={ticket}
+            recipientEmail={recipientEmail}
+            setRecipientEmail={setRecipientEmail}
             password={password}
             setPassword={setPassword}
             onConfirm={onConfirm}
@@ -334,8 +415,8 @@ export default function TransferModal({
         {/* Phase Done */}
         <div style={{ display: (phase === TRANSFER_PHASE.DONE) ? 'block' : 'none' }}>
           <PhaseDone
+            transferData={transferData}
             claimUrl={claimUrl || ''}
-            tokenData={tokenData}
             secondsLeft={secondsLeft}
             onClose={onCancel}
           />

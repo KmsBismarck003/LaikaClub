@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
 import { Input, Button, Alert } from '../../components'
 import api from '../../services/api'
+import { transferAPI } from '../../services/transfer.service'
 import { useNotification } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
 import './Register.css'
@@ -20,15 +21,36 @@ const Register = () => {
   const location = useLocation()
   const from = location.state?.from || null
   const { loginGoogle, register: authRegister } = useAuth()
-  const { error: showError } = useNotification()
+  const { error: showError, success: showSuccess } = useNotification()
+
+  const searchParams = new URLSearchParams(location.search)
+  const claimToken = searchParams.get('claim_token')
+  const urlEmail = searchParams.get('email')
+
   const [formData, setFormData] = useState({
-    email: '',
+    email: urlEmail ? decodeURIComponent(urlEmail).trim() : '',
     password: '',
     confirmPassword: ''
   })
+  const [claimInfo, setClaimInfo] = useState(null)
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [alert, setAlert] = useState(null)
+
+  useEffect(() => {
+    if (claimToken) {
+      transferAPI.getClaimInfo(claimToken)
+        .then(info => {
+          setClaimInfo(info)
+          if (info.recipient_email && !formData.email) {
+            setFormData(prev => ({ ...prev, email: info.recipient_email }))
+          }
+        })
+        .catch(err => {
+          console.warn('No se pudo cargar la información del boleto reservado', err)
+        })
+    }
+  }, [claimToken])
 
   const handleChange = e => {
     const { name, value } = e.target
@@ -62,6 +84,18 @@ const Register = () => {
     return newErrors
   }
 
+  const handlePostRegistrationClaim = async () => {
+    if (!claimToken) return false
+    try {
+      await transferAPI.claimByToken(claimToken)
+      showSuccess('¡Boleto transferido y guardado exitosamente en tu Wallet!')
+      return true
+    } catch (err) {
+      console.warn('Error al auto-reclamar el boleto tras registrarse:', err)
+      return false
+    }
+  }
+
   const handleSubmit = async e => {
     e.preventDefault()
     const newErrors = validateForm()
@@ -77,8 +111,14 @@ const Register = () => {
         password: formData.password
       })
       if (result.success) {
-        setAlert({ type: 'success', message: '¡Bienvenido a LAIKA Club!' })
-        setTimeout(() => navigate(from || '/'), 1500)
+        const claimed = await handlePostRegistrationClaim()
+        setAlert({
+          type: 'success',
+          message: claimed
+            ? '¡Cuenta creada con éxito! Tu boleto ha sido acreditado en tu Wallet.'
+            : '¡Bienvenido a LAIKA Club!'
+        })
+        setTimeout(() => navigate(claimed ? '/user/wallet' : (from || '/user/wallet')), 1500)
       } else {
         setAlert({ type: 'error', message: result.error || 'Error en el registro' })
       }
@@ -95,7 +135,12 @@ const Register = () => {
       try {
         const result = await loginGoogle(tokenResponse.credential || tokenResponse.access_token)
         if (result.success) {
-          navigate(from || roleRedirectMap[result.user.role] || '/')
+          const claimed = await handlePostRegistrationClaim()
+          if (claimed) {
+            navigate('/user/wallet')
+          } else {
+            navigate(from || roleRedirectMap[result.user.role] || '/')
+          }
         } else {
           showError(result.error || 'Error con Google')
         }
@@ -117,6 +162,31 @@ const Register = () => {
             <h1 className='register-title'>Únete a LAIKA</h1>
             <p className='register-subtitle'>Crea tu cuenta premium en segundos</p>
           </div>
+
+          {claimInfo && (
+            <div style={{
+              background: 'rgba(59, 130, 246, 0.12)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              borderRadius: '14px',
+              padding: '.85rem 1rem',
+              marginBottom: '1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '.75rem'
+            }}>
+              <div style={{ color: '#3b82f6', flexShrink: 0 }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>
+                </svg>
+              </div>
+              <div style={{ fontSize: '.75rem', color: '#ccc', lineHeight: 1.4 }}>
+                <strong style={{ color: '#fff', display: 'block', fontSize: '.82rem' }}>
+                  Boleto reservado: {claimInfo.event_name}
+                </strong>
+                {claimInfo.sender_name} te ha enviado un boleto. Completa tu registro para guardarlo en tu Wallet.
+              </div>
+            </div>
+          )}
 
           {alert && <Alert type={alert.type} message={alert.message} closable onClose={() => setAlert(null)} />}
 

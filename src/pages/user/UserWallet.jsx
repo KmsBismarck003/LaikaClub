@@ -46,22 +46,33 @@ function getEventImageUrl(url, idx = 0) {
 
 export default function UserWallet() {
   const [tickets,  setTickets]  = useState([]);
+  const [incomingTransfers, setIncomingTransfers] = useState([]);
+  const [outgoingTransfers, setOutgoingTransfers] = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [tab,      setTab]      = useState('upcoming');
   const [qrModal,  setQrModal]  = useState(null);
   const [cancelModalTicket, setCancelModalTicket] = useState(null);
   const navigate = useNavigate();
   const { success, error } = useNotification();
-  const transfer = useTicketTransfer({ success, error });
 
   const fetchTickets = async () => {
     try {
-      const resp = await api.ticket.getMyTickets();
-      setTickets(Array.isArray(resp) ? resp : []);
+      const [respTickets, respIncoming, respOutgoing] = await Promise.all([
+        api.ticket.getMyTickets().catch(() => []),
+        transferAPI.getIncoming().catch(() => []),
+        transferAPI.getOutgoing().catch(() => []),
+      ]);
+      setTickets(Array.isArray(respTickets) ? respTickets : []);
+      setIncomingTransfers(Array.isArray(respIncoming) ? respIncoming : []);
+      setOutgoingTransfers(Array.isArray(respOutgoing) ? respOutgoing : []);
     } catch {
       setTickets([]);
+      setIncomingTransfers([]);
+      setOutgoingTransfers([]);
     } finally { setLoading(false); }
   };
+
+  const transfer = useTicketTransfer({ success, error, onComplete: fetchTickets });
 
   useEffect(() => {
     fetchTickets();
@@ -72,14 +83,19 @@ export default function UserWallet() {
     return st === 'cancelled' || st === 'refunded';
   };
 
-  const isUpcoming = t => {
-    const d = t.event?.date || t.date;
-    return !d || new Date(d) >= new Date();
+  const isTransferred = t => {
+    const st = (t.status || '').toLowerCase();
+    return st === 'transferred';
   };
 
-  const upcoming  = tickets.filter(t => !isCancelled(t) && isUpcoming(t));
-  const past      = tickets.filter(t => !isCancelled(t) && !isUpcoming(t));
-  const cancelled = tickets.filter(isCancelled);
+  const isUpcoming = t => {
+    const d = t.event?.date || t.date;
+    return (!d || new Date(d) >= new Date()) && !isCancelled(t) && !isTransferred(t);
+  };
+
+  const upcoming  = tickets.filter(t => isUpcoming(t));
+  const past      = tickets.filter(t => !isCancelled(t) && !isTransferred(t) && !isUpcoming(t));
+  const cancelled = tickets.filter(t => isCancelled(t) || isTransferred(t));
 
   if (loading) return (
     <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
@@ -89,6 +105,104 @@ export default function UserWallet() {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'2rem' }}>
+
+      {/* ── BANNER DE TRANSFERENCIAS ENTRANTES PENDIENTES ────────── */}
+      {incomingTransfers.length > 0 && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(124, 58, 237, 0.12))',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          borderRadius: '16px',
+          padding: '1.25rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+              <div style={{
+                width: '28px', height: '28px', borderRadius: '8px',
+                background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <Icon name="swap" size={16} />
+              </div>
+              <span style={{ fontSize: '.75rem', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Transferencias Entrantes Pendientes ({incomingTransfers.length})
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+            {incomingTransfers.map(trf => (
+              <div key={trf.id} style={{
+                background: 'rgba(0, 0, 0, 0.3)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '1rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '1rem'
+              }}>
+                <div>
+                  <h4 style={{ margin: '0 0 .25rem', fontSize: '.9rem', fontWeight: 900, color: '#fff' }}>
+                    {trf.event_name || 'Evento LAIKA Club'}
+                  </h4>
+                  <p style={{ margin: '0 0 .2rem', fontSize: '.7rem', color: '#aaa' }}>
+                    Remitente: <strong style={{ color: '#fff' }}>{trf.sender_email}</strong>
+                  </p>
+                  <p style={{ margin: 0, fontSize: '.65rem', color: '#666' }}>
+                    Zona: {trf.section_name || 'General'} &bull; Expira: {trf.expires_at ? new Date(trf.expires_at).toLocaleDateString('es-MX', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—'}
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '.6rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => transfer.acceptIncoming(trf.id)}
+                    disabled={transfer.loading}
+                    style={{
+                      background: '#22c55e',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '.45rem 1rem',
+                      fontSize: '.68rem',
+                      fontWeight: 900,
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      cursor: 'pointer',
+                      transition: 'background .2s'
+                    }}
+                  >
+                    Aceptar Boleto
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => transfer.rejectIncoming(trf.id)}
+                    disabled={transfer.loading}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.06)',
+                      color: '#aaa',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      borderRadius: '8px',
+                      padding: '.45rem 1rem',
+                      fontSize: '.68rem',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Rechazar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── HEADER ──────────────────────────────────────────────── */}
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'1rem' }}>
@@ -100,7 +214,7 @@ export default function UserWallet() {
           {[
             { id:'upcoming',  label:'PROXIMOS',   count: upcoming.length },
             { id:'past',      label:'PASADOS',    count: past.length },
-            { id:'cancelled', label:'CANCELADOS', count: cancelled.length },
+            { id:'cancelled', label:'CANCELADOS / CEDIDOS', count: cancelled.length },
           ].map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               background: tab===t.id ? '#fff' : 'transparent',
@@ -132,8 +246,10 @@ export default function UserWallet() {
           <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
             {upcoming.map((t, i) => (
               <BigTicketCard key={t.id||i} ticket={t} idx={i}
+                outgoingTransfers={outgoingTransfers}
                 onQr={() => setQrModal(t)}
                 onTransfer={transfer.openTransfer}
+                onCancelTransfer={trfId => transfer.cancelOutgoing(trfId)}
                 onCancel={tkt => setCancelModalTicket(tkt)} />
             ))}
           </div>
@@ -201,15 +317,17 @@ export default function UserWallet() {
       <TransferModal
         phase={transfer.phase}
         ticket={transfer.ticket}
+        recipientEmail={transfer.recipientEmail}
+        setRecipientEmail={transfer.setRecipientEmail}
         password={transfer.password}
         setPassword={transfer.setPassword}
-        tokenData={transfer.tokenData}
+        transferData={transfer.transferData}
         claimUrl={transfer.claimUrl}
         secondsLeft={transfer.secondsLeft}
         errorMsg={transfer.errorMsg}
         loading={transfer.loading}
-        onConfirm={transfer.confirmAndGenerate}
-        onCancel={transfer.cancelTransfer}
+        onConfirm={transfer.confirmAndSend}
+        onCancel={transfer.cancelTransferModal}
       />
 
       {/* ── CANCEL TICKET MODAL ─────────────────────────────────── */}
@@ -227,7 +345,18 @@ export default function UserWallet() {
 }
 
 /* ── BIG TICKET CARD (Proximos + Pasados full + Cancelados) ──── */
-function BigTicketCard({ ticket, idx, isPast, isCancelled, onQr, onTransfer, onCancel, onNavigateToRefunds }) {
+function BigTicketCard({
+  ticket,
+  idx,
+  isPast,
+  isCancelled,
+  outgoingTransfers,
+  onQr,
+  onTransfer,
+  onCancelTransfer,
+  onCancel,
+  onNavigateToRefunds
+}) {
   const acc     = ACCENTS[idx % ACCENTS.length];
   const code    = ticket.ticket_code || ticket.ticketCode || `TKT-${String(ticket.id||idx).padStart(6,'0')}`;
   const name    = ticket.event?.name || ticket.eventName || 'Evento LAIKA';
@@ -239,30 +368,38 @@ function BigTicketCard({ ticket, idx, isPast, isCancelled, onQr, onTransfer, onC
     ? new Date(dateRaw).toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'numeric' })
     : '—';
 
-  const isCancelledTicket = isCancelled || status === 'cancelled' || status === 'refunded';
+  const isTransferPending = status === 'transfer_pending';
+  const isTransferred = status === 'transferred';
+  const isCancelledTicket = isCancelled || status === 'cancelled' || status === 'refunded' || isTransferred;
 
   const badgeMap = {
-    active:    { label:'ACTIVO',     color:'#fff', bg:'#22c55e' },
-    confirmed: { label:'CONFIRMADO', color:'#fff', bg:'#3b82f6' },
-    used:      { label:'USADO',      color:'#fff', bg:'#444'    },
-    cancelled: { label:'CANCELADO',  color:'#fff', bg:'#ef4444' },
-    refunded:  { label:'REEMBOLSO',  color:'#fff', bg:'#f97316' },
+    active:           { label:'ACTIVO',           color:'#fff', bg:'#22c55e' },
+    confirmed:        { label:'CONFIRMADO',       color:'#fff', bg:'#3b82f6' },
+    used:             { label:'USADO',            color:'#fff', bg:'#444'    },
+    cancelled:        { label:'CANCELADO',        color:'#fff', bg:'#ef4444' },
+    refunded:         { label:'REEMBOLSO',        color:'#fff', bg:'#f97316' },
+    transfer_pending: { label:'EN TRANSFERENCIA', color:'#fff', bg:'#f59e0b' },
+    transferred:      { label:'TRANSFERIDO',      color:'#fff', bg:'#64748b' },
   };
-  const badgeDef = badgeMap[status] || (isCancelledTicket ? badgeMap.cancelled : badgeMap.confirmed);
+  const badgeDef = badgeMap[status] || (isCancelledTicket ? (isTransferred ? badgeMap.transferred : badgeMap.cancelled) : badgeMap.confirmed);
 
-  const badgeFinal = isCancelledTicket
-    ? (status === 'refunded' ? badgeMap.refunded : badgeMap.cancelled)
-    : (status==='confirmed' && dateRaw && new Date(dateRaw) > new Date())
-      ? { label:'PROXIMO', color:'#fff', bg:'#3b82f6' }
-      : badgeDef;
+  const badgeFinal = isTransferPending
+    ? badgeMap.transfer_pending
+    : isCancelledTicket
+      ? (status === 'refunded' ? badgeMap.refunded : isTransferred ? badgeMap.transferred : badgeMap.cancelled)
+      : (status==='confirmed' && dateRaw && new Date(dateRaw) > new Date())
+        ? { label:'PROXIMO', color:'#fff', bg:'#3b82f6' }
+        : badgeDef;
 
-  const canTransfer = (status === 'active' || status === 'confirmed') && !isPast && !isCancelledTicket;
+  const canTransfer = (status === 'active' || status === 'confirmed') && !isPast && !isCancelledTicket && !isTransferPending;
+
+  const outTrf = outgoingTransfers?.find(ot => ot.ticket_id === ticket.id);
 
   return (
     <div style={{
       display:'flex', flexDirection:'column',
-      background: isCancelledTicket ? 'rgba(239, 68, 68, .03)' : isPast ? 'rgba(255,255,255,.03)' : '#111115',
-      border: isCancelledTicket ? '1px solid rgba(239, 68, 68, .25)' : `1px solid ${isPast ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.1)'}`,
+      background: isCancelledTicket ? 'rgba(239, 68, 68, .03)' : isTransferPending ? 'rgba(245, 158, 11, .03)' : isPast ? 'rgba(255,255,255,.03)' : '#111115',
+      border: isCancelledTicket ? '1px solid rgba(239, 68, 68, .25)' : isTransferPending ? '1px solid rgba(245, 158, 11, .25)' : `1px solid ${isPast ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.1)'}`,
       borderRadius:'18px', overflow:'hidden',
       filter: isCancelledTicket ? 'grayscale(.85) opacity(.7)' : isPast ? 'grayscale(.7) opacity(.7)' : 'none',
       boxShadow: isPast || isCancelledTicket ? 'none' : `0 6px 32px rgba(0,0,0,.4)`,
@@ -327,31 +464,58 @@ function BigTicketCard({ ticket, idx, isPast, isCancelled, onQr, onTransfer, onC
           borderLeft:'2px dashed rgba(255,255,255,.08)',
           margin:'12px 0', flexShrink:0 }}/>
 
-        {/* RIGHT QR / REVOKED AREA */}
+        {/* RIGHT QR / REVOKED / PENDING AREA */}
         {isCancelledTicket ? (
           <div
             style={{
               width:'120px', flexShrink:0,
               display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
               gap:'.4rem', padding:'0 .75rem', cursor:'not-allowed',
-              background: 'rgba(239, 68, 68, 0.04)'
+              background: isTransferred ? 'rgba(100, 116, 139, 0.04)' : 'rgba(239, 68, 68, 0.04)'
             }}
           >
             <div style={{
               width:'72px', height:'72px', borderRadius:'8px',
-              border:'1px dashed rgba(239, 68, 68, 0.4)',
+              border: `1px dashed ${isTransferred ? 'rgba(100, 116, 139, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`,
               background:'rgba(20, 10, 10, 0.9)',
               display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-              color:'#ef4444', gap:'.2rem'
+              color: isTransferred ? '#94a3b8' : '#ef4444', gap:'.2rem'
             }}>
-              <Icon name="close" size={22} color="#ef4444" />
+              <Icon name={isTransferred ? 'swap' : 'close'} size={22} color={isTransferred ? '#94a3b8' : '#ef4444'} />
               <span style={{ fontSize:'.48rem', fontWeight:900, letterSpacing:'1px', textTransform:'uppercase' }}>
-                ANULADO
+                {isTransferred ? 'CEDIDO' : 'ANULADO'}
               </span>
             </div>
             <p style={{ margin:0, fontFamily:'monospace', fontSize:'.46rem',
-              color:'#ef4444', letterSpacing:'1px', textAlign:'center',
+              color: isTransferred ? '#94a3b8' : '#ef4444', letterSpacing:'1px', textAlign:'center',
               textDecoration:'line-through',
+              overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>
+              {code}
+            </p>
+          </div>
+        ) : isTransferPending ? (
+          <div
+            style={{
+              width:'120px', flexShrink:0,
+              display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+              gap:'.4rem', padding:'0 .75rem', cursor:'not-allowed',
+              background: 'rgba(245, 158, 11, 0.04)'
+            }}
+          >
+            <div style={{
+              width:'72px', height:'72px', borderRadius:'8px',
+              border: '1px dashed rgba(245, 158, 11, 0.4)',
+              background:'rgba(25, 20, 10, 0.9)',
+              display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+              color:'#f59e0b', gap:'.2rem'
+            }}>
+              <Icon name="clock" size={22} color="#f59e0b" />
+              <span style={{ fontSize:'.44rem', fontWeight:900, letterSpacing:'1px', textTransform:'uppercase' }}>
+                EN ESPERA
+              </span>
+            </div>
+            <p style={{ margin:0, fontFamily:'monospace', fontSize:'.46rem',
+              color:'#f59e0b', letterSpacing:'1px', textAlign:'center',
               overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>
               {code}
             </p>
@@ -380,21 +544,25 @@ function BigTicketCard({ ticket, idx, isPast, isCancelled, onQr, onTransfer, onC
         )}
       </div>
 
-      {/* ACTION BAR: If cancelled */}
+      {/* ACTION BAR */}
       {isCancelledTicket ? (
         <div style={{
-          borderTop: '1px solid rgba(239,68,68,.15)',
+          borderTop: `1px solid ${isTransferred ? 'rgba(100,116,139,.15)' : 'rgba(239,68,68,.15)'}`,
           padding: '.6rem 1.25rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'rgba(239,68,68,.04)'
+          background: isTransferred ? 'rgba(100,116,139,.04)' : 'rgba(239,68,68,.04)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', color: '#ef4444', fontSize: '.65rem', fontWeight: 700 }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ef4444' }} />
-            <span>Boleto cancelado &bull; Acceso revocado en recinto</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', color: isTransferred ? '#94a3b8' : '#ef4444', fontSize: '.65rem', fontWeight: 700 }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isTransferred ? '#94a3b8' : '#ef4444' }} />
+            <span>
+              {isTransferred
+                ? 'Boleto transferido • Acceso cedido y credencial revocada'
+                : 'Boleto cancelado • Acceso revocado en recinto'}
+            </span>
           </div>
-          {onNavigateToRefunds && (
+          {onNavigateToRefunds && !isTransferred && (
             <button
               type="button"
               onClick={onNavigateToRefunds}
@@ -411,10 +579,48 @@ function BigTicketCard({ ticket, idx, isPast, isCancelled, onQr, onTransfer, onC
                 cursor: 'pointer',
                 transition: 'all .2s'
               }}
-              onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,.12)'}
-              onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.06)'}
             >
               Ver en Reembolsos
+            </button>
+          )}
+        </div>
+      ) : isTransferPending ? (
+        <div style={{
+          borderTop: '1px solid rgba(245, 158, 11, .2)',
+          padding: '.6rem 1.25rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'rgba(245, 158, 11, .05)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', color: '#f59e0b', fontSize: '.65rem', fontWeight: 700 }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b' }} />
+            <span>
+              {outTrf
+                ? `Transferencia pendiente enviada a: ${outTrf.recipient_email}`
+                : 'Boleto congelado: Transferencia pendiente de aceptación'}
+            </span>
+          </div>
+
+          {outTrf && onCancelTransfer && (
+            <button
+              type="button"
+              onClick={() => onCancelTransfer(outTrf.id)}
+              style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                color: '#ef4444',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                padding: '.35rem .85rem',
+                fontSize: '.62rem',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                cursor: 'pointer',
+                transition: 'all .2s'
+              }}
+            >
+              Cancelar Envío
             </button>
           )}
         </div>

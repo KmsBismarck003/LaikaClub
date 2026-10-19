@@ -48,7 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/purchase").permitAll()
                 .requestMatchers("/internal/purchases/**").permitAll()
                 .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.GET, "/transfer/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/transfer/*", "/transfer/claim-info/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

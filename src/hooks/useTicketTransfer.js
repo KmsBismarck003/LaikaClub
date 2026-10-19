@@ -1,7 +1,7 @@
 /**
  * @hook useTicketTransfer
- * @description Máquina de estados para el flujo de Transferencia Segura de Boletos.
- *
+ * @description Máquina de estados para el flujo de Transferencia Segura de Boletos de LAIKA Club.
+ * 
  * Fases:
  *   idle → confirming → generating → done | error
  *
@@ -12,52 +12,63 @@ import { transferAPI } from '../services/transfer.service';
 
 export const TRANSFER_PHASE = {
   IDLE:        'idle',
-  CONFIRMING:  'confirming', // usuario ingresa contraseña
+  CONFIRMING:  'confirming', // usuario ingresa correo destinatario y contraseña
   GENERATING:  'generating', // llamada API en curso
-  DONE:        'done',        // token generado, mostrando QR/link
+  DONE:        'done',        // transferencia registrada, mostrando confirmación / link para no registrados
   ERROR:       'error',
 };
 
 /**
- * @param {{ success: Function, error: Function }} notifications
+ * @param {{ success: Function, error: Function, onComplete?: Function }} notifications
  */
-export function useTicketTransfer({ success, error: showError }) {
-  const [phase,    setPhase]    = useState(TRANSFER_PHASE.IDLE);
-  const [ticket,   setTicket]   = useState(null);   // boleto activo en transferencia
-  const [password, setPassword] = useState('');
-  const [tokenData,setTokenData]= useState(null);   // { token, expires_at, expires_in_seconds }
-  const [errorMsg, setErrorMsg] = useState('');
-  const [loading,  setLoading]  = useState(false);
+export function useTicketTransfer({ success, error: showError, onComplete }) {
+  const [phase,          setPhase]          = useState(TRANSFER_PHASE.IDLE);
+  const [ticket,         setTicket]         = useState(null);
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [password,       setPassword]       = useState('');
+  const [transferData,   setTransferData]   = useState(null); // resultado de transferAPI.request
+  const [errorMsg,       setErrorMsg]       = useState('');
+  const [loading,        setLoading]        = useState(false);
 
   // Countdown timer
   const [secondsLeft, setSecondsLeft] = useState(0);
   const timerRef = useRef(null);
 
-  /** Abre el modal de confirmación para un boleto dado. */
+  /** Abre el modal de transferencia para un boleto dado. */
   const openTransfer = useCallback((ticketObj) => {
     setTicket(ticketObj);
     setPhase(TRANSFER_PHASE.CONFIRMING);
+    setRecipientEmail('');
     setPassword('');
     setErrorMsg('');
-    setTokenData(null);
+    setTransferData(null);
   }, []);
 
   /** Cancela y resetea todo el estado. */
-  const cancelTransfer = useCallback(() => {
+  const cancelTransferModal = useCallback(() => {
     clearInterval(timerRef.current);
     setPhase(TRANSFER_PHASE.IDLE);
     setTicket(null);
+    setRecipientEmail('');
     setPassword('');
-    setTokenData(null);
+    setTransferData(null);
     setErrorMsg('');
     setSecondsLeft(0);
   }, []);
 
-  /** Envía la contraseña al backend y solicita el token de transferencia. */
-  const confirmAndGenerate = useCallback(async () => {
+  /** Envía la solicitud de transferencia al backend. */
+  const confirmAndSend = useCallback(async () => {
     if (!ticket) return;
-    if (!password.trim()) {
-      setErrorMsg('Ingresa tu contraseña para continuar');
+
+    const emailTrim = recipientEmail.trim();
+    if (!emailTrim) {
+      setErrorMsg('Ingresa el correo electrónico del destinatario');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailTrim)) {
+      setErrorMsg('El formato del correo electrónico no es válido');
       return;
     }
 
@@ -66,55 +77,109 @@ export function useTicketTransfer({ success, error: showError }) {
     setPhase(TRANSFER_PHASE.GENERATING);
 
     try {
-      const data = await transferAPI.initiate({
+      const data = await transferAPI.request({
         ticket_id: ticket.id,
-        password,
+        recipient_email: emailTrim,
+        password: password.trim(),
       });
 
-      setTokenData(data);
-      setSecondsLeft(data.expires_in_seconds || 600);
+      setTransferData(data);
+      setSecondsLeft(48 * 3600); // 48 horas
       setPhase(TRANSFER_PHASE.DONE);
-      success('Enlace de transferencia generado');
 
-      // Iniciar countdown
-      clearInterval(timerRef.current);
-      timerRef.current = setInterval(() => {
-        setSecondsLeft(prev => {
-          if (prev <= 1) {
-            clearInterval(timerRef.current);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      if (data.is_registered_user) {
+        success('Solicitud de transferencia enviada al destinatario');
+      } else {
+        success('Invitación de transferencia generada');
+      }
+
+      if (onComplete) {
+        onComplete();
+      }
 
     } catch (err) {
-      const msg = err?.message || err?.data?.detail || 'Error al generar el enlace';
+      const msg = err?.response?.data?.message || err?.message || 'Error al procesar la transferencia';
       setErrorMsg(msg);
       setPhase(TRANSFER_PHASE.CONFIRMING);
       showError(msg);
     } finally {
       setLoading(false);
     }
-  }, [ticket, password, success, showError]);
+  }, [ticket, recipientEmail, password, success, showError, onComplete]);
 
-  /** Construye la URL de reclamación que el receptor debe abrir. */
-  const claimUrl = tokenData
-    ? `${window.location.origin}/ticket/claim/${tokenData.token}`
+  /** Acepta una transferencia entrante. */
+  const acceptIncoming = useCallback(async (transferId) => {
+    setLoading(true);
+    try {
+      const res = await transferAPI.accept(transferId);
+      success(res.message || 'Boleto aceptado y guardado en tu Wallet');
+      if (onComplete) onComplete();
+      return res;
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Error al aceptar la transferencia';
+      showError(msg);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [success, showError, onComplete]);
+
+  /** Rechaza una transferencia entrante. */
+  const rejectIncoming = useCallback(async (transferId) => {
+    setLoading(true);
+    try {
+      const res = await transferAPI.reject(transferId);
+      success(res.message || 'Transferencia rechazada');
+      if (onComplete) onComplete();
+      return res;
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Error al rechazar la transferencia';
+      showError(msg);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [success, showError, onComplete]);
+
+  /** Cancela una transferencia saliente pendiente. */
+  const cancelOutgoing = useCallback(async (transferId) => {
+    setLoading(true);
+    try {
+      const res = await transferAPI.cancel(transferId);
+      success(res.message || 'Transferencia cancelada. Tu boleto está activo.');
+      if (onComplete) onComplete();
+      return res;
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Error al cancelar la transferencia';
+      showError(msg);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [success, showError, onComplete]);
+
+  /** Construye la URL de reclamo para destinatarios que aún no se registran. */
+  const claimUrl = transferData?.claim_token
+    ? `${window.location.origin}/register?claim_token=${transferData.claim_token}&email=${encodeURIComponent(transferData.recipient_email || '')}`
     : null;
 
   return {
     phase,
     ticket,
+    recipientEmail,
+    setRecipientEmail,
     password,
     setPassword,
-    tokenData,
+    transferData,
     claimUrl,
     secondsLeft,
     errorMsg,
     loading,
     openTransfer,
-    cancelTransfer,
-    confirmAndGenerate,
+    cancelTransferModal,
+    confirmAndSend,
+    acceptIncoming,
+    rejectIncoming,
+    cancelOutgoing,
   };
 }

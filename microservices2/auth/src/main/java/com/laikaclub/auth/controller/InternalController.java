@@ -57,4 +57,24 @@ public class InternalController {
 
         return ResponseEntity.ok(map);
     }
+
+    @GetMapping("/users/by-email")
+    public ResponseEntity<Map<String, Object>> getInternalUserByEmail(@org.springframework.web.bind.annotation.RequestParam("email") String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return userRepository.findByEmailIgnoreCase(email.trim())
+                .map(u -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", u.getId());
+                    map.put("email", u.getEmail());
+                    map.put("firstName", u.getFirstName());
+                    map.put("lastName", u.getLastName());
+                    map.put("name", ((u.getFirstName() != null ? u.getFirstName() : "") + " " + (u.getLastName() != null ? u.getLastName() : "")).trim());
+                    map.put("status", u.getStatus());
+                    return ResponseEntity.ok(map);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

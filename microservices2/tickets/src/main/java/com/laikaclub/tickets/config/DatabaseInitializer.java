@@ -94,6 +94,21 @@ public class DatabaseInitializer implements CommandLineRunner {
                             "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                             ")");
 
+                    stmt.execute("CREATE TABLE IF NOT EXISTS ticket_transfers (" +
+                            "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                            "ticket_id_original BIGINT NOT NULL, " +
+                            "ticket_id_nuevo BIGINT DEFAULT NULL, " +
+                            "sender_user_id BIGINT NOT NULL, " +
+                            "sender_email VARCHAR(150) NOT NULL, " +
+                            "recipient_user_id BIGINT DEFAULT NULL, " +
+                            "recipient_email VARCHAR(150) NOT NULL, " +
+                            "claim_token VARCHAR(64) UNIQUE NOT NULL, " +
+                            "status VARCHAR(50) NOT NULL DEFAULT 'PENDING_ACCEPTANCE', " +
+                            "expires_at DATETIME NOT NULL, " +
+                            "completed_at DATETIME DEFAULT NULL, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                            ")");
+
                     try {
                         stmt.execute("ALTER TABLE payments MODIFY COLUMN payment_method VARCHAR(50)");
                     } catch (Exception ignored) {}
@@ -139,6 +154,21 @@ public class DatabaseInitializer implements CommandLineRunner {
                             "claimed_by INTEGER DEFAULT NULL, " +
                             "claimed_at TEXT DEFAULT NULL, " +
                             "is_used INTEGER DEFAULT 0, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                            ")");
+
+                    stmt.execute("CREATE TABLE IF NOT EXISTS ticket_transfers (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "ticket_id_original INTEGER NOT NULL, " +
+                            "ticket_id_nuevo INTEGER DEFAULT NULL, " +
+                            "sender_user_id INTEGER NOT NULL, " +
+                            "sender_email TEXT NOT NULL, " +
+                            "recipient_user_id INTEGER DEFAULT NULL, " +
+                            "recipient_email TEXT NOT NULL, " +
+                            "claim_token TEXT UNIQUE NOT NULL, " +
+                            "status TEXT NOT NULL DEFAULT 'PENDING_ACCEPTANCE', " +
+                            "expires_at TEXT NOT NULL, " +
+                            "completed_at TEXT DEFAULT NULL, " +
                             "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                             ")");
 

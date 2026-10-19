@@ -11,8 +11,32 @@ export default function TicketModal({ ticket, onClose }) {
   const [version, setVersion] = useState('v5'); // Default to v5 (Premium / Phygital)
 
   const isCancelled = ticket?.status === 'cancelled' || ticket?.status === 'refunded';
+  const isTransferred = ticket?.status === 'transferred';
+  const isPendingTransfer = ticket?.status === 'transfer_pending';
 
-  if (isCancelled) {
+  if (isCancelled || isTransferred || isPendingTransfer) {
+    const title = isCancelled
+      ? 'Boleto Cancelado'
+      : isTransferred
+        ? 'Boleto Transferido'
+        : 'Transferencia en Proceso';
+
+    const subtitle = isCancelled
+      ? 'Acceso Revocado'
+      : isTransferred
+        ? 'Credencial Invalidada'
+        : 'Boleto Congelado';
+
+    const desc = isCancelled
+      ? 'Este boleto fue cancelado o devuelto por reembolso. Su código QR ha sido deshabilitado de forma permanente en los lectores de acceso y no es válido para entrar al evento.'
+      : isTransferred
+        ? 'La propiedad de este boleto fue transferida a otro usuario. El código QR original ha sido invalidado permanentemente y no permite ingresar al evento.'
+        : 'Este boleto tiene una transferencia pendiente de aceptación. El acceso está temporalmente bloqueado hasta que el destinatario acepte o se cancele la solicitud.';
+
+    const accentColor = isCancelled ? '#ef4444' : isTransferred ? '#818cf8' : '#f59e0b';
+    const accentBg = isCancelled ? 'rgba(239, 68, 68, 0.15)' : isTransferred ? 'rgba(129, 140, 248, 0.15)' : 'rgba(245, 158, 11, 0.15)';
+    const iconName = isCancelled ? 'close' : isTransferred ? 'check' : 'clock';
+
     return (
       <div
         onClick={e => e.stopPropagation()}
@@ -20,7 +44,7 @@ export default function TicketModal({ ticket, onClose }) {
           width: '100%',
           maxWidth: '440px',
           background: '#0d0d12',
-          border: '1px solid rgba(239, 68, 68, 0.4)',
+          border: `1px solid ${accentColor}66`,
           borderRadius: '24px',
           padding: '2rem',
           display: 'flex',
@@ -37,15 +61,15 @@ export default function TicketModal({ ticket, onClose }) {
             width: '64px',
             height: '64px',
             borderRadius: '50%',
-            background: 'rgba(239, 68, 68, 0.15)',
-            border: '2px solid #ef4444',
+            background: accentBg,
+            border: `2px solid ${accentColor}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#ef4444'
+            color: accentColor
           }}
         >
-          <Icon name="close" size={32} />
+          <Icon name={iconName} size={32} />
         </div>
 
         <div>
@@ -55,18 +79,18 @@ export default function TicketModal({ ticket, onClose }) {
               fontWeight: 900,
               textTransform: 'uppercase',
               letterSpacing: '2px',
-              color: '#ef4444',
+              color: accentColor,
               display: 'block',
               marginBottom: '.4rem'
             }}
           >
-            Acceso Revocado
+            {subtitle}
           </span>
           <h2 style={{ margin: '0 0 .5rem', fontSize: '1.2rem', fontWeight: 900, color: '#fff' }}>
-            Boleto Cancelado
+            {title}
           </h2>
           <p style={{ margin: 0, fontSize: '.75rem', color: '#888', lineHeight: 1.5 }}>
-            Este boleto fue cancelado o devuelto por reembolso. Su código QR ha sido deshabilitado de forma permanente en los lectores de acceso y no es válido para entrar al evento.
+            {desc}
           </p>
         </div>
 
@@ -83,8 +107,10 @@ export default function TicketModal({ ticket, onClose }) {
             fontSize: '.72rem'
           }}
         >
-          <span style={{ color: '#666', fontWeight: 700 }}>CÓDIGO ANULADO</span>
-          <span style={{ color: '#ef4444', fontFamily: 'monospace', fontWeight: 900, textDecoration: 'line-through' }}>
+          <span style={{ color: '#666', fontWeight: 700 }}>
+            {isTransferred ? 'CÓDIGO TRANSFERIDO' : isPendingTransfer ? 'ESTADO' : 'CÓDIGO ANULADO'}
+          </span>
+          <span style={{ color: accentColor, fontFamily: 'monospace', fontWeight: 900, textDecoration: isPendingTransfer ? 'none' : 'line-through' }}>
             {ticket?.ticket_code || ticket?.ticketCode || 'TKT-REVOKED'}
           </span>
         </div>
