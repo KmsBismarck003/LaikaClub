@@ -37,7 +37,7 @@ export default function RedeemCourtesyModal({ isOpen, onClose, onSuccess, onErro
     try {
       const clean = code.trim().toUpperCase();
       const res = await api.ticket.claimCourtesy(clean);
-      onSuccess(res.message || '¡Boleto de cortesía canjeado con éxito!');
+      onSuccess(res.message || '¡Boleto de cortesía canjeado con éxito!', res);
       onClose();
     } catch (err) {
       onError(err?.message || 'No se pudo canjear el boleto de cortesía.');

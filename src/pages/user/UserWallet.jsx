@@ -5,6 +5,7 @@ import TicketModal from './components/Wallet/TicketModal';
 import CancelTicketModal from './components/Wallet/CancelTicketModal';
 import TransferModal from '../../components/Transfer/TransferModal';
 import RedeemCourtesyModal from './components/Wallet/RedeemCourtesyModal';
+import CourtesyGiftRevealModal from './components/Wallet/CourtesyGiftRevealModal';
 import { useTicketTransfer } from '../../hooks/useTicketTransfer';
 import { transferAPI } from '../../services/transfer.service';
 import { useNotification } from '../../context/NotificationContext';
@@ -55,6 +56,7 @@ export default function UserWallet() {
   const [qrModal,  setQrModal]  = useState(null);
   const [cancelModalTicket, setCancelModalTicket] = useState(null);
   const [isRedeemOpen, setIsRedeemOpen] = useState(false);
+  const [giftCourtesyTicket, setGiftCourtesyTicket] = useState(null);
   const navigate = useNavigate();
   const { success, error } = useNotification();
 
@@ -65,9 +67,25 @@ export default function UserWallet() {
         transferAPI.getIncoming().catch(() => []),
         transferAPI.getOutgoing().catch(() => []),
       ]);
-      setTickets(Array.isArray(respTickets) ? respTickets : []);
+      const rawTickets = Array.isArray(respTickets) ? respTickets : [];
+      setTickets(rawTickets);
       setIncomingTransfers(Array.isArray(respIncoming) ? respIncoming : []);
       setOutgoingTransfers(Array.isArray(respOutgoing) ? respOutgoing : []);
+
+      // Detección automática de cortesías no vistas para desplegar la experiencia de regalo
+      try {
+        const seenIds = JSON.parse(localStorage.getItem('laika_seen_courtesies') || '[]');
+        const unacknowledged = rawTickets.find(t =>
+          Boolean(t.is_courtesy || t.isCourtesy) &&
+          t.status === 'active' &&
+          !seenIds.includes(t.id)
+        );
+        if (unacknowledged) {
+          setGiftCourtesyTicket(unacknowledged);
+        }
+      } catch (e) {
+        console.error('Error verificando cortesías vistas:', e);
+      }
     } catch {
       setTickets([]);
       setIncomingTransfers([]);
@@ -372,11 +390,37 @@ export default function UserWallet() {
       <RedeemCourtesyModal
         isOpen={isRedeemOpen}
         onClose={() => setIsRedeemOpen(false)}
-        onSuccess={(msg) => {
+        onSuccess={(msg, claimedTicket) => {
           success(msg);
           fetchTickets();
+          if (claimedTicket) {
+            setGiftCourtesyTicket(claimedTicket);
+          }
         }}
         onError={error}
+      />
+
+      {/* ── MODAL REVELACIÓN REGALO / INVITACIÓN VIP CORTESÍA ── */}
+      <CourtesyGiftRevealModal
+        isOpen={!!giftCourtesyTicket}
+        ticket={giftCourtesyTicket}
+        onClose={() => {
+          if (giftCourtesyTicket) {
+            const seen = JSON.parse(localStorage.getItem('laika_seen_courtesies') || '[]');
+            if (!seen.includes(giftCourtesyTicket.id)) {
+              localStorage.setItem('laika_seen_courtesies', JSON.stringify([...seen, giftCourtesyTicket.id]));
+            }
+          }
+          setGiftCourtesyTicket(null);
+        }}
+        onOpenTicket={(tkt) => {
+          const seen = JSON.parse(localStorage.getItem('laika_seen_courtesies') || '[]');
+          if (!seen.includes(tkt.id)) {
+            localStorage.setItem('laika_seen_courtesies', JSON.stringify([...seen, tkt.id]));
+          }
+          setGiftCourtesyTicket(null);
+          setQrModal(tkt);
+        }}
       />
     </div>
   );
