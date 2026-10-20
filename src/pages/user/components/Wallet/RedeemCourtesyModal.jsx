@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import api from '../../../../services/api';
-import Icon from '../../../../components/Icons/Icons';
 
 export default function RedeemCourtesyModal({ isOpen, onClose, onSuccess, onError }) {
   const [code, setCode] = useState('');
