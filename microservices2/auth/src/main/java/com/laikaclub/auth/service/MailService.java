@@ -124,4 +124,42 @@ public class MailService {
             return false;
         }
     }
+
+    @Async
+    public void sendCourtesyTicket(String toEmail, String recipientName, String eventName,
+                                   String eventDate, String eventTime, String sectionName,
+                                   String seatId, String ticketCode, String qrData,
+                                   String motive, String issuerInfo) {
+        try {
+            logger.info("Enviando correo de cortesía a {}", toEmail);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+
+            Context context = new Context();
+            context.setVariable("recipientName", recipientName != null && !recipientName.trim().isEmpty() ? recipientName : "Invitado Especial");
+            context.setVariable("eventName", eventName != null ? eventName : "Evento Oficial LAIKA Club");
+            context.setVariable("eventDate", eventDate != null ? eventDate : "Fecha por confirmar");
+            context.setVariable("eventTime", eventTime != null ? eventTime : "Hora por confirmar");
+            context.setVariable("sectionName", sectionName != null ? sectionName : "Acceso General");
+            context.setVariable("seatId", seatId != null ? seatId : "");
+            context.setVariable("ticketCode", ticketCode);
+            String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" +
+                    java.net.URLEncoder.encode(qrData != null ? qrData : ticketCode, StandardCharsets.UTF_8);
+            context.setVariable("qrImageUrl", qrUrl);
+            context.setVariable("motive", motive != null ? motive : "Cortesía Especial");
+            context.setVariable("issuerInfo", issuerInfo != null ? issuerInfo : "Administración del Evento");
+
+            String html = templateEngine.process("courtesy_ticket", context);
+
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject("LAIKA Club - Tu Pase de Cortesía para " + (eventName != null ? eventName : "el evento"));
+            helper.setText(html, true);
+
+            mailSender.send(message);
+            logger.info("Correo de cortesía enviado exitosamente a {}", toEmail);
+        } catch (Exception e) {
+            logger.error("Error al enviar correo de cortesía a {}: {}", toEmail, e.getMessage());
+        }
+    }
 }

@@ -150,6 +150,7 @@ export default function TicketModal({ ticket, onClose }) {
   };
 
   const ActiveComponent = versions[version]?.component || TicketV1;
+  const isCourtesy = Boolean(ticket?.is_courtesy || ticket?.isCourtesy);
 
   return (
     <div
@@ -161,6 +162,30 @@ export default function TicketModal({ ticket, onClose }) {
         gap: '1.25rem',
       }}
     >
+      {/* Courtesy banner indicator */}
+      {isCourtesy && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: 'rgba(139, 92, 246, 0.12)',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            borderRadius: '99px',
+            padding: '0.35rem 1rem',
+            color: '#a78bfa',
+            fontSize: '0.65rem',
+            fontWeight: 800,
+            letterSpacing: '1px',
+            textTransform: 'uppercase',
+            zIndex: 10000,
+          }}
+        >
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#8b5cf6' }} />
+          Boleto Oficial de Cortesía • Intransferible
+        </div>
+      )}
+
       {/* Sleek presentation switcher */}
       <div
         style={{

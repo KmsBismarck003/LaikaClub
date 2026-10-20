@@ -109,14 +109,68 @@ public class DatabaseInitializer implements CommandLineRunner {
                             "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                             ")");
 
+                    stmt.execute("CREATE TABLE IF NOT EXISTS courtesy_quotas (" +
+                            "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                            "manager_user_id BIGINT NOT NULL, " +
+                            "event_id BIGINT NOT NULL, " +
+                            "event_function_id BIGINT DEFAULT NULL, " +
+                            "section_name VARCHAR(100) DEFAULT NULL, " +
+                            "max_allowed INT NOT NULL DEFAULT 0, " +
+                            "issued_count INT NOT NULL DEFAULT 0, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                            "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" +
+                            ")");
+
+                    stmt.execute("CREATE TABLE IF NOT EXISTS courtesy_issuances (" +
+                            "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                            "event_id BIGINT NOT NULL, " +
+                            "event_function_id BIGINT DEFAULT NULL, " +
+                            "section_name VARCHAR(100) DEFAULT NULL, " +
+                            "issuer_user_id BIGINT NOT NULL, " +
+                            "issuer_email VARCHAR(150) NOT NULL, " +
+                            "recipient_type VARCHAR(50) NOT NULL, " +
+                            "motive VARCHAR(255) NOT NULL, " +
+                            "delivery_method VARCHAR(50) NOT NULL, " +
+                            "quantity INT NOT NULL DEFAULT 1, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                            ")");
+
                     try {
                         stmt.execute("ALTER TABLE payments MODIFY COLUMN payment_method VARCHAR(50)");
                     } catch (Exception ignored) {}
                     try {
                         stmt.execute("ALTER TABLE payments MODIFY COLUMN status VARCHAR(50) DEFAULT 'pending'");
                     } catch (Exception ignored) {}
+                    try {
+                        stmt.execute("ALTER TABLE tickets MODIFY COLUMN user_id INT NULL");
+                    } catch (Exception ignored) {}
 
                 } else { // SQLite
+                    stmt.execute("CREATE TABLE IF NOT EXISTS courtesy_quotas (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "manager_user_id INTEGER NOT NULL, " +
+                            "event_id INTEGER NOT NULL, " +
+                            "event_function_id INTEGER DEFAULT NULL, " +
+                            "section_name TEXT DEFAULT NULL, " +
+                            "max_allowed INTEGER NOT NULL DEFAULT 0, " +
+                            "issued_count INTEGER NOT NULL DEFAULT 0, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                            "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                            ")");
+
+                    stmt.execute("CREATE TABLE IF NOT EXISTS courtesy_issuances (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "event_id INTEGER NOT NULL, " +
+                            "event_function_id INTEGER DEFAULT NULL, " +
+                            "section_name TEXT DEFAULT NULL, " +
+                            "issuer_user_id INTEGER NOT NULL, " +
+                            "issuer_email TEXT NOT NULL, " +
+                            "recipient_type TEXT NOT NULL, " +
+                            "motive TEXT NOT NULL, " +
+                            "delivery_method TEXT NOT NULL, " +
+                            "quantity INTEGER NOT NULL DEFAULT 1, " +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                            ")");
                     stmt.execute("CREATE TABLE IF NOT EXISTS tickets (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             "user_id INTEGER NOT NULL, " +
@@ -203,6 +257,13 @@ public class DatabaseInitializer implements CommandLineRunner {
                 addColumnIfNotExists(conn, "tickets", "qr_data", "TEXT");
                 addColumnIfNotExists(conn, "tickets", "redeemed_at", dbProduct.contains("mysql") ? "VARCHAR(100)" : "TEXT");
                 addColumnIfNotExists(conn, "tickets", "event_function_id", dbProduct.contains("mysql") ? "INT" : "INTEGER");
+                addColumnIfNotExists(conn, "tickets", "is_courtesy", dbProduct.contains("mysql") ? "TINYINT(1) DEFAULT 0" : "INTEGER DEFAULT 0");
+                addColumnIfNotExists(conn, "tickets", "courtesy_issuance_id", dbProduct.contains("mysql") ? "BIGINT DEFAULT NULL" : "INTEGER DEFAULT NULL");
+                addColumnIfNotExists(conn, "tickets", "claim_token", dbProduct.contains("mysql") ? "VARCHAR(64) DEFAULT NULL" : "TEXT DEFAULT NULL");
+                addColumnIfNotExists(conn, "tickets", "recipient_type", dbProduct.contains("mysql") ? "VARCHAR(50) DEFAULT NULL" : "TEXT DEFAULT NULL");
+                addColumnIfNotExists(conn, "tickets", "courtesy_motive", dbProduct.contains("mysql") ? "VARCHAR(255) DEFAULT NULL" : "TEXT DEFAULT NULL");
+                addColumnIfNotExists(conn, "tickets", "holder_name", dbProduct.contains("mysql") ? "VARCHAR(150) DEFAULT NULL" : "TEXT DEFAULT NULL");
+                addColumnIfNotExists(conn, "tickets", "holder_email", dbProduct.contains("mysql") ? "VARCHAR(150) DEFAULT NULL" : "TEXT DEFAULT NULL");
                 addColumnIfNotExists(conn, "payments", "event_id", dbProduct.contains("mysql") ? "INT" : "INTEGER");
                 addColumnIfNotExists(conn, "payments", "reference", dbProduct.contains("mysql") ? "VARCHAR(100)" : "TEXT");
                 addColumnIfNotExists(conn, "payments", "created_at", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP");

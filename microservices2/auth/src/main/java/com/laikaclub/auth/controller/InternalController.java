@@ -2,12 +2,10 @@ package com.laikaclub.auth.controller;
 
 import com.laikaclub.auth.domain.User;
 import com.laikaclub.auth.repository.UserRepository;
+import com.laikaclub.auth.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -20,11 +18,13 @@ import java.util.Map;
 public class InternalController {
 
     private final UserRepository userRepository;
+    private final MailService mailService;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Autowired
-    public InternalController(UserRepository userRepository) {
+    public InternalController(UserRepository userRepository, MailService mailService) {
         this.userRepository = userRepository;
+        this.mailService = mailService;
     }
 
     @GetMapping("/users")
@@ -76,5 +76,28 @@ public class InternalController {
                     return ResponseEntity.ok(map);
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/mail/courtesy")
+    public ResponseEntity<?> sendCourtesyEmail(@RequestBody Map<String, Object> payload) {
+        String toEmail = (String) payload.get("to_email");
+        if (toEmail == null || toEmail.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "to_email is required"));
+        }
+        String recipientName = (String) payload.get("recipient_name");
+        String eventName = (String) payload.get("event_name");
+        String eventDate = (String) payload.get("event_date");
+        String eventTime = (String) payload.get("event_time");
+        String sectionName = (String) payload.get("section_name");
+        String seatId = (String) payload.get("seat_id");
+        String ticketCode = (String) payload.get("ticket_code");
+        String qrData = (String) payload.get("qr_data");
+        String motive = (String) payload.get("motive");
+        String issuerInfo = (String) payload.get("issuer_info");
+
+        mailService.sendCourtesyTicket(toEmail, recipientName, eventName, eventDate, eventTime,
+                sectionName, seatId, ticketCode, qrData, motive, issuerInfo);
+
+        return ResponseEntity.ok(Map.of("success", true, "message", "Email de cortesía puesto en cola"));
     }
 }

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #0d0d12;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #121218;
+            border: 1px solid #272732;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .header {
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-title {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 900;
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        .badge-courtesy {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .content {
+            line-height: 1.6;
+            font-size: 14px;
+            color: #d1d5db;
+        }
+
+        .event-card {
+            background: #181822;
+            border: 1px solid #2d2d3d;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .event-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        .detail-row {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .detail-label {
+            color: #9ca3af;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #f3f4f6;
+            font-weight: 700;
+        }
+
+        .qr-section {
+            text-align: center;
+            margin: 28px 0;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            display: inline-block;
+            width: auto;
+        }
+
+        .qr-wrapper {
+            text-align: center;
+        }
+
+        .ticket-code {
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: bold;
+            color: #111827;
+            margin-top: 8px;
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            padding: 12px 16px;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #fca5a5;
+            line-height: 1.5;
+        }
+
+        .footer {
+            margin-top: 32px;
+            font-size: 11px;
+            color: #6b7280;
+            border-top: 1px solid #272732;
+            padding-top: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-title">LAIKA CLUB</div>
+        </div>
+        <div class="content">
+            <span class="badge-courtesy">Pase de Cortesía Oficial</span>
+            <p>Hola, <strong th:text="${recipientName}">Invitado Especial</strong>.</p>
+            <p>Has recibido una cortesía oficial autorizada para el siguiente evento:</p>
+
+            <div class="event-card">
+                <div class="event-title" th:text="${eventName}">Nombre del Evento</div>
+                <div class="detail-row">
+                    <span class="detail-label">Fecha:</span>
+                    <span class="detail-value" th:text="${eventDate}">Fecha</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Función / Hora:</span>
+                    <span class="detail-value" th:text="${eventTime}">Hora</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Zona / Sección:</span>
+                    <span class="detail-value" th:text="${sectionName}">Zona General</span>
+                </div>
+                <div class="detail-row" th:if="${seatId != null and seatId != ''}">
+                    <span class="detail-label">Asiento:</span>
+                    <span class="detail-value" th:text="${seatId}">A-1</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Motivo:</span>
+                    <span class="detail-value" th:text="${motive}">Prensa / Patrocinio</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Autorizado por:</span>
+                    <span class="detail-value" th:text="${issuerInfo}">Gestión Oficial</span>
+                </div>
+            </div>
+
+            <div class="qr-wrapper">
+                <div class="qr-section">
+                    <img th:src="${qrImageUrl}" alt="Código QR de Acceso" width="180" height="180" style="display:block; margin: 0 auto;" />
+                    <div class="ticket-code" th:text="${ticketCode}">TKT-000000</div>
+                </div>
+            </div>
+
+            <p style="text-align: center; font-size: 13px; color: #9ca3af;">
+                Presenta este código QR directamente desde tu correo o en tu app de <strong>LaikaClub</strong> para acceder al recinto el día del evento.
+            </p>
+
+            <div class="warning-box">
+                <strong>AVISO IMPORTANTE:</strong> Este boleto es una cortesía personal e intransferible. Queda estrictamente prohibida su reventa o transferencia. Cualquier boleto de cortesía comercializado será anulado de inmediato en los puntos de control de acceso.
+            </div>
+        </div>
+        <div class="footer">
+            © 2026 LAIKA CLUB | SISTEMA DE CONTROL Y AUDITORÍA DE ACCESOS
+        </div>
+    </div>
+</body>
+</html>

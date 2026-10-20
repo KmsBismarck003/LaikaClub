@@ -625,6 +625,13 @@ public class TicketService {
         map.put("purchase_date", tkt.getPurchaseDate() != null ? tkt.getPurchaseDate().format(DateTimeFormatter.ISO_DATE_TIME) : null);
         map.put("created_at", tkt.getCreatedAt() != null ? tkt.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME) : null);
         map.put("event_function_id", tkt.getEventFunctionId());
+        map.put("is_courtesy", tkt.getIsCourtesy());
+        map.put("courtesy_issuance_id", tkt.getCourtesyIssuanceId());
+        map.put("claim_token", tkt.getClaimToken());
+        map.put("recipient_type", tkt.getRecipientType());
+        map.put("courtesy_motive", tkt.getCourtesyMotive());
+        map.put("holder_name", tkt.getHolderName());
+        map.put("holder_email", tkt.getHolderEmail());
         return map;
     }
 

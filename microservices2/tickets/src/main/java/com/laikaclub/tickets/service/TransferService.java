@@ -79,6 +79,10 @@ public class TransferService {
             Ticket ticket = ticketRepository.findByIdAndUserId(ticketId, senderId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Boleto no encontrado para este usuario"));
 
+            if (Boolean.TRUE.equals(ticket.getIsCourtesy())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Los boletos de cortesía son de carácter personal y no pueden transferirse");
+            }
+
             String status = ticket.getStatus() != null ? ticket.getStatus().toLowerCase() : "";
             if ("cancelled".equals(status) || "refunded".equals(status)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Un boleto cancelado o reembolsado no puede transferirse");

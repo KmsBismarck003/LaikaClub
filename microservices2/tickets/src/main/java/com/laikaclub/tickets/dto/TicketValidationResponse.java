@@ -34,6 +34,9 @@ public class TicketValidationResponse {
     private Double price;
     private String paymentMethod;
     private String redeemedAt;
+    private Boolean isCourtesy;
+    private String recipientType;
+    private String courtesyMotive;
 
     private Map<String, Object> ticketDetails;
     private Map<String, Object> eventDetails;
@@ -241,6 +244,30 @@ public class TicketValidationResponse {
 
     public void setRedeemedAt(String redeemedAt) {
         this.redeemedAt = redeemedAt;
+    }
+
+    public Boolean getIsCourtesy() {
+        return isCourtesy;
+    }
+
+    public void setIsCourtesy(Boolean isCourtesy) {
+        this.isCourtesy = isCourtesy;
+    }
+
+    public String getRecipientType() {
+        return recipientType;
+    }
+
+    public void setRecipientType(String recipientType) {
+        this.recipientType = recipientType;
+    }
+
+    public String getCourtesyMotive() {
+        return courtesyMotive;
+    }
+
+    public void setCourtesyMotive(String courtesyMotive) {
+        this.courtesyMotive = courtesyMotive;
     }
 
     public Map<String, Object> getTicketDetails() {

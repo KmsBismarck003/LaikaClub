@@ -11,7 +11,7 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private Long userId;
 
     @Column(name = "event_id", nullable = false)
@@ -49,6 +49,27 @@ public class Ticket {
 
     @Column(name = "event_function_id")
     private Long eventFunctionId;
+
+    @Column(name = "is_courtesy")
+    private Boolean isCourtesy = false;
+
+    @Column(name = "courtesy_issuance_id")
+    private Long courtesyIssuanceId;
+
+    @Column(name = "claim_token", length = 64)
+    private String claimToken;
+
+    @Column(name = "recipient_type", length = 50)
+    private String recipientType;
+
+    @Column(name = "courtesy_motive", length = 255)
+    private String courtesyMotive;
+
+    @Column(name = "holder_name", length = 150)
+    private String holderName;
+
+    @Column(name = "holder_email", length = 150)
+    private String holderEmail;
 
     // Getters and Setters
     public Long getId() {
@@ -161,5 +182,61 @@ public class Ticket {
 
     public void setEventFunctionId(Long eventFunctionId) {
         this.eventFunctionId = eventFunctionId;
+    }
+
+    public Boolean getIsCourtesy() {
+        return isCourtesy != null ? isCourtesy : false;
+    }
+
+    public void setIsCourtesy(Boolean isCourtesy) {
+        this.isCourtesy = isCourtesy;
+    }
+
+    public Long getCourtesyIssuanceId() {
+        return courtesyIssuanceId;
+    }
+
+    public void setCourtesyIssuanceId(Long courtesyIssuanceId) {
+        this.courtesyIssuanceId = courtesyIssuanceId;
+    }
+
+    public String getClaimToken() {
+        return claimToken;
+    }
+
+    public void setClaimToken(String claimToken) {
+        this.claimToken = claimToken;
+    }
+
+    public String getRecipientType() {
+        return recipientType;
+    }
+
+    public void setRecipientType(String recipientType) {
+        this.recipientType = recipientType;
+    }
+
+    public String getCourtesyMotive() {
+        return courtesyMotive;
+    }
+
+    public void setCourtesyMotive(String courtesyMotive) {
+        this.courtesyMotive = courtesyMotive;
+    }
+
+    public String getHolderName() {
+        return holderName;
+    }
+
+    public void setHolderName(String holderName) {
+        this.holderName = holderName;
+    }
+
+    public String getHolderEmail() {
+        return holderEmail;
+    }
+
+    public void setHolderEmail(String holderEmail) {
+        this.holderEmail = holderEmail;
     }
 }

@@ -28,7 +28,9 @@ export const ticketAPI = {
         apiClient.delete('/tickets/lock', { data: { eventId, functionId, seatId } }),
     refund: refundData => apiClient.post('/refunds', refundData),
     luckySeatAssign: (eventId, data) => apiClient.post('/tickets/lucky-seat/assign', { event_id: eventId, ...data }),
-    resendTicket: (ticketCode) => apiClient.post(`/tickets/${ticketCode}/resend`)
+    resendTicket: (ticketCode) => apiClient.post(`/tickets/${ticketCode}/resend`),
+    claimCourtesy: (claimToken) => apiClient.post('/tickets/courtesy/claim', { claimToken }),
+    validateCourtesyToken: (token) => apiClient.get(`/tickets/courtesy/validate-token/${token}`)
 }
 
 export const paymentAPI = {

@@ -122,6 +122,18 @@ public class ContextualValidationService {
         resp.setRedemptionHistory(history);
 
         String currentStatus = ticket.getStatus() != null ? ticket.getStatus().toLowerCase() : "active";
+        if ("pending_claim".equals(currentStatus)) {
+            resp.setValid(false);
+            resp.setActionable(false);
+            resp.setIsError(true);
+            resp.setStatusCode("PENDING_CLAIM");
+            resp.setStatusTitle("CORTESÍA PENDIENTE DE CANJE");
+            resp.setOperatorMessage("ACCESO DENEGADO: Este código de cortesía aún no ha sido canjeado por el titular en la plataforma.");
+            resp.setMessage("Boleto de cortesía no canjeado.");
+            logAttempt(request, ticket, "VERIFY", "PENDING_CLAIM", "Intento de acceso con cortesía no canjeada");
+            return resp;
+        }
+
         if ("cancelled".equals(currentStatus) || "refunded".equals(currentStatus)) {
             resp.setValid(false);
             resp.setActionable(false);
@@ -294,7 +306,19 @@ public class ContextualValidationService {
         resp.setPaymentMethod(ticket.getPaymentMethod());
         resp.setRedeemedAt(ticket.getRedeemedAt());
         resp.setTicketType(ticket.getSectionName() != null ? ticket.getSectionName() : "General");
-        resp.setCustomerName("Titular ID " + ticket.getUserId());
+        resp.setIsCourtesy(ticket.getIsCourtesy());
+        resp.setRecipientType(ticket.getRecipientType());
+        resp.setCourtesyMotive(ticket.getCourtesyMotive());
+
+        if (Boolean.TRUE.equals(ticket.getIsCourtesy())) {
+            String holder = ticket.getHolderName() != null && !ticket.getHolderName().isBlank()
+                    ? ticket.getHolderName()
+                    : (ticket.getHolderEmail() != null ? ticket.getHolderEmail() : "Invitado Especial");
+            resp.setCustomerName(holder + " [Cortesía: " + (ticket.getRecipientType() != null ? ticket.getRecipientType() : "Especial") + "]");
+        } else {
+            resp.setCustomerName(ticket.getUserId() != null ? "Titular ID " + ticket.getUserId() : "Asistente");
+        }
+
         if (ticket.getPurchaseDate() != null) {
             resp.setPurchaseDate(ticket.getPurchaseDate().format(DateTimeFormatter.ISO_DATE_TIME));
         }
@@ -306,6 +330,11 @@ public class ContextualValidationService {
         tDetails.put("price", ticket.getPrice());
         tDetails.put("status", ticket.getStatus());
         tDetails.put("purchaseDate", resp.getPurchaseDate());
+        tDetails.put("isCourtesy", ticket.getIsCourtesy());
+        tDetails.put("recipientType", ticket.getRecipientType());
+        tDetails.put("courtesyMotive", ticket.getCourtesyMotive());
+        tDetails.put("holderName", ticket.getHolderName());
+        tDetails.put("holderEmail", ticket.getHolderEmail());
         resp.setTicketDetails(tDetails);
     }
 

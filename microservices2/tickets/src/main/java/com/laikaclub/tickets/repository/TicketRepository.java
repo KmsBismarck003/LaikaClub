@@ -43,4 +43,16 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
                    "FROM tickets " +
                    "WHERE user_id = :userId AND status != 'refunded'", nativeQuery = true)
     Object[] getInternalPurchasesByUserIdRaw(@Param("userId") Long userId);
+
+    Optional<Ticket> findByClaimToken(String claimToken);
+
+    List<Ticket> findByCourtesyIssuanceId(Long courtesyIssuanceId);
+
+    List<Ticket> findByEventIdAndIsCourtesyTrue(Long eventId);
+
+    List<Ticket> findByEventIdAndIsCourtesyTrueOrderByPurchaseDateDesc(Long eventId);
+
+    long countByEventIdAndIsCourtesyTrue(Long eventId);
+
+    long countByEventIdAndIsCourtesyTrueAndStatus(Long eventId, String status);
 }

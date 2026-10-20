@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import TicketModal from './components/Wallet/TicketModal';
 import CancelTicketModal from './components/Wallet/CancelTicketModal';
 import TransferModal from '../../components/Transfer/TransferModal';
+import RedeemCourtesyModal from './components/Wallet/RedeemCourtesyModal';
 import { useTicketTransfer } from '../../hooks/useTicketTransfer';
 import { transferAPI } from '../../services/transfer.service';
 import { useNotification } from '../../context/NotificationContext';
@@ -53,6 +54,7 @@ export default function UserWallet() {
   const [tab,      setTab]      = useState('upcoming');
   const [qrModal,  setQrModal]  = useState(null);
   const [cancelModalTicket, setCancelModalTicket] = useState(null);
+  const [isRedeemOpen, setIsRedeemOpen] = useState(false);
   const navigate = useNavigate();
   const { success, error } = useNotification();
 
@@ -207,8 +209,32 @@ export default function UserWallet() {
 
       {/* ── HEADER ──────────────────────────────────────────────── */}
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'1rem' }}>
-        <span style={{ fontSize:'.65rem', fontWeight:900, textTransform:'uppercase',
-          letterSpacing:'4px', color:'#666' }}>MIS BOLETOS</span>
+        <div style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
+          <span style={{ fontSize:'.65rem', fontWeight:900, textTransform:'uppercase',
+            letterSpacing:'4px', color:'#666' }}>MIS BOLETOS</span>
+          <button
+            type="button"
+            onClick={() => setIsRedeemOpen(true)}
+            style={{
+              background: 'rgba(139, 92, 246, 0.15)',
+              border: '1px solid rgba(139, 92, 246, 0.35)',
+              color: '#c4b5fd',
+              padding: '.35rem .85rem',
+              borderRadius: '99px',
+              fontSize: '.62rem',
+              fontWeight: 800,
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '.4rem',
+              transition: 'all .2s'
+            }}
+          >
+            + Canjear Cortesía
+          </button>
+        </div>
 
         <div style={{ display:'flex', background:'rgba(255,255,255,.06)',
           border:'1px solid rgba(255,255,255,.1)', borderRadius:'99px', padding:'4px', gap:'4px' }}>
@@ -341,6 +367,17 @@ export default function UserWallet() {
           }}
         />
       )}
+
+      {/* ── CANJEAR CORTESÍA MODAL ──────────────────────────────── */}
+      <RedeemCourtesyModal
+        isOpen={isRedeemOpen}
+        onClose={() => setIsRedeemOpen(false)}
+        onSuccess={(msg) => {
+          success(msg);
+          fetchTickets();
+        }}
+        onError={error}
+      />
     </div>
   );
 }
@@ -369,6 +406,7 @@ function BigTicketCard({
     ? new Date(dateRaw).toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'numeric' })
     : '—';
 
+  const isCourtesy = Boolean(ticket.is_courtesy || ticket.isCourtesy);
   const isTransferPending = status === 'transfer_pending';
   const isTransferred = status === 'transferred';
   const isCancelledTicket = isCancelled || status === 'cancelled' || status === 'refunded' || isTransferred;
@@ -376,23 +414,28 @@ function BigTicketCard({
   const badgeMap = {
     active:           { label:'ACTIVO',           color:'#fff', bg:'#22c55e' },
     confirmed:        { label:'CONFIRMADO',       color:'#fff', bg:'#3b82f6' },
+    courtesy:         { label:'CORTESÍA',         color:'#fff', bg:'#8b5cf6' },
     used:             { label:'USADO',            color:'#fff', bg:'#444'    },
     cancelled:        { label:'CANCELADO',        color:'#fff', bg:'#ef4444' },
     refunded:         { label:'REEMBOLSO',        color:'#fff', bg:'#f97316' },
     transfer_pending: { label:'EN TRANSFERENCIA', color:'#fff', bg:'#f59e0b' },
     transferred:      { label:'TRANSFERIDO',      color:'#fff', bg:'#64748b' },
   };
-  const badgeDef = badgeMap[status] || (isCancelledTicket ? (isTransferred ? badgeMap.transferred : badgeMap.cancelled) : badgeMap.confirmed);
+  const badgeDef = isCourtesy && !isCancelledTicket
+    ? badgeMap.courtesy
+    : badgeMap[status] || (isCancelledTicket ? (isTransferred ? badgeMap.transferred : badgeMap.cancelled) : badgeMap.confirmed);
 
   const badgeFinal = isTransferPending
     ? badgeMap.transfer_pending
     : isCancelledTicket
       ? (status === 'refunded' ? badgeMap.refunded : isTransferred ? badgeMap.transferred : badgeMap.cancelled)
-      : (status==='confirmed' && dateRaw && new Date(dateRaw) > new Date())
-        ? { label:'PROXIMO', color:'#fff', bg:'#3b82f6' }
-        : badgeDef;
+      : isCourtesy
+        ? badgeMap.courtesy
+        : (status==='confirmed' && dateRaw && new Date(dateRaw) > new Date())
+          ? { label:'PROXIMO', color:'#fff', bg:'#3b82f6' }
+          : badgeDef;
 
-  const canTransfer = (status === 'active' || status === 'confirmed') && !isPast && !isCancelledTicket && !isTransferPending;
+  const canTransfer = (status === 'active' || status === 'confirmed') && !isPast && !isCancelledTicket && !isTransferPending && !isCourtesy;
 
   const outTrf = outgoingTransfers?.find(ot => ot.ticket_id === ticket.id);
 
@@ -641,15 +684,44 @@ function BigTicketCard({
               <span>Asiento: {ticket.seat_id || ticket.seatId || 'General'}</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '.6rem' }}>
-              {canTransfer && (
+            {isCourtesy ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', color: '#8b5cf6', fontSize: '.65rem', fontWeight: 800, letterSpacing: '0.5px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#8b5cf6' }} />
+                <span>CORTESÍA OFICIAL • NO TRANSFERIBLE</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '.6rem' }}>
+                {canTransfer && (
+                  <button
+                    type="button"
+                    onClick={() => onTransfer(ticket)}
+                    style={{
+                      background: 'rgba(255,255,255,.06)',
+                      color: '#ccc',
+                      border: '1px solid rgba(255,255,255,.12)',
+                      borderRadius: '8px',
+                      padding: '.35rem .85rem',
+                      fontSize: '.62rem',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      cursor: 'pointer',
+                      transition: 'all .2s'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,.1)'}
+                    onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.06)'}
+                  >
+                    Transferir
+                  </button>
+                )}
+
                 <button
                   type="button"
-                  onClick={() => onTransfer(ticket)}
+                  onClick={() => onCancel(ticket)}
                   style={{
-                    background: 'rgba(255,255,255,.06)',
-                    color: '#ccc',
-                    border: '1px solid rgba(255,255,255,.12)',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    color: '#ef4444',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
                     borderRadius: '8px',
                     padding: '.35rem .85rem',
                     fontSize: '.62rem',
@@ -659,41 +731,19 @@ function BigTicketCard({
                     cursor: 'pointer',
                     transition: 'all .2s'
                   }}
-                  onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,.1)'}
-                  onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,.06)'}
+                  onMouseOver={e => {
+                    e.currentTarget.style.background = '#ef4444';
+                    e.currentTarget.style.color = '#fff';
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.color = '#ef4444';
+                  }}
                 >
-                  Transferir
+                  Solicitar Cancelación
                 </button>
-              )}
-
-              <button
-                type="button"
-                onClick={() => onCancel(ticket)}
-                style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  color: '#ef4444',
-                  border: '1px solid rgba(239, 68, 68, 0.25)',
-                  borderRadius: '8px',
-                  padding: '.35rem .85rem',
-                  fontSize: '.62rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
-                  cursor: 'pointer',
-                  transition: 'all .2s'
-                }}
-                onMouseOver={e => {
-                  e.currentTarget.style.background = '#ef4444';
-                  e.currentTarget.style.color = '#fff';
-                }}
-                onMouseOut={e => {
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                  e.currentTarget.style.color = '#ef4444';
-                }}
-              >
-                Solicitar Cancelación
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         )
       )}

@@ -23,6 +23,15 @@ const TicketInfo = ({ ticket }) => {
         </span>
       </div>
 
+      {(ticket.isCourtesy || ticket.is_courtesy || ticket.ticketDetails?.isCourtesy) && (
+        <div className="staff-info-row" style={{ background: 'rgba(139, 92, 246, 0.15)', borderRadius: '8px', padding: '0.4rem 0.6rem', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+          <span className="staff-info-label" style={{ color: '#c084fc' }}>Modalidad</span>
+          <span className="staff-info-value" style={{ color: '#a855f7', fontWeight: 800 }}>
+            CORTESÍA OFICIAL ({ticket.recipientType || ticket.ticketDetails?.recipientType || 'Invitado Especial'})
+          </span>
+        </div>
+      )}
+
       <div className="staff-info-row">
         <span className="staff-info-label">Código de Verificación</span>
         <span className="staff-info-code">{ticket.ticketCode}</span>
