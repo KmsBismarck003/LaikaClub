@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.5.3] - 2026-10-21
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- **Corrección Crítica de Pasarela de Pago e Intención de Cobro (`useCheckoutFlow.js`):**
+  - **Resolución de Error 500 / 400 BAD REQUEST ("El evento seleccionado ya ha concluido o no está disponible"):**
+    - Se eliminó el envío erróneo de identificadores de evento alfanuméricos de mercancía (`merch_100_210`) al microservicio de tickets durante `createPaymentIntent`.
+    - Al comprar mercancía de Laika Shop (sin boletos de concierto), la intención de cobro se genera limpiamente sin `event_id`, evitando que el validador de funciones de eventos rechace la transacción.
+  - **Separación Total de Recolección en Taquilla vs. Envío a Domicilio (`PhaseDelivery.jsx` y `useCheckoutFlow.js`):**
+    - `needsShippingForm` ahora es estrictamente falso cuando se selecciona "Recoger en Taquilla / Punto Oficial" (`deliveryType === 'tienda'`).
+    - Se reemplazó la sección de captura y libreta de direcciones domiciliarias por una **Tarjeta Oficial de Recolección en Taquilla**: sin solicitar calle, número exterior, colonia ni código postal.
+    - Se confirma de manera visual: *"Sin costo de envío · No requiere dirección a domicilio"*, mostrando únicamente el nombre del titular para cotejo con INE/Pasaporte y el correo de recepción de comprobante.
+  - **Sincronización de Identidad de Usuario en Checkout:**
+    - Mapeo automático de `user.firstName` y `user.lastName` en `shippingData` para evitar que el campo de nombre quede vacío por inconsistencia de esquemas.
+
 ## [1.5.2] - 2026-10-21
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>

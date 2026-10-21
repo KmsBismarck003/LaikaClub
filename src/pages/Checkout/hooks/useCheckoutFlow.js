@@ -28,8 +28,20 @@ export const useCheckoutFlow = () => {
     } = useCart();
 
     // Clasificación de items e identificación del tipo de compra
-    const ticketItems = useMemo(() => cart.filter(item => item.sectionId !== 'MERCH'), [cart]);
-    const merchItems  = useMemo(() => cart.filter(item => item.sectionId === 'MERCH'), [cart]);
+    const merchItems = useMemo(() => cart.filter(item => 
+        item.sectionId === 'MERCH' || 
+        item.type === 'merch' || 
+        item.isMerch || 
+        (item.eventId && item.eventId.toString().startsWith('merch_'))
+    ), [cart]);
+
+    const ticketItems = useMemo(() => cart.filter(item => 
+        item.sectionId !== 'MERCH' && 
+        item.type !== 'merch' && 
+        !item.isMerch && 
+        (!item.eventId || !item.eventId.toString().startsWith('merch_'))
+    ), [cart]);
+
     const hasMerch    = merchItems.length > 0;
     const hasTickets  = ticketItems.length > 0;
 
@@ -68,7 +80,8 @@ export const useCheckoutFlow = () => {
         }
     }, [orderType]); // eslint-disable-line
 
-    const needsShippingForm = hasMerch || (deliveryType !== 'digital' && deliveryType !== 'tienda');
+    // needsShippingForm solo es true cuando se elige paquetería a domicilio (standard o express)
+    const needsShippingForm = (deliveryType === 'standard' || deliveryType === 'express');
     const shippingCost = SHIPPING_COSTS[deliveryType] ?? 0;
 
     // --- Gestión Inteligente de Direcciones ---
@@ -81,14 +94,17 @@ export const useCheckoutFlow = () => {
     const [saveNewAddress, setSaveNewAddress] = useState(true);
     const [editingAddressId, setEditingAddressId] = useState(null);
 
+    const defaultUserName = user?.name || user?.firstName || (user?.email ? user.email.split('@')[0] : 'Cliente');
+    const defaultUserLastName = user?.lastName || '';
+
     // Datos de envío en formulario activo
     const [shippingData, setShippingData] = useState(() => {
         const def = savedAddresses?.find(a => a.isDefault) || (savedAddresses?.length > 0 ? savedAddresses[0] : null);
         if (def) {
             return {
                 alias: def.alias || 'Dirección Principal',
-                nombre: def.nombre || '',
-                apellidos: def.apellidos || '',
+                nombre: def.nombre || defaultUserName,
+                apellidos: def.apellidos || defaultUserLastName,
                 calle: def.calle || '',
                 numeroExterior: def.numeroExterior || '',
                 codigoPostal: def.codigoPostal || '',
@@ -102,12 +118,20 @@ export const useCheckoutFlow = () => {
         }
         const saved = localStorage.getItem('checkout_shipping');
         if (saved) {
-            try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+            try { 
+                const parsed = JSON.parse(saved);
+                return {
+                    ...parsed,
+                    nombre: parsed.nombre || defaultUserName,
+                    apellidos: parsed.apellidos || defaultUserLastName,
+                    email: parsed.email || user?.email || ''
+                };
+            } catch (e) { /* ignore */ }
         }
         return {
             alias: 'Mi Dirección',
-            nombre: user?.name || '',
-            apellidos: '',
+            nombre: defaultUserName,
+            apellidos: defaultUserLastName,
             calle: '',
             numeroExterior: '',
             codigoPostal: '',
@@ -119,6 +143,18 @@ export const useCheckoutFlow = () => {
             observaciones: '',
         };
     });
+
+    // Sincronizar automáticamente datos del usuario si carga asíncronamente
+    useEffect(() => {
+        if (user && (!shippingData.nombre || shippingData.nombre === 'Cliente')) {
+            setShippingData(prev => ({
+                ...prev,
+                nombre: prev.nombre && prev.nombre !== 'Cliente' ? prev.nombre : (user.firstName || user.name || (user.email ? user.email.split('@')[0] : 'Cliente')),
+                apellidos: prev.apellidos || user.lastName || '',
+                email: prev.email || user.email || ''
+            }));
+        }
+    }, [user]); // eslint-disable-line
 
     // Sincronizar shippingData cuando se selecciona una dirección guardada
     useEffect(() => {
@@ -197,10 +233,14 @@ export const useCheckoutFlow = () => {
         if (deliveryType === 'digital') return true;
 
         if (deliveryType === 'tienda') {
-            const { nombre, email } = shippingData;
-            if (!nombre || !nombre.trim() || !email || !email.trim()) {
-                error('Por favor ingresa nombre y correo del titular que recogerá en taquilla (*).');
+            const nom = (shippingData.nombre || user?.firstName || user?.name || (user?.email ? user.email.split('@')[0] : 'Cliente')).trim();
+            const em = (shippingData.email || user?.email || '').trim();
+            if (!nom || !em) {
+                error('Por favor confirma tu nombre y correo para la recolección en taquilla (*).');
                 return false;
+            }
+            if (!shippingData.nombre || !shippingData.email) {
+                setShippingData(prev => ({ ...prev, nombre: nom, email: em }));
             }
             return true;
         }
@@ -295,16 +335,35 @@ export const useCheckoutFlow = () => {
 
         try {
             const amount = finalTotal + shippingCost;
-            const eventId = cart.find(item => item.eventId)?.eventId || 1;
+            
+            // Buscar un boleto real de evento (que no sea merch) para extraer eventId numérico válido
+            const realTicketItem = ticketItems.find(item => 
+                item.eventId && 
+                !item.eventId.toString().startsWith('merch_') &&
+                item.sectionId !== 'MERCH' &&
+                !item.isMerch
+            );
+            
+            let validEventId = null;
+            if (realTicketItem && realTicketItem.eventId) {
+                const parsed = parseInt(realTicketItem.eventId, 10);
+                if (!isNaN(parsed) && parsed > 0 && parsed < 100000) {
+                    validEventId = parsed;
+                }
+            }
 
-            // 1. Crear intención de pago en backend
-            const intentResp = await paymentAPI.createIntent({
+            // 1. Crear intención de pago en backend (si es pura mercancía, NO enviar event_id para evitar validación de funciones de eventos pasados)
+            const intentPayload = {
                 amount,
                 method: paymentMethod,
-                eventId,
-                event_id: eventId,
                 idempotencyKey: idempotencyKey.current,
-            });
+            };
+            if (validEventId) {
+                intentPayload.eventId = validEventId;
+                intentPayload.event_id = validEventId;
+            }
+
+            const intentResp = await paymentAPI.createIntent(intentPayload);
             const paymentId = intentResp.payment_id || intentResp.reference;
 
             // 2. Confirmar pago y guardar tarjeta si se seleccionó

@@ -107,13 +107,93 @@ const PhaseDelivery = ({
                     </div>
                 </section>
 
-                {/* ── SECCIÓN B: Gestión Inteligente de Direcciones ── */}
+                {/* ── SECCIÓN B: Recolección en Taquilla Oficial (Solo si deliveryType === 'tienda') ── */}
+                {deliveryType === 'tienda' && (
+                    <section className="phase-sub-section mt-6 animate-fade-in">
+                        <div style={{
+                            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(10, 15, 30, 0.9) 100%)',
+                            border: '1px solid rgba(0, 255, 242, 0.3)',
+                            borderRadius: '16px',
+                            padding: '1.75rem',
+                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 255, 242, 0.04)',
+                            position: 'relative'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(0, 255, 242, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00fff2', boxShadow: '0 0 15px rgba(0, 255, 242, 0.2)' }}>
+                                        <Icon name="home" size={20} />
+                                    </div>
+                                    <div>
+                                        <h4 style={{ color: '#fff', fontSize: '1.05rem', fontWeight: 900, margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                            Punto de Entrega: Taquilla Oficial del Evento
+                                        </h4>
+                                        <span style={{ color: '#00fff2', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+                                            ✓ Sin costo de envío · No requiere dirección a domicilio
+                                        </span>
+                                    </div>
+                                </div>
+                                <span style={{ background: 'rgba(0, 255, 242, 0.12)', border: '1px solid rgba(0, 255, 242, 0.4)', color: '#00fff2', padding: '0.4rem 1rem', borderRadius: '99px', fontSize: '0.7rem', fontWeight: 950, letterSpacing: '1px' }}>
+                                    GRATIS
+                                </span>
+                            </div>
+
+                            <p style={{ color: '#cbd5e1', fontSize: '0.82rem', lineHeight: '1.6', margin: '0 0 1.25rem 0' }}>
+                                Tus productos oficiales de Laika Shop se prepararán con empaque sellado y estarán listos para ser entregados en la <strong>taquilla o stand de mercancía oficial del evento</strong>. Para recogerlos, únicamente deberás presentar una identificación oficial vigente (INE o Pasaporte) del titular y tu código de compra digital.
+                            </p>
+
+                            <div style={{
+                                background: 'rgba(0, 0, 0, 0.3)',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                borderRadius: '12px',
+                                padding: '1.25rem',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                                gap: '1rem'
+                            }}>
+                                <FormField
+                                    label="Nombre del titular que recogerá en taquilla *"
+                                    name="nombre"
+                                    value={shippingData.nombre || ''}
+                                    onChange={handleShippingChange}
+                                    placeholder="Nombre completo según INE / Pasaporte"
+                                    colSpan={1}
+                                />
+                                <FormField
+                                    label="Correo para recibir comprobante y código QR *"
+                                    name="email"
+                                    type="email"
+                                    value={shippingData.email || ''}
+                                    onChange={handleShippingChange}
+                                    placeholder="correo@ejemplo.com"
+                                    colSpan={1}
+                                />
+                                <FormField
+                                    label="Teléfono de contacto (opcional)"
+                                    name="telefono"
+                                    type="tel"
+                                    value={shippingData.telefono || ''}
+                                    onChange={handleShippingChange}
+                                    placeholder="Número de 10 dígitos"
+                                    prefix="+52"
+                                    colSpan={1}
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#94a3b8', fontSize: '0.72rem', marginTop: '1rem' }}>
+                                <Icon name="check" size={14} style={{ color: '#00fff2' }} />
+                                <span>Modalidad seleccionada: <strong>Recogida en taquilla</strong>. No se requiere ni se solicitará ninguna dirección física de tu casa.</span>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* ── SECCIÓN B: Gestión de Dirección de Envío a Domicilio (Solo para standard o express) ── */}
                 {needsShippingForm && (
                     <section className="phase-sub-section mt-6">
                         <div className="section-header-with-actions">
                             <h3 className="section-small-heading">
                                 <Icon name="mapPin" size={16} className="heading-icon" />
-                                <span>{deliveryType === 'tienda' ? 'Datos de Contacto y Autorización' : 'Dirección de Envío'}</span>
+                                <span>Dirección de Envío a Domicilio</span>
                             </h3>
 
                             {!isCreatingNew && !isEditing && savedAddresses.length > 0 && (
