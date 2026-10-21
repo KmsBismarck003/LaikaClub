@@ -488,6 +488,8 @@ export default function UserHistory() {
           )}
         </div>
       )}
+        </>
+      )}
     </div>
     </PermissionWall>
   )

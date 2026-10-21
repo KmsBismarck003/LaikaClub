@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { merchService } from '../../services/merch.service';
 import { useCart } from '../../context/CartContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -11,10 +11,11 @@ import {
     SkeletonEventCard,
     SkeletonNewsTicker
 } from '../../components/Skeleton/Skeleton';
-import HeroSection from '../Home/components/HeroSection/HeroSection';
 import api from '../../services/api';
 import { getImageUrl } from '../../utils/imageUtils';
 
+import ShopHero from './components/ShopHero/ShopHero';
+import FeaturedCategories from './components/FeaturedCategories/FeaturedCategories';
 import ProductSearch from './components/ProductSearch/ProductSearch';
 import ProductFilters from './components/ProductFilters/ProductFilters';
 import ProductGrid from './components/ProductGrid/ProductGrid';
@@ -54,13 +55,13 @@ const PRODUCTS_PER_PAGE = 9;
 
 const Shop = () => {
     const location = useLocation();
-    const navigate = useNavigate();
     const { addMerchToCart } = useCart();
     const { showNotification } = useNotification();
 
     // Data
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState([]);
+    const [events, setEvents] = useState([]);
     const [ads, setAds] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [recentlyViewedProducts, setRecentlyViewedProducts] = useState([]);
@@ -69,6 +70,7 @@ const Shop = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [activeCategory, setActiveCategory] = useState('all');
+    const [selectedEventId, setSelectedEventId] = useState('all');
     const [sortBy, setSortBy] = useState('popular');
     const [availability, setAvailability] = useState('all');
     const [priceRange, setPriceRange] = useState(5000);
@@ -99,7 +101,7 @@ const Shop = () => {
         return () => window.removeEventListener('recentlyViewedProductsUpdated', loadRecent);
     }, []);
 
-    // Initial data load
+    // Initial data load (merchandise, events, ads)
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -108,6 +110,12 @@ const Shop = () => {
                 setAds(Array.isArray(adsData) ? adsData : []);
             } catch (e) {
                 console.error('Ads load failed:', e);
+            }
+            try {
+                const evts = await api.event.getPublic();
+                setEvents(Array.isArray(evts) ? evts : []);
+            } catch (e) {
+                console.error('Events load failed:', e);
             }
             try {
                 const data = await merchService.getAllMerchandise(null, 'published', null, 'approved');
@@ -123,20 +131,31 @@ const Shop = () => {
         loadData();
     }, []);
 
+    // Dynamically derive distinct categories from real products
+    const availableCategories = useMemo(() => {
+        if (!products || products.length === 0) return ['ropa', 'accesorios', 'vasos', 'coleccionables'];
+        const cats = new Set();
+        products.forEach(p => {
+            if (p.category) cats.add(p.category.toLowerCase());
+        });
+        return Array.from(cats);
+    }, [products]);
+
     // Reset page on filter change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, activeCategory, sortBy, availability, priceRange]);
+    }, [searchTerm, activeCategory, selectedEventId, sortBy, availability, priceRange]);
 
     // Compute active filter count for badge
     const activeFiltersCount = useMemo(() => {
         let count = 0;
         if (activeCategory !== 'all') count++;
+        if (selectedEventId !== 'all') count++;
         if (availability !== 'all') count++;
         if (priceRange < maxPrice) count++;
         if (sortBy !== 'popular') count++;
         return count;
-    }, [activeCategory, availability, priceRange, sortBy]);
+    }, [activeCategory, selectedEventId, availability, priceRange, sortBy]);
 
     // Filter & sort products
     const filteredProducts = useMemo(() => {
@@ -158,6 +177,10 @@ const Shop = () => {
             const matchesCategory = activeCategory === 'all' ||
                 (p.category || '').toLowerCase() === activeCategory.toLowerCase();
 
+            // Event
+            const matchesEvent = selectedEventId === 'all' ||
+                String(p.eventId || p.event_id) === String(selectedEventId);
+
             // Availability
             const totalStock = p.variants?.reduce((s, v) => s + (parseInt(v.stock, 10) || 0), 0) ?? 0;
             const matchesAvailability =
@@ -171,11 +194,11 @@ const Shop = () => {
                 : 0;
             const matchesPrice = lowestPrice <= priceRange;
 
-            return matchesSearch && matchesCategory && matchesAvailability && matchesPrice;
+            return matchesSearch && matchesCategory && matchesEvent && matchesAvailability && matchesPrice;
         });
 
         return sortProducts(result, sortBy);
-    }, [products, searchTerm, activeCategory, availability, priceRange, sortBy]);
+    }, [products, searchTerm, activeCategory, selectedEventId, availability, priceRange, sortBy]);
 
     const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
     const currentProducts = useMemo(() => {
@@ -200,11 +223,34 @@ const Shop = () => {
     const resetFilters = useCallback(() => {
         setSearchTerm('');
         setActiveCategory('all');
+        setSelectedEventId('all');
         setSortBy('popular');
         setAvailability('all');
         setPriceRange(maxPrice);
         setCurrentPage(1);
     }, [maxPrice]);
+
+    const handleApplyQuickFilter = useCallback(({ category, eventId }) => {
+        if (category) setActiveCategory(category);
+        if (eventId) setSelectedEventId(eventId);
+        setCurrentPage(1);
+    }, []);
+
+    const handleResetQuickFilter = useCallback(() => {
+        setActiveCategory('all');
+        setSelectedEventId('all');
+        setCurrentPage(1);
+    }, []);
+
+    const handleExploreCategory = useCallback((category) => {
+        if (category) setActiveCategory(category);
+        setSelectedEventId('all');
+        setCurrentPage(1);
+        const toolbar = document.querySelector('.shop-toolbar') || document.querySelector('.shop-marketplace-layout');
+        if (toolbar) {
+            toolbar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, []);
 
     const handlePageChange = useCallback((page) => {
         setCurrentPage(page);
@@ -239,22 +285,42 @@ const Shop = () => {
     return (
         <div className="laika-shop-container professional-redesign">
             <NewsTicker settings={{
-                text: '50% OFF EN TODA LA COLECCION DE HOODIES · NUEVO DROP: BAD BUNNY CHROME COLLECTION · ENVIO GRATIS EN COMPRAS MAYORES A $1,000 ·',
+                text: 'MERCANCÍA OFICIAL LAIKA CLUB · 10% OFF CON TU BOLETO DE FESTIVAL CON CÓDIGO LAIKACLUB10 · ENVÍO GRATIS EN COMPRAS MAYORES A $1,000 · EDICIONES LIMITADAS DE ARTISTAS ·',
                 speed: 40
             }} />
 
-            <HeroSection
-                title="LAIKA SHOP"
-                accentText=""
-                subtitle="EQUIPO OFICIAL Y EDICIONES LIMITADAS DE ARTISTAS"
-                backgroundImage="/assets/shop_hero.png"
-            />
-
             <div className="home-layout">
                 <main className="home-main">
-                    <div className="home-banner shop-top-carousel-container">
-                        <AdCarousel position="main" isLoading={loading} preloadedAds={ads} />
-                    </div>
+                    {/* TOP HERO BENTO: PORTO + FESTIVAL HUB FUSION */}
+                    <ShopHero
+                        products={products}
+                        categories={availableCategories}
+                        events={events}
+                        activeCategory={activeCategory}
+                        selectedEventId={selectedEventId}
+                        onApplyQuickFilter={handleApplyQuickFilter}
+                        onResetQuickFilter={handleResetQuickFilter}
+                        onQuickView={handleQuickView}
+                        onExploreCategory={handleExploreCategory}
+                    />
+
+                    {/* HORIZONTAL CATEGORIES RIBBON WITH LIVE ITEM COUNTERS */}
+                    <FeaturedCategories
+                        categories={availableCategories}
+                        activeCategory={activeCategory}
+                        onSelectCategory={(cat) => {
+                            setActiveCategory(cat);
+                            setCurrentPage(1);
+                        }}
+                        products={products}
+                    />
+
+                    {/* TOP AD BANNER IF AVAILABLE */}
+                    {ads && ads.length > 0 && (
+                        <div className="home-banner shop-top-carousel-container">
+                            <AdCarousel position="main" isLoading={loading} preloadedAds={ads} />
+                        </div>
+                    )}
 
                     <div className="shop-marketplace-layout">
                         {/* SEARCH + FILTER TOOLBAR */}

@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.5.1] - 2026-10-21
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- **Rediseño Maestro de Laika Shop (Fusión Porto eCommerce + Cyber Bento Box Festival Hub):**
+  - **Componente `ShopHero` (`src/pages/Shop/components/ShopHero/`):**
+    - `ShopHeroSlider.jsx`: Banner principal dinámico (~65%) que destaca los drops oficiales con rotación automática, badges de exclusividad, precio formateado y CTAs rápidos.
+    - `ShopQuickFinder.jsx`: Tarjeta Bento de búsqueda rápida con selectores dinámicos de categoría y evento/colección vinculados al catálogo en vivo.
+    - `ShopPromoCard.jsx`: Widget Bento de beneficio para fans con código de descuento `LAIKACLUB10`, botón interactivo de copiado con feedback visual y bordes neón.
+    - `ShopHero.css`: Estilos modulares con glassmorphism, temas oscuros de festival y diseño responsivo adaptativo.
+  - **Componente `FeaturedCategories` (`src/pages/Shop/components/FeaturedCategories/`):**
+    - `FeaturedCategories.jsx`: Cinta horizontal de categorías destacadas con conteo en vivo calculado dinámicamente de productos reales en base de datos.
+    - Iconografía SVG vectorial exclusiva (Lucide React) sin emojis ni datos simulados (zero mocks).
+    - `FeaturedCategories.css`: Efectos de hover glow, barra indicadora de estado activo y scroll horizontal suave en móviles.
+  - **Integración Limpia en `Shop.jsx`:**
+    - Erradicación de código monolítico; delegación completa a componentes modulares exclusivos bajo `src/pages/Shop/components/`.
+    - Conexión del buscador rápido y cintillo de categorías con los filtros de eventos y categorías existentes.
+
 ## [1.5.0] - 2026-10-21
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>
