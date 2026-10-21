@@ -142,9 +142,23 @@ const PhaseConfirmation = ({
                                 </div>
                             )}
 
-                            {(orderType === 'digital_only' || deliveryType === 'tienda') && (
+                            {orderType === 'digital_only' && (
                                 <p className="sub-note mt-1">
-                                    Tus accesos e indicaciones se enviarán de inmediato a tu cuenta y al correo <strong>{shippingData?.email || 'registrado en LaikaClub'}</strong>.
+                                    Tus accesos digitales e indicaciones se enviarán de inmediato a tu Bóveda Digital y al correo <strong>{shippingData?.email || 'registrado en LaikaClub'}</strong>.
+                                </p>
+                            )}
+
+                            {orderType === 'physical_only' && (
+                                <p className="sub-note mt-1">
+                                    {deliveryType === 'tienda'
+                                        ? <>Tus indicaciones para recoger los artículos en taquilla oficial con INE se enviarán al correo <strong>{shippingData?.email || 'registrado en LaikaClub'}</strong>.</>
+                                        : <>Los detalles de tu orden y guía de paquetería se enviarán al correo <strong>{shippingData?.email || 'registrado en LaikaClub'}</strong>.</>}
+                                </p>
+                            )}
+
+                            {orderType === 'mixed' && (
+                                <p className="sub-note mt-1">
+                                    Tus accesos digitales y los comprobantes de mercancía se enviarán a tu cuenta y al correo <strong>{shippingData?.email || 'registrado en LaikaClub'}</strong>.
                                 </p>
                             )}
                         </div>

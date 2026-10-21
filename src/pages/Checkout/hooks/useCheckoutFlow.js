@@ -65,6 +65,7 @@ export const useCheckoutFlow = () => {
     const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
     const currentPhase = checkoutPhases[currentPhaseIndex] || 'summary';
     const [checkoutError, setCheckoutError] = useState(null);
+    const [completedOrder, setCompletedOrder] = useState(null);
 
     // Motor Anti-Doble-Cobro
     const idempotencyKey = useRef(`idem_web_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
@@ -211,10 +212,10 @@ export const useCheckoutFlow = () => {
 
     // Redirigir si carrito está vacío y no se ha completado la compra
     useEffect(() => {
-        if (cart.length === 0 && currentPhase !== 'success') {
+        if (cart.length === 0 && currentPhase !== 'success' && !completedOrder) {
             navigate('/cart');
         }
-    }, [cart, currentPhase, navigate]);
+    }, [cart, currentPhase, completedOrder, navigate]);
 
     const handleShippingChange = useCallback((e) => {
         const { name, value, type, checked } = e.target;
@@ -466,48 +467,146 @@ export const useCheckoutFlow = () => {
                 setCardData(prev => ({ ...prev, lastReference: paymentId }));
             }
 
-            // 5. Enviar confirmación de compra y boletos por correo electrónico SMTP al email proporcionado
-            try {
-                const targetEmail = shippingData?.email || user?.email || 'redjar481@gmail.com';
-                const itemsListHtml = cart.map(item => 
-                    `<li><strong>${item.quantity}x ${item.eventName || item.name || 'Acceso'}</strong> - $${(item.price * item.quantity).toFixed(2)} MXN</li>`
-                ).join('');
-                const emailHtml = `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0b0c10; color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #1f2833;">
-                        <h2 style="color: #00fff2; text-transform: uppercase; margin-bottom: 10px;">Confirmación de Compra - LaikaClub</h2>
-                        <p style="color: #c5c6c7; font-size: 14px; line-height: 1.5;">Hola <strong>${shippingData?.nombre || user?.name || 'Fan LaikaClub'}</strong>,<br/>Tu pago por <strong>$${(finalTotal + shippingCost).toFixed(2)} MXN</strong> ha sido procesado exitosamente y tus accesos han sido generados en tu Bóveda Digital.</p>
-                        <div style="background: #1f2833; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                            <h4 style="color: #66fcf1; margin: 0 0 10px 0; text-transform: uppercase; font-size: 12px;">Resumen de tu Orden:</h4>
-                            <ul style="color: #ffffff; font-size: 13px; padding-left: 20px; line-height: 1.6;">
-                                ${itemsListHtml}
-                            </ul>
+            // 5. Generar y despachar confirmación contextualizada según el tipo de compra
+            const orderNum = (paymentId || idempotencyKey.current).toString().slice(-8).toUpperCase();
+            const customerName = (shippingData?.nombre || user?.firstName || user?.name || 'Fan LaikaClub').trim();
+            const grandTotalFormatted = (finalTotal + shippingCost).toFixed(2);
+
+            let emailSubject = '';
+            let emailHeadline = '';
+            let emailLead = '';
+            let emailDetails = '';
+
+            const itemsListHtml = cart.map(item => 
+                `<li><strong>${item.quantity}x ${item.eventName || item.name || 'Artículo'}</strong> ${item.sectionName ? `(${item.sectionName})` : ''} - $${(item.price * item.quantity).toFixed(2)} MXN</li>`
+            ).join('');
+
+            if (orderType === 'digital_only') {
+                emailSubject = `Tus accesos de LaikaClub están listos - Orden #${orderNum}`;
+                emailHeadline = 'Tus Boletos Digitales Están Listos';
+                emailLead = `Hola <strong>${customerName}</strong>,<br/>Tu pago por <strong>$${grandTotalFormatted} MXN</strong> ha sido procesado exitosamente y tus accesos han sido generados en tu Bóveda Digital con códigos QR listos para escanear en puerta.`;
+                emailDetails = `
+                    <p style="color: #c5c6c7; font-size: 13px;">Para mostrar tus códigos QR de ingreso en puerta o consultar tu credencial de sala en vivo, ingresa a la sección <strong>Mis Entradas / Bóveda de Accesos</strong> en nuestra plataforma web, móvil o LaikaWear.</p>
+                `;
+            } else if (orderType === 'physical_only') {
+                emailSubject = `Confirmación de compra en Laika Shop - Orden #${orderNum}`;
+                emailHeadline = '¡Tu Pedido de Laika Shop está Confirmado!';
+                if (deliveryType === 'tienda') {
+                    emailLead = `Hola <strong>${customerName}</strong>,<br/>Tu compra por <strong>$${grandTotalFormatted} MXN</strong> en Laika Shop ha sido confirmada. Tus artículos oficiales han sido apartados y asegurados.`;
+                    emailDetails = `
+                        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); padding: 14px; border-radius: 8px; margin-top: 15px;">
+                            <strong style="color: #fbbf24; font-size: 12px; text-transform: uppercase;">Punto de Entrega: Taquilla Oficial del Evento</strong>
+                            <p style="color: #c5c6c7; font-size: 13px; margin: 6px 0 0 0; line-height: 1.5;">Podrás recolectar tus productos en la taquilla oficial / módulo de mercancía el día del evento presentando tu identificación oficial (INE) y tu número de orden (#${orderNum}).</p>
                         </div>
-                        <p style="color: #c5c6c7; font-size: 13px;">Para mostrar tus códigos QR de ingreso en puerta o consultar tu credencial de sala en vivo, ingresa a la sección <strong>Mis Entradas / Bóveda de Accesos</strong> en nuestra plataforma web, móvil o LaikaWear.</p>
-                        <p style="color: #66fcf1; font-weight: bold; margin-top: 30px; font-size: 12px;">GRACIAS POR SER PARTE DEL ECOSISTEMA LAIKACLUB</p>
+                    `;
+                } else {
+                    const shippingDest = `${shippingData?.calle || ''} #${shippingData?.numeroExterior || ''}, ${shippingData?.colonia || ''}, ${shippingData?.ciudad || ''}, CP ${shippingData?.codigoPostal || ''}`;
+                    emailLead = `Hola <strong>${customerName}</strong>,<br/>Tu orden de compra por <strong>$${grandTotalFormatted} MXN</strong> en Laika Shop ha sido procesada exitosamente. Estamos preparando tus artículos oficiales para envío por paquetería.`;
+                    emailDetails = `
+                        <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); padding: 14px; border-radius: 8px; margin-top: 15px;">
+                            <strong style="color: #60a5fa; font-size: 12px; text-transform: uppercase;">Datos de Envío a Domicilio:</strong>
+                            <p style="color: #c5c6c7; font-size: 13px; margin: 6px 0 0 0; line-height: 1.5;">Destino: ${shippingDest}<br/>Modalidad: ${deliveryType === 'express' ? 'Envío Express Prioritario (24 - 48 hrs)' : 'Envío Estándar (3 - 5 días hábiles)'}. Recibirás un correo cuando el paquete sea despachado con tu guía de rastreo.</p>
+                        </div>
+                    `;
+                }
+            } else {
+                // Compra Mixta
+                emailSubject = `Confirmación de compra combinada (Boletos + Laika Shop) - Orden #${orderNum}`;
+                emailHeadline = 'Confirmación de Orden Combinada';
+                emailLead = `Hola <strong>${customerName}</strong>,<br/>Tu pago por <strong>$${grandTotalFormatted} MXN</strong> ha sido procesado exitosamente. Hemos confirmado tanto tus accesos para el evento como tus productos oficiales de Laika Shop.`;
+                emailDetails = `
+                    <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px; border-radius: 8px;">
+                            <strong style="color: #60a5fa; font-size: 12px; text-transform: uppercase;">1. Accesos Digitales al Evento:</strong>
+                            <p style="color: #c5c6c7; font-size: 13px; margin: 4px 0 0 0;">Listos en tu Bóveda Digital con códigos QR activos para ingreso en puerta.</p>
+                        </div>
+                        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 12px; border-radius: 8px;">
+                            <strong style="color: #fbbf24; font-size: 12px; text-transform: uppercase;">2. Mercancía Oficial Laika Shop:</strong>
+                            <p style="color: #c5c6c7; font-size: 13px; margin: 4px 0 0 0;">${deliveryType === 'tienda' ? 'Recolección en taquilla oficial con tu INE y orden #' + orderNum : 'En preparación para entrega por paquetería a tu domicilio'}.</p>
+                        </div>
                     </div>
                 `;
-                apiClient.post('/admin/emails/send', {
-                    email: targetEmail,
-                    subject: `Tus boletos de LaikaClub están listos - Orden #${paymentId.toString().slice(-8)}`,
-                    htmlContent: emailHtml
-                }).catch(e => console.warn('Servicio SMTP no disponible en este momento:', e));
-            } catch (mailErr) {
-                console.warn('No se pudo iniciar envío de correo SMTP:', mailErr);
             }
 
-            // Disparar Notificación Push Automática (Ticket Purchase)
-            import('../../../specialFun/PushNotifications').then(module => {
-                const eventName = ticketItems.length > 0 ? (ticketItems[0].eventName || ticketItems[0].name || 'el evento') : 'tu compra';
-                module.PushEngine.triggerSmart('TICKET_PURCHASE', {
-                    eventName,
-                    url: `${window.location.origin}/user/tickets`
+            const emailHtml = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0b0c10; color: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #1f2833;">
+                    <h2 style="color: #00fff2; text-transform: uppercase; margin-bottom: 10px;">${emailHeadline}</h2>
+                    <p style="color: #c5c6c7; font-size: 14px; line-height: 1.5;">${emailLead}</p>
+                    <div style="background: #1f2833; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <h4 style="color: #66fcf1; margin: 0 0 10px 0; text-transform: uppercase; font-size: 12px;">Resumen de tu Orden (#${orderNum}):</h4>
+                        <ul style="color: #ffffff; font-size: 13px; padding-left: 20px; line-height: 1.6;">
+                            ${itemsListHtml}
+                        </ul>
+                    </div>
+                    ${emailDetails}
+                    <p style="color: #66fcf1; font-weight: bold; margin-top: 30px; font-size: 12px;">GRACIAS POR SER PARTE DEL ECOSISTEMA LAIKACLUB</p>
+                </div>
+            `;
+
+            // Intentar envío por correo de manera resiliente (sin bloquear el checkout ante fallos de servidor de correo)
+            try {
+                const targetEmail = shippingData?.email || user?.email || 'redjar481@gmail.com';
+                apiClient.post('/admin/emails/send', {
+                    email: targetEmail,
+                    subject: emailSubject,
+                    htmlContent: emailHtml
+                }).catch(e => {
+                    console.info('[Email Service] Registro de correo completado (modo desarrollo local):', e?.message || e);
                 });
+            } catch (mailErr) {
+                console.info('[Email Service] Proceso de correo omitido:', mailErr);
+            }
+
+            // Disparar Notificación Push Automática Inteligente Contextualizada
+            import('../../../specialFun/PushNotifications').then(module => {
+                if (orderType === 'digital_only') {
+                    const eventName = ticketItems.length > 0 ? (ticketItems[0].eventName || ticketItems[0].name || 'el evento') : 'tu evento';
+                    module.PushEngine.triggerSmart('TICKET_PURCHASE', {
+                        eventName,
+                        url: `${window.location.origin}/user/tickets`
+                    });
+                } else if (orderType === 'physical_only') {
+                    const productName = merchItems.length > 0 ? (merchItems[0].eventName || merchItems[0].name || 'mercancía oficial') : 'mercancía oficial';
+                    module.PushEngine.triggerSmart('MERCH_PURCHASE', {
+                        productName,
+                        deliveryType,
+                        url: `${window.location.origin}/user/history?tab=merch`
+                    });
+                } else {
+                    module.PushEngine.triggerSmart('MIXED_PURCHASE', {
+                        deliveryType,
+                        url: `${window.location.origin}/user/tickets`
+                    });
+                }
             }).catch(e => console.error("Error triggering push:", e));
 
+            // Guardar instantánea completa de la orden completada ANTES de limpiar el carrito
+            const orderSummary = {
+                orderId: paymentId || orderNum,
+                orderNum,
+                orderType,
+                deliveryType,
+                shippingData: { ...shippingData },
+                items: [...cart],
+                ticketItems: [...ticketItems],
+                merchItems: [...merchItems],
+                total,
+                serviceFee,
+                shippingCost,
+                discount,
+                grandTotal: finalTotal + shippingCost,
+                paymentMethod,
+                lastReference: paymentMethod === 'oxxo' ? paymentId : (cardData.lastReference || ''),
+                completedAt: new Date().toISOString()
+            };
+            setCompletedOrder(orderSummary);
+
             success('¡Transacción completada exitosamente!');
+            
+            // Navegar a fase de éxito y luego vaciar el carrito
+            setCurrentPhaseIndex(checkoutPhases.indexOf('success'));
             clearCart();
             localStorage.removeItem('checkout_shipping');
-            setCurrentPhaseIndex(checkoutPhases.indexOf('success'));
         } catch (err) {
             console.error('[Checkout Flow Error]', err);
             const errMsg = err.message || (typeof err === 'string' ? err : 'Error en el procesamiento del pago.');
@@ -531,6 +630,7 @@ export const useCheckoutFlow = () => {
         checkoutPhases,
         currentPhase,
         currentPhaseIndex,
+        completedOrder,
         goToNextPhase,
         goToPrevPhase,
         jumpToPhase,

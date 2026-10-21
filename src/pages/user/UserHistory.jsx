@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { ticketAPI } from '../../services/api'
 import { merchService } from '../../services/merch.service'
 import { useAuth } from '../../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Icon from '../../components/Icons/Icons'
 import { PermissionWall } from '../../components'
 
@@ -51,14 +51,25 @@ function groupByMonth(tickets) {
 
 export default function UserHistory() {
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
+  const initialTab = searchParams.get('tab') === 'merch' ? 'merch' : 'tickets'
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter,  setFilter]  = useState('todos')
   const [visible, setVisible] = useState(5)
-  const [activeTab, setActiveTab] = useState('tickets')
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [merchOrders, setMerchOrders] = useState([])
   const [loadingMerch, setLoadingMerch] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'merch') {
+      setActiveTab('merch')
+    } else if (tabParam === 'tickets') {
+      setActiveTab('tickets')
+    }
+  }, [searchParams])
 
   useEffect(() => {
     ;(async () => {

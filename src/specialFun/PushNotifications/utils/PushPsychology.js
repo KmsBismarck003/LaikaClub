@@ -18,7 +18,21 @@ export const PushPsychology = {
       case 'TICKET_PURCHASE':
         return {
           title: "Boletos confirmados",
-          body: `Tus accesos para ${data.eventName || 'el evento'} están listos. Prepárate para una experiencia única. Revisa los detalles en tu perfil.`
+          body: `Tus accesos para ${data.eventName || 'el evento'} están listos en tu Bóveda Digital. Prepárate para una experiencia única.`
+        };
+
+      case 'MERCH_PURCHASE':
+        return {
+          title: "Pedido de Laika Shop confirmado",
+          body: data.deliveryType === 'tienda'
+            ? `Tu mercancía oficial de Laika Shop está confirmada y lista para recoger en taquilla oficial presentando tu identificación.`
+            : `Tu pedido de mercancía oficial de Laika Shop ha sido procesado exitosamente y se encuentra en preparación para envío.`
+        };
+
+      case 'MIXED_PURCHASE':
+        return {
+          title: "Compra combinada confirmada",
+          body: `Tus boletos en Bóveda Digital y tus artículos de Laika Shop han sido confirmados exitosamente. Revisa los detalles en tu cuenta.`
         };
       
       case 'NEW_EVENT':

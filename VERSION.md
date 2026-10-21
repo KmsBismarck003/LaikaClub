@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.5.4] - 2026-10-21
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- **Resolución de Pantalla de Confirmación de Éxito en Checkout (`useCheckoutFlow.js` y `Step4_Success.jsx`):**
+  - **Corrección de Redirección Prematura:**
+    - Se solucionó el problema por el cual la pantalla de confirmación no se mostraba tras pagar; al vaciar el carrito (`clearCart()`) el hook redirigía inmediatamente a `/cart` antes de completar la transición de estado.
+    - Se implementó un estado inmutable `completedOrder` con la instantánea completa de la transacción y se blindó el guardia de redirección: `cart.length === 0 && currentPhase !== 'success' && !completedOrder`.
+  - **Rediseño Integral y Contextual de la Pantalla de Éxito (`Step4_Success.jsx` y `Checkout.css`):**
+    - Interfaz moderna, estética dark cyber y cero emojis conforme a `skill.md`.
+    - Adaptación visual y funcional según el tipo de compra:
+      - **Solo Boletos (`digital_only`):** Indicador de Bóveda Digital, QR dinámico de acceso, desglose de asientos y botón directo *"VER MIS BOLETOS EN BÓVEDA"*.
+      - **Solo Mercancía (`physical_only`):** Título *"¡TU PEDIDO DE LAIKA SHOP ESTÁ ASEGURADO!"*, instrucciones precisas de recolección en taquilla oficial presentando INE y número de orden (o detalles de paquetería a domicilio), y botón principal *"VER MIS PEDIDOS / COMPRAS"*.
+      - **Compra Mixta (`mixed`):** Título *"¡COMPRA COMBINADA CONFIRMADA!"* con paneles divididos para boletos (Bóveda Digital) y mercancía (Taquilla/Envío), con accesos rápidos a ambas secciones.
+    - Soporte integrado de voucher y guía paso a paso para pagos en efectivo con **OXXO Pay**.
+
+- **Diferenciación y Contextualización Total de Mensajes y Notificaciones:**
+  - **Plantillas Push Contextuales (`PushPsychology.js` y `useCheckoutFlow.js`):**
+    - Se incorporaron los tipos `MERCH_PURCHASE` y `MIXED_PURCHASE`, eliminando la notificación genérica fija de boletos cuando se compra mercancía de la tienda.
+  - **Correos Electrónicos Adaptativos:**
+    - El asunto y contenido HTML del correo se generan dinámicamente:
+      - Boletos: Accesos digitales en Bóveda y QR de entrada.
+      - Mercancía: Instrucciones oficiales de taquilla con INE o número de guía a domicilio.
+      - Mixto: Desglose completo de accesos y logística física.
+
+- **Resiliencia en Servicio de Correos y Errores 500 (`EmailController.java` y `useCheckoutFlow.js`):**
+  - Se blindó `EmailController.java` para que cuando las credenciales SMTP no estén configuradas en entornos locales/Docker, registre la advertencia y retorne respuesta simulada con código `200 OK` en lugar de abortar con `500 Internal Server Error`.
+  - En `useCheckoutFlow.js`, la notificación por correo se gestiona de forma no bloqueante, protegiendo la experiencia del comprador en caso de fallos externos de red o SMTP.
+
+- **Navegación Fluida a Historial de Mercancía (`UserHistory.jsx`):**
+  - Soporte de parámetro `?tab=merch` para abrir directamente la pestaña de pedidos de Laika Shop al hacer clic en los enlaces de confirmación.
+
 ## [1.5.3] - 2026-10-21
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>

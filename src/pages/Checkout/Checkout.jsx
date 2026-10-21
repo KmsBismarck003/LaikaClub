@@ -9,7 +9,7 @@ import PhaseSummary from './components/PhaseSummary';
 import PhaseDelivery from './components/PhaseDelivery';
 import PhasePayment from './components/PhasePayment';
 import PhaseConfirmation from './components/PhaseConfirmation';
-import Step4_Success from './components/Step4_Success';
+import Step4Success from './components/Step4_Success';
 
 const Checkout = () => {
     const {
@@ -17,18 +17,17 @@ const Checkout = () => {
         ticketItems,
         merchItems,
         hasMerch,
-        hasTickets,
         orderType,
         checkoutPhases,
         currentPhase,
         currentPhaseIndex,
+        completedOrder,
         goToNextPhase,
         goToPrevPhase,
         jumpToPhase,
         total,
         serviceFee,
         discount,
-        finalTotal,
         shippingCost,
         grandTotal,
         checkoutError,
@@ -59,7 +58,6 @@ const Checkout = () => {
         updateCard,
         editingCardId,
         setEditingCardId,
-        handleFinalPayment,
     } = useCheckoutFlow();
 
     // Resolver nombre del siguiente paso para el botón de resumen
@@ -189,9 +187,15 @@ const Checkout = () => {
                 )}
 
                 {currentPhase === 'success' && (
-                    <Step4_Success
-                        paymentMethod={paymentMethod}
-                        lastReference={cardData.lastReference}
+                    <Step4Success
+                        completedOrder={completedOrder}
+                        orderType={completedOrder?.orderType || orderType}
+                        deliveryType={completedOrder?.deliveryType || deliveryType}
+                        shippingData={completedOrder?.shippingData || shippingData}
+                        ticketItems={completedOrder?.ticketItems || ticketItems}
+                        merchItems={completedOrder?.merchItems || merchItems}
+                        paymentMethod={completedOrder?.paymentMethod || paymentMethod}
+                        lastReference={completedOrder?.lastReference || cardData.lastReference}
                     />
                 )}
             </main>
