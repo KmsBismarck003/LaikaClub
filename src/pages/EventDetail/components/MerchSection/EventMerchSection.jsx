@@ -3,15 +3,16 @@ import { Button, Icon } from "../../../../components";
 import { merchService } from "../../../../services/merch.service";
 import { useCart } from "../../../../context/CartContext";
 import { useNotification } from "../../../../context/NotificationContext";
+import { getImageUrl } from "../../../../utils/imageUtils";
 
 export const MerchProductCard = ({ item, onSelect }) => {
   const [cardColorIdx, setCardColorIdx] = React.useState(0);
   const [isFavorite, setIsFavorite] = React.useState(false);
   
-  // Adapt to real schema: item.image_url instead of nested colors.images
-  const cardImg = item.image_url || '';
-  const price = item.variants?.[0]?.price || 0;
-
+  // Adapt to real schema: supports imageUrl and image_url
+  const rawImg = item.imageUrl || item.image_url || '';
+  const cardImg = getImageUrl(rawImg.split(',')[0]);
+  const price = item.variants?.[0]?.price || item.price || 0;
 
   return (
     <div
@@ -37,9 +38,6 @@ export const MerchProductCard = ({ item, onSelect }) => {
           <Icon name="heart" size={18} fill={isFavorite ? "#ff4444" : "none"} stroke={isFavorite ? "#ff4444" : "#fff"} style={{ opacity: 1, filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))' }} />
         </button>
       </div>
-
-      {/* Color swatches omitted for simplicity, real schema might not have nested colors array */}
-
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', flex: 1, textAlign: 'left', paddingLeft: '2px', marginBottom: '0.4rem' }}>
         <h4 style={{ fontSize: '0.48rem', color: '#fff', margin: 0, fontWeight: 700, lineHeight: 1.1 }}>{item.name}</h4>
@@ -82,17 +80,18 @@ export default function EventMerchSection({
 
   useEffect(() => {
     if (event?.id) {
-      const isMerchActive = event.merch_enabled === true || event.merch_enabled === 1 || event.merch_enabled === 'true' || event.merch_enabled === '1';
-      if (isMerchActive) {
-        merchService.getAllMerchandise(null, 'published', event.id, 'approved')
-          .then(data => setMerchItems(data || []))
-          .catch(console.error);
-      }
+      merchService.getAllMerchandise(null, 'published', event.id, 'approved')
+        .then(data => {
+          setMerchItems(Array.isArray(data) ? data : []);
+        })
+        .catch(err => {
+          console.error("Error fetching event merchandise:", err);
+          setMerchItems([]);
+        });
     }
-  }, [event]);
+  }, [event?.id]);
 
-  const isMerchActive = event?.merch_enabled === true || event?.merch_enabled === 1 || event?.merch_enabled === 'true' || event?.merch_enabled === '1';
-  if (!isMerchActive || merchItems.length === 0) return null;
+  if (!merchItems || merchItems.length === 0) return null;
 
   return (
     <>
@@ -104,15 +103,16 @@ export default function EventMerchSection({
             {merchItems.slice(0, 6).map(item => (
               <MerchProductCard
                 key={item.id}
-                item={{...item, image_url: item.image_url ? item.image_url.split(',')[0] : ''}}
+                item={item}
                 onSelect={() => {
                   setSelectedMerchItem(item);
                   setGalleryIdx(0);
                   
                   // Initialize default attributes based on schema
                   const defaultAttrs = {};
-                  if (item.attributes_schema) {
-                    Object.entries(item.attributes_schema).forEach(([key, values]) => {
+                  const schema = item.attributesSchema || item.attributes_schema;
+                  if (schema) {
+                    Object.entries(schema).forEach(([key, values]) => {
                        if (values && values.length > 0) defaultAttrs[key] = values[0];
                     });
                   }
@@ -126,18 +126,25 @@ export default function EventMerchSection({
 
       {/* PRODUCT DETAIL MODAL */}
       {selectedMerchItem && (() => {
-        const galleryImages = selectedMerchItem.image_url ? selectedMerchItem.image_url.split(',') : [];
+        const rawImg = selectedMerchItem.imageUrl || selectedMerchItem.image_url || '';
+        const galleryImages = rawImg ? rawImg.split(',').map(img => getImageUrl(img.trim())) : [];
         
         // Find matching variant
         let activeVariant = selectedMerchItem.variants?.[0];
-        if (selectedMerchItem.variants && selectedMerchItem.attributes_schema) {
-            activeVariant = selectedMerchItem.variants.find(v => {
+        const schema = selectedMerchItem.attributesSchema || selectedMerchItem.attributes_schema;
+        if (selectedMerchItem.variants && selectedMerchItem.variants.length > 0 && schema) {
+            const match = selectedMerchItem.variants.find(v => {
                 if (!v.attributes) return false;
+                let attrs = v.attributes;
+                if (typeof attrs === 'string') {
+                    try { attrs = JSON.parse(attrs); } catch(e) { attrs = {}; }
+                }
                 for (const key in merchAttributes) {
-                    if (v.attributes[key] !== merchAttributes[key]) return false;
+                    if (attrs[key] !== merchAttributes[key]) return false;
                 }
                 return true;
-            }) || activeVariant;
+            });
+            if (match) activeVariant = match;
         }
         
         const activePrice = activeVariant?.price || 0;
