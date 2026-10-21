@@ -110,7 +110,7 @@ const Shop = () => {
                 console.error('Ads load failed:', e);
             }
             try {
-                const data = await merchService.getAllMerchandise(null, 'published');
+                const data = await merchService.getAllMerchandise(null, 'published', null, 'approved');
                 const safe = Array.isArray(data) ? data : [];
                 setProducts(safe);
             } catch (e) {
@@ -150,6 +150,8 @@ const Shop = () => {
                 (p.description || '').toLowerCase().includes(search) ||
                 (p.category || '').toLowerCase().includes(search) ||
                 (p.brand || '').toLowerCase().includes(search) ||
+                (p.event_name || p.eventName || '').toLowerCase().includes(search) ||
+                (p.artist || '').toLowerCase().includes(search) ||
                 (Array.isArray(p.tags) && p.tags.some(t => t.toLowerCase().includes(search)));
 
             // Category

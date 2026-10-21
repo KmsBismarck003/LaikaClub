@@ -351,17 +351,35 @@ export const useCheckoutFlow = () => {
 
             // 4. Procesar orden de mercancía
             if (merchItems.length > 0) {
+                const resolvedUserId = user?.id ? (typeof user.id === 'string' ? parseInt(user.id, 10) : user.id) : 1;
                 await merchService.createOrder({
+                    idempotency_key: idempotencyKey.current,
+                    idempotencyKey: idempotencyKey.current,
+                    user_id: resolvedUserId,
+                    userId: resolvedUserId,
+                    payment_method: paymentMethod || 'card',
+                    paymentMethod: paymentMethod || 'card',
                     manager_id: 1,
                     customer_name: `${shippingData.nombre} ${shippingData.apellidos}`.trim() || user?.name || 'Cliente',
                     customer_email: shippingData.email || user?.email,
                     total_amount: merchItems.reduce((acc, item) => acc + (item.price * item.quantity), 0),
-                    items: merchItems.map(item => ({
-                        merchandise_id: item.merchId || item.eventId.toString().replace('merch_', ''),
-                        variant_id: item.variantId || null,
-                        quantity: item.quantity,
-                        price_at_purchase: item.price,
-                    })),
+                    items: merchItems.map(item => {
+                        let vId = item.variantId || item.variant_id;
+                        if (!vId && item.id) {
+                            const parts = item.id.toString().split('_');
+                            if (parts.length >= 3 && !isNaN(parseInt(parts[2], 10))) {
+                                vId = parseInt(parts[2], 10);
+                            } else if (parts.length >= 2 && !isNaN(parseInt(parts[1], 10))) {
+                                vId = parseInt(parts[1], 10);
+                            }
+                        }
+                        return {
+                            variant_id: vId || 1,
+                            variantId: vId || 1,
+                            quantity: item.quantity || 1,
+                            price_at_purchase: item.price,
+                        };
+                    }),
                 });
             }
 

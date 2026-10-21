@@ -365,6 +365,10 @@ public class MerchandiseService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
     }
 
+    public List<MerchandiseOrder> getOrdersByUser(Long userId) {
+        return orderRepository.findByUserIdOrderByIdDesc(userId);
+    }
+
     @Transactional
     public MerchandiseReview createReview(MerchandiseReviewCreate reviewData, Long userId, String userName) {
         MerchandiseItem item = itemRepository.findById(reviewData.getItemId())

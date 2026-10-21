@@ -42,8 +42,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/").permitAll()
-                .requestMatchers(HttpMethod.POST, "/orders/").permitAll()
-                .requestMatchers(HttpMethod.GET, "/orders/{orderId:\\d+}").permitAll()
+                .requestMatchers(HttpMethod.POST, "/orders", "/orders/", "/orders/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/orders", "/orders/", "/orders/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/settings/{managerId:\\d+}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/{merchId:\\d+}/purchased").authenticated()
                 .requestMatchers(HttpMethod.GET, "/{merchId:\\d+}").permitAll()

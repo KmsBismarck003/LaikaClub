@@ -355,10 +355,13 @@ export const CartProvider = ({ children }) => {
 
         addToCart(
             {
-                id: `merch_${product.id}`,
+                id: `merch_${product.id}_${variant?.id || 'default'}`,
                 name: `${product.name}${label}`,
                 price: parseFloat(variant?.price || product.price || 0),
-                image: product.image_url || product.image
+                image: product.image_url || product.image,
+                variantId: variant?.id,
+                merchId: product.id,
+                isMerch: true
             },
             quantity,
             null,

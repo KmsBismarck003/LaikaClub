@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { ticketAPI } from '../../services/api'
+import { merchService } from '../../services/merch.service'
+import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import Icon from '../../components/Icons/Icons'
 import { PermissionWall } from '../../components'
@@ -48,10 +50,14 @@ function groupByMonth(tickets) {
 }
 
 export default function UserHistory() {
+  const { user } = useAuth()
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter,  setFilter]  = useState('todos')
   const [visible, setVisible] = useState(5)
+  const [activeTab, setActiveTab] = useState('tickets')
+  const [merchOrders, setMerchOrders] = useState([])
+  const [loadingMerch, setLoadingMerch] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -64,6 +70,25 @@ export default function UserHistory() {
       } finally { setLoading(false) }
     })()
   }, [])
+
+  useEffect(() => {
+    if (activeTab === 'merch') {
+      setLoadingMerch(true)
+      const fetchOrders = async () => {
+        try {
+          const userId = user?.id || 1
+          const orders = await merchService.getOrdersByUser(userId)
+          setMerchOrders(Array.isArray(orders) ? orders : [])
+        } catch (e) {
+          console.error("Error fetching merch orders:", e)
+          setMerchOrders([])
+        } finally {
+          setLoadingMerch(false)
+        }
+      }
+      fetchOrders()
+    }
+  }, [activeTab, user])
 
   const filtered       = filter === 'todos' ? tickets : tickets.filter(t => t.status === filter)
   const visibleList    = filtered.slice(0, visible)
@@ -87,7 +112,7 @@ export default function UserHistory() {
       {/* ── HEADER + 3 STAT PILLS ───────────────────────────────── */}
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'1rem' }}>
         <span style={{ fontSize:'.65rem', fontWeight:900, textTransform:'uppercase', letterSpacing:'4px', color:'#555' }}>
-          HISTORIAL
+          HISTORIAL DE COMPRAS
         </span>
 
         <div style={{ display:'flex', gap:'.6rem', flexWrap:'wrap' }}>
@@ -118,21 +143,199 @@ export default function UserHistory() {
         </div>
       </div>
 
-      {/* ── FILTER CHIPS ────────────────────────────────────────── */}
-      <div style={{ display:'flex', gap:'.45rem', flexWrap:'wrap' }}>
-        {FILTERS.map(f => (
-          <button key={f.id} onClick={() => { setFilter(f.id); setVisible(5) }} style={{
-            background: filter === f.id ? '#fff'                      : 'transparent',
-            color:      filter === f.id ? '#000'                      : '#555',
-            border:     filter === f.id ? '1px solid #fff'            : '1px solid #222',
-            padding:'.38rem .9rem', borderRadius:'99px',
-            fontSize:'.6rem', fontWeight:900, textTransform:'uppercase',
-            letterSpacing:'1.5px', cursor:'pointer', transition:'all .15s'
-          }}>
-            {f.label}
-          </button>
-        ))}
+      {/* ── SELECTOR DE SECCIÓN: BOLETOS / MERCANCÍA ── */}
+      <div style={{ display:'flex', gap:'.75rem', borderBottom:'1px solid #1e1e1e', paddingBottom:'.75rem' }}>
+        <button
+          onClick={() => setActiveTab('tickets')}
+          style={{
+            background: activeTab === 'tickets' ? 'rgba(255,255,255,0.08)' : 'transparent',
+            color: activeTab === 'tickets' ? '#fff' : '#666',
+            border: activeTab === 'tickets' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+            padding: '.55rem 1.25rem',
+            borderRadius: '10px',
+            fontSize: '.72rem',
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '.5rem',
+            transition: 'all .15s'
+          }}
+        >
+          <Icon name="ticket" size={14} /> Boletos de Eventos
+        </button>
+        <button
+          onClick={() => setActiveTab('merch')}
+          style={{
+            background: activeTab === 'merch' ? 'rgba(255,255,255,0.08)' : 'transparent',
+            color: activeTab === 'merch' ? '#fff' : '#666',
+            border: activeTab === 'merch' ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent',
+            padding: '.55rem 1.25rem',
+            borderRadius: '10px',
+            fontSize: '.72rem',
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '.5rem',
+            transition: 'all .15s'
+          }}
+        >
+          <Icon name="shoppingBag" size={14} /> Pedidos Laika Shop
+        </button>
       </div>
+
+      {/* ── VISTA DE PEDIDOS DE MERCANCÍA ── */}
+      {activeTab === 'merch' && (
+        <div>
+          {loadingMerch ? (
+            <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
+              {[1,2,3].map(i => (
+                <div key={i} style={{ height:'90px', borderRadius:'14px', background:'rgba(255,255,255,.04)' }} />
+              ))}
+            </div>
+          ) : merchOrders.length === 0 ? (
+            <div style={{
+              textAlign:'center', padding:'4rem 2rem',
+              background:'#0d0d0d', border:'1px dashed #1a1a1a', borderRadius:'20px'
+            }}>
+              <Icon name="shoppingBag" size={44} style={{ opacity:.15, display:'block', margin:'0 auto 1rem' }} />
+              <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: 800, margin: '0 0 .4rem' }}>
+                No tienes pedidos de mercancía registrados
+              </h3>
+              <p style={{ margin:'0 0 1.5rem', fontSize:'.78rem', color:'#666' }}>
+                Explora el catálogo oficial de mercancía de tus eventos y artistas favoritos en Laika Shop.
+              </p>
+              <button
+                onClick={() => navigate('/shop')}
+                style={{
+                  background:'#fff', color:'#000', border:'none',
+                  padding:'.65rem 1.75rem', borderRadius:'99px',
+                  fontSize:'.65rem', fontWeight:900, textTransform:'uppercase',
+                  letterSpacing:'2px', cursor:'pointer', transition: 'opacity .15s'
+                }}
+                onMouseOver={e => e.currentTarget.style.opacity = '0.9'}
+                onMouseOut={e => e.currentTarget.style.opacity = '1'}
+              >
+                Explorar Laika Shop
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {merchOrders.map((ord) => {
+                const dateStr = ord.createdAt
+                  ? new Date(ord.createdAt).toLocaleDateString('es-MX', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })
+                  : 'Fecha desconocida';
+
+                const isCompleted = ord.status === 'completed';
+                const statusLabel = isCompleted ? 'CONFIRMADO' : (ord.status || 'PENDIENTE').toUpperCase();
+                const statusColor = isCompleted ? '#16a34a' : '#2563eb';
+
+                return (
+                  <div
+                    key={ord.id}
+                    style={{
+                      background: '#111',
+                      border: '1px solid #1e1e1e',
+                      borderLeft: `3px solid ${statusColor}`,
+                      borderRadius: '14px',
+                      padding: '1.25rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.8rem',
+                      transition: 'border-color .15s'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '.5rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
+                        <span style={{ fontSize: '.85rem', fontWeight: 900, color: '#fff' }}>
+                          Pedido #{ord.id}
+                        </span>
+                        <span style={{ fontSize: '.68rem', color: '#666' }}>
+                          {dateStr}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
+                        <span style={{ fontSize: '1rem', fontWeight: 900, color: '#fff' }}>
+                          ${(parseFloat(ord.totalAmount) || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+                        </span>
+                        <span
+                          style={{
+                            fontSize: '.54rem',
+                            fontWeight: 900,
+                            letterSpacing: '1.5px',
+                            color: statusColor,
+                            background: `${statusColor}18`,
+                            border: `1px solid ${statusColor}40`,
+                            padding: '.22rem .7rem',
+                            borderRadius: '99px'
+                          }}
+                        >
+                          {statusLabel}
+                        </span>
+                      </div>
+                    </div>
+
+                    {ord.items && ord.items.length > 0 && (
+                      <div style={{ borderTop: '1px solid #1a1a1a', paddingTop: '.6rem', display: 'flex', flexDirection: 'column', gap: '.35rem' }}>
+                        <span style={{ fontSize: '.58rem', fontWeight: 800, color: '#555', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                          Artículos del pedido:
+                        </span>
+                        {ord.items.map((it, idx) => (
+                          <div key={it.id || idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.72rem', color: '#ccc' }}>
+                            <span>
+                              {it.quantity}x Variante #{it.variantId}
+                            </span>
+                            <span style={{ fontWeight: 700, color: '#fff' }}>
+                              ${((parseFloat(it.unitPrice) || 0) * (it.quantity || 1)).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '.62rem', color: '#555', borderTop: '1px solid #1a1a1a', paddingTop: '.5rem' }}>
+                      <span>Método de pago: <strong>{(ord.paymentMethod || 'Tarjeta').toUpperCase()}</strong></span>
+                      {ord.idempotencyKey && (
+                        <span style={{ fontSize: '.55rem', opacity: .6 }}>Ref: {ord.idempotencyKey.slice(0, 16)}...</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── VISTA DE BOLETOS DE EVENTOS (ORIGINAL) ── */}
+      {activeTab === 'tickets' && (
+        <>
+          {/* ── FILTER CHIPS ────────────────────────────────────────── */}
+          <div style={{ display:'flex', gap:'.45rem', flexWrap:'wrap' }}>
+            {FILTERS.map(f => (
+              <button key={f.id} onClick={() => { setFilter(f.id); setVisible(5) }} style={{
+                background: filter === f.id ? '#fff'                      : 'transparent',
+                color:      filter === f.id ? '#000'                      : '#555',
+                border:     filter === f.id ? '1px solid #fff'            : '1px solid #222',
+                padding:'.38rem .9rem', borderRadius:'99px',
+                fontSize:'.6rem', fontWeight:900, textTransform:'uppercase',
+                letterSpacing:'1.5px', cursor:'pointer', transition:'all .15s'
+              }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
 
       {/* ── TIMELINE ────────────────────────────────────────────── */}
       {filtered.length === 0 ? (

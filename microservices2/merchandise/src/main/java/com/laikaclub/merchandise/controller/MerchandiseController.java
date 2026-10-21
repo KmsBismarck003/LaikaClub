@@ -177,6 +177,21 @@ public class MerchandiseController {
         return mapToOrderResponse(o);
     }
 
+    @GetMapping("/orders/user/{userId}")
+    public List<OrderResponse> getOrdersByUser(@PathVariable("userId") Long userId) {
+        List<MerchandiseOrder> orders = service.getOrdersByUser(userId);
+        return orders.stream().map(this::mapToOrderResponse).toList();
+    }
+
+    @GetMapping("/orders/my-orders")
+    public List<OrderResponse> getMyOrders(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestHeader(value = "X-User-Id", required = false) String xUserId) {
+        Long userId = getCurrentUserId(principal, xUserId);
+        List<MerchandiseOrder> orders = service.getOrdersByUser(userId);
+        return orders.stream().map(this::mapToOrderResponse).toList();
+    }
+
     @PostMapping("/reviews/")
     public MerchandiseReviewResponse createReview(
             @RequestBody MerchandiseReviewCreate review,
@@ -292,7 +307,23 @@ public class MerchandiseController {
         res.setUserId(o.getUserId());
         res.setTotalAmount(o.getTotalAmount());
         res.setStatus(o.getStatus());
+        res.setPaymentMethod(o.getPaymentMethod());
+        res.setIdempotencyKey(o.getIdempotencyKey());
         res.setCreatedAt(o.getCreatedAt());
+
+        if (o.getItems() != null) {
+            List<OrderItemResponse> itemResponses = new ArrayList<>();
+            for (MerchandiseOrderItem item : o.getItems()) {
+                OrderItemResponse itemResp = new OrderItemResponse();
+                itemResp.setId(item.getId());
+                itemResp.setVariantId(item.getVariantId());
+                itemResp.setQuantity(item.getQuantity());
+                itemResp.setUnitPrice(item.getUnitPrice());
+                itemResponses.add(itemResp);
+            }
+            res.setItems(itemResponses);
+        }
+
         return res;
     }
 }

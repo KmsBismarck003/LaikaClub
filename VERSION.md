@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.5.0] - 2026-10-21
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- Integración completa del ciclo de vida de mercancía oficial (Gestor -> Admin -> Laika Shop -> Event Detail).
+- **Backend Merchandise (`microservices2/merchandise`):**
+  - Implementación de endpoints de consulta de pedidos por usuario (`/orders/user/{userId}` y `/orders/my-orders`).
+  - Enriquecimiento de DTOs (`OrderResponse`, `OrderItemResponse`) con soporte bivalente de nombres (camelCase y snake_case) para pasarelas y frontend.
+  - Soporte de idempotencia y bloqueo pesimista en concurrencia verificado.
+  - Ajuste en `SecurityConfig` para permitir consulta pública de estados de pedidos.
+- **Frontend Laika Shop & Detalle de Evento:**
+  - Enrutamiento y filtrado estricto en `Shop.jsx` para mostrar exclusivamente mercancía aprobada (`admin_status='approved'`).
+  - Búsqueda expandida en catálogo por nombre de evento, artista, categoría y tags.
+  - Visualización de mercancía oficial relacionada en la vista de detalle de evento (`EventMerchSection`).
+  - Estandarización de `variantId` y `merchId` en el contexto del carrito (`CartContext`) y en el hook transaccional (`useCheckoutFlow`).
+  - Incorporación de pestaña de "Pedidos Laika Shop" en el historial del usuario (`UserHistory.jsx`) para consulta de órdenes y estado de compras.
+- **Gestión y Roles:**
+  - Sincronización explícita de `admin_status: 'pending_review'` al crear mercancía desde los paneles de gestor.
+
 ## [1.4.0] - 2026-09-24
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>

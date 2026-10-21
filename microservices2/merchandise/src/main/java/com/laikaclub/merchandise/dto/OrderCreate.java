@@ -1,5 +1,6 @@
 package com.laikaclub.merchandise.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class OrderCreate {
@@ -8,7 +9,6 @@ public class OrderCreate {
     private String paymentMethod = "card";
     private String idempotencyKey;
 
-    // Getters and Setters
     public List<OrderItemCreate> getItems() {
         return items;
     }
@@ -25,6 +25,13 @@ public class OrderCreate {
         this.userId = userId;
     }
 
+    @JsonProperty("user_id")
+    public void setUserIdSnake(Long userId) {
+        if (userId != null) {
+            this.userId = userId;
+        }
+    }
+
     public String getPaymentMethod() {
         return paymentMethod;
     }
@@ -33,11 +40,25 @@ public class OrderCreate {
         this.paymentMethod = paymentMethod;
     }
 
+    @JsonProperty("payment_method")
+    public void setPaymentMethodSnake(String paymentMethod) {
+        if (paymentMethod != null) {
+            this.paymentMethod = paymentMethod;
+        }
+    }
+
     public String getIdempotencyKey() {
         return idempotencyKey;
     }
 
     public void setIdempotencyKey(String idempotencyKey) {
         this.idempotencyKey = idempotencyKey;
+    }
+
+    @JsonProperty("idempotency_key")
+    public void setIdempotencyKeySnake(String idempotencyKey) {
+        if (idempotencyKey != null) {
+            this.idempotencyKey = idempotencyKey;
+        }
     }
 }

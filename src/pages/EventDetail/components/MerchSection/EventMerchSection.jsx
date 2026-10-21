@@ -81,14 +81,18 @@ export default function EventMerchSection({
   const success = (typeof propSuccess === 'function') ? propSuccess : hookSuccess;
 
   useEffect(() => {
-    if (event?.id && event?.merch_enabled) {
-      merchService.getAllMerchandise(null, 'published', event.id, 'approved')
-        .then(data => setMerchItems(data || []))
-        .catch(console.error);
+    if (event?.id) {
+      const isMerchActive = event.merch_enabled === true || event.merch_enabled === 1 || event.merch_enabled === 'true' || event.merch_enabled === '1';
+      if (isMerchActive) {
+        merchService.getAllMerchandise(null, 'published', event.id, 'approved')
+          .then(data => setMerchItems(data || []))
+          .catch(console.error);
+      }
     }
   }, [event]);
 
-  if (!event?.merch_enabled || merchItems.length === 0) return null;
+  const isMerchActive = event?.merch_enabled === true || event?.merch_enabled === 1 || event?.merch_enabled === 'true' || event?.merch_enabled === '1';
+  if (!isMerchActive || merchItems.length === 0) return null;
 
   return (
     <>
@@ -294,8 +298,10 @@ export default function EventMerchSection({
                     
                     addToCart(
                       {
-                        id: `merch_${activeVariant?.id || selectedMerchItem.id}`,
+                        id: `merch_${selectedMerchItem.id}_${activeVariant?.id || 'default'}`,
                         variant_id: activeVariant?.id,
+                        variantId: activeVariant?.id,
+                        merchId: selectedMerchItem.id,
                         name: nameLabel,
                         price: activePrice,
                         image: selectedMerchItem.image_url,

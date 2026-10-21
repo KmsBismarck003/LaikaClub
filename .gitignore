@@ -62,3 +62,6 @@ scratch_curl.json
 
 **/target/
 
+
+microservices2/merchandise/target/
+**/target/

@@ -105,6 +105,36 @@ export const merchService = {
     }
   },
 
+  getOrderById: async (orderId) => {
+    try {
+      const response = await api.get(`${MERCH_URL}/orders/${orderId}`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching merch order:', error);
+      throw error;
+    }
+  },
+
+  getOrdersByUser: async (userId) => {
+    try {
+      const response = await api.get(`${MERCH_URL}/orders/user/${userId}`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching user merch orders:', error);
+      throw error;
+    }
+  },
+
+  getMyOrders: async () => {
+    try {
+      const response = await api.get(`${MERCH_URL}/orders/my-orders`);
+      return response;
+    } catch (error) {
+      console.error('Error fetching my merch orders:', error);
+      throw error;
+    }
+  },
+
   // --- Reviews ---
   createReview: async (reviewData) => {
     try {

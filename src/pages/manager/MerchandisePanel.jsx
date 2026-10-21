@@ -94,6 +94,8 @@ const MerchandisePanel = ({ eventId, event }) => {
                 image_url: formData.image_url,
                 category: formData.category,
                 event_id: parseInt(eventId),
+                admin_status: 'pending_review',
+                status: 'draft',
                 variants: [
                     {
                         ...(formData.variant_id ? { id: formData.variant_id } : {}),
