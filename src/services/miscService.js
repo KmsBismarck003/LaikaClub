@@ -176,7 +176,14 @@ export const analyticsAPI = {
         return response.data;
     },
     getUserRecommendations: async (userId, limit = 5) => {
-        const response = await axios.get(`${BIGDATA_URL}/ml/recommendations/${userId}`, { params: { limit } });
-        return response.data;
+        try {
+            const response = await axios.get(`${BIGDATA_URL}/ml/recommendations/${userId}`, { 
+                params: { limit },
+                timeout: 2500 
+            });
+            return response.data || { recommendations: [] };
+        } catch (e) {
+            return { recommendations: [] };
+        }
     }
 }

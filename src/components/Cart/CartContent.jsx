@@ -28,8 +28,56 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
     const [upsellMerch, setUpsellMerch] = useState([]);
     const [showUpsellModal, setShowUpsellModal] = useState(false);
 
+    // Dynamic stock availability verification
+    const [availabilityMap, setAvailabilityMap] = useState({});
+
     const ticketItems = cart.filter(item => item.sectionId !== 'MERCH');
     const merchItems = cart.filter(item => item.sectionId === 'MERCH');
+
+    // Verificar en tiempo real la disponibilidad de productos en el carrito
+    useEffect(() => {
+        const merchInCart = cart.filter(item => item.sectionId === 'MERCH' || item.type === 'merch' || item.isMerch);
+        if (merchInCart.length > 0) {
+            const checkStock = async () => {
+                const map = {};
+                for (const item of merchInCart) {
+                    let vId = item.variantId;
+                    let pId = item.merchId;
+                    if (!vId && item.eventId && item.eventId.toString().startsWith('merch_')) {
+                        const parts = item.eventId.toString().split('_');
+                        if (parts.length >= 3 && !isNaN(parseInt(parts[2], 10))) vId = parseInt(parts[2], 10);
+                        if (!pId && parts.length >= 2 && !isNaN(parseInt(parts[1], 10))) pId = parseInt(parts[1], 10);
+                    }
+                    if (!vId && item.id && item.id.toString().startsWith('merch_')) {
+                        const parts = item.id.toString().split('_');
+                        if (parts.length >= 3 && !isNaN(parseInt(parts[2], 10))) vId = parseInt(parts[2], 10);
+                        if (!pId && parts.length >= 2 && !isNaN(parseInt(parts[1], 10))) pId = parseInt(parts[1], 10);
+                    }
+                    const itemKey = `${item.eventId}-${item.sectionId}-${item.id || ''}`;
+                    if (pId) {
+                        try {
+                            const prod = await merchService.getMerchandiseById(pId);
+                            if (!prod || prod.status === 'archived' || prod.status === 'draft') {
+                                map[itemKey] = false;
+                            } else if (vId && prod.variants && prod.variants.length > 0) {
+                                const variant = prod.variants.find(v => v.id === vId);
+                                map[itemKey] = Boolean(variant && variant.stock > 0 && variant.isActive !== false);
+                            } else {
+                                map[itemKey] = Boolean(prod.stock === undefined || prod.stock > 0);
+                            }
+                        } catch (e) {
+                            // En caso de que no exista el producto en BD
+                            map[itemKey] = item.isAvailable !== false && (item.stock === undefined || item.stock > 0);
+                        }
+                    } else {
+                        map[itemKey] = item.isAvailable !== false && (item.stock === undefined || item.stock > 0);
+                    }
+                }
+                setAvailabilityMap(map);
+            };
+            checkStock();
+        }
+    }, [cart]);
 
     useEffect(() => {
         const ticketEventIds = [...new Set(ticketItems.map(item => item.eventId))].filter(Boolean);
@@ -47,13 +95,24 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
         }
     }, [cart]);
 
+    const checkItemAvailability = (item) => {
+        const itemKey = `${item.eventId}-${item.sectionId}-${item.id || ''}`;
+        if (availabilityMap[itemKey] !== undefined) {
+            return availabilityMap[itemKey];
+        }
+        return item.isAvailable !== false && (item.stock === undefined || item.stock > 0);
+    };
+
+    const hasUnavailableItems = cart.some(item => !checkItemAvailability(item));
+
     const renderItem = (item) => {
         const nameMatch = item.eventName?.match(/^(.+?)\s*\((.+)\)$/);
         const displayName = nameMatch ? nameMatch[1] : (item.eventName || item.name || '');
         const displayVariant = nameMatch ? nameMatch[2] : null;
+        const isAvailable = checkItemAvailability(item);
 
         return (
-            <div key={`${item.eventId}-${item.sectionId}-${item.id || ''}`} className="cart-item-ticket">
+            <div key={`${item.eventId}-${item.sectionId}-${item.id || ''}`} className={`cart-item-ticket ${!isAvailable ? 'cart-item-ticket--unavailable' : ''}`}>
                 <div className="ticket-left-media">
                     <img src={item.image || item.imageUrl || item.ticket_image_url} alt="" />
                 </div>
@@ -63,13 +122,21 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                     {displayVariant && <span style={{ fontSize:'.62rem', color:'#aaa', fontWeight:500 }}>{displayVariant}</span>}
                     {!displayVariant && item.sectionName && <span style={{ fontSize:'.65rem', color:'#EAB308', fontWeight: 700 }}>{item.sectionName}</span>}
                     {item.functionDate && <span style={{ fontSize:'.6rem', color:'#ccc' }}> {item.functionDate}</span>}
+
+                    {!isAvailable && (
+                        <div className="unavailable-warning-text">
+                            <Icon name="alertTriangle" size={12} />
+                            <span>ARTÍCULO AGOTADO / NO DISPONIBLE</span>
+                        </div>
+                    )}
                     
                     <div style={{ display:'flex', alignItems:'center', gap:'0', marginTop:'0.5rem', width:'fit-content', border:'1px solid rgba(255,255,255,0.2)', borderRadius: '4px' }}>
                         <button onClick={() => updateQuantity(item.eventId, item.quantity - 1, item.functionId, item.sectionId)}
                             style={{ width:'24px', height:'24px', background:'transparent', border:'none', color:'#fff', cursor:'pointer', fontSize:'.8rem', fontWeight:900 }}>−</button>
                         <span style={{ fontSize:'.75rem', color:'#fff', width:'24px', textAlign:'center', fontWeight:700 }}>{item.quantity}</span>
                         <button onClick={() => updateQuantity(item.eventId, item.quantity + 1, item.functionId, item.sectionId)}
-                            style={{ width:'24px', height:'24px', background:'transparent', border:'none', color:'#fff', cursor:'pointer', fontSize:'.8rem', fontWeight:900 }}>+</button>
+                            disabled={!isAvailable}
+                            style={{ width:'24px', height:'24px', background:'transparent', border:'none', color:!isAvailable ? '#666' : '#fff', cursor:!isAvailable ? 'not-allowed' : 'pointer', fontSize:'.8rem', fontWeight:900 }}>+</button>
                     </div>
                     <button onClick={() => removeFromCart(item.eventId, item.functionId, item.sectionId)}
                         style={{ background:'none', border:'none', color:'#f87171', cursor:'pointer', fontSize:'.6rem', fontWeight:700, textAlign:'left', padding:0, marginTop:'0.25rem', width:'fit-content', textDecoration:'underline', textTransform:'uppercase', letterSpacing:'1px' }}>
@@ -85,7 +152,9 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                     <span style={{ fontWeight:950, fontSize:'.85rem', color:'#fff' }}>
                         ${(item.price * item.quantity).toLocaleString('es-MX', {minimumFractionDigits:0})}
                     </span>
-                    <span className="status-badge-blue">ACTIVO</span>
+                    <span className={isAvailable ? 'status-badge-blue' : 'status-badge-red'}>
+                        {isAvailable ? 'ACTIVO' : 'AGOTADO'}
+                    </span>
                 </div>
             </div>
         );
@@ -93,6 +162,10 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
 
     const handleCheckout = () => {
         if (cart.length === 0) return;
+        if (hasUnavailableItems) {
+            error('Uno o más artículos en tu carrito ya no están disponibles. Por favor elimínalos para continuar con tu compra.');
+            return;
+        }
         if (upsellMerch.length > 0) {
             setShowUpsellModal(true);
         } else {
@@ -149,6 +222,16 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                 <div className="cart-items-section"
                     style={twoColumn ? { flex:1, overflowY:'auto', padding:'1.25rem 1.5rem', borderRight:'1px solid rgba(255,255,255,0.1)' } : {}}>
                     
+                    {hasUnavailableItems && (
+                        <div className="cart-warning-banner animate-fade-in">
+                            <Icon name="alertTriangle" size={18} style={{ flexShrink: 0, color: '#ef4444' }} />
+                            <div>
+                                <strong>Artículos no disponibles detectados:</strong>
+                                <p style={{ margin: '2px 0 0', opacity: 0.9 }}>Uno o más productos en tu carrito se han agotado o no tienen inventario. Elimínalos para habilitar el proceso de pago.</p>
+                            </div>
+                        </div>
+                    )}
+
                     {ticketItems.length > 0 && (
                         <div style={{ marginBottom: '2rem' }}>
                             <h3 className="section-small-title"
@@ -257,12 +340,24 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
 
                     <button
                         className="checkout-cta"
+                        disabled={hasUnavailableItems}
                         onClick={handleCheckout}
-                        style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'.5rem', width:'100%', background:'#fff', border:'none', color:'#000', padding:'1rem', fontSize:'.75rem', fontWeight:900, textTransform:'uppercase', letterSpacing:'3px', cursor:'pointer', transition: 'opacity 0.2s' }}
-                        onMouseOver={e => e.currentTarget.style.opacity = '0.8'}
-                        onMouseOut={e => e.currentTarget.style.opacity = '1'}
+                        style={{
+                            display:'flex', alignItems:'center', justifyContent:'center', gap:'.5rem',
+                            width:'100%',
+                            background: hasUnavailableItems ? '#27272a' : '#fff',
+                            border: hasUnavailableItems ? '1px solid #3f3f46' : 'none',
+                            color: hasUnavailableItems ? '#a1a1aa' : '#000',
+                            padding:'1rem', fontSize:'.75rem', fontWeight:900,
+                            textTransform:'uppercase', letterSpacing:'3px',
+                            cursor: hasUnavailableItems ? 'not-allowed' : 'pointer',
+                            opacity: hasUnavailableItems ? 0.75 : 1,
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseOver={e => { if (!hasUnavailableItems) e.currentTarget.style.opacity = '0.8'; }}
+                        onMouseOut={e => { if (!hasUnavailableItems) e.currentTarget.style.opacity = '1'; }}
                     >
-                        CONTINUAR AL PAGO
+                        {hasUnavailableItems ? 'ARTÍCULOS AGOTADOS EN CARRITO' : 'CONTINUAR AL PAGO'}
                     </button>
                 </div>
                 </div>{/* closes right column */}

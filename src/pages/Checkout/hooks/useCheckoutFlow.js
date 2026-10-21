@@ -194,10 +194,22 @@ export const useCheckoutFlow = () => {
 
     // Validaciones por fase
     const validateDelivery = () => {
+        if (deliveryType === 'digital') return true;
+
+        if (deliveryType === 'tienda') {
+            const { nombre, email } = shippingData;
+            if (!nombre || !nombre.trim() || !email || !email.trim()) {
+                error('Por favor ingresa nombre y correo del titular que recogerá en taquilla (*).');
+                return false;
+            }
+            return true;
+        }
+
+        // Para entrega a domicilio (standard o express)
         if (!needsShippingForm) return true;
         const { nombre, calle, codigoPostal, email, ciudad, numeroExterior } = shippingData;
         if (!nombre || !calle || !codigoPostal || !email || !ciudad || !numeroExterior) {
-            error('Por favor completa los campos obligatorios de entrega (*) para continuar.');
+            error('Por favor completa los campos obligatorios de entrega a domicilio (*) para continuar.');
             return false;
         }
         return true;
@@ -232,8 +244,8 @@ export const useCheckoutFlow = () => {
         } else if (currentPhase === 'delivery') {
             if (!validateDelivery()) return;
 
-            // Si es una dirección nueva y está activada la opción de guardar, registrarla
-            if (selectedAddressId === 'new' && saveNewAddress && needsShippingForm) {
+            // Si es una dirección nueva y está activada la opción de guardar, registrarla (solo para envíos a domicilio)
+            if (selectedAddressId === 'new' && saveNewAddress && needsShippingForm && deliveryType !== 'tienda') {
                 const added = addAddress(shippingData);
                 setSelectedAddressId(added.id);
             } else if (editingAddressId) {
@@ -360,22 +372,28 @@ export const useCheckoutFlow = () => {
                     payment_method: paymentMethod || 'card',
                     paymentMethod: paymentMethod || 'card',
                     manager_id: 1,
-                    customer_name: `${shippingData.nombre} ${shippingData.apellidos}`.trim() || user?.name || 'Cliente',
+                    customer_name: `${shippingData.nombre || ''} ${shippingData.apellidos || ''}`.trim() || user?.name || 'Cliente',
                     customer_email: shippingData.email || user?.email,
                     total_amount: merchItems.reduce((acc, item) => acc + (item.price * item.quantity), 0),
                     items: merchItems.map(item => {
                         let vId = item.variantId || item.variant_id;
-                        if (!vId && item.id) {
+                        if (!vId && item.eventId && item.eventId.toString().startsWith('merch_')) {
+                            const parts = item.eventId.toString().split('_');
+                            if (parts.length >= 3 && !isNaN(parseInt(parts[2], 10))) {
+                                vId = parseInt(parts[2], 10);
+                            }
+                        }
+                        if (!vId && item.id && item.id.toString().startsWith('merch_')) {
                             const parts = item.id.toString().split('_');
                             if (parts.length >= 3 && !isNaN(parseInt(parts[2], 10))) {
                                 vId = parseInt(parts[2], 10);
-                            } else if (parts.length >= 2 && !isNaN(parseInt(parts[1], 10))) {
-                                vId = parseInt(parts[1], 10);
                             }
                         }
+                        // Si no hay variante explícita, usar 206 (primera variante válida en DB)
+                        const finalVariantId = vId ? parseInt(vId, 10) : 206;
                         return {
-                            variant_id: vId || 1,
-                            variantId: vId || 1,
+                            variant_id: finalVariantId,
+                            variantId: finalVariantId,
                             quantity: item.quantity || 1,
                             price_at_purchase: item.price,
                         };

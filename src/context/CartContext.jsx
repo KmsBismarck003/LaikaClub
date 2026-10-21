@@ -317,19 +317,27 @@ export const CartProvider = ({ children }) => {
                 item.eventId === event.id && item.functionId === functionId && item.sectionId === sectionId
             );
 
+            const isMerchItem = Boolean(event.isMerch || event.id?.toString().startsWith('merch_') || sectionId === 'MERCH');
+
             // Determinar si devolvemos el mapping o creamos nuevo
             if (existingItem) {
-                info(`Se actualizó la cantidad de boletos para ${event.name}`);
+                info(`Se actualizó la cantidad de ${isMerchItem ? 'artículos' : 'boletos'} para ${event.name}`);
                 return prevCart.map(item =>
                     (item.eventId === event.id && item.functionId === functionId && item.sectionId === sectionId)
                         ? { ...item, quantity: item.quantity + quantity, seats: [...(item.seats || []), ...seats] }
                         : item
                 );
             } else {
-                success(`Boletos para ${event.name} agregados al carrito`);
+                success(`${isMerchItem ? 'Producto' : 'Boletos para'} ${event.name} agregado(s) al carrito`);
                 return [...prevCart, {
                     eventId: event.id,
-                    type: event.id.toString().startsWith('merch_') ? 'merch' : 'ticket',
+                    id: event.id,
+                    type: isMerchItem ? 'merch' : 'ticket',
+                    isMerch: isMerchItem,
+                    variantId: event.variantId,
+                    merchId: event.merchId,
+                    stock: event.stock,
+                    isAvailable: event.isAvailable ?? true,
                     functionId: functionId,
                     sectionId: sectionId,
                     eventName: event.name,
@@ -340,7 +348,7 @@ export const CartProvider = ({ children }) => {
                     price: sectionData ? parseFloat(sectionData.price) : parseFloat(event.price),
                     quantity,
                     seats: seats || [], // Store selected seats
-                    image: event.image_url || event.image
+                    image: event.image_url || event.image || event.imageUrl
                 }];
             }
         });
@@ -352,16 +360,19 @@ export const CartProvider = ({ children }) => {
         const sizeLabel = variant?.size ? ` | Talla ${variant.size}` : '';
         const colorLabel = variant?.color ? ` | Color ${variant.color}` : '';
         const label = `${sizeLabel}${colorLabel}`;
+        const isAvail = (variant?.isActive !== false) && (variant?.stock === undefined || variant?.stock > 0);
 
         addToCart(
             {
                 id: `merch_${product.id}_${variant?.id || 'default'}`,
                 name: `${product.name}${label}`,
                 price: parseFloat(variant?.price || product.price || 0),
-                image: product.image_url || product.image,
+                image: product.image_url || product.image || product.imageUrl,
                 variantId: variant?.id,
                 merchId: product.id,
-                isMerch: true
+                isMerch: true,
+                stock: variant?.stock ?? product.stock ?? 100,
+                isAvailable: isAvail
             },
             quantity,
             null,

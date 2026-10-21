@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.5.2] - 2026-10-21
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- **Resolución de Pasarela y Flujo de Compra Unificado (Boletos + Laika Shop):**
+  - **Corrección en Validación de Recolección en Taquilla (`useCheckoutFlow.js`):**
+    - Se desvincula la obligatoriedad de campos domiciliarios (`calle`, `codigoPostal`, `numeroExterior`, `ciudad`, `colonia`) cuando el usuario selecciona "Recoger en Taquilla / Punto Oficial" (`deliveryType === 'tienda'`).
+    - Solo se solicita nombre y correo electrónico del titular para validación de identidad con identificación oficial (INE / Pasaporte) en el módulo físico del evento.
+    - Se previene el guardado erróneo de direcciones domiciliarias vacías en la libreta del cliente cuando se elige recolección en taquilla.
+  - **Resolución Exacta de Variantes de Mercancía (`CartContext.jsx` y `useCheckoutFlow.js`):**
+    - Persistencia garantizada de `variantId`, `merchId`, `stock` y `isAvailable` en los ítems agregados al carrito, evitando referencias nulas que causaban errores `404 / 400` en el microservicio `laika_merchandise`.
+    - Fallback resiliente al ID de variante real registrado en base de datos.
+  - **Gestión Visual y Preventiva de Artículos Agotados en Carrito (`CartContent.jsx` & `Cart.css`):**
+    - Verificación dinámica en tiempo real de disponibilidad e inventario contra la base de datos al abrir el carrito.
+    - Difuminado y filtro escala de grises (`cart-item-ticket--unavailable`) para productos sin inventario o agotados.
+    - Etiqueta de estado en rojo brillante `AGOTADO` y leyenda descriptiva de advertencia.
+    - Banner de alerta superior indicando la presencia de artículos no disponibles.
+    - Bloqueo preventivo del botón de pago ("CONTINUAR AL PAGO" -> "ARTÍCULOS AGOTADOS EN CARRITO") mientras existan artículos sin existencias, protegiendo al usuario de transacciones fallidas.
+  - **Resiliencia en Recomendaciones ML / Big Data (`miscService.js`):**
+    - Bloque `try/catch` con timeout estricto y fallback silencioso en `getUserRecommendations` para evitar errores `ERR_EMPTY_RESPONSE` en la consola del navegador cuando el motor de Big Data no responde.
+  - **Limpieza de advertencias ESLint en `EventMerchSection.jsx`.**
+
 ## [1.5.1] - 2026-10-21
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>

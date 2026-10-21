@@ -6,7 +6,7 @@ import { useNotification } from "../../../../context/NotificationContext";
 import { getImageUrl } from "../../../../utils/imageUtils";
 
 export const MerchProductCard = ({ item, onSelect }) => {
-  const [cardColorIdx, setCardColorIdx] = React.useState(0);
+  const [cardColorIdx] = React.useState(0);
   const [isFavorite, setIsFavorite] = React.useState(false);
   
   // Adapt to real schema: supports imageUrl and image_url
@@ -202,7 +202,7 @@ export default function EventMerchSection({
                            cursor: 'pointer', background: '#000', padding: 0, transition: 'all 0.2s'
                         }}
                       >
-                         <img src={img} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: galleryIdx === idx ? 1 : 0.6 }} />
+                         <img src={img} alt="Vista previa de producto" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: galleryIdx === idx ? 1 : 0.6 }} />
                       </button>
                     ))}
                   </div>

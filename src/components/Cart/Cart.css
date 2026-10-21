@@ -524,3 +524,55 @@
 .cart-trigger-btn { color: #fff; }
 .coupon-trigger { color: #444; }
 .coupon-trigger:hover { color: #fff; }
+
+/* Out of stock & Unavailable items in Cart */
+.cart-item-ticket--unavailable {
+    opacity: 0.52;
+    filter: grayscale(80%);
+    border-color: rgba(239, 68, 68, 0.4) !important;
+    background: #0e0505 !important;
+    transition: all 0.3s ease;
+}
+
+.cart-item-ticket--unavailable:hover {
+    opacity: 0.8;
+}
+
+.status-badge-red {
+    background: #dc2626;
+    color: #fff;
+    font-size: 0.5rem;
+    font-weight: 950;
+    padding: 0.35rem 0.75rem;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+}
+
+.unavailable-warning-text {
+    font-size: 0.65rem;
+    color: #ef4444;
+    font-weight: 800;
+    margin-top: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cart-warning-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(220, 38, 38, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 10px;
+    padding: 0.85rem 1.15rem;
+    margin-bottom: 1.25rem;
+    color: #fca5a5;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
