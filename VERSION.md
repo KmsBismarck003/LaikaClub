@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.5.5] - 2026-10-21
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- **Resolución Integral de Error 500 / 400 BAD REQUEST en Compra de Boletos (`/api/tickets/purchase`):**
+  - **Causa Raíz:** El microservicio de tickets lanzaba `ResponseStatusException: 400 BAD_REQUEST "Debe especificar una función para el evento"` cuando los artículos del carrito no enviaban `functionId` (por ejemplo, al añadir boletos rápidamente desde la ficha del evento sin interactuar con el selector de funciones, o al comprar directamente).
+  - **Estrategia Defensiva Multi-Capa:**
+    - **Capa 1 - UI & Hook de Compra (`useTicketEngine.js`):** Se definió `effectiveFunction = selectedFunction || (event?.functions?.length > 0 ? event.functions[0] : null)` tanto para añadir al carrito como para compra directa instantánea.
+    - **Capa 2 - Carrito Persistente (`CartContext.jsx`):** En `addToCart`, si `functionData` no viene definido, se resuelve automáticamente la primera función del evento para que ningún artículo de boleto se almacene en memoria o localStorage con `functionId` nulo.
+    - **Capa 3 - Checkout Flow (`useCheckoutFlow.js`):** Antes de enviar el payload a `ticketAPI.purchase`, si algún boleto en el carrito no cuenta con `functionId`, se consulta el evento en tiempo real vía `eventAPI.getById(item.eventId)` y se asigna la función activa.
+    - **Capa 4 - Backend Microservicio Tickets (`TicketService.java`):** Si `fid == null` y el evento tiene funciones asociadas, el microservicio asigna por defecto la primera función registrada en lugar de arrojar excepción 400/500.
+
+- **Estabilización de Recomendaciones Big Data y Eliminación de `net::ERR_EMPTY_RESPONSE`:**
+  - **Corrección de Puerto Arquitectónico (`microservices/analytics_bigdata/Dockerfile`):** Se unificó el puerto del microservicio PySpark/Uvicorn a `8303` (estándar para el bloque analítico 83xx) corrigiendo el desajuste con el mapeo `8303:8303` en `docker-compose.yml`.
+  - **Manejo Amigable de Cold Start (`main.py` y `recommendations.py`):** Cuando un usuario recién registrado o sin compras previas consulta recomendaciones (`/api/analytics/ml/recommendations/{user_id}`), el motor retorna limpiamente `{"status": "cold_start", "recommendations": []}` con código `200 OK` en lugar de abortar con un error 500.
+  - **Resiliencia en Frontend (`miscService.js`):** Validación previa de existencia de `userId` antes de invocar el endpoint ML.
+
 ## [1.5.4] - 2026-10-21
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>

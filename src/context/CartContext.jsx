@@ -292,7 +292,11 @@ export const CartProvider = ({ children }) => {
     }, [appliedCoupon, total]);
 
     const addToCart = async (event, quantity = 1, functionData = null, sectionData = null, seats = []) => {
-        const functionId = functionData ? functionData.id : null;
+        let resolvedFunc = functionData;
+        if (!resolvedFunc && event?.functions?.length > 0) {
+            resolvedFunc = event.functions[0];
+        }
+        const functionId = resolvedFunc ? resolvedFunc.id : null;
         const sectionId = sectionData ? sectionData.id : null;
         const price = sectionData ? parseFloat(sectionData.price) : parseFloat(event.price || 0);
         

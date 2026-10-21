@@ -198,11 +198,18 @@ public class TicketService {
                 
                 if (functions != null && !functions.isEmpty()) {
                     if (fid == null) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debe especificar una función para el evento");
+                        Number firstFid = (Number) functions.get(0).get("id");
+                        if (firstFid != null) {
+                            fid = firstFid.longValue();
+                            item.setFunctionId(fid);
+                        } else {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debe especificar una función para el evento");
+                        }
                     }
+                    final Long finalFid = fid;
                     boolean isValidFunction = functions.stream().anyMatch(f -> {
                         Number fIdNum = (Number) f.get("id");
-                        return fIdNum != null && fIdNum.longValue() == fid.longValue();
+                        return fIdNum != null && fIdNum.longValue() == finalFid.longValue();
                     });
                     if (!isValidFunction) {
                         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La función seleccionada ya ha concluido o no está disponible para compra");

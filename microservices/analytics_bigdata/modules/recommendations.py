@@ -131,7 +131,7 @@ class RecommendationsModule:
             user_segment = db["user_segments"].find_one({"user_id": int(user_id)})
             
             if not user_segment:
-                return {"status": "error", "message": "Usuario sin historial. Usa recomendaciones generales (Trending)."}
+                return {"status": "cold_start", "recommendations": []}
                 
             cluster_id = user_segment.get("cluster")
             

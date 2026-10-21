@@ -111,8 +111,10 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
       return;
     }
 
+    const effectiveFunction = selectedFunction || (event?.functions?.length > 0 ? event.functions[0] : null);
+
     // Call addToCart with correct signature: addToCart(event, quantity, functionData, sectionData, seats)
-    addToCart(event, qty, selectedFunction, selectedSection, selectedSeats);
+    addToCart(event, qty, effectiveFunction, selectedSection, selectedSeats);
     setSelectedSeats([]);
   }, [event, selectedSection, quantity, selectedSeats, selectedFunction, addToCart, error, sortedSections]);
 
@@ -128,15 +130,19 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
       return;
     }
 
+    const effectiveFunction = selectedFunction || (event?.functions?.length > 0 ? event.functions[0] : null);
+
     setDirectTicketData({
       event: event,
       section: selectedSection,
+      functionData: effectiveFunction,
+      functionId: effectiveFunction?.id,
       seats: selectedSeats,
       quantity: qty,
       total: cleanPrice(selectedSection?.price || event?.price) * qty
     });
     setShowDirectPayment(true);
-  }, [event, selectedSection, selectedSeats, quantity, sortedSections, error]);
+  }, [event, selectedSection, selectedSeats, quantity, selectedFunction, sortedSections, error]);
 
   return {
     selectedFunction,

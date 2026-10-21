@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Exponemos el motor en el puerto 8009 para no chocar con Java (8007)
-EXPOSE 8009
+# Exponemos el motor en el puerto 8303 según convención de microservicios de analítica (83xx)
+EXPOSE 8303
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8009"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8303"]

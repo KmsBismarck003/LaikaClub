@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../../context/CartContext';
 import { useAuth } from '../../../context/AuthContext';
 import { useNotification } from '../../../context/NotificationContext';
-import { ticketAPI, paymentAPI } from '../../../services/api';
+import { ticketAPI, paymentAPI, eventAPI } from '../../../services/api';
 import { merchService } from '../../../services/merch.service';
 import { apiClient } from '../../../services/apiClient';
 
@@ -385,12 +385,24 @@ export const useCheckoutFlow = () => {
             if (ticketItems.length > 0) {
                 const purchaseItems = [];
                 for (const item of ticketItems) {
+                    let resolvedFunctionId = item.functionId;
+                    if (!resolvedFunctionId && item.eventId) {
+                        try {
+                            const eventData = await eventAPI.getById(item.eventId);
+                            if (eventData?.functions?.length > 0) {
+                                resolvedFunctionId = eventData.functions[0].id;
+                            }
+                        } catch (evErr) {
+                            console.warn('[Checkout Flow] No se pudo obtener funciones del evento:', item.eventId, evErr);
+                        }
+                    }
+
                     if (item.seats && item.seats.length > 0) {
                         for (const seat of item.seats) {
                             purchaseItems.push({
                                 eventId: item.eventId,
                                 quantity: 1,
-                                functionId: item.functionId,
+                                functionId: resolvedFunctionId,
                                 sectionId: item.sectionId,
                                 sectionName: item.sectionName,
                                 price: item.price,
@@ -402,7 +414,7 @@ export const useCheckoutFlow = () => {
                             purchaseItems.push({
                                 eventId: item.eventId,
                                 quantity: 1,
-                                functionId: item.functionId,
+                                functionId: resolvedFunctionId,
                                 sectionId: item.sectionId,
                                 sectionName: item.sectionName,
                                 price: item.price,

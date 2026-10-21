@@ -176,6 +176,7 @@ export const analyticsAPI = {
         return response.data;
     },
     getUserRecommendations: async (userId, limit = 5) => {
+        if (!userId) return { recommendations: [] };
         try {
             const response = await axios.get(`${BIGDATA_URL}/ml/recommendations/${userId}`, { 
                 params: { limit },

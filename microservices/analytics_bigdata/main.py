@@ -381,10 +381,10 @@ async def grant_user_retention_coupon(payload: dict):
 def get_user_recommendations(user_id: int, limit: int = 5):
     """Obtiene recomendaciones de eventos personalizadas para un usuario basadas en su clúster."""
     if not engine:
-        raise HTTPException(status_code=500, detail="Motor de analítica no inicializado")
+        return {"status": "cold_start", "recommendations": []}
     res = engine.get_user_recommendations(user_id=user_id, limit=limit)
-    if res.get("status") == "error":
-        raise HTTPException(status_code=500, detail=res.get("message"))
+    if res.get("status") in ["error", "cold_start", "insufficient_data"]:
+        return {"status": "cold_start", "recommendations": []}
     return res
 
 @app.post("/api/analytics/ml/recommend-target")
