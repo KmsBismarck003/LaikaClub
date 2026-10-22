@@ -6,33 +6,40 @@ import Icon from '../Icons/Icons';
 import TicketPrinterOverlay from '../../pages/user/UserCart/TicketPrinterOverlay';
 import { merchService } from '../../services/merch.service';
 import ConfirmDialog from '../Modals/ConfirmDialog/ConfirmDialog';
+import CartItemBento from './CartItemBento';
+import CartSummaryBento from './CartSummaryBento';
+import CartUpsellModal from './CartUpsellModal';
 import './Cart.css';
 
+/**
+ * CartContent - Orquestador principal del carrito de compras.
+ * Implementa arquitectura Bento Box responsiva, separación de capas y cero mocks.
+ */
 const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false }) => {
     const {
-        cart, total, removeFromCart, updateQuantity, clearCart,
-        serviceFee, serviceFeePercent, availableCoupons,
+        cart, total, removeFromCart, updateQuantity,
+        serviceFee, serviceFeePercent,
         appliedCoupon, discount, finalTotal,
-        applyCoupon, removeCoupon, consumeAppliedCoupon,
-        closeCart, addToCart
+        applyCoupon, removeCoupon,
+        closeCart, addToCart, cartCount
     } = useCart();
 
     const { success, error } = useNotification();
     const navigate = useNavigate();
-    const [showCouponSelector, setShowCouponSelector] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
 
-    // Animation overlay state
+    // Estado del overlay de impresión
     const [showPrinter, setShowPrinter] = useState(false);
-    const [printingData, setPrintingData] = useState(null);
-    
-    // Upsell state
+    const [printingData] = useState(null);
+
+    // Estado de venta adicional (Upsell)
     const [upsellMerch, setUpsellMerch] = useState([]);
     const [showUpsellModal, setShowUpsellModal] = useState(false);
 
-    // Dynamic stock availability verification
+    // Mapa de disponibilidad en tiempo real
     const [availabilityMap, setAvailabilityMap] = useState({});
 
+    // Separación modular de tipos de artículos
     const ticketItems = cart.filter(item => item.sectionId !== 'MERCH');
     const merchItems = cart.filter(item => item.sectionId === 'MERCH');
 
@@ -45,6 +52,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                 for (const item of merchInCart) {
                     let vId = item.variantId;
                     let pId = item.merchId;
+
                     if (!vId && item.eventId && item.eventId.toString().startsWith('merch_')) {
                         const parts = item.eventId.toString().split('_');
                         if (parts.length >= 3 && !isNaN(parseInt(parts[2], 10))) vId = parseInt(parts[2], 10);
@@ -55,6 +63,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                         if (parts.length >= 3 && !isNaN(parseInt(parts[2], 10))) vId = parseInt(parts[2], 10);
                         if (!pId && parts.length >= 2 && !isNaN(parseInt(parts[1], 10))) pId = parseInt(parts[1], 10);
                     }
+
                     const itemKey = `${item.eventId}-${item.sectionId}-${item.id || ''}`;
                     if (pId) {
                         try {
@@ -67,8 +76,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                             } else {
                                 map[itemKey] = Boolean(prod.stock === undefined || prod.stock > 0);
                             }
-                        } catch (e) {
-                            // En caso de que no exista el producto en BD
+                        } catch {
                             map[itemKey] = item.isAvailable !== false && (item.stock === undefined || item.stock > 0);
                         }
                     } else {
@@ -81,19 +89,18 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
         }
     }, [cart]);
 
+    // Cargar artículos recomendados para el upsell basados en los eventos seleccionados
     useEffect(() => {
         const ticketEventIds = [...new Set(ticketItems.map(item => item.eventId))].filter(Boolean);
         if (ticketEventIds.length > 0) {
-            Promise.all(ticketEventIds.map(id => 
+            Promise.all(ticketEventIds.map(id =>
                 merchService.getAllMerchandise(null, null, id, 'approved')
             )).then(results => {
                 const allMerch = results.flat().filter(Boolean);
                 const merchInCartIds = cart.filter(item => item.sectionId === 'MERCH').map(item => item.id);
                 const filteredUpsell = allMerch.filter(item => !merchInCartIds.includes(`merch_${item.id}`));
                 setUpsellMerch(filteredUpsell);
-            }).catch(err => console.error("Error fetching upsell merch:", err));
-        } else {
-            setUpsellMerch([]);
+            }).catch(err => console.error("Error al cargar merch de recomendación:", err));
         }
     }, [cart]);
 
@@ -106,61 +113,6 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
     };
 
     const hasUnavailableItems = cart.some(item => !checkItemAvailability(item));
-
-    const renderItem = (item) => {
-        const nameMatch = item.eventName?.match(/^(.+?)\s*\((.+)\)$/);
-        const displayName = nameMatch ? nameMatch[1] : (item.eventName || item.name || '');
-        const displayVariant = nameMatch ? nameMatch[2] : null;
-        const isAvailable = checkItemAvailability(item);
-
-        return (
-            <div key={`${item.eventId}-${item.sectionId}-${item.id || ''}`} className={`cart-item-ticket ${!isAvailable ? 'cart-item-ticket--unavailable' : ''}`}>
-                <div className="ticket-left-media">
-                    <img src={item.image || item.imageUrl || item.ticket_image_url} alt="" />
-                </div>
-                
-                <div className="ticket-center-info">
-                    <h4 className="ticket-title">{displayName}</h4>
-                    {displayVariant && <span style={{ fontSize:'.62rem', color:'#aaa', fontWeight:500 }}>{displayVariant}</span>}
-                    {!displayVariant && item.sectionName && <span style={{ fontSize:'.65rem', color:'#EAB308', fontWeight: 700 }}>{item.sectionName}</span>}
-                    {item.functionDate && <span style={{ fontSize:'.6rem', color:'#ccc' }}> {item.functionDate}</span>}
-
-                    {!isAvailable && (
-                        <div className="unavailable-warning-text">
-                            <Icon name="alertTriangle" size={12} />
-                            <span>ARTÍCULO AGOTADO / NO DISPONIBLE</span>
-                        </div>
-                    )}
-                    
-                    <div style={{ display:'flex', alignItems:'center', gap:'0', marginTop:'0.5rem', width:'fit-content', border:'1px solid rgba(255,255,255,0.2)', borderRadius: '4px' }}>
-                        <button onClick={() => updateQuantity(item.eventId, item.quantity - 1, item.functionId, item.sectionId)}
-                            style={{ width:'24px', height:'24px', background:'transparent', border:'none', color:'#fff', cursor:'pointer', fontSize:'.8rem', fontWeight:900 }}>−</button>
-                        <span style={{ fontSize:'.75rem', color:'#fff', width:'24px', textAlign:'center', fontWeight:700 }}>{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.eventId, item.quantity + 1, item.functionId, item.sectionId)}
-                            disabled={!isAvailable}
-                            style={{ width:'24px', height:'24px', background:'transparent', border:'none', color:!isAvailable ? '#666' : '#fff', cursor:!isAvailable ? 'not-allowed' : 'pointer', fontSize:'.8rem', fontWeight:900 }}>+</button>
-                    </div>
-                    <button onClick={() => setItemToDelete(item)}
-                        style={{ background:'none', border:'none', color:'#f87171', cursor:'pointer', fontSize:'.6rem', fontWeight:700, textAlign:'left', padding:0, marginTop:'0.25rem', width:'fit-content', textDecoration:'underline', textTransform:'uppercase', letterSpacing:'1px' }}>
-                        ELIMINAR
-                    </button>
-                </div>
-                
-                <div className="ticket-right-status">
-                    <div className="ticket-qr-icon">
-                        {/* Mock QR placeholder to make it look cinematic inside list */}
-                        <div style={{ width: '100%', height: '100%', background: 'repeating-linear-gradient(45deg, #000, #000 2px, #fff 2px, #fff 4px)' }}></div>
-                    </div>
-                    <span style={{ fontWeight:950, fontSize:'.85rem', color:'#fff' }}>
-                        ${(item.price * item.quantity).toLocaleString('es-MX', {minimumFractionDigits:0})}
-                    </span>
-                    <span className={isAvailable ? 'status-badge-blue' : 'status-badge-red'}>
-                        {isAvailable ? 'ACTIVO' : 'AGOTADO'}
-                    </span>
-                </div>
-            </div>
-        );
-    };
 
     const handleCheckout = () => {
         if (cart.length === 0) return;
@@ -187,29 +139,48 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
         if (onCheckoutComplete) onCheckoutComplete();
     };
 
+    const handleAddUpsell = (merchItem, price) => {
+        addToCart(
+            {
+                id: `merch_${merchItem.id}`,
+                name: merchItem.name,
+                price: price,
+                image: merchItem.image_url
+            },
+            1,
+            null,
+            { id: 'MERCH', name: `MERCH: ${merchItem.category || 'MERCANCÍA'}`, price: price }
+        );
+        setUpsellMerch(prev => prev.filter(u => u.id !== merchItem.id));
+        success(`${merchItem.name} agregado al carrito`);
+    };
+
+    // Estado cuando el carrito está completamente vacío
     if (cart.length === 0 && !showPrinter) {
         return (
-            <div className="cart-empty-state">
-                <div className="empty-icon-box">
-                    <Icon name="shoppingCart" size={42} className="opacity-20" />
+            <div className="cart-empty-bento">
+                <div className="empty-icon-halo">
+                    <Icon name="shoppingCart" size={40} className="empty-icon-svg" />
                 </div>
-                <h3 className="empty-title-elite">EL CARRITO ESTÁ VACÍO</h3>
-                <p className="empty-subtitle-elite">
-                    NO HAS SELECCIONADO NINGUNA EXPERIENCIA AÚN.
+                <h3 className="empty-bento-title">Tu carrito está vacío</h3>
+                <p className="empty-bento-desc">
+                    Aún no has agregado boletos ni mercancía a tu orden.
                 </p>
                 <button
+                    type="button"
                     onClick={() => { if (isModal && closeCart) closeCart(); navigate('/'); }}
-                    className="cart-empty-cta"
+                    className="empty-bento-cta"
                 >
-                    EXPLORAR CARTELERA
+                    <Icon name="ticket" size={16} />
+                    <span>Explorar Cartelera de Eventos</span>
                 </button>
             </div>
         );
     }
 
     return (
-        <>
-            {/* ── TICKET PRINTER OVERLAY — full screen ─────────────────── */}
+        <div className={`cart-bento-container ${isModal ? 'cart-bento--modal' : ''} ${twoColumn ? 'cart-bento--two-col' : ''}`}>
+            {/* Overlay de animación de boletos */}
             <TicketPrinterOverlay
                 isOpen={showPrinter}
                 ticketData={printingData}
@@ -217,258 +188,16 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                 onComplete={handlePrintingComplete}
             />
 
-            <div className={`cart-content-wrapper ${isModal ? 'is-modal' : ''} ${twoColumn ? 'two-col' : ''}`}
-                style={twoColumn ? { display:'flex', flexDirection:'row', width:'100%', overflow:'hidden', flex:1 } : {}}>
+            {/* Modal de recomendación de mercancía (Upsell) */}
+            <CartUpsellModal
+                isOpen={showUpsellModal}
+                items={upsellMerch}
+                onClose={() => setShowUpsellModal(false)}
+                onAddToCart={handleAddUpsell}
+                onProceed={proceedToCheckout}
+            />
 
-                {/* ── LEFT: Items ─────────────────────────────────────────── */}
-                <div className="cart-items-section"
-                    style={twoColumn ? { flex:1, overflowY:'auto', padding:'1.25rem 1.5rem', borderRight:'1px solid rgba(255,255,255,0.1)' } : {}}>
-                    
-                    {hasUnavailableItems && (
-                        <div className="cart-warning-banner animate-fade-in">
-                            <Icon name="alertTriangle" size={18} style={{ flexShrink: 0, color: '#ef4444' }} />
-                            <div>
-                                <strong>Artículos no disponibles detectados:</strong>
-                                <p style={{ margin: '2px 0 0', opacity: 0.9 }}>Uno o más productos en tu carrito se han agotado o no tienen inventario. Elimínalos para habilitar el proceso de pago.</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {ticketItems.length > 0 && (
-                        <div style={{ marginBottom: '2rem' }}>
-                            <h3 className="section-small-title"
-                                style={{ fontSize:'.55rem', fontWeight:950, textTransform:'uppercase', letterSpacing:'4px', color:'#3b82f6', marginBottom:'1.5rem', borderBottom:'1px solid rgba(59,130,246,0.3)', paddingBottom:'0.5rem' }}>
-                                <Icon name="ticket" size={12} style={{ marginRight: '8px' }} /> BOLETOS
-                            </h3>
-                            <div className="cart-items-list" style={{ background: 'transparent' }}>
-                                {ticketItems.map(renderItem)}
-                            </div>
-                        </div>
-                    )}
-
-                    {merchItems.length > 0 && (
-                        <div style={{ marginBottom: '1rem' }}>
-                            <h3 className="section-small-title"
-                                style={{ fontSize:'.55rem', fontWeight:950, textTransform:'uppercase', letterSpacing:'4px', color:'#fff', marginBottom:'1.5rem', borderBottom:'1px solid rgba(255,255,255,0.2)', paddingBottom:'0.5rem' }}>
-                                <Icon name="shoppingBag" size={12} style={{ marginRight: '8px' }} /> ARTÍCULOS / MERCH
-                            </h3>
-                            <div className="cart-items-list" style={{ background: 'transparent' }}>
-                                {merchItems.map(renderItem)}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* ── RIGHT: Summary ────────────────────────────── */}
-                <div style={twoColumn ? { width:'320px', flexShrink:0, overflowY:'auto',
-                    padding:'1.25rem 1.5rem', display:'flex', flexDirection:'column', gap:'1rem' } : {}}>
-
-                {/* ── Summary + Checkout ─────────────────────────────────── */}
-                <div className="cart-summary-section" style={{ background: 'transparent', padding: 0, borderTop: 'none' }}>
-                    {/* Free shipping banner */}
-                    {finalTotal < 1500 && (
-                        <div style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', padding:'0.75rem 1rem', marginBottom:'1rem', fontSize:'.65rem', color:'#ccc', fontWeight:600 }}>
-                            Agrega <strong style={{color:'#fff'}}>${(1500 - finalTotal).toLocaleString('es-MX', {minimumFractionDigits:2})}</strong> más para el <strong style={{color:'#fff'}}>ENVÍO GRATIS</strong>.
-                            <div style={{ height:'4px', background:'rgba(255,255,255,0.1)', marginTop:'0.5rem', borderRadius:'2px' }}>
-                                <div style={{ height:'100%', background:'#fff', width:`${Math.min(100, (finalTotal/1500)*100)}%`, borderRadius:'2px', transition:'width 0.3s' }} />
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Coupon */}
-                    {!appliedCoupon && (
-                        <div style={{ marginBottom:'1rem' }}>
-                            <div style={{ display:'flex', gap:'0' }}>
-                                <input
-                                    placeholder="Código promocional"
-                                    style={{ flex:1, background:'transparent', border:'1px solid rgba(255,255,255,0.2)', borderRight:'none', color:'#fff', padding:'0.6rem 0.8rem', fontSize:'.65rem', outline:'none' }}
-                                    onKeyDown={e => { if(e.key==='Enter' && e.target.value) applyCoupon(e.target.value); }}
-                                />
-                                <button
-                                    style={{ background:'transparent', border:'1px solid rgba(255,255,255,0.2)', color:'#ccc', padding:'0 1rem', fontSize:'.6rem', fontWeight:900, cursor:'pointer', textTransform:'uppercase', letterSpacing:'1px', transition: 'background 0.2s' }}
-                                    onClick={e => { const inp = e.target.previousSibling; if(inp?.value) applyCoupon(inp.value); }}
-                                    onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; }}
-                                    onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#ccc'; }}
-                                >
-                                    APLICAR
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                    {appliedCoupon && (
-                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'0.5rem 0.75rem', background:'rgba(34, 197, 94, 0.1)', border:'1px solid rgba(34, 197, 94, 0.3)', marginBottom:'1rem', fontSize:'.65rem' }}>
-                            <span style={{color:'#4ade80', fontWeight:700}}>✓ CUPÓN: {appliedCoupon}</span>
-                            <button onClick={removeCoupon} style={{ background:'none', border:'none', color:'#fff', cursor:'pointer', fontSize:'1rem' }}>×</button>
-                        </div>
-                    )}
-
-                    {/* Resumen de compra (Floating Glass Boxes 📦) */}
-                    <div style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '16px',
-                        padding: '1.25rem',
-                        marginBottom: '1rem',
-                        textAlign: 'center',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-                    }}>
-                        <span style={{ display: 'block', fontSize: '0.6rem', color: '#888', fontWeight: 800, letterSpacing: '2px' }}>TOTAL A PAGAR</span>
-                        <h2 style={{ fontSize: '2.4rem', fontWeight: 950, color: '#fff', margin: '0.25rem 0', letterSpacing: '-1px' }}>
-                            ${finalTotal.toLocaleString('es-MX', {minimumFractionDigits:2})}
-                        </h2>
-                        <span style={{ fontSize: '0.7rem', color: '#666', fontWeight: 900 }}>MXN</span>
-                    </div>
-
-                    <div style={{
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        border: '1px solid rgba(255, 255, 255, 0.06)',
-                        padding: '1rem',
-                        borderRadius: '12px',
-                        marginBottom: '1rem'
-                    }}>
-                        <h4 style={{ fontSize: '.6rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '2px', color: '#ccc', margin: '0 0 0.75rem' }}>RESUMEN</h4>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: '#eee', marginBottom: '0.4rem' }}>
-                            <span>Total parcial</span><span>${total.toLocaleString('es-MX', {minimumFractionDigits:2})}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: '#eee', marginBottom: '0.4rem' }}>
-                            <span>Caro por servicio ({serviceFeePercent}%)</span><span>+${serviceFee.toLocaleString('es-MX', {minimumFractionDigits:2})}</span>
-                        </div>
-                        {appliedCoupon && (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: '#4ade80', marginBottom: '0.4rem' }}>
-                                <span>Descuento</span><span>-${discount.toLocaleString('es-MX', {minimumFractionDigits:2})}</span>
-                            </div>
-                        )}
-                    </div>
-
-                    <button
-                        className="checkout-cta"
-                        disabled={hasUnavailableItems}
-                        onClick={handleCheckout}
-                        style={{
-                            display:'flex', alignItems:'center', justifyContent:'center', gap:'.5rem',
-                            width:'100%',
-                            background: hasUnavailableItems ? '#27272a' : '#fff',
-                            border: hasUnavailableItems ? '1px solid #3f3f46' : 'none',
-                            color: hasUnavailableItems ? '#a1a1aa' : '#000',
-                            padding:'1rem', fontSize:'.75rem', fontWeight:900,
-                            textTransform:'uppercase', letterSpacing:'3px',
-                            cursor: hasUnavailableItems ? 'not-allowed' : 'pointer',
-                            opacity: hasUnavailableItems ? 0.75 : 1,
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseOver={e => { if (!hasUnavailableItems) e.currentTarget.style.opacity = '0.8'; }}
-                        onMouseOut={e => { if (!hasUnavailableItems) e.currentTarget.style.opacity = '1'; }}
-                    >
-                        {hasUnavailableItems ? 'ARTÍCULOS AGOTADOS EN CARRITO' : 'CONTINUAR AL PAGO'}
-                    </button>
-                </div>
-                </div>{/* closes right column */}
-            </div>
-            
-            {/* UPSELL SOUVENIR MODAL */}
-            {showUpsellModal && (
-                <div style={{
-                    position: 'fixed', inset: 0, 
-                    background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-                    zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
-                }}>
-                    <div style={{
-                        background: 'linear-gradient(135deg, rgba(20,20,30,0.9) 0%, rgba(10,10,15,0.95) 100%)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        borderRadius: '24px', width: '640px', maxWidth: '95vw', maxHeight: '85vh',
-                        display: 'flex', flexDirection: 'column', overflow: 'hidden',
-                        boxShadow: '0 24px 80px rgba(0,0,0,0.8), 0 0 40px rgba(168,85,247,0.15)'
-                    }}>
-                        <div style={{ padding: '2rem 2rem 1.5rem', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                            <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}></span>
-                            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '2px', color: '#fff', margin: 0, background: 'linear-gradient(90deg, #c084fc, #db2777)', bgClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                                ¿TE GUSTARÍA UN RECUERDITO?
-                            </h2>
-                            <p style={{ fontSize: '0.75rem', color: '#aaa', marginTop: '0.5rem', lineHeight: '1.4' }}>
-                                Merchandising oficial y exclusivo disponible únicamente para asistentes. ¡Agrégalo a tu compra ahora!
-                            </p>
-                        </div>
-
-                        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {upsellMerch.map(item => {
-                                const price = item.variants?.[0]?.price || 0;
-                                return (
-                                    <div key={item.id} style={{
-                                        display: 'flex', alignItems: 'center', gap: '1rem',
-                                        background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)',
-                                        borderRadius: '16px', padding: '0.75rem', transition: 'all 0.2s'
-                                    }}>
-                                        <img src={item.image_url} alt="" style={{ width: '60px', height: '60px', borderRadius: '12px', objectFit: 'cover' }} />
-                                        <div style={{ flex: 1, textAlign: 'left' }}>
-                                            <span style={{ fontSize: '0.55rem', color: '#a855f7', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                                {item.category || 'MERCANCÍA'}
-                                            </span>
-                                            <h4 style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', margin: '0.1rem 0 0.2rem' }}>{item.name}</h4>
-                                            <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#f3e8ff' }}>${parseFloat(price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
-                                        </div>
-                                        <button 
-                                            onClick={() => {
-                                                addToCart(
-                                                    {
-                                                        id: `merch_${item.id}`,
-                                                        name: item.name,
-                                                        price: price,
-                                                        image: item.image_url
-                                                    },
-                                                    1,
-                                                    null,
-                                                    { id: 'MERCH', name: `MERCH: ${item.category || 'MERCANCÍA'}`, price: price }
-                                                );
-                                                // Remove this item from upsell list since it's already in the cart
-                                                setUpsellMerch(prev => prev.filter(u => u.id !== item.id));
-                                                success(`¡${item.name} agregado al carrito!`);
-                                            }}
-                                            style={{
-                                                background: 'linear-gradient(90deg, #a855f7, #ec4899)', border: 'none',
-                                                color: '#fff', fontSize: '0.65rem', fontWeight: 900, padding: '0.6rem 1rem',
-                                                borderRadius: '8px', cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase'
-                                            }}
-                                        >
-                                            + AGREGAR
-                                        </button>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        <div style={{ padding: '1.5rem 2rem', display: 'flex', gap: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
-                            <button 
-                                onClick={proceedToCheckout}
-                                style={{
-                                    flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.15)',
-                                    color: '#aaa', padding: '0.9rem', fontSize: '0.7rem', fontWeight: 800,
-                                    borderRadius: '12px', cursor: 'pointer', letterSpacing: '1px', textTransform: 'uppercase',
-                                    transition: 'all 0.2s'
-                                }}
-                                onMouseOver={e => { e.currentTarget.style.borderColor = '#fff'; e.currentTarget.style.color = '#fff'; }}
-                                onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = '#aaa'; }}
-                            >
-                                No, continuar al pago
-                            </button>
-                            <button 
-                                onClick={proceedToCheckout}
-                                style={{
-                                    flex: 1, background: '#fff', border: 'none',
-                                    color: '#000', padding: '0.9rem', fontSize: '0.7rem', fontWeight: 900,
-                                    borderRadius: '12px', cursor: 'pointer', letterSpacing: '1.5px', textTransform: 'uppercase',
-                                    transition: 'opacity 0.2s', boxShadow: '0 4px 20px rgba(255,255,255,0.15)'
-                                }}
-                                onMouseOver={e => e.currentTarget.style.opacity = '0.85'}
-                                onMouseOut={e => e.currentTarget.style.opacity = '1'}
-                            >
-                                Listo, ir a pagar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Diálogo de Confirmación para Eliminar Artículo del Carrito */}
+            {/* Diálogo de Confirmación para eliminar */}
             <ConfirmDialog
                 isOpen={Boolean(itemToDelete)}
                 onClose={() => setItemToDelete(null)}
@@ -479,7 +208,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                     success('Artículo eliminado del carrito');
                 }}
                 title="¿Eliminar del carrito?"
-                message="¿Estás seguro de que deseas eliminar este artículo de tu carrito de compras?"
+                message="¿Estás seguro de que deseas eliminar este artículo de tu compra?"
                 confirmText="Eliminar"
                 cancelText="Conservar"
                 variant="danger"
@@ -491,7 +220,93 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                     quantity: itemToDelete.quantity
                 } : null}
             />
-        </>
+
+            {/* Grid Bento Principal */}
+            <div className="cart-bento-grid">
+                {/* ── COLUMNA IZQUIERDA: Artículos en Bento Cells ──────────── */}
+                <main className="cart-bento-items-col">
+                    {/* Banner de alerta de stock */}
+                    {hasUnavailableItems && (
+                        <div className="cart-warning-banner">
+                            <Icon name="alertTriangle" size={18} className="cart-warning-icon" />
+                            <div className="cart-warning-text">
+                                <strong>Artículos agotados detectados:</strong>
+                                <p>Uno o más artículos en tu carrito no tienen inventario disponible. Elimínalos para continuar al pago.</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Grupo: Boletos */}
+                    {ticketItems.length > 0 && (
+                        <section className="cart-bento-section">
+                            <header className="bento-section-header">
+                                <div className="bento-section-title-wrap">
+                                    <Icon name="ticket" size={14} className="bento-section-icon" />
+                                    <h3 className="bento-section-title">Boletos Seleccionados</h3>
+                                </div>
+                                <span className="bento-section-count">
+                                    {ticketItems.reduce((acc, it) => acc + (it.quantity || 1), 0)} {ticketItems.length === 1 ? 'acceso' : 'accesos'}
+                                </span>
+                            </header>
+
+                            <div className={`cart-bento-items-layout ${ticketItems.length === 1 ? 'layout-single-item' : 'layout-multi-items'}`}>
+                                {ticketItems.map((item) => (
+                                    <CartItemBento
+                                        key={`${item.eventId}-${item.sectionId}-${item.id || ''}`}
+                                        item={item}
+                                        isAvailable={checkItemAvailability(item)}
+                                        onUpdateQuantity={(delta) => updateQuantity(item.eventId, item.quantity + delta, item.functionId, item.sectionId)}
+                                        onDelete={() => setItemToDelete(item)}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Grupo: Mercancía / Souvenirs */}
+                    {merchItems.length > 0 && (
+                        <section className="cart-bento-section">
+                            <header className="bento-section-header">
+                                <div className="bento-section-title-wrap">
+                                    <Icon name="shoppingBag" size={14} className="bento-section-icon bento-section-icon--merch" />
+                                    <h3 className="bento-section-title">Mercancía Oficial</h3>
+                                </div>
+                                <span className="bento-section-count">
+                                    {merchItems.reduce((acc, it) => acc + (it.quantity || 1), 0)} {merchItems.length === 1 ? 'producto' : 'productos'}
+                                </span>
+                            </header>
+
+                            <div className={`cart-bento-items-layout ${merchItems.length === 1 ? 'layout-single-item' : 'layout-multi-items'}`}>
+                                {merchItems.map((item) => (
+                                    <CartItemBento
+                                        key={`${item.eventId}-${item.sectionId}-${item.id || ''}`}
+                                        item={item}
+                                        isAvailable={checkItemAvailability(item)}
+                                        onUpdateQuantity={(delta) => updateQuantity(item.eventId, item.quantity + delta, item.functionId, item.sectionId)}
+                                        onDelete={() => setItemToDelete(item)}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+                    )}
+                </main>
+
+                {/* ── COLUMNA DERECHA: Bento Summary Panel ───────────────── */}
+                <CartSummaryBento
+                    total={total}
+                    serviceFee={serviceFee}
+                    serviceFeePercent={serviceFeePercent}
+                    appliedCoupon={appliedCoupon}
+                    discount={discount}
+                    finalTotal={finalTotal}
+                    applyCoupon={applyCoupon}
+                    removeCoupon={removeCoupon}
+                    onCheckout={handleCheckout}
+                    hasUnavailableItems={hasUnavailableItems}
+                    cartCount={cartCount}
+                />
+            </div>
+        </div>
     );
 };
 

@@ -1,0 +1,2458 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="normal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAIKA CLUB // SPRINT 3 REVIEW // PROTOCOL REPORT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=JetBrains+Mono:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       VARIABLES Y TEMAS ESTÉTICOS (SISTEMA MILITAR RETRO-FUTURISTA)
+       ========================================================================== */
+    :root, [data-theme="normal"] {
+      --bg-primary: #d5d0be;
+      --bg-surface: #c7c2b0;
+      --bg-card: #dfdac8;
+      --bg-card-subtle: #eae5d4;
+      --text-main: #3b382f;
+      --text-secondary: #5e594b;
+      --text-dim: #7f7967;
+      --border-strong: #3b382f;
+      --border-medium: #686252;
+      --border-faint: rgba(59, 56, 47, 0.25);
+      --accent-gold: #847247;
+      --accent-active: #2b2923;
+      --status-completed: #2a5a3a;
+      --status-completed-bg: rgba(42, 90, 58, 0.15);
+      --status-progress: #875c1c;
+      --status-progress-bg: rgba(135, 92, 28, 0.15);
+      --status-pending: #842828;
+      --status-pending-bg: rgba(132, 40, 40, 0.15);
+      --scanline-opacity: 0.04;
+      --grid-opacity: 0.08;
+      --shadow-elevation: 0 12px 35px rgba(59, 56, 47, 0.16);
+      --drawer-bg: #cfcaa8;
+    }
+
+    [data-theme="oscuro"] {
+      --bg-primary: #121211;
+      --bg-surface: #1c1b18;
+      --bg-card: #23221f;
+      --bg-card-subtle: #2b2a26;
+      --text-main: #e2ded0;
+      --text-secondary: #aba492;
+      --text-dim: #756f61;
+      --border-strong: #857e6e;
+      --border-medium: #4e4a40;
+      --border-faint: rgba(226, 222, 208, 0.15);
+      --accent-gold: #c6a763;
+      --accent-active: #e2ded0;
+      --status-completed: #4ade80;
+      --status-completed-bg: rgba(74, 222, 128, 0.12);
+      --status-progress: #fbbf24;
+      --status-progress-bg: rgba(251, 191, 36, 0.12);
+      --status-pending: #f87171;
+      --status-pending-bg: rgba(248, 113, 113, 0.12);
+      --scanline-opacity: 0.06;
+      --grid-opacity: 0.05;
+      --shadow-elevation: 0 16px 40px rgba(0, 0, 0, 0.6);
+      --drawer-bg: #181715;
+    }
+
+    [data-theme="claro"] {
+      --bg-primary: #f6f5ef;
+      --bg-surface: #eae8df;
+      --bg-card: #ffffff;
+      --bg-card-subtle: #faf9f5;
+      --text-main: #1d1c18;
+      --text-secondary: #48453d;
+      --text-dim: #716e62;
+      --border-strong: #1d1c18;
+      --border-medium: #6f6b5d;
+      --border-faint: rgba(29, 28, 24, 0.2);
+      --accent-gold: #685732;
+      --accent-active: #1d1c18;
+      --status-completed: #166534;
+      --status-completed-bg: rgba(22, 101, 52, 0.12);
+      --status-progress: #92400e;
+      --status-progress-bg: rgba(146, 64, 14, 0.12);
+      --status-pending: #991b1b;
+      --status-pending-bg: rgba(153, 27, 27, 0.12);
+      --scanline-opacity: 0.02;
+      --grid-opacity: 0.04;
+      --shadow-elevation: 0 10px 30px rgba(29, 28, 24, 0.08);
+      --drawer-bg: #f0eeea;
+    }
+
+    /* ==========================================================================
+       GESTIÓN DE VISIBILIDAD DE LOGO SEGÚN TEMA
+       ========================================================================== */
+    [data-theme="normal"] .logo-dark-ink,
+    [data-theme="claro"] .logo-dark-ink {
+      display: inline-block;
+    }
+    [data-theme="normal"] .logo-light-ink,
+    [data-theme="claro"] .logo-light-ink {
+      display: none;
+    }
+
+    [data-theme="oscuro"] .logo-dark-ink {
+      display: none;
+    }
+    [data-theme="oscuro"] .logo-light-ink {
+      display: inline-block;
+    }
+
+    /* ==========================================================================
+       RESET Y BASE
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Rajdhani', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      user-select: none;
+    }
+
+    /* Fondo reticular y scanlines tácticas */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: 
+        linear-gradient(to right, var(--border-strong) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border-strong) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: var(--grid-opacity);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0) 0px,
+        rgba(0,0,0,0) 2px,
+        rgba(0,0,0, var(--scanline-opacity)) 3px,
+        rgba(0,0,0, var(--scanline-opacity)) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ==========================================================================
+       BARRA SUPERIOR (HEADER HUD)
+       ========================================================================== */
+    .hud-header {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 30px;
+      border-bottom: 2px solid var(--border-strong);
+      background: var(--bg-surface);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+
+    .hud-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hud-brand-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hud-logo-img {
+      height: 28px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+    }
+
+    .sys-emblem {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: 2px solid var(--border-strong);
+      font-weight: 700;
+      font-size: 0.85rem;
+      position: relative;
+      background: var(--bg-primary);
+      animation: pulseEmblem 3s infinite alternate;
+    }
+    @keyframes pulseEmblem {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.04); }
+    }
+
+    .sys-emblem::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--accent-gold);
+    }
+
+    .hud-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--text-main);
+    }
+
+    .hud-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      background: var(--border-strong);
+      color: var(--bg-primary);
+      font-weight: 700;
+      font-size: 0.72rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .hud-header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .hud-theme-picker {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border-medium);
+      padding: 2px;
+      background: var(--bg-primary);
+    }
+
+    .theme-btn {
+      background: none;
+      border: none;
+      padding: 4px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+
+    .theme-btn:hover {
+      color: var(--text-main);
+    }
+
+    .theme-btn.active {
+      background: var(--border-strong);
+      color: var(--bg-primary);
+    }
+
+    .progress-track {
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--border-faint);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--border-strong);
+      width: 10%;
+      transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* ==========================================================================
+       VIEWPORT & SLIDES
+       ========================================================================== */
+    .viewport {
+      flex: 1;
+      position: relative;
+      z-index: 5;
+      padding: 22px 34px 80px 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .slide-deck {
+      position: relative;
+      width: 100%;
+      max-width: 1380px;
+      height: 100%;
+      max-height: 740px;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(14px) scale(0.99);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.35s;
+      display: flex;
+      flex-direction: column;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      animation: tacticalSlideIn 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes tacticalSlideIn {
+      0% {
+        opacity: 0;
+        transform: translateY(16px) scale(0.985);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Tarjeta Táctica de Diapositiva */
+    .tactical-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-surface);
+      border: 2px solid var(--border-strong);
+      padding: 28px 38px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-elevation);
+      overflow-y: auto;
+    }
+
+    /* Muescas tácticas en las esquinas */
+    .tactical-frame::before {
+      content: "+";
+      position: absolute;
+      top: 6px; left: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--border-strong);
+    }
+    .tactical-frame::after {
+      content: "+";
+      position: absolute;
+      top: 6px; right: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--border-strong);
+    }
+    .corner-bl {
+      position: absolute;
+      bottom: 6px; left: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--border-strong);
+      pointer-events: none;
+    }
+    .corner-br {
+      position: absolute;
+      bottom: 6px; right: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--border-strong);
+      pointer-events: none;
+    }
+
+    /* Encabezado interno de diapositiva */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--border-medium);
+      position: relative;
+    }
+
+    .slide-meta-pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slide-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 1.5px;
+      line-height: 1.15;
+    }
+
+    .slide-title-sub {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.8px;
+      margin-top: 4px;
+    }
+
+    /* Status Pills */
+    .status-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border: 1px solid currentColor;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .status-completed {
+      color: var(--status-completed);
+      background: var(--status-completed-bg);
+      border-color: var(--status-completed);
+    }
+
+    .status-progress {
+      color: var(--status-progress);
+      background: var(--status-progress-bg);
+      border-color: var(--status-progress);
+    }
+
+    .status-pending {
+      color: var(--status-pending);
+      background: var(--status-pending-bg);
+      border-color: var(--status-pending);
+    }
+
+    /* Layout principal */
+    .slide-body {
+      flex: 1;
+      display: grid;
+      gap: 20px;
+    }
+
+    .grid-2col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-3col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Paneles */
+    .info-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      padding: 16px 20px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-panel::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--border-strong);
+    }
+
+    .info-panel-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.02rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-faint);
+      padding-bottom: 6px;
+    }
+
+    .info-panel-title span.seq {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .spec-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.94rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .spec-list li {
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .spec-list li::before {
+      content: "▪";
+      position: absolute;
+      left: 0;
+      top: -1px;
+      font-size: 1.1rem;
+      color: var(--border-strong);
+    }
+
+    .spec-list strong {
+      color: var(--text-main);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+    }
+
+    .spec-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      background: var(--bg-primary);
+      padding: 2px 6px;
+      border: 1px solid var(--border-faint);
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       TARJETAS DE TAREAS INTERACTIVAS (CLICK TO INSPECT)
+       ========================================================================== */
+    .task-interactive-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .task-card-clickable {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-medium);
+      padding: 12px 16px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .task-card-clickable:hover {
+      background: var(--bg-primary);
+      border-color: var(--border-strong);
+      transform: translateX(4px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .task-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 0.5px;
+    }
+
+    .task-inspect-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      background: var(--bg-card);
+      border: 1px solid var(--border-faint);
+      padding: 2px 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+    }
+
+    .task-card-clickable:hover .task-inspect-pill {
+      background: var(--border-strong);
+      color: var(--bg-primary);
+      border-color: var(--border-strong);
+    }
+
+    .task-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.35;
+    }
+
+    /* Cuadros de Veredicto */
+    .verdict-box {
+      margin-top: auto;
+      padding: 12px 16px;
+      background: var(--bg-card-subtle);
+      border-left: 3px solid var(--border-strong);
+      font-size: 0.92rem;
+    }
+    .verdict-box strong {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      display: block;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    /* ==========================================================================
+       PORTADA ELEGANTE & HERO BRANDING
+       ========================================================================== */
+    .cover-layout-pro {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px 14px;
+    }
+
+    .cover-header-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border-medium);
+      padding-bottom: 8px;
+      width: 100%;
+    }
+
+    .cover-brand-hero {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin: auto 0;
+      width: 100%;
+    }
+
+    .cover-logo-wrapper {
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border: 2px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .cover-logo-wrapper::before {
+      content: "";
+      position: absolute;
+      top: -4px; left: -4px;
+      width: 10px; height: 10px;
+      border-top: 2px solid var(--border-strong);
+      border-left: 2px solid var(--border-strong);
+    }
+    .cover-logo-wrapper::after {
+      content: "";
+      position: absolute;
+      bottom: -4px; right: -4px;
+      width: 10px; height: 10px;
+      border-bottom: 2px solid var(--border-strong);
+      border-right: 2px solid var(--border-strong);
+    }
+
+    .cover-logo-img {
+      max-height: 95px;
+      max-width: 240px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+    }
+
+    .cover-title-group {
+      flex: 1;
+    }
+
+    .cover-badge-top {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cover-title {
+      font-family: 'Cinzel', serif;
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      line-height: 1.1;
+      margin-bottom: 12px;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .cover-subtitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--text-secondary);
+      margin-bottom: 22px;
+      line-height: 1.35;
+    }
+
+    .cover-tags {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .cover-tag-item {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      color: var(--text-main);
+    }
+
+    .cover-footer {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-top: 1px solid var(--border-medium);
+      padding-top: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    /* Tabla Táctica */
+    .tactical-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 8px;
+    }
+
+    .tactical-table th {
+      background: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: left;
+      padding: 9px 12px;
+      border: 1px solid var(--border-medium);
+    }
+
+    .tactical-table td {
+      padding: 8px 12px;
+      border: 1px solid var(--border-medium);
+      color: var(--text-secondary);
+    }
+
+    .tactical-table tr:nth-child(even) td {
+      background: var(--bg-card-subtle);
+    }
+
+    /* Cajas métricas destacadas */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .metric-num {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .metric-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+    }
+
+    /* ==========================================================================
+       BARRA INFERIOR (HUD FOOTER)
+       ======================================================================== */
+    .hud-footer {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 30px;
+      border-top: 2px solid var(--border-strong);
+      background: var(--bg-surface);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .hud-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .key-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .key-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border: 1px solid var(--border-medium);
+      background: var(--bg-primary);
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 0.72rem;
+    }
+
+    .hud-footer-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-indicator {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text-main);
+      margin: 0 16px;
+    }
+
+    .nav-btn {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-strong);
+      color: var(--text-main);
+      padding: 7px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: var(--border-strong);
+      color: var(--bg-primary);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: var(--border-faint);
+    }
+
+    .hud-footer-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ==========================================================================
+       MODAL INSPECTOR TÁCTICO DE TAREAS (PROFESIONAL Y UNIFICADO)
+       ========================================================================== */
+    .inspector-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      z-index: 1050;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .inspector-overlay.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .inspector-modal {
+      width: 90%;
+      max-width: 860px;
+      max-height: 86vh;
+      background: var(--drawer-bg);
+      border: 2px solid var(--border-strong);
+      box-shadow: var(--shadow-elevation);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      animation: inspectorZoom 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+      overflow: hidden;
+    }
+
+    @keyframes inspectorZoom {
+      0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .inspector-header {
+      padding: 18px 24px;
+      border-bottom: 2px solid var(--border-strong);
+      background: var(--bg-surface);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .inspector-badge-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .inspector-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 1px;
+    }
+
+    .inspector-close-btn {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-strong);
+      color: var(--text-main);
+      width: 32px;
+      height: 32px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .inspector-close-btn:hover {
+      background: var(--border-strong);
+      color: var(--bg-primary);
+    }
+
+    .inspector-content {
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .inspector-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      padding: 16px 18px;
+      position: relative;
+    }
+
+    .inspector-section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px dashed var(--border-faint);
+      padding-bottom: 6px;
+    }
+
+    .inspector-section-body {
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+
+    /* TOC Drawer */
+    .toc-drawer {
+      position: fixed;
+      top: 0; right: -420px;
+      width: 400px;
+      height: 100vh;
+      background: var(--bg-surface);
+      border-left: 2px solid var(--border-strong);
+      z-index: 1000;
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.3);
+      transition: right 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .toc-drawer.open {
+      right: 0;
+    }
+
+    .toc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-medium);
+      margin-bottom: 20px;
+    }
+
+    .toc-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+    }
+
+    .toc-close {
+      background: none;
+      border: 1px solid var(--border-medium);
+      color: var(--text-main);
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .toc-list {
+      list-style: none;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toc-item {
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-faint);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .toc-item:hover, .toc-item.current {
+      border-color: var(--border-strong);
+      background: var(--border-strong);
+      color: var(--bg-primary);
+    }
+
+    .toc-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.4);
+      z-index: 998;
+      display: none;
+    }
+    .toc-overlay.open {
+      display: block;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-medium);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-strong);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       HUD HEADER
+       ======================================================================== -->
+  <header class="hud-header">
+    <div class="hud-header-left">
+      <div class="hud-brand-container">
+        <img src="../public/LogoOsc.png" class="hud-logo-img logo-dark-ink" alt="LAIKA Club" onerror="this.src='/LogoOsc.png'" />
+        <img src="../public/LogoClaro.png" class="hud-logo-img logo-light-ink" alt="LAIKA Club" onerror="this.src='/LogoClaro.png'" />
+        <div class="sys-emblem">LK</div>
+      </div>
+      <div>
+        <div class="hud-title">LAIKA CLUB // SPRINT 3 REVIEW</div>
+        <div style="font-size: 0.72rem; color: var(--text-dim); letter-spacing: 1px;">
+          SYS_PROTOCOL: REPORTE DE EJECUCIÓN & VERIFICACIÓN TÉCNICA
+        </div>
+      </div>
+      <span class="hud-badge">AUDIT_LOG // v1.5.8</span>
+    </div>
+
+    <div class="hud-header-right">
+      <!-- Selector de 3 Temas -->
+      <div class="hud-theme-picker">
+        <button class="theme-btn active" data-set-theme="normal" title="Tema Militar Táctico Original">Normal</button>
+        <button class="theme-btn" data-set-theme="oscuro" title="Tema Operativo Oscuro">Oscuro</button>
+        <button class="theme-btn" data-set-theme="claro" title="Tema Alto Contraste Claro">Claro</button>
+      </div>
+
+      <button class="nav-btn" id="btnTocToggle" style="padding: 4px 12px; font-size: 0.75rem;">
+        [ ÍNDICE ]
+      </button>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       VIEWPORT & SLIDES CONTAINER
+       ======================================================================== -->
+  <main class="viewport">
+    <div class="slide-deck">
+
+      <!-- ====================================================================
+           SLIDE 01: PORTADA ELEGANTE & CORPORATIVA CON LOGO
+           ==================================================================== -->
+      <section class="slide active" data-slide="1">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="cover-layout-pro">
+            <div class="cover-header-meta">
+              SPRINT REVIEW PRESENTATION // PLATAFORMA INTEGRAL LAIKA CLUB // CICLO DE DESARROLLO 3
+            </div>
+
+            <div class="cover-brand-hero">
+              <div class="cover-logo-wrapper">
+                <img src="../public/LogoOsc.png" class="cover-logo-img logo-dark-ink" alt="LAIKA Club Logo Oficial" onerror="this.src='/LogoOsc.png'" />
+                <img src="../public/LogoClaro.png" class="cover-logo-img logo-light-ink" alt="LAIKA Club Logo Oficial" onerror="this.src='/LogoClaro.png'" />
+              </div>
+
+              <div class="cover-title-group">
+                <div class="cover-badge-top">
+                  <span>SISTEMA INTEGRAL DE GESTIÓN DE EVENTOS & BOLETERÍA DIGITAL</span>
+                  <span>//</span>
+                  <span>AUDITORÍA SCRUM</span>
+                </div>
+                <h1 class="cover-title">SPRINT 3 REVIEW</h1>
+                <div class="cover-subtitle">
+                  Gestión Integral de Accesos, Pasarela de Reembolsos, Cortesías en Lote, Tienda Oficial y Estrategia de Despliegue en Microsoft Azure
+                </div>
+                
+                <div class="cover-tags">
+                  <span class="cover-tag-item">BACKLOG: 7 ENTREGABLES ESTRATÉGICOS</span>
+                  <span class="cover-tag-item" style="color: var(--status-completed); font-weight:700;">5 COMPLETADOS</span>
+                  <span class="cover-tag-item" style="color: var(--status-progress); font-weight:700;">2 EN PROCESO (DISEÑO MÓVIL & CLOUD AZURE)</span>
+                  <span class="cover-tag-item">STACK: SPRING BOOT · REACT · MONGODB · MYSQL · AZURE</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="cover-footer">
+              <div>ECOSISTEMA: LAIKACLUB CORE · LAIKA-GESTOR · LAIKA-ADMIN · LAIKAMOBIL</div>
+              <div>REVISIÓN FORMAL DE SPRINT // PERIODO: OCTUBRE 2026</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 02: BALANCE EJECUTIVO & OBJETIVO DEL SPRINT
+           ==================================================================== -->
+      <section class="slide" data-slide="2">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ PROTOCOL_SUMMARY // SECCIÓN 01 ]</div>
+              <h2 class="slide-title">OBJETIVO DEL SPRINT & BALANCE GENERAL</h2>
+              <div class="slide-title-sub">Metas operativas acordadas, rendimiento del equipo y estatus de los 7 entregables</div>
+            </div>
+            <span class="status-pill status-progress">ESTADO: 5 DE 7 ENTREGABLES LISTOS</span>
+          </div>
+
+          <div class="metric-grid">
+            <div class="metric-card">
+              <span class="metric-num">07</span>
+              <span class="metric-label">Entregables Totales</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-num" style="color: var(--status-completed);">05</span>
+              <span class="metric-label">Completados (5 HU)</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-num" style="color: var(--status-progress);">02</span>
+              <span class="metric-label">En Proceso Activo</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-num" style="color: var(--status-completed);">00</span>
+              <span class="metric-label">Inactivos / Sin Avance</span>
+            </div>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>OBJETIVO PRIMARIO DEL SPRINT 3</span>
+                <span class="seq">01.1</span>
+              </div>
+              <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 12px;">
+                Cerrar el ciclo de vida del boleto garantizando la <strong>flexibilidad transaccional</strong> del usuario (cancelaciones, reembolsos automatizados y transferencias seguras entre asistentes), capacitar a la organización para la <strong>emisión y asignación masiva de cortesías</strong>, habilitar un nuevo flujo de ingresos para fans mediante el <strong>catálogo de mercancía oficial de Laika Shop</strong> y optimizar la <strong>arquitectura de despliegue en Microsoft Azure</strong> para maximizar el uso de créditos institucionales sin sacrificar rendimiento.
+              </p>
+              <ul class="spec-list">
+                <li><strong>Autonomía del Asistente:</strong> Devolver boletos y recuperar dinero sin tickets manuales de soporte.</li>
+                <li><strong>Seguridad Anti-Fraude:</strong> Transferencia de accesos vía correo con cambio de titularidad y token QR seguro.</li>
+                <li><strong>Eficiencia en Nube:</strong> Modelado de arquitectura en Azure orientada a alta disponibilidad y consumo eficiente.</li>
+              </ul>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>ESTADO DE ENTREGABLES DEL BACKLOG</span>
+                <span class="seq">01.2</span>
+              </div>
+              <table class="tactical-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>HISTORIA / TAREA</th>
+                    <th>ROL / ÁREA</th>
+                    <th>ESTATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>HU-19</strong></td>
+                    <td>Cancelación y reembolso de boletos</td>
+                    <td>Usuario</td>
+                    <td><span style="color: var(--status-completed); font-weight:700;">COMPLETADA</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>HU-20</strong></td>
+                    <td>Transferencia de boleto a otro usuario</td>
+                    <td>Asistente</td>
+                    <td><span style="color: var(--status-completed); font-weight:700;">COMPLETADA</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>HU-21</strong></td>
+                    <td>Emisión de boletos de cortesía</td>
+                    <td>Gestor</td>
+                    <td><span style="color: var(--status-completed); font-weight:700;">COMPLETADA</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>HU-22</strong></td>
+                    <td>Asignación masiva de boletos</td>
+                    <td>Organización</td>
+                    <td><span style="color: var(--status-completed); font-weight:700;">COMPLETADA</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>HU-24</strong></td>
+                    <td>Catálogo y compra de mercancía</td>
+                    <td>Fan</td>
+                    <td><span style="color: var(--status-completed); font-weight:700;">COMPLETADA</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>HU-25</strong></td>
+                    <td>Rediseño de aplicación móvil</td>
+                    <td>Diseño / Dev</td>
+                    <td><span style="color: var(--status-progress); font-weight:700;">EN PROCESO (60%)</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>HT-23</strong></td>
+                    <td>Infraestructura Cloud en Azure</td>
+                    <td>Equipo DevOps</td>
+                    <td><span style="color: var(--status-progress); font-weight:700;">EN PROCESO (EVALUACIÓN)</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 03: HU-19 CANCELACIÓN Y REEMBOLSO DE BOLETOS
+           ==================================================================== -->
+      <section class="slide" data-slide="3">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ USER_STORY // HU-19 · ROL: USUARIO ]</div>
+              <h2 class="slide-title">HU-19: CANCELACIÓN Y REEMBOLSO DE BOLETOS</h2>
+              <div class="slide-title-sub">"Como usuario quiero cancelar mi compra y solicitar un reembolso dentro del tiempo permitido para tener seguridad y recuperar mi dinero si no puedo asistir."</div>
+            </div>
+            <span class="status-pill status-completed">ESTADO: CUMPLIDA // PRODUCCIÓN</span>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>PROBLEMA QUE RESUELVE & VALOR ENTREGADO</span>
+                <span class="seq">HU-19.1</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Riesgo de Pérdida Financiera:</strong> Los asistentes se abstenían de comprar con antelación por temor a perder su inversión ante imprevistos de agenda.</li>
+                <li><strong>Carga Operativa en Soporte:</strong> Las cancelaciones requerían atención manual por correo o chat con demoras de 48 a 72 horas.</li>
+                <li><strong>Opacidad en Retenciones:</strong> El usuario desconocía deducciones o políticas antes de iniciar el trámite.</li>
+                <li><strong>Valor Implementado:</strong> Cotización previa del importe exacto en tiempo real, verificación automática de políticas (hasta 24h antes), anulación instantánea de código QR y liberación de asiento en sala.</li>
+              </ul>
+
+              <div class="verdict-box" style="margin-top: 16px;">
+                <strong>VEREDICTO DE ACEPTACIÓN:</strong>
+                Se validaron los criterios de aceptación en backend y frontend. El boleto cancelado queda revocado inmediatamente evitando reingresos fraudulentos.
+              </div>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>TAREAS TÉCNICAS EJECUTADAS (CLICK PARA INSPECCIONAR)</span>
+                <span class="seq">HU-19.2</span>
+              </div>
+
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="hu19-task1">
+                  <div class="task-card-top">
+                    <span class="task-card-name">1. Cotizador y Validador de Políticas</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Cálculo en tiempo real del monto exacto a devolver y verificación de plazo límite antes de confirmar.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu19-task2">
+                  <div class="task-card-top">
+                    <span class="task-card-name">2. Transacción de Revocación y Liberación</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Invalidez inmediata del código QR, cambio a status 'cancelled' y liberación del asiento en MySQL/MongoDB.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu19-task3">
+                  <div class="task-card-top">
+                    <span class="task-card-name">3. Rastreabilidad en Tiempo Real</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Vistas y componentes en frontend para seguir el estado de la solicitud sin contactar a soporte.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 04: HU-20 TRANSFERENCIA DE BOLETO A OTRO USUARIO
+           ==================================================================== -->
+      <section class="slide" data-slide="4">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ USER_STORY // HU-20 · ROL: ASISTENTE ]</div>
+              <h2 class="slide-title">HU-20: TRANSFERENCIA DE BOLETO A OTRO USUARIO</h2>
+              <div class="slide-title-sub">"Como asistente quiero transferir mi boleto a otra persona mediante su correo electrónico para que pueda asistir en mi lugar de forma segura y controlada."</div>
+            </div>
+            <span class="status-pill status-completed">ESTADO: CUMPLIDA // PRODUCCIÓN</span>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>PROBLEMA QUE RESUELVE & VALOR ENTREGADO</span>
+                <span class="seq">HU-20.1</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Fraude por Capturas de Pantalla:</strong> Compartir boletos mediante capturas provocaba duplicidad de accesos o estafas en reventas no reguladas.</li>
+                <li><strong>Incertidumbre de Asistencia:</strong> Si el titular no podía acudir, su acompañante no tenía forma de acreditar legítima titularidad en taquilla.</li>
+                <li><strong>Valor Implementado:</strong> Transferencia digital con máquina de estados. Al transferir, el boleto original se revoca y se genera un nuevo código QR encriptado exclusivo para el receptor.</li>
+                <li><strong>Soporte para Nuevos Usuarios:</strong> Si el receptor no tiene cuenta, se genera un enlace con <span class="spec-code">claim_token</span> para reclamo automático al registrarse.</li>
+              </ul>
+
+              <div class="verdict-box" style="margin-top: 16px;">
+                <strong>VEREDICTO DE ACEPTACIÓN:</strong>
+                Flujo 100% operativo con confirmación de clave del usuario emisor, estados de aceptación/rechazo y cancelación de transferencia saliente mientras esté pendiente.
+              </div>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>TAREAS TÉCNICAS EJECUTADAS (CLICK PARA INSPECCIONAR)</span>
+                <span class="seq">HU-20.2</span>
+              </div>
+
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="hu20-task1">
+                  <div class="task-card-top">
+                    <span class="task-card-name">1. Solicitud Segura con Validación de Clave</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Inicio de transferencia hacia correo destino exigiendo confirmación de password del titular.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu20-task2">
+                  <div class="task-card-top">
+                    <span class="task-card-name">2. Traspaso y Regeneración Dinámica de QR</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Anulación del pase anterior y creación de un boleto nuevo con nuevo código QR exclusivo.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu20-task3">
+                  <div class="task-card-top">
+                    <span class="task-card-name">3. Enlace de Reclamo para Nuevos Usuarios</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Token de reclamo que vincula el boleto de inmediato al registrar la cuenta nueva.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 05: HU-21 EMISIÓN DE BOLETOS DE CORTESÍA
+           ==================================================================== -->
+      <section class="slide" data-slide="5">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ USER_STORY // HU-21 · ROL: GESTOR DE EVENTOS ]</div>
+              <h2 class="slide-title">HU-21: EMISIÓN DE BOLETOS DE CORTESÍA</h2>
+              <div class="slide-title-sub">"Como gestor de eventos quiero enviar boletos de cortesía directamente a los patrocinadores para asegurar su participación sin generarles un cargo económico."</div>
+            </div>
+            <span class="status-pill status-completed">ESTADO: CUMPLIDA // PRODUCCIÓN</span>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>PROBLEMA QUE RESUELVE & VALOR ENTREGADO</span>
+                <span class="seq">HU-21.1</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Compromisos Comerciales con Patrocinadores:</strong> Los organizadores requerían emitir accesos sin costo a marcas, medios o talento sin alterar la contabilidad de ventas comerciales.</li>
+                <li><strong>Pérdida de Control de Cupos:</strong> Las cortesías informales distorsionaban el aforo real del recinto provocando sobrecupo y riesgos de seguridad.</li>
+                <li><strong>Valor Implementado:</strong> Módulo de cortesías con control de cuotas por gestor, asignación directa por email (<span class="spec-code">DIRECT_EMAIL</span>) y categorización formal (<span class="spec-code">PATROCINADOR</span>, <span class="spec-code">PRENSA</span>, <span class="spec-code">ARTISTA</span>).</li>
+                <li><strong>Experiencia de Invitación VIP:</strong> Notificación con diseño de invitación de gala y registro automático con costo cero ($0.00).</li>
+              </ul>
+
+              <div class="verdict-box" style="margin-top: 16px;">
+                <strong>VEREDICTO DE ACEPTACIÓN:</strong>
+                Auditoría completa en base de datos. Los boletos de cortesía se descuentan del inventario físico del evento sin figurar como ingreso financiero artificial.
+              </div>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>TAREAS TÉCNICAS EJECUTADAS (CLICK PARA INSPECCIONAR)</span>
+                <span class="seq">HU-21.2</span>
+              </div>
+
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="hu21-task1">
+                  <div class="task-card-top">
+                    <span class="task-card-name">1. Asignación Directa con Costo Cero</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Emisión a costo $0.00 vinculada al correo del patrocinador sin registrar ingresos ficticios.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu21-task2">
+                  <div class="task-card-top">
+                    <span class="task-card-name">2. Control y Auditoría de Cuotas de Gestor</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Tope máximo de cortesías por evento autorizado por los administradores para evitar abusos.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu21-task3">
+                  <div class="task-card-top">
+                    <span class="task-card-name">3. Experiencia de Regalo / Invitación VIP</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Animación especial en la wallet del usuario al recibir y revelar su boleto de cortesía.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 06: HU-22 ASIGNACIÓN MASIVA DE BOLETOS
+           ==================================================================== -->
+      <section class="slide" data-slide="6">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ USER_STORY // HU-22 · ROL: ADMINISTRADOR DE ORGANIZACIÓN ]</div>
+              <h2 class="slide-title">HU-22: ASIGNACIÓN MASIVA DE BOLETOS EN LOTE</h2>
+              <div class="slide-title-sub">"Como administrador de organización quiero asignar masivamente un lote de boletos (ej. más de 30) para agilizar la distribución a mis colaboradores sin hacerlo uno por uno."</div>
+            </div>
+            <span class="status-pill status-completed">ESTADO: CUMPLIDA // PRODUCCIÓN</span>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>PROBLEMA QUE RESUELVE & VALOR ENTREGADO</span>
+                <span class="seq">HU-22.1</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Distribución Corporativa Ineficiente:</strong> Para eventos de empresas con más de 30, 50 o 100 colaboradores, crear órdenes individuales tomaba horas de trabajo manual.</li>
+                <li><strong>Riesgo de Errores Tipográficos:</strong> Escribir correos uno por uno propiciaba errores de captura y pérdida de boletos en bandejas inexistentes.</li>
+                <li><strong>Valor Implementado:</strong> Generación por lote (<span class="spec-code">CLAIM_CODE</span>). Con un solo clic se autoriza y emite un lote de 30 o más boletos con identificadores únicos de canje vinculados al ID de lote (<span class="spec-code">CourtesyIssuance</span>).</li>
+                <li><strong>Exportación Inmediata:</strong> Herramienta para copiar todos los códigos o descargar un archivo estructurado (<span class="spec-code">.txt</span>) para distribución masiva interna por recursos humanos.</li>
+              </ul>
+
+              <div class="verdict-box" style="margin-top: 16px;">
+                <strong>VEREDICTO DE ACEPTACIÓN:</strong>
+                Permite la emisión atómica de lotes masivos. Cada colaborador canjea su token individualmente mediante el Centro de Canje de Laika Club.
+              </div>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>TAREAS TÉCNICAS EJECUTADAS (CLICK PARA INSPECCIONAR)</span>
+                <span class="seq">HU-22.2</span>
+              </div>
+
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="hu22-task1">
+                  <div class="task-card-top">
+                    <span class="task-card-name">1. Generación Atómica de Lotes de Códigos</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Bucle de emisión masiva en backend que crea N tokens únicos bajo un expediente auditable.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu22-task2">
+                  <div class="task-card-top">
+                    <span class="task-card-name">2. Modal de Exportación y Descarga de Lote</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Interfaz para copiar todos los códigos en 1 clic o descargar archivo .txt formateado.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu22-task3">
+                  <div class="task-card-top">
+                    <span class="task-card-name">3. Centro de Canje Individual de Colaboradores</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Módulo público/privado donde cada colaborador ingresa su código y obtiene su pase con QR.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 07: HU-24 CATÁLOGO Y COMPRA DE MERCANCÍA
+           ==================================================================== -->
+      <section class="slide" data-slide="7">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ USER_STORY // HU-24 · ROL: FAN ]</div>
+              <h2 class="slide-title">HU-24: CATÁLOGO Y COMPRA DE MERCANCÍA</h2>
+              <div class="slide-title-sub">"Como fan quiero comprar productos oficiales dentro de la plataforma para tener recuerdos memorables de mi evento favorito."</div>
+            </div>
+            <span class="status-pill status-completed">ESTADO: CUMPLIDA // PRODUCCIÓN</span>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>PROBLEMA QUE RESUELVE & VALOR ENTREGADO</span>
+                <span class="seq">HU-24.1</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Falta de Canal Oficial de Merchandising:</strong> Los asistentes debían comprar mercancía física en filas caóticas durante el concierto o recurrir a piratería informal.</li>
+                <li><strong>Monetización Desaprovechada:</strong> Los organizadores carecían de un catálogo digital para preventa de souvenirs y playeras conmemorativas antes del evento.</li>
+                <li><strong>Valor Implementado:</strong> Ecosistema de <strong>Laika Shop</strong> con rediseño visual Bento Box, catálogo por evento/artista, control de tallas y variantes, y checkout unificado para comprar boletos y mercancía en una sola transacción.</li>
+                <li><strong>Flexibilidad de Entrega:</strong> Opción de recolección en taquilla oficial con INE o envío a domicilio, con confirmación diferenciada y rastreo de pedido.</li>
+              </ul>
+
+              <div class="verdict-box" style="margin-top: 16px;">
+                <strong>VEREDICTO DE ACEPTACIÓN:</strong>
+                Integración completa probada desde el catálogo, carrito resiliente con variantes y persistencia en historial (<span class="spec-code">/user/history?tab=merch</span>).
+              </div>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>TAREAS TÉCNICAS EJECUTADAS (CLICK PARA INSPECCIONAR)</span>
+                <span class="seq">HU-24.2</span>
+              </div>
+
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="hu24-task1">
+                  <div class="task-card-top">
+                    <span class="task-card-name">1. Rediseño Bento Box y Catálogo Oficial</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Buscador bento, carrusel de drops oficiales y filtrado por concierto y categoría.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu24-task2">
+                  <div class="task-card-top">
+                    <span class="task-card-name">2. Gestión de Variantes y Stock en Carrito</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Control de tallas/colores con validación en tiempo real y bloqueo preventivo si se agota.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu24-task3">
+                  <div class="task-card-top">
+                    <span class="task-card-name">3. Checkout Diferenciado (Taquilla vs Envío)</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Separación inteligente: recolección en recinto sin pedir dirección, o envío a domicilio.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 08: HU-25 REDISEÑO DE LA APLICACIÓN MÓVIL
+           ==================================================================== -->
+      <section class="slide" data-slide="8">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ USER_STORY // HU-25 · ROL: EQUIPO DE DISEÑO / DEV ]</div>
+              <h2 class="slide-title">HU-25: REDISEÑO DE LA APLICACIÓN MÓVIL</h2>
+              <div class="slide-title-sub">"Como equipo de diseño/desarrollo queremos rediseñar la UI/UX del sistema móvil de Laika para mejorar la usabilidad, modernizar la apariencia y ofrecer una navegación intuitiva."</div>
+            </div>
+            <span class="status-pill status-progress">ESTADO: EN PROCESO (60% AVANCE)</span>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>OBJETIVO & DIAGNÓSTICO DEL SISTEMA MÓVIL</span>
+                <span class="seq">HU-25.1</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Problema Detectado:</strong> La app móvil (<span class="spec-code">LaikaMobil</span>) contaba con pantallas densas y componentes visuales heredados que no estaban alineados con la identidad visual moderna de Laika Club.</li>
+                <li><strong>Objetivo Buscado:</strong> Rediseñar la navegación del casillero digital, la tarjeta de presentación del boleto troquelado digital, el flujo de solicitud de reembolsos móviles y la experiencia de lectura QR táctil.</li>
+                <li><strong>Estado Actual:</strong> Se han desarrollado los componentes clave y las pantallas de soporte, encontrándose actualmente en fase de refinamiento de transiciones e integración con el nuevo motor de la wallet.</li>
+              </ul>
+
+              <div class="verdict-box" style="margin-top: 16px; border-color: var(--status-progress);">
+                <strong>AVANCE REGISTRADO // 60% EJECUTADO:</strong>
+                Se completó la arquitectura de pantallas de tickets y modales móviles; resta cerrar el pulido final de la navegación global y pruebas de usabilidad en dispositivos físicos.
+              </div>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>TAREAS TÉCNICAS EJECUTADAS (CLICK PARA INSPECCIONAR)</span>
+                <span class="seq">HU-25.2</span>
+              </div>
+
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="hu25-task1">
+                  <div class="task-card-top">
+                    <span class="task-card-name">1. Tarjeta Troquelada y Pase Digital Móvil</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Rediseño estilo Apple Wallet con código QR dinámico de alta velocidad de lectura.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu25-task2">
+                  <div class="task-card-top">
+                    <span class="task-card-name">2. Módulo Táctil de Reembolsos Móviles</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Modal interactivo adaptado para solicitar cancelaciones y ver desgloses en móvil.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu25-task3">
+                  <div class="task-card-top">
+                    <span class="task-card-name">3. Estado Actual y Tareas Restantes</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Diagnóstico del 60% construido y trabajo pendiente de homologación para Sprint 4.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 09: HT-23 DESPLIEGUE DE LA INFRAESTRUCTURA CLOUD (AZURE)
+           ==================================================================== -->
+      <section class="slide" data-slide="9">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ TECHNICAL_TASK // HT-23 · ROL: EQUIPO DE DESARROLLO / DEVOPS ]</div>
+              <h2 class="slide-title">HT-23: INFRAESTRUCTURA CLOUD & OPTIMIZACIÓN EN AZURE</h2>
+              <div class="slide-title-sub">"Como equipo de desarrollo queremos desplegar la infraestructura en la nube y los contenedores optimizando el uso de créditos de Microsoft Azure para maximizar rendimiento y rentabilidad."</div>
+            </div>
+            <span class="status-pill status-progress">ESTADO: EN PROCESO // EVALUACIÓN AZURE</span>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>ESTRATEGIA CLOUD & APROVECHAMIENTO DE CRÉDITOS AZURE</span>
+                <span class="seq">HT-23.1</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Optimización Estratégica de Créditos Azure:</strong> El despliegue no se congeló por inactividad, sino porque se está realizando un análisis comparativo de arquitecturas en Microsoft Azure para determinar cuál es la combinación más eficiente y económica.</li>
+                <li><strong>Criterio de Cómputo vs. Costo:</strong> Se evalúa el uso de <strong>Azure Container Apps</strong> (serverless escalable a cero) frente a <strong>Azure App Services Multi-container</strong> y <strong>AKS (Azure Kubernetes Service)</strong> para no quemar créditos en instancias ociosas.</li>
+                <li><strong>Bases de Datos & Latencia:</strong> Dimensionamiento de Azure Database for MySQL Flexible Server y Azure Cosmos DB con rendimiento asegurado para soportar picos de compra simultánea en preventas.</li>
+                <li><strong>Estado Actual:</strong> 100% de los contenedores listos y probados; fase activa de modelado de costos y benchmarking de red en Azure.</li>
+              </ul>
+
+              <div class="verdict-box" style="margin-top: 16px; border-color: var(--status-progress);">
+                <strong>DECISIÓN ARQUITECTÓNICA DE INGENIERÍA:</strong>
+                Se evitó un despliegue precipitado y costoso. Se está armando una arquitectura que exprime al máximo los créditos de Azure garantizando alta concurrencia y baja latencia.
+              </div>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>TAREAS EN EJECUCIÓN (CLICK PARA INSPECCIONAR)</span>
+                <span class="seq">HT-23.2</span>
+              </div>
+
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="ht23-task1">
+                  <div class="task-card-top">
+                    <span class="task-card-name">1. Contenerización Multi-Servicio con Docker</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Imágenes estandarizadas y listas para orquestación en cualquier entorno de nube.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="ht23-task2">
+                  <div class="task-card-top">
+                    <span class="task-card-name">2. Modelado y Benchmarking de Créditos en Azure</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Análisis comparativo de Container Apps vs AKS para máxima eficiencia presupuestal.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="ht23-task3">
+                  <div class="task-card-top">
+                    <span class="task-card-name">3. Aprovisionamiento y Conexión Segura (Sprint 4)</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Plan de puesta en marcha productiva con dominio público y certificados SSL.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 10: CONCLUSIONES Y RETROSPECTIVA DEL SPRINT 3
+           ==================================================================== -->
+      <section class="slide" data-slide="10">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ SPRINT_REVIEW_CLOSING // RETROSPECTIVA & TRANSICIÓN ]</div>
+              <h2 class="slide-title">CONCLUSIONES, DEMOSTRACIÓN & PRÓXIMOS PASOS</h2>
+              <div class="slide-title-sub">Balance final del Sprint 3 y compromisos de transición al siguiente ciclo</div>
+            </div>
+            <span class="status-pill status-completed">LISTO PARA TRANSICIÓN</span>
+          </div>
+
+          <div class="slide-body grid-3col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>LOGROS ALCANZADOS</span>
+                <span class="seq">03.1</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>5 Entregables Clave en Producción:</strong> Flujos críticos de usuario final, organizadores y fans terminados e integrados.</li>
+                <li><strong>Ciclo Transaccional Completo:</strong> Compra, reembolso, cortesía y transferencia operando de forma autónoma.</li>
+                <li><strong>Nuevo Canal de Venta:</strong> Laika Shop activo con catálogo bento, filtros por evento y soporte de órdenes.</li>
+              </ul>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>LECCIONES APRENDIDAS</span>
+                <span class="seq">03.2</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Eficiencia Presupuestal Cloud:</strong> Diseñar la infraestructura en Azure considerando los costos de créditos evita gastos imprevistos a mitad del semestre.</li>
+                <li><strong>Sincronización de Contratos:</strong> Mantener contratos de endpoints unificados entre backend, web y React Native previene retrabajo.</li>
+              </ul>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>COMPROMISOS SPRINT 4</span>
+                <span class="seq">03.3</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Puesta en Marcha Azure:</strong> Despliegue de los contenedores en la opción más costo-eficiente de Azure con HTTPS.</li>
+                <li><strong>Cierre de HU-25:</strong> Finalización de la navegación y homologación visual en LaikaMobil.</li>
+                <li><strong>Pase a Demostración:</strong> Sesión interactiva en vivo del sistema Laika Club.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px; padding: 14px 20px; background: var(--bg-card); border: 1px solid var(--border-medium); display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700;">
+              SISTEMA LAIKA CLUB // FIN DEL REPORTE DE SPRINT 3
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text-dim);">
+              CONFIRMACIÓN DE AUDITORÍA: APROBADA POR EQUIPO SCRUM
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       HUD FOOTER / NAVEGACIÓN Y CONTROLES
+       ======================================================================== -->
+  <footer class="hud-footer">
+    <div class="hud-footer-left">
+      <span class="key-hint"><span class="key-badge">←</span> <span class="key-badge">→</span> / <span class="key-badge">ESPACIO</span> Navegación</span>
+      <span style="opacity: 0.5;">|</span>
+      <span>MODO PRESENTACIÓN ACTIVO</span>
+    </div>
+
+    <div class="hud-footer-center">
+      <button class="nav-btn" id="btnPrev" disabled>
+        ◄ ANTERIOR
+      </button>
+
+      <div class="page-indicator">
+        <span id="currentSlideNum">01</span> / <span id="totalSlideNum">10</span>
+      </div>
+
+      <button class="nav-btn" id="btnNext">
+        SIGUIENTE ►
+      </button>
+    </div>
+
+    <div class="hud-footer-right">
+      <button class="nav-btn" id="btnFullscreen" style="padding: 5px 12px; font-size: 0.75rem;">
+        [ PANTALLA COMPLETA ]
+      </button>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       MODAL INSPECTOR TÁCTICO DE TAREAS (DISEÑO PROFESIONAL)
+       ======================================================================== -->
+  <div class="inspector-overlay" id="inspectorOverlay">
+    <div class="inspector-modal" id="inspectorModal">
+      <div class="inspector-header">
+        <div>
+          <div class="inspector-badge-group">
+            <span class="hud-badge" id="inspTaskTag">TAREA TÉCNICA</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-dim);" id="inspTaskModule">MÓDULO</span>
+          </div>
+          <h3 class="inspector-title" id="inspTaskTitle">Título de la Tarea</h3>
+        </div>
+        <button class="inspector-close-btn" id="inspCloseBtn">✕</button>
+      </div>
+
+      <div class="inspector-content">
+        <!-- Bloque 1: Descripción Funcional y Operativa -->
+        <div class="inspector-section">
+          <div class="inspector-section-label">
+            <span>01. DESCRIPCIÓN FUNCIONAL & OPERACIÓN DEL FLUJO</span>
+          </div>
+          <div class="inspector-section-body" id="inspFunctionalBody">
+            Descripción clara de lo que se implementó y cómo opera en la práctica.
+          </div>
+        </div>
+
+        <!-- Bloque 2: Arquitectura y Detalle Técnico -->
+        <div class="inspector-section">
+          <div class="inspector-section-label">
+            <span>02. ARQUITECTURA & ESPECIFICACIÓN TÉCNICA</span>
+          </div>
+          <div class="inspector-section-body" id="inspTechnicalBody">
+            Componentes, endpoints y lógica de backend.
+          </div>
+        </div>
+
+        <!-- Bloque 3: Criterios de Aceptación y Valor -->
+        <div class="inspector-section">
+          <div class="inspector-section-label">
+            <span>03. CRITERIOS DE ACEPTACIÓN & VALOR ENTREGADO</span>
+          </div>
+          <div class="inspector-section-body" id="inspValueBody">
+            Resultado de verificación y valor para el usuario y negocio.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TOC DRAWER (ÍNDICE LATERAL DESLIZABLE)
+       ======================================================================== -->
+  <div class="toc-overlay" id="tocOverlay"></div>
+  <aside class="toc-drawer" id="tocDrawer">
+    <div class="toc-header">
+      <div class="toc-title">ÍNDICE DE DIAPOSITIVAS</div>
+      <button class="toc-close" id="btnTocClose">✕</button>
+    </div>
+    <ul class="toc-list" id="tocList">
+      <!-- Se inyecta dinámicamente con JavaScript -->
+    </ul>
+  </aside>
+
+  <!-- ========================================================================
+       MOTOR DE NAVEGACIÓN Y DATOS DE TAREAS (JAVASCRIPT)
+       ======================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // ======================================================================
+      // BASE DE CONOCIMIENTO TÉCNICO PROFESIONAL (ESTRUCTURA UNIFICADA)
+      // ======================================================================
+      const TASK_DATABASE = {
+        // --- HU-19 ---
+        'hu19-task1': {
+          tag: 'HU-19 // TICKETS & PAGOS',
+          module: 'BACKEND SPRING BOOT · CANCELLATION SERVICE',
+          title: 'Cotizador de Reembolso y Validador de Políticas',
+          functional: 'Construimos una capa previa de consulta transparente: antes de que el usuario confirme la cancelación a ciegas, el sistema verifica las políticas del evento (por ejemplo, admisible hasta 24 horas antes del inicio) y le muestra en pantalla cuánto dinero neto se le devolverá a su tarjeta bancaria. Si el evento ya comenzó o las políticas no lo permiten, el sistema le informa con precisión el motivo de rechazo sin sorpresas ni deducciones ocultas.',
+          technical: 'Implementado en <code>CancellationController.java</code> y <code>CancellationServiceImpl.java</code> mediante los endpoints <code>GET /refunds/policy/{eventId}</code> y <code>GET /refunds/quote/{ticketId}</code>. Valida la fecha de inicio del evento contra <code>LocalDateTime.now()</code>, comprueba que el boleto esté en estado <code>active</code>, aplica las reglas de retención correspondientes y devuelve el DTO <code>CancellationQuoteResponse</code>.',
+          value: 'Cumple con el Criterio 2 y Criterio 3 de aceptación. Elimina la fricción e incertidumbre económica del asistente, garantizando total claridad en las transacciones de devolución.'
+        },
+        'hu19-task2': {
+          tag: 'HU-19 // BASE DE DATOS & SEGURIDAD',
+          module: 'MYSQL · MONGODB SYNC · TRANSACTIONAL',
+          title: 'Transacción Atómica de Revocación e Invalidez de Acceso',
+          functional: 'Aseguramos la integridad total del aforo evitando cualquier posibilidad de fraude o reingreso. Al momento exacto en que el usuario confirma el reembolso, el sistema revoca el boleto, apaga de forma permanente el código QR de acceso y libera el asiento asignado para que regrese inmediatamente al inventario comercial y pueda ser adquirido por otro asistente.',
+          technical: 'Endpoint <code>POST /refunds/request</code> en <code>CancellationController.java</code> anotado con <code>@Transactional</code>. Actualiza el boleto a <code>status = "cancelled"</code>, revoca el payload criptográfico del QR para que sea rechazado en los torniquetes taquilla, limpia la ocupación del asiento en MySQL y sincroniza en tiempo real el documento en MongoDB mediante <code>syncToMongo</code>.',
+          value: 'Cumple Criterios 4, 5 y 7. Previene fraudes por capturas de pantalla o reutilización indebida; una vez devuelto, el boleto es estrictamente inválido en taquilla.'
+        },
+        'hu19-task3': {
+          tag: 'HU-19 // FRONTEND WEB & MOBILE',
+          module: 'REACT · USER DASHBOARD · WALLET MODALS',
+          title: 'Rastreador de Estado y Experiencia de Usuario',
+          functional: 'Proporcionamos al comprador autonomía completa para seguir el progreso de su dinero. En lugar de que el cliente deba redactar correos a soporte técnico preguntando por su saldo, la plataforma cuenta con la sección interactiva "Mis Reembolsos" donde visualiza una barra de seguimiento en tiempo real desde la recepción del trámite hasta la liquidación bancaria.',
+          technical: 'Vistas <code>RefundRequest.jsx</code> y <code>RefundTracker.jsx</code> integradas en la ruta <code>/user/refunds</code>, modal interactivo <code>CancelTicketModal.jsx</code> en la wallet del usuario, y componente React Native <code>RefundRequestCard.tsx</code> en la aplicación móvil. Muestra estados dinámicos: <code>Pendiente</code>, <code>Aprobado</code>, <code>Reembolsado</code> o <code>Rechazado</code>.',
+          value: 'Cumple el Criterio 6. Reduce hasta un 80% la carga operativa del equipo de soporte al automatizar la consulta y trazabilidad de reembolsos.'
+        },
+
+        // --- HU-20 ---
+        'hu20-task1': {
+          tag: 'HU-20 // SEGURIDAD & AUTENTICACIÓN',
+          module: 'SPRING BOOT · SECURITY PRINCIPAL',
+          title: 'Solicitud Segura de Transferencia con Validación de Clave',
+          functional: 'Diseñamos un flujo blindado para ceder boletos: el titular especifica el correo electrónico del amigo o familiar al que le transferirá la entrada, pero como medida de seguridad obligatoria debe reingresar su propia contraseña. Esto previene que terceros malintencionados transfieran boletos indebidamente si una sesión quedó abierta en un dispositivo ajeno.',
+          technical: 'Endpoint <code>POST /transfer/request</code> en <code>TransferController.java</code>. Valida que el boleto pertenezca al <code>UserPrincipal</code> autenticado, corrobora la firma de seguridad/contraseña del emisor y crea un registro de transferencia con estado <code>pending</code> sin liberar el boleto todavía hasta que el receptor lo acepte.',
+          value: 'Garantiza la autenticidad del titular antes de alterar la propiedad del boleto, protegiendo los activos digitales del usuario.'
+        },
+        'hu20-task2': {
+          tag: 'HU-20 // TICKET ENGINE & CRIPTOGRAFÍA',
+          module: 'TRANSFER SERVICE · QR GENERATOR',
+          title: 'Traspaso de Titularidad y Regeneración Dinámica de QR',
+          functional: 'Erradicamos las estafas típicas de reventa basadas en capturas de pantalla o duplicados impresos. Cuando el destinatario acepta el boleto, el código QR del propietario original queda completamente inhabilitado y el motor genera un boleto 100% nuevo con una firma QR encriptada exclusiva para el nuevo dueño.',
+          technical: 'Método <code>acceptTransfer</code> en <code>TransferServiceImpl.java</code> ejecutado vía <code>POST /transfer/{transferId}/accept</code>. Reasigna el <code>userId</code> al nuevo dueño, genera un nuevo <code>ticket_code</code> con nuevo token criptográfico de QR, y marca la transferencia como <code>completed</code>.',
+          value: 'Seguridad anti-duplicidad de accesos en puerta. Dos personas jamás podrán ingresar con el mismo boleto porque el anterior queda anulado al concretarse el traspaso.'
+        },
+        'hu20-task3': {
+          tag: 'HU-20 // REGISTRO & ONBOARDING',
+          module: 'CLAIM TOKEN · DEEP LINKING · REACT HOOK',
+          title: 'Enlace de Reclamo Dinámico para Nuevos Usuarios',
+          functional: 'Facilitamos la entrega de entradas a personas que todavía no son miembros de Laika Club. Si le transfieres un boleto a alguien sin cuenta previa, el sistema le genera un enlace único de invitación por correo o mensajería; al ingresar y crear su perfil en 30 segundos, el boleto queda automáticamente reclamado y depositado en su nueva billetera.',
+          technical: 'Hook <code>useTicketTransfer.js</code> en frontend con máquina de estados finita. Si el destinatario no está registrado, genera una URL con <code>claim_token</code> (<code>/register?claim_token=...</code>) que se valida al registrarse llamando a <code>POST /transfer/claim/{claimToken}</code>.',
+          value: 'Fomenta el crecimiento orgánico de la base de usuarios mediante un flujo de incorporación ágil y sin fricción de soporte.'
+        },
+
+        // --- HU-21 ---
+        'hu21-task1': {
+          tag: 'HU-21 // TICKETING & GESTIÓN',
+          module: 'COURTESY SERVICE · PRICING ENGINE',
+          title: 'Asignación Directa de Cortesía a Correo con Costo Cero',
+          functional: 'Atendimos los compromisos comerciales institucionales de los eventos: el gestor puede expedir entradas oficiales a marcas auspiciantes, periodistas o talento artístico sin realizarles ningún cobro económico ($0.00) y sin distorsionar los balances contables de ventas comerciales del concierto.',
+          technical: 'Controlador <code>CourtesyController.java</code> y método <code>issueCourtesy</code> en <code>CourtesyService.java</code> con opción <code>deliveryMethod = "DIRECT_EMAIL"</code>. Genera el boleto con <code>price = 0.0</code>, <code>paymentMethod = "courtesy"</code>, <code>isCourtesy = true</code> y asocia la categoría del invitado (<code>PATROCINADOR</code>, <code>PRENSA</code>, etc.).',
+          value: 'Separa limpiamente la recaudación financiera de la ocupación del aforo. El boleto existe en el mapa de asientos pero no infla los ingresos reportados.'
+        },
+        'hu21-task2': {
+          tag: 'HU-21 // ADMINISTRACIÓN & CUOTAS',
+          module: 'COURTESY QUOTA · ACCESS CONTROL',
+          title: 'Control Estricto y Auditoría de Cuotas por Gestor',
+          functional: 'Instalamos un candado administrativo indispensable: los organizadores no pueden repartir pases de cortesía de forma arbitraria o ilimitada. La administración central establece un cupo máximo autorizado por evento y zona, el cual se va descontando en tiempo real con cada emisión realizada.',
+          technical: 'Entidad <code>CourtesyQuota</code> en microservicio Tickets, validación <code>consumeQuota(...)</code> previa a la emisión y endpoints <code>GET /courtesy/my-quotas</code> y <code>POST /courtesy/quota</code>. En el frontend de gestor (<code>laika-gestor</code>), la vista <code>CourtesyDashboard.jsx</code> muestra las cuotas restantes en tiempo real.',
+          value: 'Previene sobrecupos y fugas internas de boletaje, garantizando que solo se emita el volumen estipulado en los acuerdos comerciales.'
+        },
+        'hu21-task3': {
+          tag: 'HU-21 // EXPERIENCIA DIGITAL',
+          module: 'COURTESY GIFT MODAL · USER WALLET',
+          title: 'Experiencia de Desempaque de Invitación VIP',
+          functional: 'Cuidamos la relación pública con los patrocinadores y celebridades invitadas. Al ingresar a Laika Club, la plataforma detecta que recibieron un pase especial y despliega una experiencia visual de invitación de gala, explicando qué marca o convenio les otorgó el beneficio.',
+          technical: 'Componentes <code>CourtesyGiftRevealModal.jsx</code> y estilos dedicados <code>CourtesyGiftRevealModal.css</code> en la wallet del usuario web. Detecta pases no visualizados en <code>localStorage</code> y despliega los metadatos institucionales (ej. \'Cortesía Patrocinador Oficial - Contrato #44\').',
+          value: 'Eleva el valor percibido del patrocinio empresarial y refuerza la imagen institucional del evento.'
+        },
+
+        // --- HU-22 ---
+        'hu22-task1': {
+          tag: 'HU-22 // ASIGNACIÓN MASIVA EN LOTE',
+          module: 'BATCH GENERATOR · COURTESY ISSUANCE',
+          title: 'Generación Atómica de Lotes de Códigos de Canje',
+          functional: 'Optimizamos drásticamente la distribución corporativa: si una compañía aliada adquiere 50 o 100 entradas para sus colaboradores, el administrador ya no tiene que capturar 100 correos manualmente. En una sola operación genera el lote completo con tokens alfanuméricos únicos y auditables asociados a un mismo expediente.',
+          technical: 'Método <code>issueCourtesy</code> con <code>deliveryMethod = "CLAIM_CODE"</code> en <code>CourtesyService.java</code>. En un solo bloque atómico genera N registros de boletos con <code>status = "pending_claim"</code> y tokens alfanuméricos seguros <code>claimToken</code>, asociados a una cabecera de lote <code>CourtesyIssuance</code>.',
+          value: 'Reduce de horas a segundos la creación de lotes corporativos de boletos, eliminando por completo errores humanos de captura.'
+        },
+        'hu22-task2': {
+          tag: 'HU-22 // EXPORTACIÓN & DISTRIBUCIÓN',
+          module: 'LAIKA-GESTOR · TEXT EXPORTER',
+          title: 'Modal de Exportación Rápida y Descarga de Lote (.txt)',
+          functional: 'Equipamos al gestor con herramientas prácticas de entrega: tras autorizar el lote, puede copiar la lista completa de códigos al portapapeles con un clic o descargar un archivo de texto estructurado (.txt) listo para adjuntar y enviar al departamento de Recursos Humanos de la empresa asociada.',
+          technical: 'Componente <code>CourtesyGeneratedModal.jsx</code> en el panel <code>laika-gestor</code>. Implementa <code>copyAllCodes()</code> mediante la API <code>navigator.clipboard</code> y <code>downloadTextFile()</code> que genera dinámicamente el archivo <code>cortesias_lote_{id}.txt</code> con detalle de zona y tokens.',
+          value: 'Agiliza la logística B2B con empresas e instituciones sin requerir desarrollos adicionales de integración por cada convenio.'
+        },
+        'hu22-task3': {
+          tag: 'HU-22 // REDENCIÓN FINAL',
+          module: 'REDEMPTION CENTER · TICKET CLAIM',
+          title: 'Centro de Canje Individual de Colaboradores',
+          functional: 'Descentralizamos la activación de boletos: cada colaborador recibe su código de parte de su empresa, entra al Centro de Canje de Laika Club, introduce su token y obtiene su pase digital oficial a su nombre con código QR personalizado en su dispositivo.',
+          technical: 'Endpoint <code>POST /courtesy/claim</code> en <code>CourtesyController.java</code> y componente <code>RedeemCourtesyModal.jsx</code>. Valida que el token no haya sido usado previamente, actualiza el boleto a estado <code>active</code>, genera el QR personal y lo asocia al <code>userId</code> que inició sesión.',
+          value: 'Asegura que cada entrada quede vinculada a una persona real con identidad verificada antes de presentarse al recinto.'
+        },
+
+        // --- HU-24 ---
+        'hu24-task1': {
+          tag: 'HU-24 // E-COMMERCE & MERCHANDISE',
+          module: 'LAIKA SHOP · BENTO BOX UI · EVENT LINKING',
+          title: 'Rediseño Bento Box y Catálogo Oficial para Fans',
+          functional: 'Habilitamos el canal oficial de merchandising de Laika Club: los fans pueden comprar con antelación playeras conmemorativas, gorras y souvenirs oficiales de sus bandas preferidas con una interfaz Bento Box moderna, evitando filas agobiantes el día del concierto o la compra de productos pirata.',
+          technical: 'Componentes modulares bajo <code>src/pages/Shop/components/</code>: <code>ShopHeroSlider.jsx</code> (carrusel de drops oficiales), <code>ShopQuickFinder.jsx</code> (buscador bento rápido), <code>ShopPromoCard.jsx</code> y <code>FeaturedCategories.jsx</code>. Filtra estrictamente artículos con <code>admin_status = "approved"</code> y los enlaza en la ficha de evento mediante <code>EventMerchSection.jsx</code>.',
+          value: 'Abre una nueva línea de monetización comercial para organizadores y artistas directamente dentro de la plataforma.'
+        },
+        'hu24-task2': {
+          tag: 'HU-24 // CARRITO & INVENTARIO',
+          module: 'CART CONTEXT · PERSISTENCE · REALTIME STOCK',
+          title: 'Gestión de Variantes y Control de Existencias en Carrito',
+          functional: 'Blindamos la fiabilidad del carrito de compras: almacena con precisión tallas y variantes de color, y valida el inventario en tiempo real contra la base de datos. Si una prenda se agota mientras el comprador navega, el sistema le notifica al instante y bloquea el botón de pago para evitar cobros por artículos inexistentes.',
+          technical: 'Contexto de estado <code>CartContext.jsx</code> y hook <code>useCheckoutFlow.js</code> con persistencia de <code>variantId</code>, <code>merchId</code> y <code>stock</code>. En <code>CartContent.jsx</code> se agregó validación dinámica contra el microservicio de mercancía, mostrando etiquetas <code>AGOTADO</code> y deshabilitando el botón de compra ante inventario insuficiente.',
+          value: 'Cero discrepancias entre el stock físico de almacén y las compras procesadas en la pasarela de pagos.'
+        },
+        'hu24-task3': {
+          tag: 'HU-24 // CHECKOUT UNIFICADO',
+          module: 'CHECKOUT FLOW · HYBRID ORDERS',
+          title: 'Checkout Diferenciado: Recolección en Taquilla vs Envío',
+          functional: 'Simplificamos la pasarela de cobro adaptándola al tipo de entrega: si el fan elige recoger sus productos en el módulo oficial del concierto, el sistema no le pide calle, colonia ni código postal, solicitando únicamente su nombre para cotejar con su credencial de elector (INE) el día del evento.',
+          technical: 'En <code>PhaseDelivery.jsx</code> y <code>useCheckoutFlow.js</code> se desacopló el formulario domiciliario cuando se selecciona <code>deliveryType = "tienda"</code>. Solo se requiere el nombre del titular para cotejo con identificación oficial (INE) en módulo físico. Permite órdenes mixtas (boletos + playeras) y enlaza a <code>/user/history?tab=merch</code>.',
+          value: 'Reduce el abandono de carrito al eliminar campos innecesarios cuando el comprador solo busca recoger en taquilla.'
+        },
+
+        // --- HU-25 ---
+        'hu25-task1': {
+          tag: 'HU-25 // DISEÑO MÓVIL · LAIKAMOBIL',
+          module: 'REACT NATIVE · CYBER-WALLET PASS',
+          title: 'Tarjeta Troquelada y Pases Digitales Móviles',
+          functional: 'Renovamos la pantalla de visualización del boleto móvil con estética de pase troquelado de alta gama (estilo Apple Wallet), mejorando la legibilidad de fecha, recinto y asiento, e integrando un código QR dinámico optimizado para lectura rápida en los escáneres de acceso de taquilla.',
+          technical: 'Construido en React Native / TypeScript bajo <code>LaikaMobil/src/screens/TicketPassScreen.tsx</code> y <code>components/TicketActionModal.tsx</code>. Optimiza el renderizado del código QR mediante vectores SVG para lectura veloz en taquilla incluso con bajo brillo de pantalla.',
+          value: 'Acelera el flujo de ingreso en puerta y moderniza la percepción visual de la aplicación móvil de los asistentes.'
+        },
+        'hu25-task2': {
+          tag: 'HU-25 // EXPERIENCIA TÁCTIL',
+          module: 'MOBILE REFUNDS · CANCEL MODAL',
+          title: 'Módulo Táctil de Reembolsos en Aplicación Móvil',
+          functional: 'Llevamos la funcionalidad de cancelaciones y cotización de reembolsos directamente a la experiencia nativa de teléfonos inteligentes, permitiendo al usuario revisar el importe a devolver y confirmar la solicitud en dos toques con confirmación háptica y visual.',
+          technical: 'Componentes <code>CancelTicketModal.tsx</code> y <code>RefundRequestCard.tsx</code> en <code>LaikaMobil/src/components/</code>, conectados con el cliente de API <code>CancellationService.ts</code>. Muestra desglose claro de deducciones y confirmación táctil.',
+          value: 'Garantiza paridad funcional entre la versión web de escritorio y la aplicación móvil oficial de Laika Club.'
+        },
+        'hu25-task3': {
+          tag: 'HU-25 // ESTADO DE DESARROLLO',
+          module: 'SPRINT STATUS · TRANSICIÓN SPRINT 4',
+          title: 'Diagnóstico del 60% Construido y Tareas de Cierre',
+          functional: 'Los componentes visuales críticos del boleto troquelado y los modales transaccionales ya se encuentran programados y operativos. Actualmente el equipo se encuentra refinando la navegación global entre pestañas y realizando pruebas de respuesta táctil en múltiples resoluciones físicas de Android e iOS.',
+          technical: 'Módulos implementados en la rama de diseño móvil. Tareas pendientes: integración de la barra de navegación inferior con la nueva paleta de colores corporativa y pruebas de compatibilidad en dispositivos físicos con diversas resoluciones.',
+          value: 'Historia en desarrollo activo con un 60% de avance real comprobable, programada para su entrega integral al inicio del Sprint 4.'
+        },
+
+        // --- HT-23 ---
+        'ht23-task1': {
+          tag: 'HT-23 // DEVOPS & DOCKER',
+          module: 'CONTAINERS · MULTI-SERVICE REPRODUCIBILITY',
+          title: 'Contenerización Multi-Servicio y Portabilidad Docker',
+          functional: 'Empaquetamos y estandarizamos la totalidad del ecosistema (Java Spring Boot, Python Big Data y Frontends React) en imágenes de contenedores Docker independientes, asegurando que el sistema sea 100% portable y ejecutable de manera idéntica en cualquier infraestructura cloud.',
+          technical: 'Archivos <code>Dockerfile</code>, <code>Dockerfile.conda</code> (para el entorno analítico de PySpark/Python) y <code>Dockerfile.frontend</code> en la raíz del repositorio, junto con archivos de variables de entorno <code>.env.docker</code>.',
+          value: 'Elimina el clásico conflicto de "en mi máquina sí funciona", permitiendo replicar el stack completo en la nube con un solo comando.'
+        },
+        'ht23-task2': {
+          tag: 'HT-23 // ESTRATEGIA CLOUD & PRESUPUESTO',
+          module: 'MICROSOFT AZURE · COST EFFICIENCY · BENCHMARK',
+          title: 'Modelado y Benchmarking de Créditos en Microsoft Azure',
+          functional: 'Estamos evaluando activamente la infraestructura cloud en Microsoft Azure para determinar qué combinación de servicios exprime al máximo los créditos institucionales disponibles. El objetivo es estructurar una arquitectura de alto rendimiento que no desperdicie créditos en servidores sobredimensionados durante periodos de baja demanda.',
+          technical: 'Análisis comparativo de costos y latencia entre <strong>Azure Container Apps</strong> (serverless con escalado a cero en horas valle) frente a <strong>Azure App Services Multi-container</strong> y <strong>AKS (Azure Kubernetes Service)</strong>, dimensionando el almacenamiento MySQL Flexible Server para soportar alta concurrencia transaccional sin agotar los créditos de Azure.',
+          value: 'Decisión técnica de ingeniería que garantiza la viabilidad financiera del proyecto en Azure sin comprometer la velocidad ni la estabilidad del sistema.'
+        },
+        'ht23-task3': {
+          tag: 'HT-23 // ROADMAP DE DESPLIEGUE',
+          module: 'AZURE PROVISIONING · SSL HTTPS · SPRINT 4',
+          title: 'Aprovisionamiento y Conexión Segura (Roadmap Inmediato)',
+          functional: 'Con el modelo arquitectónico más eficiente definido en Azure, se procederá al aprovisionamiento definitivo de los contenedores en la nube, enlazando el dominio público con balanceador de carga y certificados SSL para acceso seguro de la comunidad.',
+          technical: 'Despliegue del stack de contenedores en Azure, inyección de variables de entorno seguras, y configuración de reverse proxy Nginx con certificados SSL Let\'s Encrypt / Azure Front Door para tráfico seguro HTTPS.',
+          value: 'Tarea en ejecución activa con base de contenedores terminada, lista para su publicación en el servidor cloud productivo de Azure.'
+        }
+      };
+
+      // ======================================================================
+      // DOM ELEMENTS & CONTROLLERS
+      // ======================================================================
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const totalSlides = slides.length;
+      let currentIndex = 0;
+
+      const currentSlideNumEl = document.getElementById('currentSlideNum');
+      const totalSlideNumEl = document.getElementById('totalSlideNum');
+      const progressFillEl = document.getElementById('progressFill');
+      const btnPrev = document.getElementById('btnPrev');
+      const btnNext = document.getElementById('btnNext');
+      const btnFullscreen = document.getElementById('btnFullscreen');
+
+      const btnTocToggle = document.getElementById('btnTocToggle');
+      const btnTocClose = document.getElementById('btnTocClose');
+      const tocDrawer = document.getElementById('tocDrawer');
+      const tocOverlay = document.getElementById('tocOverlay');
+      const tocList = document.getElementById('tocList');
+
+      const themeButtons = Array.from(document.querySelectorAll('.theme-btn'));
+
+      // Modal Inspector de Tareas
+      const inspectorOverlay = document.getElementById('inspectorOverlay');
+      const inspCloseBtn = document.getElementById('inspCloseBtn');
+      const inspTaskTag = document.getElementById('inspTaskTag');
+      const inspTaskModule = document.getElementById('inspTaskModule');
+      const inspTaskTitle = document.getElementById('inspTaskTitle');
+      const inspFunctionalBody = document.getElementById('inspFunctionalBody');
+      const inspTechnicalBody = document.getElementById('inspTechnicalBody');
+      const inspValueBody = document.getElementById('inspValueBody');
+
+      const slideTitles = [
+        "01. Portada // Protocol Report",
+        "02. Objetivo del Sprint & Balance General",
+        "03. HU-19: Cancelación y Reembolso",
+        "04. HU-20: Transferencia de Boletos",
+        "05. HU-21: Boletos de Cortesía",
+        "06. HU-22: Asignación Masiva en Lotes",
+        "07. HU-24: Catálogo y Compra de Merch",
+        "08. HU-25: Rediseño Móvil (En Proceso)",
+        "09. HT-23: Infraestructura Azure (En Proceso)",
+        "10. Conclusiones y Retrospectiva"
+      ];
+
+      function pad(num) {
+        return num < 10 ? '0' + num : num;
+      }
+
+      function initToc() {
+        tocList.innerHTML = '';
+        slideTitles.forEach((title, idx) => {
+          const li = document.createElement('li');
+          li.className = 'toc-item' + (idx === currentIndex ? ' current' : '');
+          li.innerHTML = `<span>${title}</span> <span>#${pad(idx + 1)}</span>`;
+          li.addEventListener('click', () => {
+            goToSlide(idx);
+            closeToc();
+          });
+          tocList.appendChild(li);
+        });
+      }
+
+      function updateTocActive() {
+        const items = tocList.querySelectorAll('.toc-item');
+        items.forEach((item, idx) => {
+          if (idx === currentIndex) {
+            item.classList.add('current');
+          } else {
+            item.classList.remove('current');
+          }
+        });
+      }
+
+      function openToc() {
+        tocDrawer.classList.add('open');
+        tocOverlay.classList.add('open');
+      }
+
+      function closeToc() {
+        tocDrawer.classList.remove('open');
+        tocOverlay.classList.remove('open');
+      }
+
+      // ======================================================================
+      // APERTURA DEL INSPECTOR DE TAREAS (CLICK EN TARJETA)
+      // ======================================================================
+      function openTaskInspector(taskId) {
+        const data = TASK_DATABASE[taskId];
+        if (!data) return;
+
+        inspTaskTag.textContent = data.tag;
+        inspTaskModule.textContent = data.module;
+        inspTaskTitle.textContent = data.title;
+        inspFunctionalBody.innerHTML = data.functional;
+        inspTechnicalBody.innerHTML = data.technical;
+        inspValueBody.innerHTML = data.value;
+
+        inspectorOverlay.classList.add('open');
+      }
+
+      function closeTaskInspector() {
+        inspectorOverlay.classList.remove('open');
+      }
+
+      const taskCards = document.querySelectorAll('.task-card-clickable');
+      taskCards.forEach(card => {
+        card.addEventListener('click', () => {
+          const taskId = card.getAttribute('data-task');
+          openTaskInspector(taskId);
+        });
+      });
+
+      inspCloseBtn.addEventListener('click', closeTaskInspector);
+      inspectorOverlay.addEventListener('click', (e) => {
+        if (e.target === inspectorOverlay) {
+          closeTaskInspector();
+        }
+      });
+
+      // Navegación de Diapositivas
+      function goToSlide(index) {
+        if (index < 0 || index >= totalSlides) return;
+
+        slides[currentIndex].classList.remove('active');
+        currentIndex = index;
+        slides[currentIndex].classList.add('active');
+
+        currentSlideNumEl.textContent = pad(currentIndex + 1);
+        totalSlideNumEl.textContent = pad(totalSlides);
+
+        const progressPercent = ((currentIndex + 1) / totalSlides) * 100;
+        progressFillEl.style.width = progressPercent + '%';
+
+        btnPrev.disabled = currentIndex === 0;
+        btnNext.disabled = currentIndex === totalSlides - 1;
+
+        updateTocActive();
+      }
+
+      function nextSlide() {
+        if (currentIndex < totalSlides - 1) {
+          goToSlide(currentIndex + 1);
+        }
+      }
+
+      function prevSlide() {
+        if (currentIndex > 0) {
+          goToSlide(currentIndex - 1);
+        }
+      }
+
+      // Temas
+      function setTheme(themeName) {
+        document.documentElement.setAttribute('data-theme', themeName);
+        localStorage.setItem('laika_review_theme', themeName);
+
+        themeButtons.forEach(btn => {
+          if (btn.getAttribute('data-set-theme') === themeName) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+      }
+
+      btnPrev.addEventListener('click', prevSlide);
+      btnNext.addEventListener('click', nextSlide);
+
+      btnTocToggle.addEventListener('click', openToc);
+      btnTocClose.addEventListener('click', closeToc);
+      tocOverlay.addEventListener('click', closeToc);
+
+      themeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const chosen = btn.getAttribute('data-set-theme');
+          setTheme(chosen);
+        });
+      });
+
+      btnFullscreen.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.warn("Fullscreen request error:", err);
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      });
+
+      // Teclado
+      window.addEventListener('keydown', (e) => {
+        if (inspectorOverlay.classList.contains('open')) {
+          if (e.key === 'Escape') {
+            closeTaskInspector();
+          }
+          return;
+        }
+
+        if (tocDrawer.classList.contains('open')) {
+          if (e.key === 'Escape') {
+            closeToc();
+          }
+          return;
+        }
+
+        switch (e.key) {
+          case 'ArrowRight':
+          case 'ArrowDown':
+          case 'PageDown':
+          case ' ':
+            e.preventDefault();
+            nextSlide();
+            break;
+          case 'ArrowLeft':
+          case 'ArrowUp':
+          case 'PageUp':
+            e.preventDefault();
+            prevSlide();
+            break;
+          case 'Home':
+            e.preventDefault();
+            goToSlide(0);
+            break;
+          case 'End':
+            e.preventDefault();
+            goToSlide(totalSlides - 1);
+            break;
+          case 't':
+          case 'T':
+            const themes = ['normal', 'oscuro', 'claro'];
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'normal';
+            const nextIdx = (themes.indexOf(currentTheme) + 1) % themes.length;
+            setTheme(themes[nextIdx]);
+            break;
+        }
+      });
+
+      const savedTheme = localStorage.getItem('laika_review_theme') || 'normal';
+      setTheme(savedTheme);
+      initToc();
+      goToSlide(0);
+
+    })();
+  </script>
+</body>
+</html>
