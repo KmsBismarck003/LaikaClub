@@ -29,7 +29,7 @@ import EventPoster from "./components/EventPoster/EventPoster";
 import EventDescription from "./components/EventDescription/EventDescription";
 import EventGallery from "./components/EventGallery/EventGallery";
 
-import { LoadingScreen, AdCarousel } from "../../components";
+import { LoadingScreen, AdCarousel, ConfirmDialog } from "../../components";
 import { usePresale, PresaleGate } from "../../features/presale";
 import "./EventDetail.css";
 
@@ -357,6 +357,29 @@ const EventDetail = () => {
       <LoginIncentiveModal
         isOpen={showLoginPrompt}
         onClose={() => setShowLoginPrompt(false)}
+      />
+
+      {/* Diálogo de Confirmación para Agregar Boletos al Carrito */}
+      <ConfirmDialog
+        isOpen={ticketEngine.showCartConfirm}
+        onClose={() => ticketEngine.setShowCartConfirm(false)}
+        onConfirm={ticketEngine.confirmAddToCart}
+        title="¿Agregar al carrito?"
+        message={`¿Deseas agregar ${ticketEngine.cartConfirmData?.qty || 1} boleto(s) para "${event?.name}" a tu carrito?`}
+        confirmText="Agregar al carrito"
+        cancelText="Cancelar"
+        variant="cart"
+        itemDetails={ticketEngine.cartConfirmData ? {
+          image: event?.image_url || event?.image,
+          title: event?.name,
+          subtitle: `${ticketEngine.cartConfirmData.effectiveFunction?.date || displayDate || ''} · ${ticketEngine.cartConfirmData.effectiveFunction?.venue_name || event?.venue_name || 'LAIKA ARENA'}`,
+          price: `$${((ticketEngine.cartConfirmData.price || 0) * (ticketEngine.cartConfirmData.qty || 1)).toFixed(2)} MXN`,
+          badge: ticketEngine.cartConfirmData.selectedSection?.name || 'ENTRADA GENERAL',
+          quantity: ticketEngine.cartConfirmData.qty,
+          meta: ticketEngine.cartConfirmData.selectedSeats?.length > 0 
+            ? `Asientos: ${ticketEngine.cartConfirmData.selectedSeats.join(', ')}`
+            : null
+        } : null}
       />
     </div>
   );

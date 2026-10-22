@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { ticketAPI, eventAPI } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icons/Icons';
+import { ConfirmDialog } from '../../components';
 
 /* ── Fallback concert images for events without photo ───────── */
 const FALLBACK_IMAGES = [
@@ -36,6 +37,7 @@ export default function UserDashboard() {
   const [myTickets, setMyTickets]   = useState([]);
   const [loading,   setLoading]     = useState(true);
   const [addingId,  setAddingId]    = useState(null);
+  const [eventToConfirm, setEventToConfirm] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -56,12 +58,19 @@ export default function UserDashboard() {
   }, []);
 
   const handleAdd = (event) => {
+    setEventToConfirm(event);
+  };
+
+  const handleConfirmAddToCart = () => {
+    if (!eventToConfirm) return;
+    const event = eventToConfirm;
     setAddingId(event.id);
     addToCart(
       event, 1,
       { id: null, date: event.date || null, time: event.time || null, venue_name: event.venue_name || 'LAIKA ARENA' },
       { id: null, name: 'GENERAL', price: parseFloat(event.price) || 0 }
     );
+    setEventToConfirm(null);
     setTimeout(() => { setAddingId(null); openCart(); }, 800);
   };
 
@@ -330,6 +339,26 @@ export default function UserDashboard() {
           </div>
         </div>
       )}
+
+      {/* Diálogo de Confirmación para Agregar Evento al Carrito */}
+      <ConfirmDialog
+        isOpen={Boolean(eventToConfirm)}
+        onClose={() => setEventToConfirm(null)}
+        onConfirm={handleConfirmAddToCart}
+        title="¿Agregar al carrito?"
+        message={`¿Deseas agregar "${eventToConfirm?.name}" a tu carrito de compras?`}
+        confirmText="Agregar al carrito"
+        cancelText="Cancelar"
+        variant="cart"
+        itemDetails={eventToConfirm ? {
+          image: eventToConfirm.image_url || eventToConfirm.image || FALLBACK_IMAGES[Math.abs((eventToConfirm.id || 0) % FALLBACK_IMAGES.length)],
+          title: eventToConfirm.name,
+          subtitle: `${eventToConfirm.date ? new Date(eventToConfirm.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) : ''} · ${eventToConfirm.venue_name || 'LAIKA ARENA'}`,
+          price: `$${parseFloat(eventToConfirm.price || 0).toFixed(2)} MXN`,
+          badge: 'GENERAL',
+          quantity: 1
+        } : null}
+      />
     </div>
   );
 }

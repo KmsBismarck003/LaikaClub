@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { merchService } from '../../services/merch.service';
 import { useCart } from '../../context/CartContext';
 import { useNotification } from '../../context/NotificationContext';
-import { AdCarousel } from '../../components';
+import { AdCarousel, ConfirmDialog } from '../../components';
 import NewsTicker from '../../components/NewsTicker/NewsTicker';
 import {
     SkeletonHero,
@@ -65,6 +65,7 @@ const Shop = () => {
     const [ads, setAds] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [recentlyViewedProducts, setRecentlyViewedProducts] = useState([]);
+    const [productToConfirm, setProductToConfirm] = useState(null);
 
     // Filters & Search
     const [searchTerm, setSearchTerm] = useState('');
@@ -216,9 +217,16 @@ const Shop = () => {
             showNotification('Atención', 'Selecciona una opción (talla/color)', 'warning');
             return;
         }
+        setProductToConfirm({ product, variant, quantity });
+    }, [showNotification]);
+
+    const handleConfirmAddToCart = useCallback(() => {
+        if (!productToConfirm) return;
+        const { product, variant, quantity } = productToConfirm;
         addMerchToCart(product, variant, quantity);
         showNotification('Éxito', `${product.name} añadido al carrito`, 'success');
-    }, [addMerchToCart, showNotification]);
+        setProductToConfirm(null);
+    }, [productToConfirm, addMerchToCart, showNotification]);
 
     const resetFilters = useCallback(() => {
         setSearchTerm('');
@@ -401,6 +409,30 @@ const Shop = () => {
                 selectedProduct={selectedProduct}
                 setSelectedProduct={setSelectedProduct}
                 handleAddToCart={handleAddToCart}
+            />
+
+            {/* Diálogo de Confirmación para Agregar Producto al Carrito */}
+            <ConfirmDialog
+                isOpen={Boolean(productToConfirm)}
+                onClose={() => setProductToConfirm(null)}
+                onConfirm={handleConfirmAddToCart}
+                title="¿Agregar al carrito?"
+                message={`¿Deseas agregar "${productToConfirm?.product?.name}" a tu carrito de compras?`}
+                confirmText="Agregar al carrito"
+                cancelText="Cancelar"
+                variant="cart"
+                itemDetails={productToConfirm ? {
+                    image: productToConfirm.product.imageUrl || productToConfirm.product.image_url,
+                    title: productToConfirm.product.name,
+                    subtitle: [
+                        productToConfirm.variant.size ? `Talla: ${productToConfirm.variant.size}` : null,
+                        productToConfirm.variant.color ? `Color: ${productToConfirm.variant.color}` : null,
+                        productToConfirm.product.category
+                    ].filter(Boolean).join(' · '),
+                    price: `$${parseFloat(productToConfirm.variant.price || 0).toFixed(2)} MXN`,
+                    badge: productToConfirm.product.isOfficial ? 'OFICIAL LAIKA' : 'MERCH',
+                    quantity: productToConfirm.quantity
+                } : null}
             />
         </div>
     );

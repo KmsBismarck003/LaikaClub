@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button, Icon } from "../../../../components";
-import { getImageUrl } from "../../../../utils/imageUtils";
 import TicketPrinterOverlay from "../../../user/UserCart/TicketPrinterOverlay";
 import { getSeatLabel } from "../../utils/helpers";
+import DigitalPassModal from "./DigitalPassModal";
 
 export default function EventModalsManager({
   // Probabilities Modal
@@ -316,10 +316,10 @@ export default function EventModalsManager({
 
       {/* ANIMACIÓN PREMIUM GLOW TICKET (COMPRA EXITOSA) */}
       {showSuccessTicket && (
-        <div className="laika-modal-overlay success-glow-overlay" onClick={() => setShowSuccessTicket(false)}>
-          <div className="ticket-glowing-showcase" onClick={e => e.stopPropagation()}>
-            <div className="success-banner">¡TRANSACCIÓN EXITOSA!</div>
-            {customTicketDesign ? (
+        customTicketDesign ? (
+          <div className="laika-modal-overlay success-glow-overlay" onClick={() => setShowSuccessTicket(false)}>
+            <div className="ticket-glowing-showcase" onClick={e => e.stopPropagation()}>
+              <div className="success-banner">¡TRANSACCIÓN EXITOSA!</div>
               <div style={{ position: 'relative', width: `${customTicketDesign.canvasSize.w}px`, height: `${customTicketDesign.canvasSize.h}px`, backgroundColor: '#FFFFFF', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)', maxWidth: '90vw' }}>
                 <div className="glow-border"></div>
                 {customTicketDesign.elements.map(el => {
@@ -357,36 +357,22 @@ export default function EventModalsManager({
                   return null;
                 })}
               </div>
-            ) : (
-              <div className="ticket-card-animated">
-                <div className="glow-border"></div>
-                <div className="ticket-content">
-                  <div className="ticket-header">
-                    <span className="badge-digital">DIGITAL PASS</span>
-                    <h3>{directTicketData?.event?.name || event.name}</h3>
-                  </div>
-                  <div className="ticket-body">
-                    <div className="row">
-                      <span>SECCIÓN</span>
-                      <strong style={{ color: '#EAB308' }}>{directTicketData?.section?.name || "General"}</strong>
-                    </div>
-                    <div className="row">
-                      <span>ASIENTO</span>
-                      <strong>{directTicketData?.seats?.length > 0 ? directTicketData.seats.map(s => getSeatLabel(s, event)).join(', ') : "General"}</strong>
-                    </div>
-                  </div>
-                  <div className="ticket-footer">
-                    <div className="qr-box-animated">
-                      <Icon name="qrCode" size={100} color="#fff" />
-                    </div>
-                    <span className="scan-text">ESCANEAR ACCESO</span>
-                  </div>
-                </div>
-              </div>
-            )}
-            <Button variant="primary" className="mt-4" onClick={() => { setShowSuccessTicket(false); navigate('/profile'); }}>IR A MIS BOLETOS</Button>
+              <Button variant="primary" className="mt-4" onClick={() => { setShowSuccessTicket(false); navigate('/user/tickets'); }}>IR A MIS BOLETOS</Button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <DigitalPassModal
+            isOpen={showSuccessTicket}
+            onClose={() => setShowSuccessTicket(false)}
+            event={event}
+            directTicketData={directTicketData}
+            displayDate={displayDate}
+            displayTime={displayTime}
+            formatDate={formatDate}
+            formatTime={formatTime}
+            navigate={navigate}
+          />
+        )
       )}
 
       {/* MODAL DE GANADOR LUCY SEAT (PANTALLA FINAL DRAMÁTICA) */}

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../Icons/Icons';
 import TicketPrinterOverlay from '../../pages/user/UserCart/TicketPrinterOverlay';
 import { merchService } from '../../services/merch.service';
+import ConfirmDialog from '../Modals/ConfirmDialog/ConfirmDialog';
 import './Cart.css';
 
 const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false }) => {
@@ -19,6 +20,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
     const { success, error } = useNotification();
     const navigate = useNavigate();
     const [showCouponSelector, setShowCouponSelector] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null);
 
     // Animation overlay state
     const [showPrinter, setShowPrinter] = useState(false);
@@ -138,7 +140,7 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                             disabled={!isAvailable}
                             style={{ width:'24px', height:'24px', background:'transparent', border:'none', color:!isAvailable ? '#666' : '#fff', cursor:!isAvailable ? 'not-allowed' : 'pointer', fontSize:'.8rem', fontWeight:900 }}>+</button>
                     </div>
-                    <button onClick={() => removeFromCart(item.eventId, item.functionId, item.sectionId)}
+                    <button onClick={() => setItemToDelete(item)}
                         style={{ background:'none', border:'none', color:'#f87171', cursor:'pointer', fontSize:'.6rem', fontWeight:700, textAlign:'left', padding:0, marginTop:'0.25rem', width:'fit-content', textDecoration:'underline', textTransform:'uppercase', letterSpacing:'1px' }}>
                         ELIMINAR
                     </button>
@@ -465,6 +467,30 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                     </div>
                 </div>
             )}
+
+            {/* Diálogo de Confirmación para Eliminar Artículo del Carrito */}
+            <ConfirmDialog
+                isOpen={Boolean(itemToDelete)}
+                onClose={() => setItemToDelete(null)}
+                onConfirm={() => {
+                    if (!itemToDelete) return;
+                    removeFromCart(itemToDelete.eventId, itemToDelete.functionId, itemToDelete.sectionId);
+                    setItemToDelete(null);
+                    success('Artículo eliminado del carrito');
+                }}
+                title="¿Eliminar del carrito?"
+                message="¿Estás seguro de que deseas eliminar este artículo de tu carrito de compras?"
+                confirmText="Eliminar"
+                cancelText="Conservar"
+                variant="danger"
+                itemDetails={itemToDelete ? {
+                    image: itemToDelete.image || itemToDelete.imageUrl,
+                    title: itemToDelete.eventName || itemToDelete.name,
+                    subtitle: itemToDelete.sectionName || itemToDelete.functionDate,
+                    price: `$${(itemToDelete.price * itemToDelete.quantity).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN`,
+                    quantity: itemToDelete.quantity
+                } : null}
+            />
         </>
     );
 };

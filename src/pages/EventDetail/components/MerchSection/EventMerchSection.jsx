@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Icon } from "../../../../components";
+import { Button, Icon, ConfirmDialog } from "../../../../components";
 import { merchService } from "../../../../services/merch.service";
 import { useCart } from "../../../../context/CartContext";
 import { useNotification } from "../../../../context/NotificationContext";
@@ -70,6 +70,7 @@ export default function EventMerchSection({
 }) {
   const [merchItems, setMerchItems] = useState([]);
   const [galleryIdx, setGalleryIdx] = useState(0);
+  const [merchToConfirm, setMerchToConfirm] = useState(null);
 
   const { addToCart: hookAddToCart, openCart: hookOpenCart } = useCart();
   const { success: hookSuccess } = useNotification();
@@ -302,25 +303,14 @@ export default function EventMerchSection({
                   onClick={() => {
                     const attrsLabel = Object.entries(merchAttributes).map(([k,v]) => `${v}`).join(' | ');
                     const nameLabel = attrsLabel ? `${selectedMerchItem.name} (${attrsLabel})` : selectedMerchItem.name;
-                    
-                    addToCart(
-                      {
-                        id: `merch_${selectedMerchItem.id}_${activeVariant?.id || 'default'}`,
-                        variant_id: activeVariant?.id,
-                        variantId: activeVariant?.id,
-                        merchId: selectedMerchItem.id,
-                        name: nameLabel,
-                        price: activePrice,
-                        image: selectedMerchItem.image_url,
-                        isMerch: true
-                      },
-                      merchQty,
-                      null,
-                      { id: 'MERCH', name: `LAIKA SHOP: ${selectedMerchItem.category || 'MERCANCÍA'}`, price: activePrice }
-                    );
-                    setSelectedMerchItem(null);
-                    success(`¡${nameLabel} agregado al carrito!`);
-                    openCart();
+                    setMerchToConfirm({
+                      item: selectedMerchItem,
+                      variant: activeVariant,
+                      nameLabel,
+                      price: activePrice,
+                      quantity: merchQty,
+                      category: selectedMerchItem.category || 'MERCANCÍA'
+                    });
                   }}
                 >
                   AÑADIR AL CARRITO
@@ -330,6 +320,48 @@ export default function EventMerchSection({
           </div>
         );
       })()}
+
+      {/* Diálogo de Confirmación para Agregar Merch al Carrito */}
+      <ConfirmDialog
+        isOpen={Boolean(merchToConfirm)}
+        onClose={() => setMerchToConfirm(null)}
+        onConfirm={() => {
+          if (!merchToConfirm) return;
+          const { item, variant, nameLabel, price, quantity, category } = merchToConfirm;
+          addToCart(
+            {
+              id: `merch_${item.id}_${variant?.id || 'default'}`,
+              variant_id: variant?.id,
+              variantId: variant?.id,
+              merchId: item.id,
+              name: nameLabel,
+              price: price,
+              image: item.image_url,
+              isMerch: true
+            },
+            quantity,
+            null,
+            { id: 'MERCH', name: `LAIKA SHOP: ${category}`, price: price }
+          );
+          setMerchToConfirm(null);
+          setSelectedMerchItem(null);
+          success(`¡${nameLabel} agregado al carrito!`);
+          openCart();
+        }}
+        title="¿Agregar al carrito?"
+        message={`¿Deseas agregar "${merchToConfirm?.nameLabel}" a tu carrito de compras?`}
+        confirmText="Agregar al carrito"
+        cancelText="Cancelar"
+        variant="cart"
+        itemDetails={merchToConfirm ? {
+          image: merchToConfirm.item.image_url,
+          title: merchToConfirm.nameLabel,
+          subtitle: `Categoría: ${merchToConfirm.category}`,
+          price: `$${((merchToConfirm.price || 0) * (merchToConfirm.quantity || 1)).toFixed(2)} MXN`,
+          badge: 'MERCH OFICIAL',
+          quantity: merchToConfirm.quantity
+        } : null}
+      />
     </>
   );
 }

@@ -20,6 +20,10 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
   const [showPrinter, setShowPrinter] = useState(false);
   const [isPrinterProcessing, setIsPrinterProcessing] = useState(false);
 
+  // Cart Confirmation state
+  const [showCartConfirm, setShowCartConfirm] = useState(false);
+  const [cartConfirmData, setCartConfirmData] = useState(null);
+
   // Initialize selected function
   useEffect(() => {
     if (event?.functions?.length > 0) {
@@ -113,10 +117,25 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
 
     const effectiveFunction = selectedFunction || (event?.functions?.length > 0 ? event.functions[0] : null);
 
-    // Call addToCart with correct signature: addToCart(event, quantity, functionData, sectionData, seats)
+    setCartConfirmData({
+      event,
+      qty,
+      effectiveFunction,
+      selectedSection,
+      selectedSeats: [...selectedSeats],
+      price: selectedSection ? parseFloat(selectedSection.price) : parseFloat(event?.price || 0)
+    });
+    setShowCartConfirm(true);
+  }, [event, selectedSection, quantity, selectedSeats, selectedFunction, error, sortedSections]);
+
+  const confirmAddToCart = useCallback(() => {
+    if (!cartConfirmData) return;
+    const { event, qty, effectiveFunction, selectedSection, selectedSeats } = cartConfirmData;
     addToCart(event, qty, effectiveFunction, selectedSection, selectedSeats);
     setSelectedSeats([]);
-  }, [event, selectedSection, quantity, selectedSeats, selectedFunction, addToCart, error, sortedSections]);
+    setShowCartConfirm(false);
+    setCartConfirmData(null);
+  }, [cartConfirmData, addToCart]);
 
   const handleDirectBuy = useCallback(() => {
     if (!selectedSection && sortedSections.length > 0) {
@@ -160,6 +179,10 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
     handleAddToCart,
     handleDirectBuy,
     isEventSeating,
+    
+    // Cart Confirmation
+    showCartConfirm, setShowCartConfirm,
+    cartConfirmData, confirmAddToCart,
     
     // Payment & Printer
     isProcessingPayment, setIsProcessingPayment,

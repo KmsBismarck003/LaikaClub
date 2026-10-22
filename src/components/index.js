@@ -17,6 +17,7 @@ export { default as NotificationDetailModal } from './Notifications/Notification
 export { default as LaikaAgent } from './LaikaAgent/LaikaAgent';
 export { default as UserEditModal } from './Modals/UserEditModal';
 export { default as ConfirmationModal } from './Modals/ConfirmationModal';
+export { ConfirmDialog, useConfirmDialog, ConfirmModal } from './Modals/ConfirmDialog';
 export { default as Skeleton, SkeletonRow, SkeletonCard, SkeletonSidebarSection, SkeletonNavbar, SkeletonLaikaBtn, SkeletonEventCard, SkeletonAd, SkeletonMainHeader, SkeletonSearchRow, SkeletonHero, SkeletonNewsTicker, SkeletonFooter } from './Skeleton/Skeleton';
 
 export { default as Accordion } from './Accordion/Accordion';
