@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Card, Icon, Button } from '../../../components';
 import { useNavigate } from 'react-router-dom';
 import EventForm from '../EventForm';
-import { managerAPI } from '../../../services/managerService';
 import { useLocation } from 'react-router-dom';
+import { useNotification } from '../../../context/NotificationContext';
 
 const CreateEventPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { addNotification } = useNotification();
     const [isFormOpen, setIsFormOpen] = useState(false);
 
     // Si venimos con un venue_id, abrir el formulario inmediatamente
@@ -26,6 +27,16 @@ const CreateEventPage = () => {
                 url: `${window.location.origin}/event/${eventData?.id || 1}`
             });
         }).catch(e => console.error("Error triggering push:", e));
+
+        // Registrar notificación en la app para usuarios con redirección directa al evento
+        addNotification({
+            title: '¡Nuevo Evento Anunciado!',
+            message: `Acabamos de anunciar ${eventData?.name || 'un nuevo espectáculo en LaikaClub'}.`,
+            detail: 'Los primeros lugares ya se encuentran disponibles en taquilla digital. Descubre las fechas y aparta tus boletos.',
+            actionUrl: `/event/${eventData?.id || 1}`,
+            actionLabel: 'Ver Evento',
+            role: 'all'
+        });
 
         // Al guardar, redirigimos al monitor de eventos
         navigate('/events/manage');

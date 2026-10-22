@@ -3,11 +3,9 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import NotificationBell from '../../components/Notifications/NotificationBell';
-import NotificationDetailModal from '../../components/Notifications/NotificationDetailModal';
 import LaikaAgent from '../../components/LaikaAgent/LaikaAgent';
 import Icon from '../../components/Icons/Icons';
 import CartModal from '../../components/Cart/CartModal';
-import { useNotification } from '../../context/NotificationContext';
 import { useTheme } from '../../context/ThemeContext';
 
 // ✅ Import the SAME CSS as the admin DashboardLayout
@@ -16,7 +14,6 @@ import '../../layouts/DashboardLayout.css';
 const UserLayout = () => {
     const { user, logout } = useAuth();
     const { cartCount, openCart } = useCart();
-    const { selectedNotification, setSelectedNotification } = useNotification();
     const { isDark } = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
@@ -167,14 +164,6 @@ const UserLayout = () => {
 
             {/* Global Cart Modal */}
             <CartModal />
-
-            {/* Global Notification Detail Modal */}
-            {selectedNotification && (
-                <NotificationDetailModal
-                    notification={selectedNotification}
-                    onClose={() => setSelectedNotification(null)}
-                />
-            )}
         </div>
     );
 };

@@ -50,6 +50,14 @@ const UserTickets = () => {
                         PushEngine.triggerSmart('TICKET_SCANNED', { eventName: newTicket.eventName });
                         // Disparar modal festivo de bienvenida en pantalla
                         setScannedAlert(newTicket);
+                        // Registrar en historial de notificaciones del usuario
+                        success(`Tu boleto para ${newTicket.eventName || 'el evento'} ha sido validado en puerta.`, {
+                            title: 'Acceso Validado',
+                            detail: 'Tu entrada ha sido escaneada y validada en el acceso principal. ¡Disfruta tu función!',
+                            actionUrl: '/user/tickets',
+                            actionLabel: 'Ver Pase Digital',
+                            role: 'usuario'
+                        });
                     }
                 });
             }
@@ -63,7 +71,7 @@ const UserTickets = () => {
         } finally {
             if (!isPolling) setLoading(false);
         }
-    }, []);
+    }, [success]);
 
     const checkPremium = useCallback(async () => {
         try {

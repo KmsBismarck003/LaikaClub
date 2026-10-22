@@ -6,7 +6,7 @@ import Card from '../../components/Card';
 import ConfirmationModal from '../../components/Modals/ConfirmationModal';
 
 const RefundRequest = () => {
-    const { showNotification } = useNotification();
+    const { showNotification, success, error: notifyError } = useNotification();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState(null);
@@ -59,11 +59,17 @@ const RefundRequest = () => {
 
         try {
             await api.refund.requestRefund(ticketId, 'Solicitud del usuario');
-            showNotification('Reembolso procesado exitosamente', 'success');
+            success('Tu reembolso ha sido solicitado exitosamente.', {
+                title: 'Reembolso Registrado',
+                detail: 'El equipo de administración y taquilla validará tu solicitud. Puedes revisar el estado de tu trámite en cualquier momento.',
+                actionUrl: '/user/refunds',
+                actionLabel: 'Rastrear Reembolso',
+                role: 'usuario'
+            });
             fetchTickets(); // Refresh list
         } catch (error) {
             console.error('Refund error:', error);
-            showNotification(error.userMessage || 'Error al procesar reembolso', 'error');
+            notifyError(error.userMessage || 'Error al procesar reembolso', { role: 'usuario' });
         } finally {
             setProcessingId(null);
             setTicketToRefund(null);

@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.5.7] - 2026-10-22
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- **Reingeniería del Sistema de Notificaciones (Segmentación por Usuario y Filtro de Seguridad):**
+  - **Aislamiento por Usuario (`userId`):** El almacenamiento en `localStorage` ahora se encuentra particionado por ID de usuario (`laika_notifications_${userId}`). Se eliminó la clave global compartida `notification_history` que provocaba que usuarios distintos y administradores compartieran la misma bandeja en el navegador.
+  - **Filtro Estricto de Alertas Técnicas / Administrativas:** Implementación de `isTechnicalNotification` para detectar términos sensibles de backend (bases de datos, respaldos, restauraciones NoSQL/SQL, auditorías, tablas, microservicios, etc.). Los avisos técnicos ahora se asignan estrictamente a `role: 'admin'` y quedan vetados para usuarios estándar.
+  - **Unificación de Campana y Menú:** Sustitución de las notificaciones estáticas ("hardcodeadas") en `Navbar.jsx` por el componente `NotificationBell`, habilitado también en `MainLayout.jsx` para usuarios autenticados.
+- **Notificaciones Accionables e Interactivas (Deep Linking & Redirecciones Reales):**
+  - **Botones de Acción Inmediata:** Cada notificación puede incluir `actionUrl` y `actionLabel`.
+  - **Acción Rápida en Panel (`NotificationPanel.jsx`):** Píldora interactiva que marca como leída la notificación, cierra el panel y navega inmediatamente al destino (ej. "Ver Boletos Digitales", "Rastrear Pedido", "Ver Evento").
+  - **Acción en Modal Detalle (`NotificationDetailModal.jsx`):** Botón principal estilizado con flecha direccional que conduce al usuario a la sección correspondiente del sistema.
+  - **Escenarios Integrados:**
+    - Compra de boletos en Checkout -> Redirige a `/user/tickets` (*"Ver Boletos Digitales"*).
+    - Compra en Laika Shop -> Redirige a `/user/history?tab=merch` (*"Rastrear mi Pedido"*).
+    - Publicación de nuevo evento -> Redirige a `/event/:id` (*"Ver Evento"*).
+    - Boleto validado en puerta -> Redirige a `/user/tickets` (*"Ver Pase Digital"*).
+    - Solicitud de reembolso -> Redirige a `/user/refunds` (*"Rastrear Reembolso"*).
+    - Bienvenida al usuario -> Redirige a `/user/tickets` (*"Ver Bóveda Digital"*).
+
+## [1.5.6] - 2026-10-22
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- **Componente Reutilizable Universal de Confirmación (`ConfirmDialog` y `useConfirmDialog`):**
+  - Implementación de un modal de confirmación con diseño *Dark Glassmorphic* premium y variantes semánticas (`cart`, `danger`, `warning`, `primary`, `info`, `success`).
+  - Soporte para vista previa enriquecida del ítem (`itemDetails`), chips de metadatos, precio, cantidad e integración tanto declarativa como programática mediante hook `useConfirmDialog`.
+  - Integración en el flujo de agregar al carrito en `UserDashboard`, `EventDetail` (boletos), `Shop` (productos) y eliminación en `CartContent`.
+- **Rediseño Integral de Pase de Éxito Digital (`DigitalPassModal`):**
+  - Sustitución de la tarjeta plana y caja negra vacía por un *Cyber-Wallet Pass* estilo Apple Wallet / Resident Advisor con silueta de boleto troquelado (muescas perforadas laterales).
+  - Integración de código QR real HD y escaneable vía `QRCodeSVG` (`qrcode.react`) con token seguro de autenticación.
+  - Carátula superior con degradado cinematográfico, metadatos estructurados (Fecha, Hora, Recinto con iconografía dedicada), grid ordenado de Sección y Asientos con píldoras de alto contraste.
+  - Botones de acción directos: "IR A MIS BOLETOS" hacia `/user/tickets` e "IMPRIMIR / GUARDAR BOLETO".
+
 ## [1.5.5] - 2026-10-21
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>

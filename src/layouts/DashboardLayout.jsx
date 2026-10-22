@@ -517,12 +517,6 @@ const DashboardLayout = () => {
         </main>
       </div>
 
-      {selectedNotification && (
-        <NotificationDetailModal
-          notification={selectedNotification}
-          onClose={() => setSelectedNotification(null)}
-        />
-      )}
       <ConfirmationModal
         isOpen={isResetSidebarModalOpen}
         onClose={() => setIsResetSidebarModalOpen(false)}

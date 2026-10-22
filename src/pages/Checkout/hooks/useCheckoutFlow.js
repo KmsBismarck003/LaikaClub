@@ -592,6 +592,43 @@ export const useCheckoutFlow = () => {
                 }
             }).catch(e => console.error("Error triggering push:", e));
 
+            // Registrar notificación en el centro de notificaciones del usuario
+            try {
+                if (orderType === 'digital_only') {
+                    const eventName = ticketItems.length > 0 ? (ticketItems[0].eventName || ticketItems[0].name || 'tu evento') : 'tu evento';
+                    success(`Tus boletos para ${eventName} están listos en tu Bóveda Digital.`, {
+                        title: 'Boletos Confirmados',
+                        detail: `Tu orden #${orderNum || paymentId || ''} ha sido procesada con éxito. Puedes presentar tus boletos digitales directamente en taquilla o acceso al evento.`,
+                        actionUrl: '/user/tickets',
+                        actionLabel: 'Ver Boletos Digitales',
+                        role: 'usuario',
+                        userId: user?.id
+                    });
+                } else if (orderType === 'physical_only') {
+                    success(`Tu pedido de Laika Shop ha sido confirmado exitosamente.`, {
+                        title: 'Pedido de Tienda Confirmado',
+                        detail: deliveryType === 'tienda'
+                            ? `Orden #${orderNum || paymentId || ''}. Tu mercancía oficial está confirmada para recolección en taquilla presentando tu identificación.`
+                            : `Orden #${orderNum || paymentId || ''}. Tu mercancía oficial ha sido confirmada y se encuentra en preparación para envío a tu domicilio.`,
+                        actionUrl: '/user/history?tab=merch',
+                        actionLabel: 'Rastrear mi Pedido',
+                        role: 'usuario',
+                        userId: user?.id
+                    });
+                } else {
+                    success(`Tus boletos y mercancía de Laika Shop han sido confirmados.`, {
+                        title: 'Compra Exitosa',
+                        detail: `Orden #${orderNum || paymentId || ''}. Tus boletos están en tu Bóveda Digital y tus artículos están siendo preparados.`,
+                        actionUrl: '/user/tickets',
+                        actionLabel: 'Ver Bóveda Digital',
+                        role: 'usuario',
+                        userId: user?.id
+                    });
+                }
+            } catch (notifErr) {
+                console.warn('Error al registrar notificación de compra:', notifErr);
+            }
+
             // Guardar instantánea completa de la orden completada ANTES de limpiar el carrito
             const orderSummary = {
                 orderId: paymentId || orderNum,

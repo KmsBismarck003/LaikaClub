@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
-import { Button, NewsTicker, Dropdown, SkeletonMainHeader, SkeletonSearchRow, SkeletonNewsTicker } from '../components'
+import { Button, NewsTicker, Dropdown, SkeletonMainHeader, SkeletonSearchRow, SkeletonNewsTicker, NotificationBell } from '../components'
 import Footer from '../components/Footer'
 import LaikaAgent from '../components/LaikaAgent/LaikaAgent'
 import Icon from '../components/Icons/Icons'
@@ -228,6 +228,9 @@ const MainLayout = () => {
                     <span className="cart-badge-main">{cartCount}</span>
                   )}
                 </button>
+                {user && (
+                  <NotificationBell />
+                )}
                 {user ? (
                   <div className='main-user-menu-group'>
                     <button

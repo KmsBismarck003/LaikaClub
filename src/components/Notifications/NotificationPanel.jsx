@@ -1,9 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useNotification } from '../../context/NotificationContext'
 import Icon from '../Icons/Icons'
 import './Notifications.css'
 
 const NotificationPanel = ({ isOpen, onClose, triggerRef }) => {
+    const navigate = useNavigate()
     const { history, markAsRead, markAllAsRead, clearHistory, removeFromHistory, setSelectedNotification } = useNotification()
     const [activeFilter, setActiveFilter] = useState('all') // 'all' or 'unread'
     // Instant UI: Eliminada simulación de carga. Las notificaciones se muestran de inmediato.
@@ -188,6 +190,22 @@ const NotificationPanel = ({ isOpen, onClose, triggerRef }) => {
                                 <span className="notification-item-time">{formatTime(item.timestamp)}</span>
                             </div>
                             <p className="notification-item-message">{item.message}</p>
+                            {item.actionUrl && (
+                                <div className="notification-item-action-row">
+                                    <button
+                                        className="notification-item-action-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            markAsRead(item.id);
+                                            if (onClose) onClose();
+                                            navigate(item.actionUrl);
+                                        }}
+                                    >
+                                        <span>{item.actionLabel || 'Ver ahora'}</span>
+                                        <Icon name="arrowRight" size={12} />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         {/* El botón de eliminar se mantiene como fallback o acceso rápido */}
                         <button

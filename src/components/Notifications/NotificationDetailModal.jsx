@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from '../Icons/Icons';
 import './Notifications.css';
 
 const NotificationDetailModal = ({ notification, onClose }) => {
+    const navigate = useNavigate();
     if (!notification) return null;
 
     const getIcon = (type) => {
@@ -16,6 +18,13 @@ const NotificationDetailModal = ({ notification, onClose }) => {
 
     const formatFullTime = (timestamp) => {
         return new Date(timestamp).toLocaleString();
+    };
+
+    const handleAction = () => {
+        onClose();
+        if (notification.actionUrl) {
+            navigate(notification.actionUrl);
+        }
     };
 
     return (
@@ -50,7 +59,19 @@ const NotificationDetailModal = ({ notification, onClose }) => {
                 </div>
 
                 <footer className="notification-modal-footer">
-                    <button className="btn-primary" onClick={onClose}>ENTENDIDO</button>
+                    <button className="btn-secondary" onClick={onClose}>
+                        CERRAR
+                    </button>
+                    {notification.actionUrl ? (
+                        <button className="btn-primary" onClick={handleAction}>
+                            <span>{notification.actionLabel || 'VER SECCIÓN'}</span>
+                            <Icon name="arrowRight" size={16} />
+                        </button>
+                    ) : (
+                        <button className="btn-primary" onClick={onClose}>
+                            ENTENDIDO
+                        </button>
+                    )}
                 </footer>
             </div>
         </div>
