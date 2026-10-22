@@ -122,6 +122,16 @@ public class EventController {
         return eventQueryService.getEventAttendees(eventId);
     }
 
+    @GetMapping("/manager/transactions")
+    public List<Map<String, Object>> getManagerTransactions(
+            @RequestParam(defaultValue = "100") int limit,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        return eventQueryService.getManagerTransactions(principal.getId(), limit);
+    }
+
     @PostMapping("/manager/events/upload-image")
     public Map<String, Object> uploadEventImage(@RequestParam("file") MultipartFile file) {
         try {

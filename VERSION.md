@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.8] - 2026-10-22
+### Autor
+Kms_Bismarck003 <jreyes6458@gmail.com>
+
+### Lo nuevo o lo que se añadio
+- **Resolución de Métricas Financieras y Boletos Vendidos en Panel Gestor (`laika-gestor`):**
+  - **Causa Raíz:** El endpoint `/api/manager/events` (`getUserEvents`) realizaba un `SELECT * FROM events`. La tabla `events` almacena la definición del evento pero no almacena columnas de ventas (`tickets_sold`) ni ingresos (`revenue`), las cuales residen en la base de datos de boletos (`laika_tickets.tickets`). En consecuencia, el frontend sumaba campos `undefined` resultando en `0` boletos vendidos y `$0` recaudación a pesar de tener 53,150 boletos y $86.8M MXN en base de datos.
+  - **Cálculo Agregado en Tiempo Real (`EventQueryService.java`):** Se implementó un `LEFT JOIN` con subconsulta agregada a `laika_tickets.tickets`, calculando `COUNT(CASE WHEN status IN ('active', 'used') THEN 1 END) as tickets_sold` y `SUM(CASE WHEN status IN ('active', 'used') THEN price ELSE 0 END) as revenue`, con `COALESCE` seguro y fallback defensivo ante contingencias de red/esquema.
+  - **Nuevo Endpoint de Transacciones del Gestor (`/api/manager/transactions`):** Se habilitó en `EventController.java` y `EventQueryService.java` el endpoint para listar las transacciones reales de los eventos gestionados por el usuario actual, y se corrigió el cliente `managerService.js` de `laika-gestor` que apuntaba a un endpoint interno desalineado.
+
 ## [1.5.7] - 2026-10-22
 ### Autor
 Kms_Bismarck003 <jreyes6458@gmail.com>

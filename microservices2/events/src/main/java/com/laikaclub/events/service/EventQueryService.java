@@ -108,14 +108,59 @@ public class EventQueryService {
     }
 
     public List<Map<String, Object>> getUserEvents(Long userId, int limit) {
-        String sql = "SELECT * FROM events WHERE created_by = :userId OR assigned_manager_id = :userId ORDER BY id DESC LIMIT :limit";
+        String sql = "SELECT e.*, " +
+                "    COALESCE(t.tickets_sold, 0) AS tickets_sold, " +
+                "    COALESCE(t.revenue, 0.0) AS revenue " +
+                "FROM events e " +
+                "LEFT JOIN (" +
+                "    SELECT event_id, " +
+                "        COUNT(CASE WHEN status IN ('active', 'used') THEN 1 END) as tickets_sold, " +
+                "        SUM(CASE WHEN status IN ('active', 'used') THEN price ELSE 0 END) as revenue " +
+                "    FROM laika_tickets.tickets " +
+                "    GROUP BY event_id " +
+                ") t ON e.id = t.event_id " +
+                "WHERE e.created_by = :userId OR e.assigned_manager_id = :userId " +
+                "ORDER BY e.id DESC LIMIT :limit";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", userId)
                 .addValue("limit", limit);
         try {
             return cleanResults(jdbcTemplate.queryForList(sql, params));
         } catch (Exception e) {
-            logger.error("Error in getUserEvents: ", e);
+            logger.warn("Join with laika_tickets failed in getUserEvents ({}), using standard fallback: ", e.getMessage());
+            try {
+                String fallbackSql = "SELECT * FROM events WHERE created_by = :userId OR assigned_manager_id = :userId ORDER BY id DESC LIMIT :limit";
+                return cleanResults(jdbcTemplate.queryForList(fallbackSql, params));
+            } catch (Exception ex) {
+                logger.error("Error in getUserEvents: ", ex);
+                return Collections.emptyList();
+            }
+        }
+    }
+
+    public List<Map<String, Object>> getManagerTransactions(Long userId, int limit) {
+        try {
+            String sql = "SELECT " +
+                    "    t.id, " +
+                    "    t.ticket_code, " +
+                    "    t.purchase_date as date, " +
+                    "    e.name as event_name, " +
+                    "    t.price as amount, " +
+                    "    t.status, " +
+                    "    t.payment_method, " +
+                    "    CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) as customer_name, " +
+                    "    u.email as customer_email " +
+                    "FROM laika_tickets.tickets t " +
+                    "JOIN events e ON t.event_id = e.id " +
+                    "LEFT JOIN laika_auth.users u ON t.user_id = u.id " +
+                    "WHERE (e.created_by = :userId OR e.assigned_manager_id = :userId) " +
+                    "ORDER BY t.purchase_date DESC LIMIT :limit";
+            MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("userId", userId)
+                    .addValue("limit", limit);
+            return cleanResults(jdbcTemplate.queryForList(sql, params));
+        } catch (Exception e) {
+            logger.warn("Could not load transactions for manager {}: {}. Returning empty list.", userId, e.getMessage());
             return Collections.emptyList();
         }
     }
