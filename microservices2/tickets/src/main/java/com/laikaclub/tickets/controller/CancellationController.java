@@ -58,7 +58,7 @@ public class CancellationController {
      * Criterio 5: El sistema registra la solicitud, su estado, la fecha y el resultado del reembolso.
      * Criterio 7: No se permiten reembolsos duplicados ni la reutilización de boletos cancelados.
      */
-    @PostMapping({"/refunds/request", "/refund/v2/request"})
+    @PostMapping({"/refunds/request", "/refund/request", "/refund/v2/request"})
     public CancellationDetailResponse requestCancellation(
             @RequestBody CancellationRequestDto body,
             @AuthenticationPrincipal UserPrincipal user) {
