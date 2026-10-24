@@ -33,6 +33,24 @@ public class Contract {
     @Column(name = "is_unlimited")
     private Boolean isUnlimited = false;
 
+    @Column(name = "max_functions_per_event")
+    private Integer maxFunctionsPerEvent = 1;
+
+    @Column(name = "merch_enabled")
+    private Boolean merchEnabled = false;
+
+    @Column(name = "seating_map_enabled")
+    private Boolean seatingMapEnabled = false;
+
+    @Column(name = "metrics_enabled")
+    private Boolean metricsEnabled = false;
+
+    @Column(name = "ads_enabled")
+    private Boolean adsEnabled = false;
+
+    @Column(name = "max_ads_per_event")
+    private Integer maxAdsPerEvent = 0;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -98,6 +116,54 @@ public class Contract {
 
     public void setIsUnlimited(Boolean isUnlimited) {
         this.isUnlimited = isUnlimited;
+    }
+
+    public Integer getMaxFunctionsPerEvent() {
+        return maxFunctionsPerEvent;
+    }
+
+    public void setMaxFunctionsPerEvent(Integer maxFunctionsPerEvent) {
+        this.maxFunctionsPerEvent = maxFunctionsPerEvent;
+    }
+
+    public Boolean getMerchEnabled() {
+        return merchEnabled;
+    }
+
+    public void setMerchEnabled(Boolean merchEnabled) {
+        this.merchEnabled = merchEnabled;
+    }
+
+    public Boolean getSeatingMapEnabled() {
+        return seatingMapEnabled;
+    }
+
+    public void setSeatingMapEnabled(Boolean seatingMapEnabled) {
+        this.seatingMapEnabled = seatingMapEnabled;
+    }
+
+    public Boolean getMetricsEnabled() {
+        return metricsEnabled;
+    }
+
+    public void setMetricsEnabled(Boolean metricsEnabled) {
+        this.metricsEnabled = metricsEnabled;
+    }
+
+    public Boolean getAdsEnabled() {
+        return adsEnabled;
+    }
+
+    public void setAdsEnabled(Boolean adsEnabled) {
+        this.adsEnabled = adsEnabled;
+    }
+
+    public Integer getMaxAdsPerEvent() {
+        return maxAdsPerEvent;
+    }
+
+    public void setMaxAdsPerEvent(Integer maxAdsPerEvent) {
+        this.maxAdsPerEvent = maxAdsPerEvent;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -11,6 +11,12 @@ public class ContractDTO {
     private LocalDate endDate;
     private Integer maxEvents;
     private Boolean isUnlimited;
+    private Integer maxFunctionsPerEvent;
+    private Boolean merchEnabled;
+    private Boolean seatingMapEnabled;
+    private Boolean metricsEnabled;
+    private Boolean adsEnabled;
+    private Integer maxAdsPerEvent;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -28,4 +34,16 @@ public class ContractDTO {
     public void setMaxEvents(Integer maxEvents) { this.maxEvents = maxEvents; }
     public Boolean getIsUnlimited() { return isUnlimited; }
     public void setIsUnlimited(Boolean isUnlimited) { this.isUnlimited = isUnlimited; }
+    public Integer getMaxFunctionsPerEvent() { return maxFunctionsPerEvent; }
+    public void setMaxFunctionsPerEvent(Integer maxFunctionsPerEvent) { this.maxFunctionsPerEvent = maxFunctionsPerEvent; }
+    public Boolean getMerchEnabled() { return merchEnabled; }
+    public void setMerchEnabled(Boolean merchEnabled) { this.merchEnabled = merchEnabled; }
+    public Boolean getSeatingMapEnabled() { return seatingMapEnabled; }
+    public void setSeatingMapEnabled(Boolean seatingMapEnabled) { this.seatingMapEnabled = seatingMapEnabled; }
+    public Boolean getMetricsEnabled() { return metricsEnabled; }
+    public void setMetricsEnabled(Boolean metricsEnabled) { this.metricsEnabled = metricsEnabled; }
+    public Boolean getAdsEnabled() { return adsEnabled; }
+    public void setAdsEnabled(Boolean adsEnabled) { this.adsEnabled = adsEnabled; }
+    public Integer getMaxAdsPerEvent() { return maxAdsPerEvent; }
+    public void setMaxAdsPerEvent(Integer maxAdsPerEvent) { this.maxAdsPerEvent = maxAdsPerEvent; }
 }

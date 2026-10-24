@@ -82,6 +82,12 @@ public class B2bService {
         contract.setEndDate(dto.getEndDate());
         contract.setMaxEvents(dto.getMaxEvents());
         contract.setIsUnlimited(dto.getIsUnlimited() != null ? dto.getIsUnlimited() : false);
+        contract.setMaxFunctionsPerEvent(dto.getMaxFunctionsPerEvent() != null ? dto.getMaxFunctionsPerEvent() : 1);
+        contract.setMerchEnabled(dto.getMerchEnabled() != null ? dto.getMerchEnabled() : false);
+        contract.setSeatingMapEnabled(dto.getSeatingMapEnabled() != null ? dto.getSeatingMapEnabled() : false);
+        contract.setMetricsEnabled(dto.getMetricsEnabled() != null ? dto.getMetricsEnabled() : false);
+        contract.setAdsEnabled(dto.getAdsEnabled() != null ? dto.getAdsEnabled() : false);
+        contract.setMaxAdsPerEvent(dto.getMaxAdsPerEvent() != null ? dto.getMaxAdsPerEvent() : 0);
         
         return contractRepository.save(contract);
     }
@@ -115,6 +121,24 @@ public class B2bService {
         if (dto.getStatus() != null) {
             contract.setStatus(dto.getStatus());
         }
+        if (dto.getMaxFunctionsPerEvent() != null) {
+            contract.setMaxFunctionsPerEvent(dto.getMaxFunctionsPerEvent());
+        }
+        if (dto.getMerchEnabled() != null) {
+            contract.setMerchEnabled(dto.getMerchEnabled());
+        }
+        if (dto.getSeatingMapEnabled() != null) {
+            contract.setSeatingMapEnabled(dto.getSeatingMapEnabled());
+        }
+        if (dto.getMetricsEnabled() != null) {
+            contract.setMetricsEnabled(dto.getMetricsEnabled());
+        }
+        if (dto.getAdsEnabled() != null) {
+            contract.setAdsEnabled(dto.getAdsEnabled());
+        }
+        if (dto.getMaxAdsPerEvent() != null) {
+            contract.setMaxAdsPerEvent(dto.getMaxAdsPerEvent());
+        }
         
         return contractRepository.save(contract);
     }
@@ -142,6 +166,24 @@ public class B2bService {
         }
         if (dto.getIsUnlimited() != null) {
             contract.setIsUnlimited(dto.getIsUnlimited());
+        }
+        if (dto.getMaxFunctionsPerEvent() != null) {
+            contract.setMaxFunctionsPerEvent(dto.getMaxFunctionsPerEvent());
+        }
+        if (dto.getMerchEnabled() != null) {
+            contract.setMerchEnabled(dto.getMerchEnabled());
+        }
+        if (dto.getSeatingMapEnabled() != null) {
+            contract.setSeatingMapEnabled(dto.getSeatingMapEnabled());
+        }
+        if (dto.getMetricsEnabled() != null) {
+            contract.setMetricsEnabled(dto.getMetricsEnabled());
+        }
+        if (dto.getAdsEnabled() != null) {
+            contract.setAdsEnabled(dto.getAdsEnabled());
+        }
+        if (dto.getMaxAdsPerEvent() != null) {
+            contract.setMaxAdsPerEvent(dto.getMaxAdsPerEvent());
         }
         return contractRepository.save(contract);
     }
