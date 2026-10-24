@@ -49,6 +49,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/admin/emails/send").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/ads/**").hasAnyRole("ADMIN", "GESTOR", "MANAGER")
+                .requestMatchers("/admin/b2b/managers/**").hasAnyRole("ADMIN", "GESTOR", "MANAGER")
+                .requestMatchers(HttpMethod.GET, "/admin/b2b/contracts/**").hasAnyRole("ADMIN", "GESTOR", "MANAGER")
+                .requestMatchers(HttpMethod.GET, "/admin/b2b/organizations/**").hasAnyRole("ADMIN", "GESTOR", "MANAGER")
                 .anyRequest().hasRole("ADMIN")
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

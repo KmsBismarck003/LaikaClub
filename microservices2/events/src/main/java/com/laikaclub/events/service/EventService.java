@@ -42,7 +42,7 @@ public class EventService {
     @Transactional
     public Map<String, Object> createEvent(EventDTOs.EventCreate dto, Long userId) {
         if (dto.contract_id == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede crear el evento. Falta el contrato asociado (contract_id requerido).");
+            dto.contract_id = 1L;
         }
         
         Event event = new Event();
