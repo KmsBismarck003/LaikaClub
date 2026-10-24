@@ -65,3 +65,5 @@ scratch_curl.json
 
 microservices2/merchandise/target/
 **/target/
+
+*.rar

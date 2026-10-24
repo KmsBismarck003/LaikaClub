@@ -1,0 +1,18 @@
+[mysqld]
+# ==============================================================================
+# Afinación MySQL 8.0 para Entornos con Memoria Optimizada (FinOps)
+# ==============================================================================
+
+# Desactiva la instrumentación interna para ahorrar ~300 MB de RAM inmediatamente
+performance_schema = OFF
+
+# Buffer pool dimensionado para los 81 MB de datos + caché activa
+innodb_buffer_pool_size = 256M
+innodb_log_buffer_size = 8M
+
+# Límite seguro de conexiones para los microservicios internos
+max_connections = 60
+
+# Configuración de caracteres
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci

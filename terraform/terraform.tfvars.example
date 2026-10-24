@@ -1,0 +1,10 @@
+# Configuración personalizada de variables para Laika Club en Azure
+
+location            = "eastus"
+resource_group_name = "rg-laikaclub-prod"
+vm_size             = "Standard_B2ats_v2" # AMD EPYC 2 vCPU, 4 GB RAM (~$24.82/mes)
+admin_username      = "azureuser"
+dns_prefix          = "laikaclub"
+allowed_ssh_ip      = "*"                  # Puedes cambiar a tu IP pública: "187.xxx.xxx.xxx/32"
+notification_email  = "al222310440@gmail.com"
+budget_amount       = 85.0                 # Alerta a los $85 USD para proteger tus $100

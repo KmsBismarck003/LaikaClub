@@ -56,6 +56,10 @@ echo  🌐 Admin:       http://localhost:3010 (Rango Admin: 3010-3019)
 echo  🌐 Gestor:      http://localhost:3020 (Rango Gestor: 3020-3029)
 echo  🌐 Operador:    http://localhost:3030 (Rango Operador: 3030-3039)
 echo.
+echo  📱 APP MOVIL (LAIKAMOBIL):
+echo     Para probar desde tu celular en cualquier red o datos moviles (4G/5G),
+echo     ejecuta en otra ventana: iniciar_tunel_pilgrim.bat
+echo.
 echo  📁 REGISTRO DE LOGS EN TIEMPO REAL:
 echo     %LOG_DIR%\
 echo       ├── api_gateway.log       (Logs de peticiones HTTP del Gateway)

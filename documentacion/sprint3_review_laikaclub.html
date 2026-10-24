@@ -86,9 +86,7 @@
       --drawer-bg: #f0eeea;
     }
 
-    /* ==========================================================================
-       GESTIÓN DE VISIBILIDAD DE LOGO SEGÚN TEMA
-       ========================================================================== */
+    /* GESTIÓN DE VISIBILIDAD DE LOGO SEGÚN TEMA */
     [data-theme="normal"] .logo-dark-ink,
     [data-theme="claro"] .logo-dark-ink {
       display: inline-block;
@@ -105,9 +103,6 @@
       display: inline-block;
     }
 
-    /* ==========================================================================
-       RESET Y BASE
-       ========================================================================== */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -129,7 +124,6 @@
       user-select: none;
     }
 
-    /* Fondo reticular y scanlines tácticas */
     body::before {
       content: "";
       position: fixed;
@@ -158,9 +152,7 @@
       z-index: 999;
     }
 
-    /* ==========================================================================
-       BARRA SUPERIOR (HEADER HUD)
-       ========================================================================== */
+    /* HEADER HUD */
     .hud-header {
       position: relative;
       z-index: 20;
@@ -291,9 +283,7 @@
       transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    /* ==========================================================================
-       VIEWPORT & SLIDES
-       ========================================================================== */
+    /* VIEWPORT */
     .viewport {
       flex: 1;
       position: relative;
@@ -346,7 +336,6 @@
       }
     }
 
-    /* Tarjeta Táctica de Diapositiva */
     .tactical-frame {
       position: relative;
       width: 100%;
@@ -360,7 +349,6 @@
       overflow-y: auto;
     }
 
-    /* Muescas tácticas en las esquinas */
     .tactical-frame::before {
       content: "+";
       position: absolute;
@@ -398,7 +386,6 @@
       pointer-events: none;
     }
 
-    /* Encabezado interno de diapositiva */
     .slide-header {
       display: flex;
       justify-content: space-between;
@@ -439,7 +426,6 @@
       margin-top: 4px;
     }
 
-    /* Status Pills */
     .status-pill {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.78rem;
@@ -472,7 +458,6 @@
       border-color: var(--status-pending);
     }
 
-    /* Layout principal */
     .slide-body {
       flex: 1;
       display: grid;
@@ -487,7 +472,6 @@
       grid-template-columns: repeat(3, 1fr);
     }
 
-    /* Paneles */
     .info-panel {
       background: var(--bg-card);
       border: 1px solid var(--border-medium);
@@ -566,9 +550,7 @@
       color: var(--text-main);
     }
 
-    /* ==========================================================================
-       TARJETAS DE TAREAS INTERACTIVAS (CLICK TO INSPECT)
-       ========================================================================== */
+    /* TARJETAS INTERACTIVAS */
     .task-interactive-container {
       display: flex;
       flex-direction: column;
@@ -634,26 +616,7 @@
       line-height: 1.35;
     }
 
-    /* Cuadros de Veredicto */
-    .verdict-box {
-      margin-top: auto;
-      padding: 12px 16px;
-      background: var(--bg-card-subtle);
-      border-left: 3px solid var(--border-strong);
-      font-size: 0.92rem;
-    }
-    .verdict-box strong {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      letter-spacing: 1px;
-      display: block;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-    }
-
-    /* ==========================================================================
-       PORTADA ELEGANTE & HERO BRANDING
-       ========================================================================== */
+    /* PORTADA ELEGANTE */
     .cover-layout-pro {
       height: 100%;
       display: flex;
@@ -779,7 +742,6 @@
       color: var(--text-dim);
     }
 
-    /* Tabla Táctica */
     .tactical-table {
       width: 100%;
       border-collapse: collapse;
@@ -810,7 +772,6 @@
       background: var(--bg-card-subtle);
     }
 
-    /* Cajas métricas destacadas */
     .metric-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -844,9 +805,23 @@
       color: var(--text-dim);
     }
 
-    /* ==========================================================================
-       BARRA INFERIOR (HUD FOOTER)
-       ======================================================================== */
+    .verdict-box {
+      margin-top: auto;
+      padding: 12px 16px;
+      background: var(--bg-card-subtle);
+      border-left: 3px solid var(--border-strong);
+      font-size: 0.92rem;
+    }
+    .verdict-box strong {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      display: block;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    /* FOOTER HUD */
     .hud-footer {
       position: relative;
       z-index: 20;
@@ -932,9 +907,7 @@
       gap: 12px;
     }
 
-    /* ==========================================================================
-       MODAL INSPECTOR TÁCTICO DE TAREAS (PROFESIONAL Y UNIFICADO)
-       ========================================================================== */
+    /* MODAL INSPECTOR */
     .inspector-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
@@ -1058,7 +1031,7 @@
       color: var(--text-secondary);
     }
 
-    /* TOC Drawer */
+    /* TOC DRAWER */
     .toc-drawer {
       position: fixed;
       top: 0; right: -420px;
@@ -1176,14 +1149,13 @@
       <div>
         <div class="hud-title">LAIKA CLUB // SPRINT 3 REVIEW</div>
         <div style="font-size: 0.72rem; color: var(--text-dim); letter-spacing: 1px;">
-          SYS_PROTOCOL: REPORTE DE EJECUCIÓN & VERIFICACIÓN TÉCNICA
+          SYS_PROTOCOL: REPORTE DE EJECUCIÓN & TRANSICIÓN SPRINT 4
         </div>
       </div>
       <span class="hud-badge">AUDIT_LOG // v1.5.8</span>
     </div>
 
     <div class="hud-header-right">
-      <!-- Selector de 3 Temas -->
       <div class="hud-theme-picker">
         <button class="theme-btn active" data-set-theme="normal" title="Tema Militar Táctico Original">Normal</button>
         <button class="theme-btn" data-set-theme="oscuro" title="Tema Operativo Oscuro">Oscuro</button>
@@ -1206,9 +1178,7 @@
   <main class="viewport">
     <div class="slide-deck">
 
-      <!-- ====================================================================
-           SLIDE 01: PORTADA ELEGANTE & CORPORATIVA CON LOGO
-           ==================================================================== -->
+      <!-- SLIDE 01: PORTADA -->
       <section class="slide active" data-slide="1">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
@@ -1231,14 +1201,14 @@
                 </div>
                 <h1 class="cover-title">SPRINT 3 REVIEW</h1>
                 <div class="cover-subtitle">
-                  Gestión Integral de Accesos, Pasarela de Reembolsos, Cortesías en Lote, Tienda Oficial y Estrategia de Despliegue en Microsoft Azure
+                  Gestión Integral de Accesos, Pasarela de Reembolsos, Cortesías en Lote, Tienda Oficial y Transición a Sprint 4 (Gamificación & QA)
                 </div>
                 
                 <div class="cover-tags">
-                  <span class="cover-tag-item">BACKLOG: 7 ENTREGABLES ESTRATÉGICOS</span>
+                  <span class="cover-tag-item">BACKLOG S3: 7 ENTREGABLES ESTRATÉGICOS</span>
                   <span class="cover-tag-item" style="color: var(--status-completed); font-weight:700;">5 COMPLETADOS</span>
                   <span class="cover-tag-item" style="color: var(--status-progress); font-weight:700;">2 EN PROCESO (DISEÑO MÓVIL & CLOUD AZURE)</span>
-                  <span class="cover-tag-item">STACK: SPRING BOOT · REACT · MONGODB · MYSQL · AZURE</span>
+                  <span class="cover-tag-item">SPRINT 4: HU-26 (LOGROS) + CU-01 AL CU-07 (QA)</span>
                 </div>
               </div>
             </div>
@@ -1251,9 +1221,7 @@
         </div>
       </section>
 
-      <!-- ====================================================================
-           SLIDE 02: BALANCE EJECUTIVO & OBJETIVO DEL SPRINT
-           ==================================================================== -->
+      <!-- SLIDE 02: BALANCE GENERAL -->
       <section class="slide" data-slide="2">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
@@ -1365,9 +1333,7 @@
         </div>
       </section>
 
-      <!-- ====================================================================
-           SLIDE 03: HU-19 CANCELACIÓN Y REEMBOLSO DE BOLETOS
-           ==================================================================== -->
+      <!-- SLIDE 03: HU-19 -->
       <section class="slide" data-slide="3">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
@@ -1435,9 +1401,7 @@
         </div>
       </section>
 
-      <!-- ====================================================================
-           SLIDE 04: HU-20 TRANSFERENCIA DE BOLETO A OTRO USUARIO
-           ==================================================================== -->
+      <!-- SLIDE 04: HU-20 -->
       <section class="slide" data-slide="4">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
@@ -1505,9 +1469,7 @@
         </div>
       </section>
 
-      <!-- ====================================================================
-           SLIDE 05: HU-21 EMISIÓN DE BOLETOS DE CORTESÍA
-           ==================================================================== -->
+      <!-- SLIDE 05: HU-21 -->
       <section class="slide" data-slide="5">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
@@ -1575,9 +1537,7 @@
         </div>
       </section>
 
-      <!-- ====================================================================
-           SLIDE 06: HU-22 ASIGNACIÓN MASIVA DE BOLETOS
-           ==================================================================== -->
+      <!-- SLIDE 06: HU-22 -->
       <section class="slide" data-slide="6">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
@@ -1645,9 +1605,7 @@
         </div>
       </section>
 
-      <!-- ====================================================================
-           SLIDE 07: HU-24 CATÁLOGO Y COMPRA DE MERCANCÍA
-           ==================================================================== -->
+      <!-- SLIDE 07: HU-24 -->
       <section class="slide" data-slide="7">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
@@ -1715,9 +1673,7 @@
         </div>
       </section>
 
-      <!-- ====================================================================
-           SLIDE 08: HU-25 REDISEÑO DE LA APLICACIÓN MÓVIL
-           ==================================================================== -->
+      <!-- SLIDE 08: HU-25 -->
       <section class="slide" data-slide="8">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
@@ -1784,9 +1740,7 @@
         </div>
       </section>
 
-      <!-- ====================================================================
-           SLIDE 09: HT-23 DESPLIEGUE DE LA INFRAESTRUCTURA CLOUD (AZURE)
-           ==================================================================== -->
+      <!-- SLIDE 09: HT-23 -->
       <section class="slide" data-slide="9">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
@@ -1855,15 +1809,185 @@
       </section>
 
       <!-- ====================================================================
-           SLIDE 10: CONCLUSIONES Y RETROSPECTIVA DEL SPRINT 3
+           SLIDE 10: SPRINT 4 ROADMAP // HU-26 (GAMIFICACIÓN) & CONTINUIDAD
            ==================================================================== -->
       <section class="slide" data-slide="10">
         <div class="tactical-frame">
           <div class="corner-bl">+</div><div class="corner-br">+</div>
           <div class="slide-header">
             <div>
+              <div class="slide-meta-pre">[ SPRINT_4_PLANNING // ROADMAP & NUEVAS CAPACIDADES ]</div>
+              <h2 class="slide-title">PRÓXIMO SPRINT 4: GAMIFICACIÓN (HU-26) & CONTINUIDAD</h2>
+              <div class="slide-title-sub">Plan de trabajo inmediato: Sistema de Logros y Puntos, cierre de Cloud en Azure y navegación móvil final</div>
+            </div>
+            <span class="status-pill status-progress">FASE: PLANIFICACIÓN ACTIVA</span>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>HU-26: SISTEMA DE LOGROS Y PUNTOS (GAMIFICACIÓN)</span>
+                <span class="seq">HU-26</span>
+              </div>
+              <p style="font-size: 0.95rem; line-height: 1.45; color: var(--text-secondary); margin-bottom: 12px;">
+                <strong>Propósito de Negocio:</strong> Recompensar la fidelidad y recurrencia de los asistentes en Laika Club mediante la acumulación de puntos por compras de boletos, asistencia puntual a eventos y pedidos en Laika Shop, otorgando medallas de perfil y beneficios exclusivos.
+              </p>
+              
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="hu26-task1">
+                  <div class="task-card-top">
+                    <span class="task-card-name">1. Motor de Acumulación de Puntos</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Abono automático de puntos por transacciones de boletos y mercancía sin demorar el checkout.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu26-task2">
+                  <div class="task-card-top">
+                    <span class="task-card-name">2. Catálogo de Insignias y Niveles Fan</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Niveles Fan Bronce, Plata, Oro y Platino VIP con insignias coleccionables en la wallet.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="hu26-task3">
+                  <div class="task-card-top">
+                    <span class="task-card-name">3. Centro de Redención y Cupones</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Canje de puntos por descuentos porcentuales en preventas y souvenirs de la tienda.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>ENTREGABLES DE CONTINUIDAD & ENFOQUE SPRINT 4</span>
+                <span class="seq">CONTINUIDAD</span>
+              </div>
+              <ul class="spec-list">
+                <li><strong>Cierre de HT-23 (Infraestructura Azure):</strong> Con la comparativa de costos terminada, se aprovisionará la arquitectura más eficiente en Azure para desplegar los contenedores con dominio público y HTTPS.</li>
+                <li><strong>Cierre de HU-25 (Rediseño Móvil LaikaMobil):</strong> Conclusión del 40% restante enfocado en la barra de navegación global y pruebas responsive en dispositivos Android e iOS reales.</li>
+                <li><strong>Estrategia de Aseguramiento de Calidad (QA):</strong> Implementación y ejecución de la suite de 7 Casos de Uso Críticos (CU-01 al CU-07) para blindar la plataforma antes de la apertura pública masiva.</li>
+              </ul>
+
+              <div class="verdict-box" style="margin-top: auto; border-color: var(--accent-gold);">
+                <strong>ALCANCE DEL SPRINT 4:</strong>
+                Fusión de innovación (Gamificación HU-26), estabilidad en producción (Cloud Azure) y certificación rigurosa de calidad en todos los módulos de usuario.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 11: SPRINT 4 QA // CASOS DE USO CRÍTICOS (CU-01 AL CU-07)
+           ==================================================================== -->
+      <section class="slide" data-slide="11">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
+              <div class="slide-meta-pre">[ SPRINT_4_QA // SUITE DE PRUEBAS & CASOS DE USO ]</div>
+              <h2 class="slide-title">SUITE DE PRUEBAS DE CALIDAD (CU-01 AL CU-07)</h2>
+              <div class="slide-title-sub">Certificación integral de flujos de autenticación, concurrencia de compra, cancelaciones, accesos y transferencias</div>
+            </div>
+            <span class="status-pill status-progress">7 CASOS DE USO ESTRATÉGICOS</span>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <!-- Columna Izquierda: CU-01 a CU-04 -->
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>ACCESO, TRANSACCIÓN Y CANJE (CLICK PARA INSPECCIONAR)</span>
+                <span class="seq">QA.PARTE 1</span>
+              </div>
+
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="cu01-task">
+                  <div class="task-card-top">
+                    <span class="task-card-name">CU-01: Prueba Login y Autenticación</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Verificación de firma JWT, roles Admin/Gestor/User y rechazo de tokens expirados.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="cu02-task">
+                  <div class="task-card-top">
+                    <span class="task-card-name">CU-02: Prueba de Compra y Carrito</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Flujo E2E de compras mixtas (boletos + mercancía) y checkout con recolección en taquilla.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="cu03-task">
+                  <div class="task-card-top">
+                    <span class="task-card-name">CU-03: Prueba de Mercado de Boletos</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Simulación de concurrencia masiva en preventas y bloqueo atómico de butacas en tiempo real.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="cu04-task">
+                  <div class="task-card-top">
+                    <span class="task-card-name">CU-04: Prueba de Boletos como Canjeados</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Canje seguro de códigos de cortesía en Centro de Canje sin permitir reutilizaciones.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Columna Derecha: CU-05 a CU-07 + Objetivo QA -->
+            <div class="info-panel">
+              <div class="info-panel-title">
+                <span>CICLO POST-VENTA Y PUERTAS (CLICK PARA INSPECCIONAR)</span>
+                <span class="seq">QA.PARTE 2</span>
+              </div>
+
+              <div class="task-interactive-container">
+                <div class="task-card-clickable" data-task="cu05-task">
+                  <div class="task-card-top">
+                    <span class="task-card-name">CU-05: Prueba de Cancelación y Devolución</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Reembolso con anulación inmediata de QR y liberación instantánea de la butaca en sala.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="cu06-task">
+                  <div class="task-card-top">
+                    <span class="task-card-name">CU-06: Pruebas de Escaneo en Puerta</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Lectura veloz con la app laika-operador y detección de boletos duplicados o cancelados.</p>
+                </div>
+
+                <div class="task-card-clickable" data-task="cu07-task">
+                  <div class="task-card-top">
+                    <span class="task-card-name">CU-07: Prueba de Transferencia entre Usuarios</span>
+                    <span class="task-inspect-pill">[ DETALLE TÉCNICO ▸ ]</span>
+                  </div>
+                  <p class="task-card-desc">Traspaso por correo con confirmación de clave, anulación del QR viejo y emisión de nuevo pase.</p>
+                </div>
+              </div>
+
+              <div class="verdict-box" style="margin-top: 14px; border-color: var(--status-completed);">
+                <strong>ESTRATEGIA QA SPRINT 4:</strong>
+                Cada caso de uso cuenta con pruebas automatizadas en backend y validación de interfaz para asegurar un lanzamiento robusto y confiable.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 12: CONCLUSIONES & RETROSPECTIVA -->
+      <section class="slide" data-slide="12">
+        <div class="tactical-frame">
+          <div class="corner-bl">+</div><div class="corner-br">+</div>
+          <div class="slide-header">
+            <div>
               <div class="slide-meta-pre">[ SPRINT_REVIEW_CLOSING // RETROSPECTIVA & TRANSICIÓN ]</div>
-              <h2 class="slide-title">CONCLUSIONES, DEMOSTRACIÓN & PRÓXIMOS PASOS</h2>
+              <h2 class="slide-title">CONCLUSIONES, DEMOSTRACIÓN & CIERRE PROTOCOLAR</h2>
               <div class="slide-title-sub">Balance final del Sprint 3 y compromisos de transición al siguiente ciclo</div>
             </div>
             <span class="status-pill status-completed">LISTO PARA TRANSICIÓN</span>
@@ -1899,16 +2023,16 @@
                 <span class="seq">03.3</span>
               </div>
               <ul class="spec-list">
-                <li><strong>Puesta en Marcha Azure:</strong> Despliegue de los contenedores en la opción más costo-eficiente de Azure con HTTPS.</li>
-                <li><strong>Cierre de HU-25:</strong> Finalización de la navegación y homologación visual en LaikaMobil.</li>
-                <li><strong>Pase a Demostración:</strong> Sesión interactiva en vivo del sistema Laika Club.</li>
+                <li><strong>Gamificación HU-26:</strong> Motor de puntos, logros y recompensas para fans.</li>
+                <li><strong>Suite QA (CU-01 a CU-07):</strong> Certificación completa de los 7 flujos críticos de negocio.</li>
+                <li><strong>Despliegue Azure & Móvil:</strong> Puesta en marcha en la nube con HTTPS y conclusión de LaikaMobil.</li>
               </ul>
             </div>
           </div>
 
           <div style="margin-top: 18px; padding: 14px 20px; background: var(--bg-card); border: 1px solid var(--border-medium); display: flex; justify-content: space-between; align-items: center;">
             <div style="font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700;">
-              SISTEMA LAIKA CLUB // FIN DEL REPORTE DE SPRINT 3
+              SISTEMA LAIKA CLUB // FIN DEL REPORTE DE SPRINT 3 // PASE A DEMOSTRACIÓN EN VIVO
             </div>
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text-dim);">
               CONFIRMACIÓN DE AUDITORÍA: APROBADA POR EQUIPO SCRUM
@@ -1920,9 +2044,7 @@
     </div>
   </main>
 
-  <!-- ========================================================================
-       HUD FOOTER / NAVEGACIÓN Y CONTROLES
-       ======================================================================== -->
+  <!-- HUD FOOTER -->
   <footer class="hud-footer">
     <div class="hud-footer-left">
       <span class="key-hint"><span class="key-badge">←</span> <span class="key-badge">→</span> / <span class="key-badge">ESPACIO</span> Navegación</span>
@@ -1936,7 +2058,7 @@
       </button>
 
       <div class="page-indicator">
-        <span id="currentSlideNum">01</span> / <span id="totalSlideNum">10</span>
+        <span id="currentSlideNum">01</span> / <span id="totalSlideNum">12</span>
       </div>
 
       <button class="nav-btn" id="btnNext">
@@ -1951,9 +2073,7 @@
     </div>
   </footer>
 
-  <!-- ========================================================================
-       MODAL INSPECTOR TÁCTICO DE TAREAS (DISEÑO PROFESIONAL)
-       ======================================================================== -->
+  <!-- MODAL INSPECTOR TÁCTICO -->
   <div class="inspector-overlay" id="inspectorOverlay">
     <div class="inspector-modal" id="inspectorModal">
       <div class="inspector-header">
@@ -1968,7 +2088,6 @@
       </div>
 
       <div class="inspector-content">
-        <!-- Bloque 1: Descripción Funcional y Operativa -->
         <div class="inspector-section">
           <div class="inspector-section-label">
             <span>01. DESCRIPCIÓN FUNCIONAL & OPERACIÓN DEL FLUJO</span>
@@ -1978,7 +2097,6 @@
           </div>
         </div>
 
-        <!-- Bloque 2: Arquitectura y Detalle Técnico -->
         <div class="inspector-section">
           <div class="inspector-section-label">
             <span>02. ARQUITECTURA & ESPECIFICACIÓN TÉCNICA</span>
@@ -1988,7 +2106,6 @@
           </div>
         </div>
 
-        <!-- Bloque 3: Criterios de Aceptación y Valor -->
         <div class="inspector-section">
           <div class="inspector-section-label">
             <span>03. CRITERIOS DE ACEPTACIÓN & VALOR ENTREGADO</span>
@@ -2001,30 +2118,21 @@
     </div>
   </div>
 
-  <!-- ========================================================================
-       TOC DRAWER (ÍNDICE LATERAL DESLIZABLE)
-       ======================================================================== -->
+  <!-- TOC DRAWER -->
   <div class="toc-overlay" id="tocOverlay"></div>
   <aside class="toc-drawer" id="tocDrawer">
     <div class="toc-header">
       <div class="toc-title">ÍNDICE DE DIAPOSITIVAS</div>
       <button class="toc-close" id="btnTocClose">✕</button>
     </div>
-    <ul class="toc-list" id="tocList">
-      <!-- Se inyecta dinámicamente con JavaScript -->
-    </ul>
+    <ul class="toc-list" id="tocList"></ul>
   </aside>
 
-  <!-- ========================================================================
-       MOTOR DE NAVEGACIÓN Y DATOS DE TAREAS (JAVASCRIPT)
-       ======================================================================== -->
+  <!-- JAVASCRIPT CONTROLLER -->
   <script>
     (function () {
       'use strict';
 
-      // ======================================================================
-      // BASE DE CONOCIMIENTO TÉCNICO PROFESIONAL (ESTRUCTURA UNIFICADA)
-      // ======================================================================
       const TASK_DATABASE = {
         // --- HU-19 ---
         'hu19-task1': {
@@ -2206,12 +2314,93 @@
           functional: 'Con el modelo arquitectónico más eficiente definido en Azure, se procederá al aprovisionamiento definitivo de los contenedores en la nube, enlazando el dominio público con balanceador de carga y certificados SSL para acceso seguro de la comunidad.',
           technical: 'Despliegue del stack de contenedores en Azure, inyección de variables de entorno seguras, y configuración de reverse proxy Nginx con certificados SSL Let\'s Encrypt / Azure Front Door para tráfico seguro HTTPS.',
           value: 'Tarea en ejecución activa con base de contenedores terminada, lista para su publicación en el servidor cloud productivo de Azure.'
+        },
+
+        // --- HU-26 (SPRINT 4) ---
+        'hu26-task1': {
+          tag: 'HU-26 // GAMIFICACIÓN & FIDELIZACIÓN',
+          module: 'LOYALTY ENGINE · POINTS ACCRUAL',
+          title: 'Motor de Acumulación de Puntos por Compras y Asistencia',
+          functional: 'Desarrollamos el motor transaccional de fidelización que premia al usuario por su actividad continua en la plataforma. Cada boleto adquirido en taquilla virtual, cada pedido de mercancía en Laika Shop y cada validación de acceso escaneada en puerta otorga "Laika Points" calculados proporcionalmente al valor de la transacción y la categoría del espectáculo.',
+          technical: 'Servicio <code>LoyaltyEngineService.java</code> conectado a eventos asíncronos mediante <code>@EventListener</code> de <code>TicketPurchaseSuccessEvent</code> y <code>MerchOrderSuccessEvent</code>. Actualiza la tabla <code>user_loyalty_points</code> e inserta la auditoría en <code>point_ledger</code> en MySQL.',
+          value: 'Incentiva las compras anticipadas y eleva el ticket promedio de compra en toda la plataforma.'
+        },
+        'hu26-task2': {
+          tag: 'HU-26 // LOGROS & GAMIFICACIÓN',
+          module: 'BADGE SYSTEM · FAN TIERS',
+          title: 'Catálogo de Insignias y Niveles de Usuario Fan',
+          functional: 'Estructuramos un sistema de medallas desbloqueables por hitos de asistencia (ej. "Primer Concierto", "Fan de Metal Industrial", "Asistente Frecuente") y 4 niveles de estatus de cliente (Bronce, Plata, Oro y Platino VIP), visibles directamente en el perfil del usuario y en el diseño de su billetera digital.',
+          technical: 'Motor de evaluación de reglas sobre el historial de eventos en <code>laika_tickets</code>. Endpoints <code>GET /user/achievements</code> y <code>GET /user/loyalty/status</code> con caché en Redis para no sobrecargar la base de datos relacional.',
+          value: 'Fomenta el sentido de comunidad, el orgullo de pertenencia y el engagement social de los fanáticos.'
+        },
+        'hu26-task3': {
+          tag: 'HU-26 // BENEFICIOS & REDENCIÓN',
+          module: 'REWARDS CENTER · CHECKOUT INTEGRATION',
+          title: 'Centro de Canje de Puntos por Beneficios y Descuentos',
+          functional: 'Permite al comprador canjear sus puntos acumulados por beneficios reales: descuentos porcentuales en preventas exclusivas, cupones para playeras y gorras en Laika Shop o accesos a filas rápidas de ingreso en taquilla.',
+          technical: 'Integración en <code>CartContext.jsx</code> y <code>useCheckoutFlow.js</code> con el endpoint <code>POST /loyalty/redeem-coupon</code>. Valida saldo suficiente, genera el código de descuento de un solo uso y descuenta los puntos de forma atómica en base de datos.',
+          value: 'Convierte la fidelidad en ahorro real para el asistente, cerrando el ciclo de monetización y retención de usuarios.'
+        },
+
+        // --- CASOS DE USO SPRINT 4 (CU-01 A CU-07) ---
+        'cu01-task': {
+          tag: 'CU-01 // QA & SEGURIDAD',
+          module: 'AUTH SERVICE · JWT · ROLE ACCESS',
+          title: 'Prueba Login y Autenticación de Usuarios',
+          functional: 'Certificación integral del flujo de inicio de sesión: valida credenciales válidas e inválidas, bloqueo preventivo por intentos fallidos, emisión y firma segura de tokens JWT, persistencia de sesión en navegador y verificación estricta de permisos por rol (Admin, Gestor, Usuario, Operador).',
+          technical: 'Pruebas automatizadas en <code>SecurityConfigTest.java</code> y <code>AuthControllerTest.java</code>. Verifica cabeceras <code>Authorization: Bearer</code>, tiempos de expiración y rechazo HTTP 401/403 ante tokens revocados o firmas alteradas.',
+          value: 'Garantiza que la puerta de entrada a la plataforma sea inexpugnable y que ningún usuario acceda a paneles ajenos a su perfil.'
+        },
+        'cu02-task': {
+          tag: 'CU-02 // QA & CHECKOUT',
+          module: 'CART CONTEXT · E2E PURCHASE · STOCK',
+          title: 'Prueba de Compra y Carrito Unificado',
+          functional: 'Prueba de punta a punta del proceso de compra: agregar boletos de distintas zonas y productos de mercancía (con variantes de talla/color) al carrito, cálculo exacto de subtotales, selección de método de entrega (taquilla con INE vs envío a domicilio) y confirmación de cobro sin inconsistencias.',
+          technical: 'Suite E2E con Cypress/Playwright y pruebas de integración en <code>PurchaseIntegrationTest.java</code>. Valida que las compras mixtas sincronicen de forma atómica los microservicios de tickets y mercancía.',
+          value: 'Asegura que el canal de ventas principal opere con 100% de fiabilidad, sin carritos colgados ni transacciones erróneas.'
+        },
+        'cu03-task': {
+          tag: 'CU-03 // QA & CONCURRENCIA',
+          module: 'SEAT LOCKING · TICKETING ENGINE · STRESS',
+          title: 'Prueba de Mercado de Boletos y Bloqueo de Butacas',
+          functional: 'Simulación de alta concurrencia donde múltiples usuarios intentan seleccionar y comprar los mismos asientos al mismo segundo en una preventa masiva. Verifica que el sistema bloquee temporalmente las butacas seleccionadas y evite la doble venta o inconsistencia de aforo.',
+          technical: 'Pruebas de carga con Locust / JMeter sobre <code>SeatReservationService.java</code>. Evalúa bloqueo pesimista/optimista en base de datos y expiración automática de reservas temporales (TTL de 10 minutos) si el usuario abandona la compra.',
+          value: 'Evita el peor problema en venta de espectáculos: vender el mismo asiento dos veces y generar sobrecupo en el recinto.'
+        },
+        'cu04-task': {
+          tag: 'CU-04 // QA & CANJE',
+          module: 'COURTESY REDEMPTION · TOKEN CLAIM',
+          title: 'Prueba de Marcado de Boletos como Canjeados',
+          functional: 'Verificación del flujo del Centro de Canje: un colaborador o invitado ingresa un código de cortesía generado en lote; el sistema comprueba la validez del token, activa el boleto asignándole su identidad y bloquea el token para que jamás pueda ser reclamado por segunda ocasión.',
+          technical: 'Test unitario y de integración sobre <code>CourtesyService.claimCourtesy(...)</code>. Verifica transición de estado de <code>pending_claim</code> a <code>active</code>, asignación de <code>userId</code> y generación de QR definitivo.',
+          value: 'Garantiza que los convenios empresariales y patrocinios funcionen con total transparencia y control antifraude.'
+        },
+        'cu05-task': {
+          tag: 'CU-05 // QA & TRANSACCIONES',
+          module: 'CANCELLATION ENGINE · SEAT RELEASE',
+          title: 'Prueba de Cancelación y Devolución de Boletos',
+          functional: 'Certificación del ciclo de reembolso: el usuario solicita la devolución, el sistema valida que esté dentro del margen permitido (hasta 24 horas antes del evento), computa la cotización exacta, desactiva el QR de acceso y libera el asiento para que vuelva a estar a la venta.',
+          technical: 'Tests en <code>CancellationServiceImplTest.java</code>. Verifica el rollback transaccional ante fallos de red, actualización en MySQL, sincronización en MongoDB y rechazo de solicitudes sobre boletos ya usados o cancelados.',
+          value: 'Confirma que el dinero y el aforo se mantengan en perfecta sincronía financiera y física sin intervención manual.'
+        },
+        'cu06-task': {
+          tag: 'CU-06 // QA & PUERTAS',
+          module: 'GATES SERVICE · QR SCANNER · OPERADOR APP',
+          title: 'Pruebas de Escaneo y Validación de Boletos en Puerta',
+          functional: 'Simulación de los torniquetes y lectores de acceso del evento con la app móvil de operador: lectura de códigos QR legítimos con respuesta en menos de 200 milisegundos, y detección inmediata con alerta sonora/visual de boletos falsos, duplicados, cancelados o ya ingresados.',
+          technical: 'Tests sobre el endpoint <code>POST /gates/validate</code> y desencriptación de payloads QR con HMAC-SHA256. Simula escenarios con conexión lenta y cola de sincronización offline en la app del operador.',
+          value: 'Garantiza que el ingreso al evento sea ágil, fluido y estrictamente seguro para miles de asistentes simultáneos.'
+        },
+        'cu07-task': {
+          tag: 'CU-07 // QA & CESIÓN',
+          module: 'TRANSFER SERVICE · QR ROTATION',
+          title: 'Prueba de Transferencia de Boletos entre Usuarios',
+          functional: 'Certificación de la máquina de estados de transferencia: traspaso de titularidad por correo electrónico con reingreso de contraseña, generación de nuevo QR criptográfico para el receptor e invalidación inmediata del código que tenía el emisor.',
+          technical: 'Pruebas sobre <code>TransferServiceImplTest.java</code> (métodos <code>request</code>, <code>accept</code>, <code>reject</code>, <code>cancel</code>). Comprueba que el remitente no pueda acceder al recinto con capturas de pantalla viejas tras ceder su boleto.',
+          value: 'Elimina las reventas fraudulentas y respalda la legitimidad del asistente que se presenta en taquilla.'
         }
       };
 
-      // ======================================================================
-      // DOM ELEMENTS & CONTROLLERS
-      // ======================================================================
       const slides = Array.from(document.querySelectorAll('.slide'));
       const totalSlides = slides.length;
       let currentIndex = 0;
@@ -2231,7 +2420,6 @@
 
       const themeButtons = Array.from(document.querySelectorAll('.theme-btn'));
 
-      // Modal Inspector de Tareas
       const inspectorOverlay = document.getElementById('inspectorOverlay');
       const inspCloseBtn = document.getElementById('inspCloseBtn');
       const inspTaskTag = document.getElementById('inspTaskTag');
@@ -2251,7 +2439,9 @@
         "07. HU-24: Catálogo y Compra de Merch",
         "08. HU-25: Rediseño Móvil (En Proceso)",
         "09. HT-23: Infraestructura Azure (En Proceso)",
-        "10. Conclusiones y Retrospectiva"
+        "10. Sprint 4: Roadmap, HU-26 & Continuidad",
+        "11. Sprint 4: Casos de Uso (CU-01 a CU-07)",
+        "12. Conclusiones y Demostración en Vivo"
       ];
 
       function pad(num) {
@@ -2293,9 +2483,6 @@
         tocOverlay.classList.remove('open');
       }
 
-      // ======================================================================
-      // APERTURA DEL INSPECTOR DE TAREAS (CLICK EN TARJETA)
-      // ======================================================================
       function openTaskInspector(taskId) {
         const data = TASK_DATABASE[taskId];
         if (!data) return;
@@ -2329,7 +2516,6 @@
         }
       });
 
-      // Navegación de Diapositivas
       function goToSlide(index) {
         if (index < 0 || index >= totalSlides) return;
 
@@ -2361,7 +2547,6 @@
         }
       }
 
-      // Temas
       function setTheme(themeName) {
         document.documentElement.setAttribute('data-theme', themeName);
         localStorage.setItem('laika_review_theme', themeName);
@@ -2399,7 +2584,6 @@
         }
       });
 
-      // Teclado
       window.addEventListener('keydown', (e) => {
         if (inspectorOverlay.classList.contains('open')) {
           if (e.key === 'Escape') {

@@ -1,0 +1,227 @@
+version: '3.8'
+
+services:
+  laika_db:
+    image: mysql:8.0
+    container_name: laika_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-laika_auth}
+    volumes:
+      - laika_db_data:/var/lib/mysql
+      - ./laika_db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./my_custom.cnf:/etc/mysql/conf.d/my_custom.cnf
+    ports:
+      - "127.0.0.1:3306:3306"
+    networks:
+      - laika_network
+
+  gateway:
+    build:
+      context: ./pilgrim
+      dockerfile: Dockerfile
+    container_name: laika_gateway
+    restart: always
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - AUTH_SERVICE_URL=http://auth:8101
+      - EVENTS_SERVICE_URL=http://events:8201
+      - TICKETS_SERVICE_URL=http://tickets:8202
+      - STATS_SERVICE_URL=http://stats:8103
+      - ADMIN_SERVICE_URL=http://admin:8102
+      - ACHIEVEMENTS_SERVICE_URL=http://achievements:8301
+      - ANALYTICS_SERVICE_URL=http://analytics:8302
+      - ANALYTICS_BIGDATA_SERVICE_URL=http://analytics_bigdata:8303
+      - MERCHANDISE_SERVICE_URL=http://merchandise:8203
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_auth
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      - auth
+      - events
+      - tickets
+      - stats
+      - admin
+      - merchandise
+      - achievements
+      - analytics
+      - analytics_bigdata
+    networks:
+      - laika_network
+
+  auth:
+    build:
+      context: ./microservices2/auth
+      dockerfile: Dockerfile
+    container_name: laika_auth
+    restart: always
+    environment:
+      - SERVER_PORT=8101
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_auth
+      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - SPRING_THREADS_VIRTUAL_ENABLED=true
+    depends_on:
+      - laika_db
+    networks:
+      - laika_network
+
+  events:
+    build:
+      context: ./microservices2/events
+      dockerfile: Dockerfile
+    container_name: laika_events
+    restart: always
+    environment:
+      - SERVER_PORT=8201
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_events
+      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - SPRING_THREADS_VIRTUAL_ENABLED=true
+    depends_on:
+      - laika_db
+    networks:
+      - laika_network
+
+  tickets:
+    build:
+      context: ./microservices2/tickets
+      dockerfile: Dockerfile
+    container_name: laika_tickets
+    restart: always
+    environment:
+      - SERVER_PORT=8202
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_tickets
+      - EVENTS_SERVICE_URL=http://events:8201
+      - AUTH_SERVICE_URL=http://auth:8101
+      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - SPRING_THREADS_VIRTUAL_ENABLED=true
+    depends_on:
+      - laika_db
+    networks:
+      - laika_network
+
+  stats:
+    build:
+      context: ./microservices2/stats
+      dockerfile: Dockerfile
+    container_name: laika_stats
+    restart: always
+    environment:
+      - SERVER_PORT=8103
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_stats
+      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - SPRING_THREADS_VIRTUAL_ENABLED=true
+    depends_on:
+      - laika_db
+    networks:
+      - laika_network
+
+  admin:
+    build:
+      context: ./microservices2/admin
+      dockerfile: Dockerfile
+    container_name: laika_admin
+    restart: always
+    environment:
+      - SERVER_PORT=8102
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_admin
+      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - SPRING_THREADS_VIRTUAL_ENABLED=true
+    volumes:
+      - ./uploads:/app/uploads
+      - ./backups:/app/backups
+    depends_on:
+      - laika_db
+    networks:
+      - laika_network
+
+  merchandise:
+    build:
+      context: ./microservices2/merchandise
+      dockerfile: Dockerfile
+    container_name: laika_merchandise
+    restart: always
+    environment:
+      - SERVER_PORT=8203
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_merchandise
+      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - SPRING_THREADS_VIRTUAL_ENABLED=true
+    depends_on:
+      - laika_db
+    networks:
+      - laika_network
+
+  achievements:
+    build:
+      context: ./microservices2/achievements
+      dockerfile: Dockerfile
+    container_name: laika_achievements
+    restart: always
+    environment:
+      - SERVER_PORT=8301
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_achievements
+      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - SPRING_THREADS_VIRTUAL_ENABLED=true
+    depends_on:
+      - laika_db
+    networks:
+      - laika_network
+
+  analytics:
+    build:
+      context: ./microservices2/analytics
+      dockerfile: Dockerfile
+    container_name: laika_analytics
+    restart: always
+    environment:
+      - SERVER_PORT=8302
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_analytics
+      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - SPRING_THREADS_VIRTUAL_ENABLED=true
+    depends_on:
+      - laika_db
+    networks:
+      - laika_network
+
+  analytics_bigdata:
+    build:
+      context: ./microservices/analytics_bigdata
+      dockerfile: Dockerfile
+    container_name: laika_analytics_bigdata
+    restart: always
+    environment:
+      - MYSQL_HOST=laika_db
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=laika_analytics
+      - MYSQL_USER=root
+      - SPARK_LOCAL_IP=127.0.0.1
+    depends_on:
+      - laika_db
+    networks:
+      - laika_network
+
+networks:
+  laika_network:
+    name: laika_network
+
+volumes:
+  laika_db_data:
