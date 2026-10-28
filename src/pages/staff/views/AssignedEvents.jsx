@@ -1,32 +1,111 @@
 import React from 'react';
-import { Calendar } from 'lucide-react';
+import { Calendar, MapPin, Clock, Shield, CheckCircle2, UserCheck } from 'lucide-react';
+import { BentoCard, BentoHeader, BentoBadge } from '../../../components/Bento';
 import '../StaffDashboard.css';
 
+/**
+ * AssignedEvents - Vista Bento Box de Turnos y Asignaciones de Campo del Operador.
+ */
 const AssignedEvents = () => {
-    return (
-        <div className="staff-dashboard-page">
-            <header className="staff-header">
-                <div className="staff-header-content">
-                    <h1>
-                        <Calendar size={28} color="var(--staff-accent-primary)" />
-                        Mis Asignaciones de Campo
-                    </h1>
-                    <p className="staff-subtitle">Recintos y eventos en los que estás asignado como operador oficial o especialista en puerta</p>
-                </div>
-            </header>
-            
-            <section aria-label="Listado de Turnos">
-                <div className="staff-empty-state" style={{ padding: '6rem 2rem' }}>
-                    <Calendar size={48} style={{ color: 'var(--staff-text-muted)', margin: '0 auto 1.5rem', opacity: 0.4 }} />
-                    <h3 className="staff-empty-title">Sin Asignaciones Pendientes Hoy</h3>
-                    <p className="staff-empty-desc">
-                        Actualmente tu usuario no registra turnos de verificación en puertas o taquilla programados dentro de las próximas 48 horas.
-                        Tan pronto un Administrador o Gestor de Sede confirme tu horario y puerta de acceso, se activará el enlace directo en esta central.
-                    </p>
-                </div>
-            </section>
+  return (
+    <div className="staff-dashboard-page">
+      {/* ── Cabecera de Asignaciones ─────────────────────────────────── */}
+      <header className="staff-header">
+        <div className="staff-header-content">
+          <h1>
+            <Calendar size={28} className="staff-header-icon" />
+            Mis Asignaciones de Campo • Turnos y Recintos
+          </h1>
+          <p className="staff-subtitle">
+            Calendario de eventos, puertas asignadas y horarios de guardia para control de acceso y taquilla
+          </p>
         </div>
-    );
+
+        <div className="staff-header-actions">
+          <BentoBadge variant="success" dot>
+            CREDENCIAL VERIFICADA
+          </BentoBadge>
+        </div>
+      </header>
+
+      {/* ── Cuadrícula Bento de Turnos ─────────────────────────────── */}
+      <div className="bento-grid staff-assignments-bento-grid">
+        {/* Turno Actual Activo (col-8) */}
+        <BentoCard
+          colSpan={8}
+          variant="hero"
+          className="staff-assignment-hero-card"
+          header={
+            <BentoHeader
+              title="Guardia Activa en Curso"
+              subtitle="Turno confirmado por la Jefatura de Operaciones"
+              icon={<Shield size={20} />}
+              action={
+                <BentoBadge variant="success">EN SERVICIO</BentoBadge>
+              }
+            />
+          }
+        >
+          <div className="staff-assignment-hero-body">
+            <div className="staff-assignment-details-grid">
+              <div className="staff-assignment-detail-item">
+                <span className="staff-assignment-label">
+                  <MapPin size={14} /> Recinto Oficial
+                </span>
+                <span className="staff-assignment-val">LAIKA Main Arena • Explanada Central</span>
+              </div>
+              <div className="staff-assignment-detail-item">
+                <span className="staff-assignment-label">
+                  <Shield size={14} /> Puerta Asignada
+                </span>
+                <span className="staff-assignment-val">Puerta Principal • Carriles 1 y 2</span>
+              </div>
+              <div className="staff-assignment-detail-item">
+                <span className="staff-assignment-label">
+                  <Clock size={14} /> Horario de Turno
+                </span>
+                <span className="staff-assignment-val">18:00 hrs – Cierre de Acceso</span>
+              </div>
+              <div className="staff-assignment-detail-item">
+                <span className="staff-assignment-label">
+                  <UserCheck size={14} /> Supervisor a Cargo
+                </span>
+                <span className="staff-assignment-val">Coordinación de Puertas & Logística</span>
+              </div>
+            </div>
+          </div>
+        </BentoCard>
+
+        {/* Notificaciones y Protocolo de Campo (col-4) */}
+        <BentoCard
+          colSpan={4}
+          className="staff-assignment-side-card"
+          header={
+            <BentoHeader
+              title="Protocolo de Puerta"
+              subtitle="Instrucciones vigentes"
+              icon={<CheckCircle2 size={18} />}
+            />
+          }
+        >
+          <div className="staff-protocol-list">
+            <div className="staff-protocol-item">
+              <span className="staff-protocol-dot" />
+              <span>Verificar que cada pase cuente con código QR íntegro</span>
+            </div>
+            <div className="staff-protocol-item">
+              <span className="staff-protocol-dot" />
+              <span>Ante boletos duplicados, derivar a Mesa de Ayuda</span>
+            </div>
+            <div className="staff-protocol-item">
+              <span className="staff-protocol-dot" />
+              <span>Reportar cualquier alteración en el canal de incidencias</span>
+            </div>
+          </div>
+        </BentoCard>
+      </div>
+    </div>
+  );
 };
 
 export default AssignedEvents;

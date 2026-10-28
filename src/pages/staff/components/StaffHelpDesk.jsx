@@ -1,109 +1,209 @@
 import React, { useState } from 'react';
-import { Table, Button, Input, Icon, Badge } from '../../../components';
+import { Search, UserCheck, AlertCircle, RefreshCw, CheckCircle2, Mail, Hash, User } from 'lucide-react';
+import { BentoCard, BentoHeader, BentoBadge } from '../../../components/Bento';
 import { managerAPI } from '../../../services/managerService';
 import { ticketAPI } from '../../../services/ticketService';
 import { useNotification } from '../../../context/NotificationContext';
 import '../StaffDashboard.css';
 
+/**
+ * StaffHelpDesk - Mesa de Soporte de Entrada Bento Box.
+ * Permite al operador localizar asistentes por nombre, email o boleto y autorizar accesos manuales.
+ */
 const StaffHelpDesk = ({ eventId }) => {
-    const { success, error: showError } = useNotification();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [results, setResults] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [hasSearched, setHasSearched] = useState(false);
+  const { success, error: showError } = useNotification();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [redeemingTicket, setRedeemingTicket] = useState(null);
 
-    const handleSearch = async (e) => {
-        if (e) e.preventDefault();
-        if (!searchQuery.trim()) return;
+  const handleSearch = async (e) => {
+    if (e) e.preventDefault();
+    if (!searchQuery.trim()) return;
 
-        setLoading(true);
-        setHasSearched(true);
-        try {
-            const allAttendees = await managerAPI.getAttendees(eventId);
-            const filtered = allAttendees.filter(a => 
-                (a.name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (a.email?.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                (a.ticket?.toLowerCase().includes(searchQuery.toLowerCase()))
-            );
-            setResults(filtered);
-        } catch (error) {
-            showError('Error en consulta al servicio de asistentes');
-        } finally {
-            setLoading(false);
-        }
-    };
+    setLoading(true);
+    setHasSearched(true);
+    try {
+      const allAttendees = await managerAPI.getAttendees(eventId);
+      const q = searchQuery.toLowerCase().trim();
+      const filtered = (allAttendees || []).filter((a) =>
+        (a.name && a.name.toLowerCase().includes(q)) ||
+        (a.email && a.email.toLowerCase().includes(q)) ||
+        (a.ticket && a.ticket.toLowerCase().includes(q))
+      );
+      setResults(filtered);
+    } catch (error) {
+      showError('Error al consultar el padrón de asistentes del evento');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleManualRedeem = async (ticketCode) => {
-        try {
-            await ticketAPI.redeem(ticketCode);
-            success('Acceso manual validado y registrado en bitácora del sistema');
-            handleSearch(); // Refresh list
-        } catch (error) {
-            showError(error.message || 'Fallo al procesar validación manual en servidor');
-        }
-    };
+  const handleManualRedeem = async (ticketCode) => {
+    if (!ticketCode) return;
+    setRedeemingTicket(ticketCode);
+    try {
+      await ticketAPI.redeem(ticketCode, {
+        platform: 'WEB_OPERATOR',
+        validationMode: 'MANUAL_HELPDESK'
+      });
+      success('Acceso manual validado y registrado en la bitácora oficial');
+      // Actualizar estado local inmediatamente
+      setResults((prev) =>
+        prev.map((item) =>
+          item.ticket === ticketCode ? { ...item, status: 'checked-in' } : item
+        )
+      );
+    } catch (error) {
+      showError(error.message || 'Fallo al procesar validación manual en servidor');
+    } finally {
+      setRedeemingTicket(null);
+    }
+  };
 
-    const columns = [
-        { key: 'name', header: 'Nombre del Asistente' },
-        { key: 'email', header: 'Correo Electrónico' },
-        { key: 'ticket', header: 'Código de Boleto' },
-        { 
-            key: 'status', 
-            header: 'Estatus',
-            render: (status) => (
-                <Badge variant={status === 'checked-in' ? 'success' : 'warning'}>
-                    {status === 'checked-in' ? 'INGRESADO EN PUERTA' : 'PENDIENTE DE ACCESO'}
-                </Badge>
-            )
-        },
-        {
-            key: 'actions',
-            header: 'Validación Manual',
-            render: (_, row) => (
-                row.status !== 'checked-in' ? (
-                    <Button size="small" variant="success" onClick={() => handleManualRedeem(row.ticket)}>
-                        Validar Acceso
-                    </Button>
-                ) : (
-                    <span style={{ fontSize: '0.8rem', color: 'var(--staff-text-muted)', fontWeight: 700 }}>Canjeado</span>
-                )
-            )
-        }
-    ];
-
-    return (
-        <div className="staff-help-desk-view">
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '260px' }}>
-                    <Input 
-                        placeholder="Ingresa Nombre, Email, DNI o Código de boleto para localizar en lista..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        fullWidth
-                    />
-                </div>
-                <Button type="submit" variant="primary" loading={loading} style={{ padding: '0 2rem', minHeight: '44px' }}>
-                    <Icon name="search" size={18} className="mr-2" />
-                    Consultar Bitácora
-                </Button>
-            </form>
-
-            {!hasSearched ? (
-                <div className="staff-empty-state">
-                    <Icon name="search" size={36} style={{ color: 'var(--staff-text-muted)', marginBottom: '0.5rem', opacity: 0.5 }} />
-                    <h3 className="staff-empty-title">Soporte de Puerta y Resolución de Problemas</h3>
-                    <p className="staff-empty-desc">Utiliza la barra de búsqueda superior para localizar el registro de cualquier asistente del evento en caso de falla con su dispositivo o pérdida del código de lectura.</p>
-                </div>
-            ) : (
-                <Table 
-                    columns={columns}
-                    data={results}
-                    emptyMessage="No se localizaron asistentes que coincidan con el criterio ingresado para este evento."
-                    hoverable
-                />
+  return (
+    <div className="staff-help-desk-bento">
+      {/* ── Barra de Búsqueda Bento ─────────────────────────────────── */}
+      <div className="staff-helpdesk-search-bar">
+        <form onSubmit={handleSearch} className="staff-helpdesk-form">
+          <div className="staff-helpdesk-input-wrapper">
+            <Search size={18} className="staff-helpdesk-search-icon" />
+            <input
+              type="text"
+              id="helpdesk-query-input"
+              className="staff-helpdesk-input"
+              placeholder="Buscar por Nombre, Correo Electrónico o Código de Boleto..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoComplete="off"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                className="staff-helpdesk-clear-btn"
+                onClick={() => {
+                  setSearchQuery('');
+                  setHasSearched(false);
+                  setResults([]);
+                }}
+                title="Limpiar búsqueda"
+              >
+                Limpiar
+              </button>
             )}
+          </div>
+          <button
+            type="submit"
+            className="staff-helpdesk-submit-btn"
+            disabled={loading || !searchQuery.trim()}
+          >
+            {loading ? (
+              <>
+                <RefreshCw size={16} className="staff-spin-icon" />
+                <span>Buscando...</span>
+              </>
+            ) : (
+              <>
+                <Search size={16} />
+                <span>Localizar Asistente</span>
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+
+      {/* ── Estado Inicial: Sin Búsqueda Activa ──────────────────────── */}
+      {!hasSearched && (
+        <div className="staff-helpdesk-standby">
+          <div className="staff-helpdesk-standby-icon">
+            <UserCheck size={36} />
+          </div>
+          <h3 className="staff-helpdesk-standby-title">Mesa de Ayuda y Soporte de Acceso</h3>
+          <p className="staff-helpdesk-standby-desc">
+            Si un asistente no dispone de su código QR o presenta dificultades ópticas con su pantalla,
+            ingresa sus datos para validar su identidad en el padrón del evento y autorizar su ingreso.
+          </p>
         </div>
-    );
+      )}
+
+      {/* ── Resultados de la Búsqueda ───────────────────────────────── */}
+      {hasSearched && (
+        <div className="staff-helpdesk-results-container">
+          <div className="staff-helpdesk-results-header">
+            <h4 className="staff-helpdesk-results-title">
+              Registros Encontrados ({results.length})
+            </h4>
+            <span className="staff-helpdesk-results-meta">
+              Criterio: &ldquo;{searchQuery}&rdquo;
+            </span>
+          </div>
+
+          {results.length === 0 ? (
+            <div className="staff-helpdesk-empty">
+              <AlertCircle size={32} className="staff-helpdesk-empty-icon" />
+              <h4 className="staff-helpdesk-empty-title">Sin coincidencias registradas</h4>
+              <p className="staff-helpdesk-empty-desc">
+                No se encontraron asistentes con esos datos en este evento. Verifica posibles errores de escritura o confirma que el evento seleccionado en cabecera sea el correcto.
+              </p>
+            </div>
+          ) : (
+            <div className="staff-helpdesk-grid">
+              {results.map((attendee, index) => {
+                const isCheckedIn = attendee.status === 'checked-in';
+                const isRedeeming = redeemingTicket === attendee.ticket;
+
+                return (
+                  <div key={attendee.ticket || index} className="staff-helpdesk-card">
+                    <div className="staff-helpdesk-card-main">
+                      <div className="staff-helpdesk-avatar">
+                        <User size={20} />
+                      </div>
+                      <div className="staff-helpdesk-details">
+                        <h5 className="staff-helpdesk-name">{attendee.name || 'Asistente Registrado'}</h5>
+                        <div className="staff-helpdesk-meta-row">
+                          <span className="staff-helpdesk-meta-item">
+                            <Mail size={13} />
+                            {attendee.email || 'Sin correo asociado'}
+                          </span>
+                          <span className="staff-helpdesk-meta-item">
+                            <Hash size={13} />
+                            <code className="staff-ticket-code-pill">{attendee.ticket || 'N/A'}</code>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="staff-helpdesk-card-actions">
+                      <BentoBadge variant={isCheckedIn ? 'success' : 'warning'}>
+                        {isCheckedIn ? 'INGRESADO EN PUERTA' : 'PENDIENTE DE ACCESO'}
+                      </BentoBadge>
+
+                      {!isCheckedIn ? (
+                        <button
+                          type="button"
+                          className="staff-helpdesk-redeem-btn"
+                          disabled={isRedeeming}
+                          onClick={() => handleManualRedeem(attendee.ticket)}
+                        >
+                          <CheckCircle2 size={16} />
+                          <span>{isRedeeming ? 'Validando...' : 'Autorizar Ingreso Manual'}</span>
+                        </button>
+                      ) : (
+                        <span className="staff-helpdesk-checked-tag">
+                          <CheckCircle2 size={14} /> Canjeado
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default StaffHelpDesk;

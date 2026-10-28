@@ -485,35 +485,35 @@ export const staffRoutes = [
     element: StaffDashboard,
     layout: 'dashboard',
     allowedRoles: ['operador', 'admin'],
-    title: 'Panel Control Staff'
+    title: 'Panel de Staff'
   },
   {
     path: '/staff',
     element: StaffTerminal,
     layout: 'dashboard',
     allowedRoles: ['operador', 'admin'],
-    title: 'Verificación de Boletos'
+    title: 'Lector de Entradas'
   },
   {
     path: '/staff/history',
     element: StaffHistory,
     layout: 'dashboard',
     allowedRoles: ['operador', 'admin'],
-    title: 'Historial de Verificaciones'
+    title: 'Registro de Accesos'
   },
   {
     path: '/staff/incidents',
     element: StaffIncidents,
     layout: 'dashboard',
     allowedRoles: ['operador', 'admin'],
-    title: 'Incidencias'
+    title: 'Reporte de Problemas'
   },
   {
     path: '/staff/events',
     element: AssignedEvents, 
     layout: 'dashboard',
     allowedRoles: ['operador', 'admin'],
-    title: 'Eventos Asignados'
+    title: 'Mis Asignaciones'
   }
 ]
 

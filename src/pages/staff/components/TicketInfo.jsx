@@ -1,46 +1,75 @@
 import React from 'react';
+import { User, Calendar, Tag, ShieldCheck, Hash, Gift } from 'lucide-react';
+import { BentoBadge } from '../../../components/Bento';
 import '../StaffDashboard.css';
 
+/**
+ * TicketInfo - Ficha modular Bento con los detalles del boleto verificado.
+ * Compatible al 100% con Tema Claro y Oscuro (cero colores fijos).
+ */
 const TicketInfo = ({ ticket }) => {
   if (!ticket) return null;
+
+  const isCourtesy = ticket.isCourtesy || ticket.is_courtesy || ticket.ticketDetails?.isCourtesy;
+  const recipientType = ticket.recipientType || ticket.ticketDetails?.recipientType || 'Invitado Especial';
 
   return (
     <div className="staff-ticket-info">
       <div className="staff-info-row">
-        <span className="staff-info-label">Titular / Asistente</span>
+        <span className="staff-info-label">
+          <User size={14} className="staff-info-icon" />
+          Titular / Asistente
+        </span>
         <span className="staff-info-value highlight">{ticket.customerName || 'No especificado'}</span>
       </div>
 
       <div className="staff-info-row">
-        <span className="staff-info-label">Evento Asignado</span>
+        <span className="staff-info-label">
+          <Calendar size={14} className="staff-info-icon" />
+          Evento Asignado
+        </span>
         <span className="staff-info-value">{ticket.eventName || 'Evento LAIKA Club'}</span>
       </div>
 
       <div className="staff-info-row">
-        <span className="staff-info-label">Tipo de Boleto / Acceso</span>
-        <span className="staff-info-value" style={{ color: '#ffffff', fontWeight: 800 }}>
-          {ticket.ticketType || 'General'}
+        <span className="staff-info-label">
+          <Tag size={14} className="staff-info-icon" />
+          Tipo de Boleto
         </span>
+        <div className="staff-info-badge-wrap">
+          <BentoBadge variant="primary">
+            {ticket.ticketType || 'General'}
+          </BentoBadge>
+        </div>
       </div>
 
-      {(ticket.isCourtesy || ticket.is_courtesy || ticket.ticketDetails?.isCourtesy) && (
-        <div className="staff-info-row" style={{ background: 'rgba(139, 92, 246, 0.15)', borderRadius: '8px', padding: '0.4rem 0.6rem', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
-          <span className="staff-info-label" style={{ color: '#c084fc' }}>Modalidad</span>
-          <span className="staff-info-value" style={{ color: '#a855f7', fontWeight: 800 }}>
-            CORTESÍA OFICIAL ({ticket.recipientType || ticket.ticketDetails?.recipientType || 'Invitado Especial'})
+      {isCourtesy && (
+        <div className="staff-info-row staff-courtesy-row">
+          <span className="staff-info-label">
+            <Gift size={14} className="staff-info-icon" />
+            Modalidad Especial
           </span>
+          <BentoBadge variant="warning">
+            CORTESÍA OFICIAL ({recipientType})
+          </BentoBadge>
         </div>
       )}
 
       <div className="staff-info-row">
-        <span className="staff-info-label">Código de Verificación</span>
+        <span className="staff-info-label">
+          <Hash size={14} className="staff-info-icon" />
+          Código de Verificación
+        </span>
         <span className="staff-info-code">{ticket.ticketCode}</span>
       </div>
 
       {ticket.purchaseDate && (
         <div className="staff-info-row">
-          <span className="staff-info-label">Fecha de Registro</span>
-          <span className="staff-info-value" style={{ color: 'var(--staff-text-secondary)', fontSize: '0.9rem' }}>
+          <span className="staff-info-label">
+            <ShieldCheck size={14} className="staff-info-icon" />
+            Fecha de Emisión
+          </span>
+          <span className="staff-info-value staff-info-date">
             {new Date(ticket.purchaseDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
           </span>
         </div>

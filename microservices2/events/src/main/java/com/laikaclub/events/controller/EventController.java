@@ -69,13 +69,26 @@ public class EventController {
         return eventQueryService.getUserEvents(principal.getId(), limit);
     }
 
-    @GetMapping("/{event_id}")
-    public Map<String, Object> getEventDetail(@PathVariable("event_id") Long eventId) {
-        Map<String, Object> event = eventQueryService.getEventById(eventId, true);
+    @GetMapping(value = {"/{event_id}", "/manager/events/{event_id}"})
+    public Map<String, Object> getEventDetail(@PathVariable("event_id") Long eventId,
+                                              @AuthenticationPrincipal UserPrincipal principal) {
+        boolean isPublic = (principal == null);
+        Map<String, Object> event = eventQueryService.getEventById(eventId, isPublic);
         if (event == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado");
         }
         return event;
+    }
+
+    @GetMapping(value = {"/{event_id}/functions", "/manager/events/{event_id}/functions"})
+    public List<Map<String, Object>> getEventFunctions(@PathVariable("event_id") Long eventId) {
+        Map<String, Object> event = eventQueryService.getEventById(eventId, false);
+        if (event == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado");
+        }
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> functions = (List<Map<String, Object>>) event.get("functions");
+        return functions != null ? functions : List.of();
     }
 
     // Supports both standard and manager routes

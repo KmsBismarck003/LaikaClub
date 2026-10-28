@@ -95,12 +95,12 @@ export const OPERADOR_SIDEBAR_ITEMS = [
     id: 'o_main',
     label: 'CONTROL OPERADOR',
     items: [
-      { id: 'o_dashboard', path: '/staff/dashboard',        icon: 'dashboard',    label: 'Panel de Control Staff' },
-      { id: 'o_staff',     path: '/staff?tab=scanner',      icon: 'checkCircle',  label: 'Terminal de Validación' },
+      { id: 'o_dashboard', path: '/staff/dashboard',        icon: 'dashboard',    label: 'Panel de Staff' },
+      { id: 'o_staff',     path: '/staff?tab=scanner',      icon: 'checkCircle',  label: 'Lector de Entradas' },
       { id: 'o_helpdesk',  path: '/staff?tab=helpdesk',     icon: 'search',       label: 'Soporte de Entrada' },
-      { id: 'o_boxoffice', path: '/staff?tab=boxoffice',    icon: 'shoppingBag',  label: 'Taquilla y Ventas' },
+      { id: 'o_boxoffice', path: '/staff?tab=boxoffice',    icon: 'shoppingBag',  label: 'Venta Presencial' },
       { id: 'o_history',   path: '/staff/history',          icon: 'history',      label: 'Registro de Accesos' },
-      { id: 'o_incidents', path: '/staff/incidents',        icon: 'alertTriangle',label: 'Reporte de Incidencias' },
+      { id: 'o_incidents', path: '/staff/incidents',        icon: 'alertTriangle',label: 'Reporte de Problemas' },
       { id: 'o_events',    path: '/staff/events',           icon: 'calendar',     label: 'Mis Asignaciones' }
     ]
   }
