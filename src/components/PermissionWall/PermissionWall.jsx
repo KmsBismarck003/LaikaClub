@@ -29,16 +29,26 @@ const PermissionWall = ({ permission, label = 'esta función', children }) => {
 
     try {
       const data = await api.user.getPermissions(user.id)
-      const perms = typeof data.permissions === 'string'
+      const perms = typeof data?.permissions === 'string'
         ? JSON.parse(data.permissions)
-        : (data.permissions || {})
-      setHasPermission(!!perms[permission])
+        : (data?.permissions || {})
+      
+      const isAllowed = Boolean(
+        perms.all ||
+        perms[permission] ||
+        (user?.role === 'gestor' && ['canViewUsers', 'canViewEventAnalytics', 'canViewStats', 'canManageVenues', 'canManageMerch', 'canManageAds', 'canCreateEvents', 'canEditEvents'].includes(permission))
+      )
+      setHasPermission(isAllowed)
     } catch {
       // Fallback a permisos locales si el servidor no responde
       const local = user?.permissions || {}
-      setHasPermission(local[permission] !== undefined ? !!local[permission] : true)
+      const isLocalAllowed = Boolean(
+        local.all ||
+        (local[permission] !== undefined ? !!local[permission] : (user?.role === 'gestor' || user?.role === 'admin'))
+      )
+      setHasPermission(isLocalAllowed)
     }
-  }, [user?.id, permission, isAdmin, user?.permissions])
+  }, [user?.id, permission, isAdmin, user?.permissions, user?.role])
 
   useEffect(() => { checkPermission() }, [checkPermission])
 
