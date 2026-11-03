@@ -52,6 +52,7 @@ services:
       - .env.docker
     volumes:
       - ./uploads:/app/uploads
+      - ./pilgrim:/app/pilgrim
 
   auth:
     build:
@@ -212,6 +213,8 @@ services:
         condition: service_healthy
     env_file:
       - .env.docker
+    volumes:
+      - ./microservices/analytics_bigdata:/app
 
   merchandise:
     build:

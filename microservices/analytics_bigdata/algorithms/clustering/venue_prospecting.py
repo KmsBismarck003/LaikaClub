@@ -79,23 +79,19 @@ def run_venue_prospecting(mysql_params, mongo_uri, mongo_db_name):
             # Query para agrupar ventas y eventos por recinto cruzando datos geográficos
             query = """
                 SELECT 
-                    COALESCE(v.name, e.location) as venue_name,
-                    e.category as event_category,
+                    COALESCE(e.venue, e.location, 'Recinto General') as venue_name,
+                    COALESCE(e.category, 'General') as event_category,
                     COUNT(DISTINCT e.id) as events_count,
-                    COALESCE(MAX(v.capacity), MAX(e.total_tickets)) as capacity,
+                    COALESCE(MAX(e.total_tickets), 500) as capacity,
                     COUNT(t.id) as tickets_sold,
                     COALESCE(SUM(t.price), 0.0) as total_revenue,
                     COALESCE(AVG(t.price), 0.0) as avg_ticket_price,
-                    COALESCE(MAX(m.name), '') as city_name,
-                    COALESCE(MAX(s.name), '') as state_name,
-                    COALESCE(MAX(c.name), 'México') as country_name
+                    COALESCE(MAX(e.location), 'México') as city_name,
+                    COALESCE(MAX(e.location), 'México') as state_name,
+                    'México' as country_name
                 FROM events e
-                LEFT JOIN venues v ON e.venue_id = v.id
-                LEFT JOIN tickets t ON t.event_id = e.id
-                LEFT JOIN municipalities m ON v.municipality_id = m.id
-                LEFT JOIN states s ON m.state_id = s.id
-                LEFT JOIN countries c ON s.country_id = c.id
-                GROUP BY COALESCE(v.name, e.location), e.category
+                LEFT JOIN tickets t ON t.event_id = e.id AND t.status != 'cancelled'
+                GROUP BY COALESCE(e.venue, e.location, 'Recinto General'), COALESCE(e.category, 'General')
             """
             cur.execute(query)
             active_venues = cur.fetchall()

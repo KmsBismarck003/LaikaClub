@@ -1,0 +1,213 @@
+{
+	"info": {
+		"_postman_id": "laika-club-api-tests-v3",
+		"name": "LAIKA Club - Suite Automatizada de Pruebas de API",
+		"description": "Pruebas de contrato y seguridad para el Gateway (puerto 8000) y microservicios de Auth y Tickets.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01. Auth - Login Exitoso",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin@laikaclub.com\",\n  \"password\": \"Admin2026!\"\n}"
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/auth/login",
+					"host": ["{{BASE_URL}}"],
+					"path": ["auth", "login"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Status code es 200 OK', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('Retorna token JWT', function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('token');",
+							"    pm.environment.set('AUTH_TOKEN', jsonData.token);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Auth - Intento con Contraseña Incorrecta",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin@laikaclub.com\",\n  \"password\": \"ClaveErronea123!\"\n}"
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/auth/login",
+					"host": ["{{BASE_URL}}"],
+					"path": ["auth", "login"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Status code es 401 Unauthorized', function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Auth - Detección de Inyección SQL en Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin' OR '1'='1\",\n  \"password\": \"' OR '1'='1\"\n}"
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/auth/login",
+					"host": ["{{BASE_URL}}"],
+					"path": ["auth", "login"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Rechaza inyección SQL (400 o 401)', function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "04. Tickets - Verificación de Boleto Inexistente",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Authorization", "value": "Bearer {{AUTH_TOKEN}}" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"ticketCode\": \"CODIGO-FALSO-INVENTADO-999\"\n}"
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/tickets/verify",
+					"host": ["{{BASE_URL}}"],
+					"path": ["tickets", "verify"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Retorna respuesta con código INVALID_CODE', function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.statusCode).to.eql('INVALID_CODE');",
+							"    pm.expect(jsonData.valid).to.eql(false);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "05. Tickets - Intento de Doble Canje (Anti-Doble Ingreso)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Authorization", "value": "Bearer {{AUTH_TOKEN}}" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"ticketCode\": \"{{USED_TICKET_CODE}}\",\n  \"accessPoint\": \"Torniquete-1\"\n}"
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/tickets/redeem",
+					"host": ["{{BASE_URL}}"],
+					"path": ["tickets", "redeem"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Detecta boleto previamente canjeado', function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.statusCode).to.eql('ALREADY_REDEEMED');",
+							"    pm.expect(jsonData.alreadyUsed).to.eql(true);",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "06. Pagos - Intento de Intención con Monto Negativo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Authorization", "value": "Bearer {{AUTH_TOKEN}}" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"amount\": -1500,\n  \"event_id\": 19\n}"
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/tickets/payments/create-intent",
+					"host": ["{{BASE_URL}}"],
+					"path": ["tickets", "payments", "create-intent"]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Rechaza monto negativo (400 Bad Request)', function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						]
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "BASE_URL", "value": "http://localhost:8000" },
+		{ "key": "AUTH_TOKEN", "value": "" },
+		{ "key": "USED_TICKET_CODE", "value": "LK-USED-DEMO" }
+	]
+}

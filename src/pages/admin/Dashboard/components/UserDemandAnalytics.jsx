@@ -66,13 +66,13 @@ const UserDemandAnalytics = ({ managerId = null }) => {
             if (behaviorRes && behaviorRes.status === 'success') {
                 setBehaviorData(behaviorRes);
             } else {
-                setError('No se pudo cargar la analítica de comportamiento de usuarios.');
+                setError(behaviorRes?.message || 'No se pudo cargar la analítica de comportamiento de usuarios.');
             }
 
             if (demandRes && demandRes.status === 'success') {
                 setDemandData(demandRes);
             } else {
-                setError('No se pudo cargar la analítica de predicción de demanda.');
+                setError(demandRes?.message || 'No se pudo cargar la analítica de predicción de demanda.');
             }
         } catch (err) {
             console.error('Error fetching ML analytics data:', err);

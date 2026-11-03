@@ -48,36 +48,75 @@ class ClassificationModule:
             return {"error": str(e)}
 
     def _predict_classification_lightweight(self, max_depth=5):
-        """Genera una estructura de árbol de decisión simulada con profundidad variable."""
-        import random
-        
-        # Simular delay
-        import time
-        time.sleep(0.3)
-        
-        mock_tree = """
-DecisionTreeClassificationModel: uid=dtc_5fe2, depth=3, numNodes=7
-  If (total_tickets <= 50.5)
-   If (price <= 200.5)
-    Predict: 0 (Normal)
-   Else (price > 200.5)
-    Predict: 1 (Riesgo Alto)
-  Else (total_tickets > 50.5)
-   If (price <= 500.0)
-    Predict: 0 (VIP)
-   Else (price > 500.0)
-    Predict: 1 (Ballena de Riesgo)
-        """.strip()
-        
-        return {
-            "status": "success",
-            "resilience": True,
-            "accuracy": round(0.85 + random.uniform(-0.05, 0.05), 4),
-            "tree_structure": mock_tree,
-            "summary": "Detector de Riesgo IA (Modo Resiliencia). Usando lógica de nodos pre-entrenados.",
-            "insights": [
-                "Motor Spark en espera. Usando modelo local 'LaikaLite'",
-                "Segmentación por umbral de precio activada",
-                "Precisión estimada: 85%"
-            ]
-        }
+        """Entrena un Árbol de Decisión real usando Scikit-Learn sobre datos reales de MySQL."""
+        import pymysql
+        import numpy as np
+        from sklearn.tree import DecisionTreeClassifier, export_text
+        from datetime import datetime
+
+        try:
+            conn = pymysql.connect(
+                host=self.mysql_host,
+                user=self.mysql_user,
+                password=self.mysql_pass,
+                database=self.mysql_db,
+                charset="utf8mb4"
+            )
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            query = """
+                SELECT e.id, e.total_tickets, e.price, e.status,
+                       COALESCE((SELECT COUNT(*) FROM tickets t WHERE t.event_id = e.id AND t.status != 'cancelled'), 0) as tickets_sold
+                FROM events e
+            """
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            conn.close()
+
+            if len(rows) < 3:
+                return {
+                    "status": "insufficient_data",
+                    "message": "Datos insuficientes en eventos para entrenar el árbol de decisión."
+                }
+
+            # Entrenar clasificación de rentabilidad (1 = Alta Demanda/Ocupación >= 50%, 0 = Ocupación Normal/Baja)
+            X = []
+            y = []
+            for r in rows:
+                tot = float(r["total_tickets"] or 0)
+                prc = float(r["price"] or 0)
+                sold = float(r["tickets_sold"] or 0)
+                ocupacion = (sold / tot * 100.0) if tot > 0 else 0.0
+                label = 1 if ocupacion >= 50.0 else 0
+                X.append([tot, prc])
+                y.append(label)
+
+            X = np.array(X, dtype=np.float32)
+            y = np.array(y, dtype=np.int64)
+
+            # Si todas las etiquetas son iguales, usar umbral de precio para bifurcar
+            if len(set(y)) < 2:
+                y = np.array([1 if x[1] >= 500.0 else 0 for x in X], dtype=np.int64)
+
+            dt = DecisionTreeClassifier(max_depth=int(max_depth or 5), random_state=42)
+            dt.fit(X, y)
+
+            tree_text = export_text(dt, feature_names=["total_tickets", "price"])
+            accuracy = float(dt.score(X, y))
+
+            return {
+                "status": "success",
+                "resilience": True,
+                "accuracy": round(accuracy, 4),
+                "max_depth": int(max_depth or 5),
+                "tree_structure": tree_text,
+                "summary": f"Árbol de Decisión entrenado con Scikit-Learn sobre {len(rows)} eventos reales.",
+                "insights": [
+                    f"Profundidad del árbol: {int(max_depth or 5)}",
+                    f"Eventos procesados en MySQL: {len(rows)}",
+                    f"Precisión alcanzada: {round(accuracy * 100, 2)}%"
+                ],
+                "timestamp": datetime.now().isoformat()
+            }
+        except Exception as e:
+            print(f"Fallback DecisionTree Fail: {e}")
+            return {"status": "error", "message": f"Fallback DecisionTree Fail: {str(e)}"}

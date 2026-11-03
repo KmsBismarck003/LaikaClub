@@ -107,7 +107,11 @@ export const analyticsAPI = {
     },
     getRegressionML: async (managerId = null, extraParams = {}) => {
         const params = { ...extraParams };
-        if (managerId) params.manager_id = managerId;
+        if (typeof managerId === 'string' && isNaN(managerId)) {
+            params.algorithm = managerId;
+        } else if (managerId) {
+            params.manager_id = managerId;
+        }
         const response = await axios.get(`${ANALYTICS_URL}/ml/regression`, { params });
         return response.data;
     },

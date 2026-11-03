@@ -111,16 +111,17 @@ def get_pricing_decision_tree():
             # If occupancy > 85%, raise price by 15%
             # If occupancy < 30%, drop price by 20%
             # Else, maintain price
-            rec_price = float(ev["price"])
+            curr_price = float(ev["price"] or 0.0)
+            rec_price = curr_price
             action = "Mantener Precio"
             reason = "Ocupación saludable y estable."
             
             if occupancy > 0.85:
-                rec_price = float(ev["price"]) * 1.15
+                rec_price = curr_price * 1.15
                 action = "Incrementar Precio (Alta Demanda)"
                 reason = f"Ocupación crítica del {int(occupancy*100)}%. Margen para optimizar ingresos."
             elif occupancy < 0.30 and sold > 5:
-                rec_price = float(ev["price"]) * 0.80
+                rec_price = curr_price * 0.80
                 action = "Descontar Precio (Baja Afluencia)"
                 reason = f"Ocupación de solo el {int(occupancy*100)}%. Sugerimos descuentos para incentivar ventas."
                 
@@ -128,7 +129,7 @@ def get_pricing_decision_tree():
                 "name": ev["name"],
                 "category": ev["category"],
                 "occupancy_rate": round(occupancy, 4),
-                "current_price": float(ev["price"]),
+                "current_price": curr_price,
                 "recommended_price": round(rec_price, 2),
                 "action": action,
                 "reasoning": reason

@@ -454,8 +454,82 @@ class ClusteringModule:
         Identifica categorías con alta demanda pero baja oferta, proporcionando
         insights de negocio reales y accionables.
         """
-        if self.resilience_mode:
-            return {"status": "error", "message": "Spark is initializing. Please wait for resilience mode to end for Market Gaps analysis."}
+        return self._run_event_market_gaps_lightweight(filters)
+            
+    def _run_event_market_gaps_lightweight(self, filters=None):
+        """Cálculo real de Huecos de Mercado en MySQL cuando Spark no está disponible."""
+        try:
+            conn = pymysql.connect(host=self.mysql_host, user=self.mysql_user, password=self.mysql_pass, database=self.mysql_db, charset="utf8mb4")
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            
+            where_sql = ""
+            params = []
+            if filters and filters.get("manager_id"):
+                where_sql = "WHERE (e.created_by = %s OR e.assigned_manager_id = %s)"
+                params = [filters["manager_id"], filters["manager_id"]]
+
+            query = f"""
+                SELECT 
+                    COALESCE(e.category, 'General') as category,
+                    COUNT(DISTINCT e.id) as total_events,
+                    COALESCE(SUM(e.total_tickets), 0) as total_capacity,
+                    COALESCE(COUNT(t.id), 0) as total_sold,
+                    COALESCE(SUM(t.price), 0.0) as total_revenue,
+                    COALESCE(AVG(e.price), 0.0) as avg_event_price
+                FROM events e
+                LEFT JOIN tickets t ON e.id = t.event_id AND t.status != 'cancelled'
+                {where_sql}
+                GROUP BY e.category
+            """
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+            conn.close()
+
+            categories_data = []
+            import builtins
+            total_events_all = builtins.sum([int(r["total_events"] or 0) for r in rows])
+
+            for r in rows:
+                cat_name = r["category"]
+                cap = float(r["total_capacity"] or 0)
+                sold = float(r["total_sold"] or 0)
+                occupancy = (sold / cap * 100) if cap > 0 else 0
+
+                categories_data.append({
+                    "category": cat_name,
+                    "metrics": {
+                        "total_events": int(r["total_events"] or 0),
+                        "total_capacity": int(cap),
+                        "total_sold": int(sold),
+                        "revenue": float(r["total_revenue"] or 0.0),
+                        "occupancy_rate": float(round(occupancy, 2)),
+                        "avg_price": float(round(float(r["avg_event_price"] or 0.0), 2))
+                    }
+                })
+
+            categories_data.sort(key=lambda x: x["metrics"]["occupancy_rate"], reverse=True)
+            insights = []
+            if categories_data:
+                top_cat = categories_data[0]
+                if top_cat["metrics"]["occupancy_rate"] > 75 and top_cat["metrics"]["total_events"] <= (total_events_all * 0.3):
+                    insights.append(f"🔥 Gran Oportunidad: La categoría '{top_cat['category']}' tiene una ocupación altísima ({top_cat['metrics']['occupancy_rate']:.1f}%) pero poca oferta ({top_cat['metrics']['total_events']} eventos). Recomendamos organizar más eventos de este tipo.")
+                
+                categories_by_rev = sorted(categories_data, key=lambda x: x["metrics"]["revenue"]/x["metrics"]["total_events"] if x["metrics"]["total_events"]>0 else 0, reverse=True)
+                top_rev_cat = categories_by_rev[0]
+                if top_rev_cat != top_cat:
+                    insights.append(f"💰 Rentabilidad: '{top_rev_cat['category']}' es la categoría más rentable por evento. Evalúa si el mercado soporta más eventos premium aquí.")
+
+            if not insights:
+                insights.append("📊 El mercado se encuentra equilibrado actualmente. Sigue monitoreando las tasas de ocupación.")
+
+            return {
+                "status": "success",
+                "data": categories_data,
+                "insights": insights,
+                "summary": "Análisis de Oferta vs Demanda completado. Revisa los nichos detectados para planificar tus próximos eventos."
+            }
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
             
         try:
             df_events = self._read_mysql("events")

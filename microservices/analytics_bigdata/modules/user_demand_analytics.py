@@ -1,7 +1,7 @@
 import os
 import pymysql
 from datetime import datetime, timedelta
-from pyspark.sql.functions import col, sum as spark_sum, count, when, datediff, current_date, avg, hour, dayofweek, max as spark_max
+from pyspark.sql.functions import col, sum as spark_sum, count, when, datediff, current_date, avg, hour, dayofweek, max as spark_max, to_date
 
 class UserDemandAnalyticsModule:
     """Módulo mixin para el análisis de comportamiento de usuarios, predicción de abandono (churn) y demanda."""
@@ -60,11 +60,11 @@ class UserDemandAnalyticsModule:
             # 3. Predicción de Abandono (Churn) según inactividad e historia de compra (variables X)
             df_features = df_user_stats.withColumn(
                 "days_since_login", 
-                when(col("last_login").isNotNull(), datediff(current_date(), col("last_login")))
+                when(col("last_login").isNotNull() & (col("last_login") != ""), datediff(current_date(), to_date(col("last_login"))))
                 .otherwise(datediff(current_date(), col("created_at")))
             ).withColumn(
                 "days_since_purchase",
-                when(col("last_purchase_date").isNotNull() & (col("last_purchase_date") != 0), datediff(current_date(), col("last_purchase_date")))
+                when(col("last_purchase_date").isNotNull(), datediff(current_date(), to_date(col("last_purchase_date"))))
                 .otherwise(datediff(current_date(), col("created_at")))
             )
             
@@ -88,7 +88,7 @@ class UserDemandAnalyticsModule:
                     "name": f"{r.first_name} {r.last_name}",
                     "email": r.email,
                     "days_inactive": int(r.days_since_login) if r.days_since_login is not None else 120,
-                    "last_login": r.last_login.isoformat() if r.last_login else None
+                    "last_login": r.last_login.isoformat() if hasattr(r.last_login, "isoformat") else (str(r.last_login) if r.last_login else None)
                 })
             
             # Entrenar un Clasificador Real en Spark ML
@@ -270,7 +270,7 @@ class UserDemandAnalyticsModule:
                         "name": f"{r['first_name']} {r['last_name']}",
                         "email": r["email"],
                         "days_inactive": int(days),
-                        "last_login": r["last_login"].isoformat() if r["last_login"] else None
+                        "last_login": r["last_login"].isoformat() if hasattr(r["last_login"], "isoformat") else (str(r["last_login"]) if r["last_login"] else None)
                     })
             
             churn_candidates = sorted(churn_candidates, key=lambda x: x["days_inactive"], reverse=True)[:10]
@@ -399,7 +399,7 @@ class UserDemandAnalyticsModule:
                     "predicted_attendance_pct": round(predicted_rate * 100, 1),
                     "predicted_tickets_sold": predicted_tickets,
                     "price": price_val,
-                    "date": r.event_date.isoformat() if r.event_date else None,
+                    "date": r.event_date.isoformat() if hasattr(r.event_date, "isoformat") else (str(r.event_date) if r.event_date else None),
                     "time": str(r.event_time) if r.event_time else None
                 })
                 
@@ -496,7 +496,7 @@ class UserDemandAnalyticsModule:
                     "predicted_attendance_pct": round(predicted_rate * 100, 1),
                     "predicted_tickets_sold": predicted_tickets,
                     "price": price_val,
-                    "date": r["event_date"].isoformat() if r["event_date"] else None,
+                    "date": r["event_date"].isoformat() if hasattr(r["event_date"], "isoformat") else (str(r["event_date"]) if r["event_date"] else None),
                     "time": str(r["event_time"]) if r["event_time"] else None
                 })
                 

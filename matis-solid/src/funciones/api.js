@@ -1,6 +1,7 @@
 async function fetchJson(endpoint) {
   const bases = [
     "http://localhost:8000/api/analytics/matis",
+    "http://localhost:8303/api/analytics/matis",
     "http://localhost:8009/api/analytics/matis",
     "http://localhost:8007/api/analytics/matis"
   ];

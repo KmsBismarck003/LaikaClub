@@ -1,24 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button, Icon, Badge, ConfirmationModal, Alert, SkeletonAdminGrid } from '../../../components';
 import { useSkeletonContext } from '../../../context/SkeletonContext';
+import { merchService } from '../../../services/merch.service';
 import './Merch.css';
 
-// Datos Mock para visualización inicial
-const INITIAL_MERCH = [
-  { id: 1, name: "Playera Oficial Tour", type: "Playera", price: 450, stock: 120, status: "Disponible", image: "https://via.placeholder.com/150", colors: ["#000000", "#FFFFFF", "#0000FF"], sizes: ["S", "M", "L", "XL"] },
-  { id: 2, name: "Taza Laika Magic", type: "Taza", price: 250, stock: 45, status: "Agotándose", image: "https://via.placeholder.com/150", colors: ["#FFFFFF", "#000000"], sizes: ["Única"] },
-  { id: 3, name: "Stickers Pack (5 unidades)", type: "Sticker", price: 120, stock: 500, status: "Disponible", image: "https://via.placeholder.com/150", colors: ["Multicolor"], sizes: ["Regular"] },
-  { id: 4, name: "Lapiceros Premium Logo", type: "Lapicero", price: 85, stock: 200, status: "Disponible", image: "https://via.placeholder.com/150", colors: ["#000000", "#FFD700"], sizes: ["Única"] },
-];
-
 const MerchAdmin = () => {
-  const [merchItems, setMerchItems] = useState(INITIAL_MERCH);
+  const [merchItems, setMerchItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Todos');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const { showSkeleton } = useSkeletonContext();
+
+  useEffect(() => {
+    const fetchMerch = async () => {
+      try {
+        const data = await merchService.getAllMerchandise();
+        setMerchItems(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Error al cargar mercancía:", err);
+        setMerchItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMerch();
+  }, []);
 
   const filteredItems = filter === 'Todos' 
     ? merchItems 

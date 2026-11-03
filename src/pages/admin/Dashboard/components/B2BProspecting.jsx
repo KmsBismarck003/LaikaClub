@@ -100,7 +100,7 @@ const B2BProspecting = () => {
             if (res && res.status === 'success') {
                 setLeadsData(res);
             } else {
-                setError('No se pudo obtener la información de prospección.');
+                setError(res?.message || 'No se pudo obtener la información de prospección.');
             }
         } catch (err) {
             console.error('Error fetching prospecting data:', err);

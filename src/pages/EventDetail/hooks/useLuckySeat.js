@@ -40,31 +40,17 @@ export function useLuckySeat(id, user, navigate, location, { success, error }, a
   const confirmRoulettePayment = useCallback(async (method, selectedFunction) => {
     setIsProcessingPayment(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      let response;
-      try {
-        response = await api.ticket.luckySeatAssign(id, {
-          payment_method: method,
-          function_id: selectedFunction?.id,
-        });
-      } catch (err) {
-        console.warn("Lucky Seat API failed, using mock:", err);
-        const availableZones = synchronizedZones.filter(z => z.type === 'seating');
-        const randomZone = availableZones[Math.floor(Math.random() * availableZones.length)] || { id: 'platino-vip', name: 'PLATINO VIP' };
-        response = {
-          success: true,
-          seatId: `${randomZone.id}-2-4`,
-          seat_label: `ASIENTO 2-4`,
-          section_name: randomZone.name
-        };
-      }
+      const response = await api.ticket.luckySeatAssign(id, {
+        payment_method: method,
+        function_id: selectedFunction?.id,
+      });
 
-      if (response.success) {
+      if (response && response.success) {
         setIsPaymentApproved(true);
         setIsProcessingPayment(false);
 
         // Fase de "Palomita" de 2 segundos antes de girar la ruleta
-        await new Promise((resolve) => setTimeout(resolve, 2500));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
         setShowRoulettePayment(false);
         setIsPaymentApproved(false);
@@ -75,7 +61,7 @@ export function useLuckySeat(id, user, navigate, location, { success, error }, a
           id: response.seatId,
           name: response.seat_label || `ASIENTO ${response.seatId.split("-").slice(-2).join("-")}`,
           zoneName: response.section_name || "ZONA PREMIADA",
-          price: 400.0,
+          price: response.price || 400.0,
           category: "LUCKY SEAT",
         });
         
@@ -85,11 +71,11 @@ export function useLuckySeat(id, user, navigate, location, { success, error }, a
         
         setIsRouletteActive(true);
       } else {
-        error(response.message || "Error al procesar el pago de la ruleta.");
+        error(response?.message || "Error al procesar el pago de la ruleta.");
         setIsProcessingPayment(false);
       }
     } catch (err) {
-      error("Fallo en la conexión. No se pudo procesar el pago.");
+      error(err.response?.data?.message || err.message || "Fallo en la conexión. No se pudo procesar el pago de Lucky Seat.");
       setIsProcessingPayment(false);
     }
   }, [api, id, synchronizedZones, success, error, addBusySeats]);

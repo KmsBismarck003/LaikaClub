@@ -101,14 +101,25 @@ export const analyticsAPI = {
     },
     getRegressionML: async (managerId = null, algorithm = null) => {
         const params = {};
-        if (managerId) params.manager_id = managerId;
+        if (typeof managerId === 'string' && isNaN(managerId)) {
+            params.algorithm = managerId;
+        } else if (managerId) {
+            params.manager_id = managerId;
+        }
         if (algorithm) params.algorithm = algorithm;
         const response = await axios.get(`${ANALYTICS_URL}/ml/regression`, { params });
         return response.data;
     },
     getDecisionTreeML: async (managerId = null, max_depth = 5, extraParams = {}) => {
-        const params = { max_depth, ...extraParams };
-        if (managerId) params.manager_id = managerId;
+        const params = { ...extraParams };
+        if (typeof managerId === 'number' && managerId <= 15) {
+            params.max_depth = managerId;
+        } else if (managerId) {
+            params.manager_id = managerId;
+            if (max_depth) params.max_depth = max_depth;
+        } else if (max_depth) {
+            params.max_depth = max_depth;
+        }
         const response = await axios.get(`${ANALYTICS_URL}/ml/decision-tree`, { params });
         return response.data;
     },

@@ -8,45 +8,46 @@
 
 ## VISTA GENERAL DE LA ARQUITECTURA
 
-El sistema Laika Club esta disenado bajo un modelo hibrido que separa las responsabilidades del frontend y del backend mediante una arquitectura distribuida:
+El sistema Laika Club esta disenado bajo un modelo hibrido desacoplado que separa responsabilidades entre clientes especializados y una malla de microservicios distribuidos:
 
-1. **Frontend (React)**: Una Single Page Application (SPA) construida sobre React, utilizando enrutamiento dinamico centralizado (`react-router-dom`), estado global a traves de React Context Providers, y una estructura modular orientada a dominios funcionales (Features).
-2. **Backend (Microservicios FastAPI)**: Compuesto por 8 microservicios independientes programados en Python utilizando FastAPI, comunicados a traves de un API Gateway centralizado (`gateway.py`) que escucha en el puerto `8000` y gestiona el enrutamiento, almacenamiento en cache de peticiones publicas, y politicas de seguridad (CORS).
-3. **Capa de Persistencia Hibrida**: 
-   * Cada microservicio esta configurado con una arquitectura de base de datos dual con protocolo de autorecuperacion (Fallback). Intentan conectarse a una base de datos centralizada MySQL. Si la base de datos principal no esta accesible, conmutan de forma transparente e independiente a archivos locales SQLite (`auth.db`, `events.db`, etc.) ejecutando migraciones no destructivas en caliente.
-   * Se integra un sistema de analisis offline sincronizando compras transaccionales en tiempo real hacia una base de datos NoSQL MongoDB Atlas.
-4. **Motor de Big Data e Inteligencia Proactiva**: El servicio de analítica pesada (`analytics_bigdata`) corre un motor Apache Spark en segundo plano (no bloqueante) para realizar procesamiento paralelo (MapReduce), modelos predictivos de ventas (Ridge, Lasso, Regresion Lineal) y deteccion de anomalias en transacciones.
+1. **Frontend Desacoplado**: Aplicaciones SPA independientes orientadas a roles operativos (`laika-admin` en 3010, `laika-gestor` en 3020, `laika-operador` en 3030), un dashboard analitico reactivo en SolidJS (`matis-solid` en 3040), una aplicacion movil nativa en Expo (`LaikaMobil`) y la tienda web publica en React (`src/` en 3000).
+2. **API Gateway Perimetral (Pilgrim - Puerto 8000)**: Desarrollado en FastAPI / HTTPX, actua como proxy inverso asincrono, gestiona politicas CORS universales, implementa logging dual (`tiradero/logpruebas/`) y rutea el trafico hacia los microservicios correspondientes.
+3. **Capa de Microservicios Core (Java Spring Boot 3.x - microservices2)**:
+   - Bloque 81xx (Gobernanza): `laika_auth` (8101), `laika_admin` (8102), `laika_stats` (8103).
+   - Bloque 82xx (Operaciones): `laika_events` (8201), `laika_tickets` (8202 con `ReentrantLock` concurrente), `laika_merchandise` (8203).
+   - Bloque 83xx (Analitica): `laika_achievements` (8301), `laika_analytics` (8302).
+4. **Servicios Especializados (Python & Node - microservices)**:
+   - `analytics_bigdata` (Puerto 8303): Motor Apache Spark (PySpark), modelos de regresion y recomendaciones colaborativas con soporte de Cold Start.
+   - `wearables_backend` (Puerto 8204): Microservicio Node.js para pulseras inteligentes NFC/RFID.
+5. **Capa de Persistencia**: Servidor MySQL 8.0 (puerto 3306) con bases de datos aisladas por dominio (`laika_auth`, `laika_events`, `laika_tickets`, etc.) y MongoDB Atlas para analitica no estructurada.
 
-```
-+--------------------------------------------------------------+
-|                         Cliente Web                          |
-+--------------------------------------------------------------+
-                               |
-                               v
-+--------------------------------------------------------------+
-|                  API Gateway (gateway.py:8000)               |
-+--------------------------------------------------------------+
-                               |
-       +-----------------------+-----------------------+
-       | /api/auth             | /api/events           | /api/tickets
-       v                       v                       v
-+--------------+        +--------------+        +--------------+
-|  Servicio    |        |  Servicio    |        |  Servicio    |
-|  Auth (8001) |        |Events (8002) |        |Tickets (8003)|
-+--------------+        +--------------+        +--------------+
-       |                       |                       |
-       +-----------+-----------+-----------+-----------+
-                   | (Intento de conexion principal)
-                   v
-+--------------------------------------------------------------+
-|                    Base de Datos MySQL                       |
-+--------------------------------------------------------------+
-                   | (Conmutacion local si MySQL falla)
-                   +------------------------+
-                   |                        |
-                   v                        v
-            SQLite (auth.db)         SQLite (events.db)
-```
+`
++-----------------------------------------------------------------------------------+
+|             CLIENTES DESACOPLADOS (Admin, Gestor, Operador, Matis, Movil)         |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|                             PILGRIM API GATEWAY (8000)                            |
++-----------------------------------------------------------------------------------+
+                                          |
+        +---------------------------------+---------------------------------+
+        |                                 |                                 |
+        v                                 v                                 v
++-----------------------+       +-----------------------+       +-----------------------+
+|  Gobernanza (81xx)    |       |  Operaciones (82xx)   |       |   Analitica (83xx)    |
+|  Auth (8101)          |       |  Events (8201)        |       |   Achievements (8301) |
+|  Admin (8102)         |       |  Tickets (8202)       |       |   Analytics (8302)    |
+|  Stats (8103)         |       |  Merchandise (8203)   |       |   BigData (8303)      |
++-----------------------+       +-----------------------+       +-----------------------+
+        |                                 |                                 |
+        +---------------------------------+---------------------------------+
+                                          |
+                                          v
++-----------------------------------------------------------------------------------+
+|               BASE DE DATOS RELACIONAL MYSQL 8.0 (Bases de datos por dominio)     |
++-----------------------------------------------------------------------------------+
+`
 
 ---
 

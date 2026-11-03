@@ -1,476 +1,314 @@
-# LAIKA Club - Sistema de Gestion de Eventos
+# LAIKA Club - Plataforma Integral de Gestion de Eventos y Boletos
 
-> Plataforma completa de venta y gestion de boletos para eventos en vivo. Arquitectura de microservicios con frontend React + API Gateway FastAPI.
-
-**Version: 3.0.0** - Actualizado: Mayo 2026
+Plataforma distribuida para la comercializacion, emision y control de acceso de boletos para espectaculos en vivo, integrando microservicios transaccionales en Java Spring Boot, procesamiento analitico de datos con Apache Spark, un API Gateway perimetral asincrono (Pilgrim), modulos web desacoplados por roles administrativos, un dashboard reactivo en SolidJS, aplicacion movil nativa en Expo y suite de verificacion automatizada.
 
 ---
 
-## Tabla de Contenidos
+## 1. Tabla de Contenidos
 
-1. [Vision General](#vision-general)
-2. [Stack Tecnologico](#stack-tecnologico)
-3. [Arquitectura del Sistema](#arquitectura-del-sistema)
-4. [Mapa de Microservicios y Rutas](#mapa-de-microservicios-y-rutas)
-5. [Estructura de Directorios](#estructura-de-directorios)
-6. [Instalacion y Configuracion](#instalacion-y-configuracion)
-7. [Variables de Entorno](#variables-de-entorno)
-8. [Base de Datos](#base-de-datos)
-9. [Sistema de Roles y Seguridad](#sistema-de-roles-y-seguridad)
-10. [Flujo de Compra](#flujo-de-compra)
-11. [Modulo de Merchandising](#modulo-de-merchandising)
-12. [Modulo de Big Data y Analisis Predictivo](#modulo-de-big-data-y-analisis-predictivo)
-13. [Scripts de Utilidad y Herramientas Extra](#scripts-de-utilidad-y-herramientas-extra)
-14. [Credenciales por Defecto](#credenciales-por-defecto)
+1. [Vision General del Sistema](#2-vision-general-del-sistema)
+2. [Arquitectura Global y Mapeo de Puertos](#3-arquitectura-global-y-mapeo-de-puertos)
+3. [Stack Tecnologico por Capas](#4-stack-tecnologico-por-capas)
+4. [Estructura del Proyecto y Repositorios](#5-estructura-del-proyecto-y-repositorios)
+5. [Modulos de Frontend Desacoplados](#6-modulos-de-frontend-desacoplados)
+6. [Ecosistema de Microservicios Backend](#7-ecosistema-de-microservicios-backend)
+7. [Aplicacion Movil (LaikaMobil)](#8-aplicacion-movil-laikamobil)
+8. [Persistencia y Bases de Datos](#9-persistencia-y-bases-de-datos)
+9. [Suite Integral de Pruebas y Monitoreo](#10-suite-integral-de-pruebas-y-monitoreo)
+10. [Instalacion y Despliegue](#11-instalacion-y-despliegue)
+11. [Variables de Entorno](#12-variables-de-entorno)
+12. [Credenciales de Desarrollo](#13-credenciales-de-desarrollo)
 
 ---
 
-## Vision General
+## 2. Vision General del Sistema
 
-LAIKA Club es una aplicacion full-stack para gestion y compra de entradas a eventos. Disenada con microservicios desacoplados donde cada dominio (autenticacion, eventos, tickets, estadisticas, administracion, logros, analitica Big Data, merchandising) es un servicio FastAPI independiente, gestionado a traves de un API Gateway central.
+LAIKA Club opera bajo un esquema de arquitectura orientada a servicios (SOA) y desacoplamiento estricto de roles. La logica de negocio y persistencia transaccional residen en microservicios independientes, aislados detras de una compuerta central (Pilgrim API Gateway), la cual distribuye el trafico proveniente de:
 
-El frontend es una SPA en React 19 con diseno industrial premium (blanco/negro, tipografia uppercase, glassmorphism).
-
-### Caracteristicas Principales
-
-- **Compra de boletos** con o sin cuenta (modo invitado)
-- **Carrito de compras** estilo AliExpress Industrial - layout de 2 columnas con panel lateral de confianza, logistica y seguridad
-- **Checkout independiente** - no requiere navegacion al dashboard
-- **Animacion tipo Impresora de Boletos** con efecto laser cinematico al comprar (25 seg sincronizados)
-- **Lucky Seat Roulette** - modo de asiento sorpresa con animacion de ruleta cinematica
-- **Seccion de Merchandising en Evento** - compra de merch directamente desde el detalle del evento, con modal de producto
-- **Sistema de roles** de 4 niveles (admin, gestor, operador, usuario)
-- **Panel de administracion** con monitoreo en tiempo real
-- **Aprobacion de Merchandising** - flujo admin para aprobar/rechazar productos de gestores
-- **Big Data Analytics** con visualizaciones 3D interactivas (Clustered Bar, Voxel Pie)
-- **Busqueda tipo Spotlight** para filtrar por artista o evento
-- **Sistema de Logros y Recompensas** (gamificacion) para usuarios
-- **Modo Mantenimiento** controlado desde el panel admin
-- **Monitoreo de BD en Tiempo Real** - consola visible con auto-reparacion integrada
-- **Pantalla de carga industrial** con bloqueo minimo de 8 segundos y etiqueta dinamica de vista
+- **Clientes Publicos**: Tienda web, seleccion de asientos interactiva, modo Lucky Seat, boveda de boletos digitales y checkout publico sin cuenta requerida.
+- **Aplicaciones Web de Operacion Desacopladas**:
+  - `laika-admin`: Centro de control administrativo, auditoria RBAC, diseno de recintos y SqlVault.
+  - `laika-gestor`: Panel comercial para promotores, metricas financieras en tiempo real y mercancia.
+  - `laika-operador`: Terminal de campo en torniquetes con escaneo optico de QR y control de acceso.
+  - `matis-solid`: Motor de inteligencia de negocios (BI) y generacion de reportes ejecutivos en PDF sobre SolidJS.
+- **Dispositivos Moviles (`LaikaMobil`)**: Aplicacion nativa para Android e iOS con biometria (FaceID/huella) y lectura de pases QR.
 
 ---
 
-## Stack Tecnologico
-
-### Backend
-
-| Componente            | Tecnologia                  | Version    |
-| --------------------- | --------------------------- | ---------- |
-| Framework API         | FastAPI                     | Latest     |
-| Servidor ASGI         | Uvicorn                     | Latest     |
-| ORM / Query           | SQLAlchemy                  | Latest     |
-| Auth Tokens           | PyJWT                       | Latest     |
-| Hashing               | Passlib (Bcrypt)            | Latest     |
-| HTTP Client (Gateway) | HTTPX                       | Latest     |
-| Base de Datos SQL     | MySQL 8.0+ (prod) / SQLite  | Latest     |
-| Base de Datos NoSQL   | MongoDB Atlas               | Latest     |
-
-### Frontend
-
-| Componente               | Tecnologia                       | Version |
-| ------------------------ | -------------------------------- | ------- |
-| Framework UI             | React                            | 19.x    |
-| Build Tool               | Create React App (react-scripts) | 5.0.1   |
-| Enrutamiento             | React Router DOM                 | 7.x     |
-| HTTP Client              | Axios                            | 1.x     |
-| Iconos                   | Lucide React                     | 0.564.x |
-| Generacion QR            | qrcode.react                     | 4.x     |
-| Escaneo QR               | html5-qrcode                     | 2.x     |
-| PDF Export               | jsPDF + html2canvas              | Latest  |
-| OAuth Google             | @react-oauth/google              | 0.13.x  |
-
----
-
-## Arquitectura del Sistema
+## 3. Arquitectura Global y Mapeo de Puertos
 
 ```
-┌──────────────────────────────────────────────┐
-│           CLIENTE WEB                         │
-│      React SPA (Puerto 3000)                  │
-└──────────────┬───────────────────────────────┘
-               │ HTTP / JSON
-               ▼
-┌──────────────────────────────────────────────┐
-│           API GATEWAY                         │
-│       FastAPI (Puerto 8000)                   │
-│    microservices/gateway.py                   │
-└──┬──────┬──────┬──────┬──────┬───────────────┘
-   │      │      │      │      │      │      │
-  :8001  :8002  :8003  :8004  :8005  :8006  :8007  :8008
-  AUTH  EVENTS TICKETS STATS  ADMIN  LOGROS BIGDATA MERCH
+                                  [ INTERFAZ DE USUARIOS Y ROLES ]
+      +--------------------+---------------------+--------------------+--------------------+
+      |                    |                     |                    |                    |
+[ laika-admin ]     [ laika-gestor ]      [ laika-operador ]     [ matis-solid ]     [ Web Publica ]
+ Puerto 3010         Puerto 3020           Puerto 3030           Puerto 3040          Puerto 3000
+      |                    |                     |                    |                    |
+      +--------------------+----------+----------+--------------------+--------------------+
+                                      |
+                                      | HTTP REST / JSON (Cabeceras JWT)
+                                      v
+                        [ PILGRIM API GATEWAY ]
+                             Puerto 8000
+                                      |
+       +------------------------------+------------------------------+
+       |                                                             |
+       v                                                             v
+[ BLOQUE 81xx: GOBERNANZA ]                               [ BLOQUE 82xx: OPERACIONES ]
+- 8101: laika_auth (Java)                                 - 8201: laika_events (Java)
+- 8102: laika_admin (Java)                                - 8202: laika_tickets (Java)
+- 8103: laika_stats (Java)                                - 8203: laika_merchandise (Java)
+                                                          - 8204: wearables_backend (Node)
+       |                                                             |
+       +------------------------------+------------------------------+
+                                      |
+                                      v
+                         [ BLOQUE 83xx: ANALITICA ]
+                         - 8301: laika_achievements (Java)
+                         - 8302: laika_analytics (Java)
+                         - 8303: analytics_bigdata (PySpark/FastAPI)
+                                      |
+                                      v
+                        [ CAPA DE PERSISTENCIA ]
+                        - MySQL 8.0 (Puerto 3306)
+                        - MongoDB Atlas (Analitica NoSQL)
 ```
 
-### Servicios Activos
+### Tabla Maestra de Puertos y Servicios
 
-| Puerto | Servicio               | Archivo                                   |
-| ------ | ---------------------- | ----------------------------------------- |
-| 8000   | API Gateway            | `microservices/gateway.py`                |
-| 8001   | Auth Service           | `microservices/auth/main.py`              |
-| 8002   | Event Service          | `microservices/events/main.py`            |
-| 8003   | Ticket Service         | `microservices/tickets/main.py`           |
-| 8004   | Stats Service          | `microservices/stats/main.py`             |
-| 8005   | Admin Service          | `microservices/admin/main.py`             |
-| 8006   | Achievements Service   | `microservices/achievements/main.py`      |
-| 8007   | Analytics BigData      | `microservices/analytics_bigdata/main.py` |
-| 8008   | Merchandise Service    | `microservices/merchandise/main.py`       |
-
----
-
-## Mapa de Microservicios y Rutas
-
-| Ruta del Cliente       | Puerto Destino | Servicio       |
-| ---------------------- | -------------- | -------------- |
-| `/api/auth/*`          | **:8001**      | Auth Service   |
-| `/api/events/*`        | **:8002**      | Event Service  |
-| `/api/manager/*`       | **:8002**      | Event Service  |
-| `/api/tickets/*`       | **:8003**      | Ticket Service |
-| `/api/stats/*`         | **:8004**      | Stats Service  |
-| `/api/monitoring/*`    | **:8004**      | Stats Service  |
-| `/api/database/*`      | **:8005**      | Admin Service  |
-| `/api/ads/*`           | **:8005**      | Admin Service  |
-| `/api/config/*`        | **:8005**      | Admin Service  |
-| `/api/admin/users/*`   | **:8001**      | Auth Service   |
-| `/api/admin/*`         | **:8005**      | Admin Service  |
-| `/api/achievements/*`  | **:8006**      | Achievements   |
-| `/api/analytics/*`     | **:8007**      | BigData        |
-| `/api/merchandise/*`   | **:8008**      | Merchandise    |
+| Puerto | Componente | Dominio / Tecnologia | Descripcion Tecnica |
+| :--- | :--- | :--- | :--- |
+| **8000** | **Pilgrim Gateway** | Python / FastAPI / Uvicorn | Puerta de enlace perimetral, proxy inverso HTTPX, logging dual y control CORS. |
+| **8101** | `laika_auth` | Java 17 / Spring Boot | Autenticacion, emision y verificacion de JWT, hashing BCrypt y auditoria en `auth_logs`. |
+| **8102** | `laika_admin` | Java 17 / Spring Boot | Gobernanza, SqlVault, aprobaciones, configuraciones y notificaciones SMTP. |
+| **8103** | `laika_stats` | Java 17 / Spring Boot | Monitoreo operativo, metricas de latencia y registro de salud del sistema. |
+| **8201** | `laika_events` | Java 17 / Spring Boot | CRUD de eventos, funciones, recintos y agregacion de ingresos en tiempo real. |
+| **8202** | `laika_tickets` | Java 17 / Spring Boot | Bloqueo concurrente (`ReentrantLock`), emision de QR, compras, validacion y cortesias. |
+| **8203** | `laika_merchandise`| Java 17 / Spring Boot | Catalogo de articulos oficiales, variantes de inventario y pedidos fisicos. |
+| **8204** | `wearables` | Node.js / Express | Integracion con pulseras inteligentes (NFC/RFID) para eventos masivos. |
+| **8301** | `laika_achievements`| Java 17 / Spring Boot | Motor de gamificacion, insignias, niveles y recompensas para usuarios. |
+| **8302** | `laika_analytics` | Java 17 / Spring Boot | Reportes financieros y procesamiento analitico de ventas relacionales. |
+| **8303** | `analytics_bigdata`| Python / PySpark / FastAPI | Modelos ML (Ridge, Lasso), recomendaciones con Cold Start y deteccion de anomalias. |
+| **3000** | Web Publica | React 19 / Vite / CRA | Catalogo de espectaculos, seleccion de asientos y checkout publico. |
+| **3010** | `laika-admin` | React 19 / Vite | Panel de control administrativo y disenador visual de mapas Konva. |
+| **3020** | `laika-gestor` | React 19 / Vite | Panel para promotores, auditoria de ventas y administracion de mercancia. |
+| **3030** | `laika-operador` | React 19 / Vite | Terminal de torniquete con escaneo optico continuo de boletos QR (`html5-qrcode`). |
+| **3040** | `matis-solid` | SolidJS / Vite | Dashboard analitico de alta reactividad y generador de reportes PDF vectoriales. |
+| **5050** | Test Dashboard | Node.js / Server-Sent Events | Panel visual web interactivo para ejecucion y monitoreo de pruebas de software. |
+| **3306** | MySQL Database | MySQL 8.0 Server | Motor de persistencia relacional transaccional (bases de datos independientes por servicio). |
 
 ---
 
-## Estructura de Directorios
+## 4. Stack Tecnologico por Capas
+
+### Backend y Microservicios
+- **Java Spring Boot 3.x**: Spring Data JPA, Spring Security, Hibernate ORM, Maven Wrapper.
+- **Python 3.11 / 3.13**: FastAPI, Uvicorn, HTTPX, PySpark 3.5, Scikit-learn, PyMySQL.
+- **Node.js 18+**: Express para el microservicio de wearables y servidor de streaming SSE del dashboard de pruebas.
+
+### Frontend Web y Movil
+- **React 19.x**: Empleado en `laika-admin`, `laika-gestor`, `laika-operador` y la web publica.
+- **SolidJS 1.9.x**: Empleado en `matis-solid` para visualizacion de datos sin Virtual DOM.
+- **React Native 0.88 + Expo 58**: Empleado en `LaikaMobil` con TypeScript y animaciones Reanimated.
+- **Librerias Graficas**: Konva / React-Konva (canvas de recintos), Plotly.js, Recharts, `html5-qrcode`.
+- **Exportacion de Documentos**: jsPDF, jspdf-autotable y html2canvas.
+
+---
+
+## 5. Estructura del Proyecto y Repositorios
 
 ```
 LaikaClub/
-│
-├── src/                           # Frontend React
-│   ├── pages/
-│   │   ├── Home/                  # Pagina principal publica
-│   │   ├── Login/ + Register/     # Autenticacion
-│   │   ├── Shop/                  # Tienda publica de merchandising
-│   │   ├── EventDetail/           # Detalle de evento + Compra directa
-│   │   │   └── components/
-│   │   │       ├── TicketSelection/   # Selector de zonas y asientos
-│   │   │       ├── VenueMap/          # Mapa SVG interactivo del venue
-│   │   │       ├── VenueZones/        # Selector de zonas visuales
-│   │   │       ├── LuckySeatModal/    # Ruleta de asiento sorpresa
-│   │   │       ├── MerchSection/      # Seccion de merch en evento + Modal producto
-│   │   │       ├── PurchaseModal/     # Modal de pago con flujo cinematico
-│   │   │       └── EventHero/         # Hero visual del evento
-│   │   ├── Checkout/              # Pago publico (sin login requerido)
-│   │   ├── Maintenance/           # Pantalla de mantenimiento
-│   │   ├── user/
-│   │   │   ├── UserDashboard.jsx
-│   │   │   ├── UserWallet.jsx     # Boveda de boletos
-│   │   │   ├── UserHistory.jsx
-│   │   │   ├── UserCart.jsx       # Carrito estilo AliExpress Industrial (2 columnas)
-│   │   │   ├── UserCart/
-│   │   │   │   └── TicketPrinterOverlay.jsx  # Animacion impresora con laser cinematico
-│   │   │   ├── Achievements.jsx
-│   │   │   └── RefundTracker.jsx
-│   │   ├── admin/
-│   │   │   ├── Dashboard/         # Panel central + Big Data Visualizer
-│   │   │   ├── Users/             # Gestion de usuarios
-│   │   │   ├── Events/            # CRUD de eventos
-│   │   │   ├── Sales/             # Ventas y reportes
-│   │   │   ├── Database/          # Monitor de BD + SqlVault
-│   │   │   ├── Ads/               # Anuncios y publicidad
-│   │   │   ├── Monitoring/        # Monitoreo en tiempo real
-│   │   │   ├── MerchandiseApproval/ # Aprobacion de merch de gestores
-│   │   │   └── Merch/             # Gestion de merchandising admin
-│   │   ├── manager/               # Panel del gestor de eventos
-│   │   │   ├── MerchandiseManager # Gestion de merch por evento
-│   │   │   ├── ManagerAnalytics
-│   │   │   ├── ManagerTransactions
-│   │   │   └── ManagerAttendees
-│   │   └── staff/                 # Terminal de operador/staff
-│   ├── components/
-│   │   ├── Cart/                  # CartModal, CartContent, PaymentVoucher
-│   │   │   └── CartContent.jsx    # Vista 2 columnas estilo AliExpress Industrial
-│   │   ├── Navbar/                # Barra de navegacion global
-│   │   ├── tickets/
-│   │   │   └── TicketTemplate.jsx # Plantilla visual de boleto (con QR)
-│   │   ├── LaikaAgent/            # Asistente IA integrado
-│   │   ├── LoadingScreen/         # Pantalla de carga industrial (8 seg minimo)
-│   │   ├── DatabaseMonitor.jsx    # Consola de BD en tiempo real
-│   │   └── Notifications/
-│   ├── context/
-│   │   ├── AuthContext.jsx
-│   │   ├── CartContext.jsx
-│   │   ├── SkeletonContext.jsx
-│   │   └── SystemContext.jsx
-│   └── layouts/
-│   │   ├── MainLayout.jsx
-│   │   ├── DashboardLayout.jsx    # Sidebar con drag-and-drop de menu
-│   │   └── UserLayout.jsx
-│   └── ARCHITECTURE.md            # Manual de arquitectura y buenas practicas
-│
-├── microservices/                 # Backend (8 servicios FastAPI)
-├── backups/                       # Respaldos de BD (.sql / .json)
-├── tiradero/                      # Carpeta de soporte y scripts obsoletos
-│
-├── run_all.bat                    # Arranca todo el sistema (Frontend + Backend)
-├── run_microservices.py           # Lanza todos los microservicios + monitoreo en tiempo real
-├── run.py                         # Consola Maestra Interactiva de procesos
-├── install_all.bat                # Instalador automatico de dependencias
-├── subir.py                       # Asistente de Git interactivo para cambios
-├── setup.py                       # Script completo de instalacion y sembrado inicial
-├── plan_invierno_mysql.py         # Recuperacion ante desastres MySQL
-└── plan_lia_mongo.py              # Recuperacion quirurgica MongoDB Atlas
+├── pilgrim/                   # API Gateway central perimetral (Puerto 8000)
+├── microservices2/            # Microservicios Java Spring Boot (Puertos 8101-8302)
+│   ├── auth/                  # Servicio de autenticacion y JWT (8101)
+│   ├── admin/                 # Servicio administrativo y respaldos (8102)
+│   ├── stats/                 # Servicio de estadisticas de conexion (8103)
+│   ├── events/                # Servicio de gestion de espectaculos (8201)
+│   ├── tickets/               # Motor transaccional y torniquetes (8202)
+│   ├── merchandise/           # Servicio de tienda oficial (8203)
+│   ├── achievements/          # Servicio de gamificacion (8301)
+│   └── analytics/             # Servicio de agregaciones financieras (8302)
+├── microservices/             # Microservicios en Python y Node
+│   ├── analytics_bigdata/     # Motor PySpark ML y recomendaciones (8303)
+│   └── wearables_backend/     # Backend IoT de pulseras inteligentes (8204)
+├── laika-admin/               # Modulo SPA del Administrador (Puerto 3010)
+├── laika-gestor/              # Modulo SPA del Gestor de Eventos (Puerto 3020)
+├── laika-operador/            # Modulo SPA del Operador de Acceso (Puerto 3030)
+├── matis-solid/               # Dashboard BI y exportador PDF SolidJS (Puerto 3040)
+├── LaikaMobil/                # Aplicacion movil React Native / Expo
+├── src/                       # Frontend web publico (Puerto 3000)
+├── tests/                     # Suite de pruebas automatizadas y dashboard visual (5050)
+├── tiradero/logpruebas/       # Directorio de logs de peticiones y diagnostico
+├── docker-compose.yml         # Orquestador Docker de todos los servicios
+├── iniciar_roles_desacoplados.bat # Lanzador de entorno completo y navegador
+└── iniciar_tunel_pilgrim.bat  # Apertura de tunel localtunnel para LaikaMobil
 ```
 
 ---
 
-## Instalacion y Configuracion
+## 6. Modulos de Frontend Desacoplados
 
-### Prerrequisitos
+Cada aplicacion frontend cuenta con aislamiento completo en dependencias y puertos de desarrollo:
 
-- **Python 3.10+**
-- **Node.js 18+** con npm
-- **MySQL 8.0+** con Xampp (o servidor MySQL activo en el puerto 3306)
-- **MongoDB Atlas** (Configurar URI en el archivo `.env`)
+1. **`laika-admin` (Puerto 3010)**:
+   - Administracion de usuarios y asignacion de roles.
+   - Aprobacion o rechazo de articulos de mercancia creados por gestores.
+   - Lienzo grafico Konva para trazar la geometria de recintos y numeracion de butacas.
+   - Monitoreo en vivo de sentencias SQL y descarga de respaldos en SqlVault.
 
-### Proceso de Inicializacion en Equipos Nuevos
+2. **`laika-gestor` (Puerto 3020)**:
+   - Creacion, actualizacion y cancelacion de funciones de eventos.
+   - Consulta de recaudacion e inventario de boletos cruzada con `laika_tickets.tickets`.
+   - Consulta detallada de transacciones comerciales y listado de asistentes.
 
-Para configurar la aplicacion en un sistema limpio por primera vez, el proyecto incluye un script de instalacion inteligente en Python:
+3. **`laika-operador` (Puerto 3030)**:
+   - Lector de camara integrado con `html5-qrcode` para lectura continua en torniquetes.
+   - Validacion contra la maquina de estados de `laika_tickets` (`VALID_ACCESS`, `ALREADY_REDEEMED`, `INVALID_CODE`).
+   - Bitacora de incidencias operativas y contador de aforo por puerta.
 
-```bash
-# 1. Ejecutar el asistente de instalacion y configuracion inicial
-python setup.py
-```
-
-Este script automatizara los siguientes pasos:
-1. Verificara que tengas instalados en tu sistema Node.js, npm y Python.
-2. Creara un archivo de variables de entorno `.env` local con valores preconfigurados en caso de no existir.
-3. Instalara las dependencias de Python listadas en `requirements.txt`.
-4. Instalara los paquetes frontend ejecutando `npm install`.
-5. Buscara la instalacion local de MySQL (soporta rutas por defecto de XAMPP y WAMP) e importara la estructura inicial de base de datos desde `laika_club_database.sql`.
-6. Creara los directorios necesarios para logs, cargas de imagenes y respaldos en la raiz.
-
-### Actualizaciones Rapidas
-
-Si estas trabajando en un entorno ya configurado y solo necesitas actualizar las librerias locales tras un pull:
-
-```bash
-# Ejecutar para sincronizar dependencias conda, pip y npm
-install_all.bat
-```
-
-### Arranque del Sistema
-
-Para levantar la aplicacion completa (Backend microservicios + Frontend React):
-
-```bash
-# Ejecutar la Consola Maestra Interactiva
-python run.py
-```
-
-La aplicacion estara disponible en: **http://localhost:3000**
+4. **`matis-solid` (Puerto 3040)**:
+   - Visualizacion de series de tiempo, comparacion de eventos y clasificacion por categorias.
+   - Generacion de informes PDF ejecutivos vectoriales mediante `jspdf-autotable`.
 
 ---
 
-## Variables de Entorno
+## 7. Ecosistema de Microservicios Backend
 
+### Integridad Transaccional y Concurrencia (`laika_tickets`)
+El microservicio implementa bloqueos en memoria mediante `ReentrantLock`. Ante solicitudes concurrentes sobre el mismo asiento fisico, el primer hilo procesa la transaccion con `200 OK` mientras que las peticiones concurrentes son denegadas inmediatamente con codigo `409 Conflict`, erradicando el doble cobro o la sobreventa.
+
+### Agregacion Financiera Precisa (`laika_events`)
+El backend no mantiene campos estaticos de boletos vendidos; ejecuta una subconsulta agregada directa sobre la base de datos de boletos:
+`COUNT(CASE WHEN status IN ('active', 'used') THEN 1 END)` y `SUM(price)`, asegurando coherencia contable inmediata.
+
+---
+
+## 8. Aplicacion Movil (LaikaMobil)
+
+Desarrollada sobre **Expo SDK 58** y **React Native 0.88**:
+- **Desbloqueo Biometrico**: Integracion con FaceID y lector de huellas para acceder a la boveda.
+- **Boveda de Boletos Offline/Online**: Renderizado de codigos QR legibles mediante lectores opticos de torniquete.
+- **Tunelizacion Remota**: Ejecutando `iniciar_tunel_pilgrim.bat` o `npm run tunnel` en `LaikaMobil`, la app interactua con el backend local desde dispositivos en redes celulares 4G/5G.
+
+---
+
+## 9. Persistencia y Bases de Datos
+
+El sistema opera sobre un servidor **MySQL 8.0** en el puerto 3306 con bases de datos segregadas:
+
+- `laika_auth`: Usuarios, contrasenas hash, roles y tabla de auditoria `auth_logs`.
+- `laika_admin`: Parametros globales de sistema y anuncios publicitarios.
+- `laika_stats`: Registros de latencia y estado de servicios.
+- `laika_events`: Informacion de espectaculos, recintos, salas, funciones y zonas.
+- `laika_tickets`: Boletos digitales, codigos criptograficos, pagos y cortesias.
+- `laika_merchandise`: Articulos de catalogo, tallas, inventario y ordenes fisicas.
+- `laika_achievements`: Definicion de hitos y registros de logros por usuario.
+- `laika_analytics`: Agregaciones analiticas relacionales.
+- **MongoDB Atlas**: Almacenamiento no estructurado para analisis OLAP y series de eventos.
+
+---
+
+## 10. Suite Integral de Pruebas y Monitoreo
+
+La plataforma incluye una infraestructura formal de control de calidad documentada en [PLAN_DE_PRUEBAS_LAIKA_CLUB.md](file:///c:/Users/redja/Music/entorno%20laika/PruebaJava/LaikaClub/tests/docs/PLAN_DE_PRUEBAS_LAIKA_CLUB.md):
+
+- **Panel Visual Interactivo (`http://localhost:5050`)**: Servidor nativo con Server-Sent Events para disparar pruebas y visualizar la consola en tiempo real.
+- **36 Pruebas de Integracion en Vivo (Cero Mocks)**: Ejecutadas contra Docker y Pilgrim Gateway (`node tests/integration/real_system_live_tests.js`).
+- **22 Comprobaciones de Red**: Verificacion de 12 puertos TCP y metodos HTTP (`node tests/integration/pilgrim_and_ports_audit.js`).
+- **35 Pruebas Unitarias Algoritmicas**: Validacion de Luhn, RegEx RFC, sanitizacion y politicas de cancelacion (`node tests/unit/run-unit-tests.js`).
+- **Simulador de Concurrencia**: Pruebas de estres simulando rafagas de 50 y 200 compradores concurrentes.
+
+---
+
+## 11. Instalacion y Despliegue
+
+### Opcion A: Despliegue Automatizado con Docker Compose (Recomendado)
+Levanta todos los microservicios Java, Python, Node, MySQL y el API Gateway en una red interna unificada:
+```bash
+docker-compose up -d
+```
+
+### Opcion B: Inicio Rapido del Entorno Desacoplado Local (Windows)
+Ejecuta el script por lotes que inicializa los microservicios, el API Gateway, las tres aplicaciones web y abre las pestanas en el navegador:
+```bash
+iniciar_roles_desacoplados.bat
+```
+
+### Opcion C: Levantamiento Manual por Componente
+1. **API Gateway**:
+   ```bash
+   .venv\Scripts\python.exe pilgrim\run_pilgrim.py
+   ```
+2. **Modulo Administrador**:
+   ```bash
+   cd laika-admin && npm run dev
+   ```
+3. **Modulo Gestor**:
+   ```bash
+   cd laika-gestor && npm run dev
+   ```
+4. **Modulo Operador**:
+   ```bash
+   cd laika-operador && npm run dev
+   ```
+5. **Dashboard Matis Solid**:
+   ```bash
+   cd matis-solid && npm run dev
+   ```
+6. **Dashboard de Pruebas**:
+   ```bash
+   node tests/dashboard/server.js
+   ```
+
+---
+
+## 12. Variables de Entorno
+
+Archivo base `.env` en la raiz del proyecto:
 ```ini
-# Seguridad
+# Seguridad y Tokens
 JWT_SECRET=super_secret_laika_club_2026
 
-# Base de datos MySQL
-MYSQL_HOST=localhost
+# Conexion a Base de Datos Central
+MYSQL_HOST=127.0.0.1
 MYSQL_USER=root
 MYSQL_PASSWORD=
 MYSQL_DATABASE=laika_club
-MYSQLDUMP_PATH=C:\xampp\mysql\bin\mysqldump.exe
-MYSQL_EXE_PATH=C:\xampp\mysql\bin\mysql.exe
 
-# MongoDB Atlas
-MONGO_URI="mongodb+srv://usuario:password@cluster.mongodb.net/?appName=App"
-MONGO_DB="laika_analytics"
+# API Gateway Pilgrim
+PILGRIM_HOST=0.0.0.0
+PILGRIM_PORT=8000
+PILGRIM_PROXY_TIMEOUT=35.0
 
-# Frontend
-REACT_APP_API_URL=http://localhost:8000/api
+# Microservicios Java y Python
+AUTH_SERVICE_URL=http://127.0.0.1:8101
+ADMIN_SERVICE_URL=http://127.0.0.1:8102
+STATS_SERVICE_URL=http://127.0.0.1:8103
+EVENTS_SERVICE_URL=http://127.0.0.1:8201
+TICKETS_SERVICE_URL=http://127.0.0.1:8202
+MERCHANDISE_SERVICE_URL=http://127.0.0.1:8203
+WEARABLES_SERVICE_URL=http://127.0.0.1:8204
+ACHIEVEMENTS_SERVICE_URL=http://127.0.0.1:8301
+ANALYTICS_SERVICE_URL=http://127.0.0.1:8302
+ANALYTICS_BIGDATA_URL=http://127.0.0.1:8303
 ```
 
-> **Nunca subas `.env` a Git.** Usa `.env.example` como plantilla.
+---
+
+## 13. Credenciales de Desarrollo
+
+Credenciales sembradas en la base de datos de pruebas:
+
+| Rol | Correo Electronico | Contrasena | Aplicacion Sugerida |
+| :--- | :--- | :--- | :--- |
+| **Administrador** | `admin@laikaclub.com` | `gearsof2` | `http://localhost:3010` (laika-admin) |
+| **Gestor** | `gestor@laikaclub.com` | `gearsof2` | `http://localhost:3020` (laika-gestor) |
+| **Operador** | `operador@laikaclub.com` | `gearsof2` | `http://localhost:3030` (laika-operador) |
+| **Usuario General**| `usuario@laikaclub.com` | `gearsof2` | `http://localhost:3000` o LaikaMobil |
 
 ---
 
-## Base de Datos
+## 14. Licencia y Derechos
 
-### MySQL - Tablas Principales
-
-| Tabla                 | Servicio   | Descripcion                           |
-| --------------------- | ---------- | ------------------------------------- |
-| `users`               | Auth       | Usuarios, roles y estado de cuenta    |
-| `auth_logs`           | Auth       | Auditoria de accesos                  |
-| `permission_requests` | Auth       | Solicitudes de permisos               |
-| `events`              | Events     | Catalogo de eventos                   |
-| `tickets`             | Tickets    | Entradas con codigo QR                |
-| `payments`            | Tickets    | Registro de transacciones             |
-| `achievements`        | Auth/Admin | Definicion de logros                  |
-| `user_achievements`   | Auth/Admin | Logros por usuario                    |
-| `merch_products`      | Events     | Productos de merchandising por evento |
-| `merch_orders`        | Tickets    | Ordenes de merchandising              |
-
-### MongoDB Atlas - Colecciones Principales
-
-| Coleccion        | Descripcion                              |
-| ---------------- | ---------------------------------------- |
-| `analytics`      | Datos de visualizacion Big Data          |
-| `event_clicks`   | Métricas de interaccion por evento       |
-| `artist_sales`   | Ventas agrupadas por artista             |
-
----
-
-## Sistema de Roles y Seguridad
-
-| Rol          | Acceso                                                                   |
-| ------------ | ------------------------------------------------------------------------ |
-| **admin**    | Total: usuarios, logs, BD, eventos, backups, email, analytics, merch     |
-| **gestor**   | Crear/editar eventos, métricas, auditoria, Analytics BigData, merch propia|
-| **operador** | Validar tickets QR, asistentes, incidencias                              |
-| **usuario**  | Ver eventos, comprar, carrito, boveda de boletos, logros, perfil         |
-| **invitado** | Ver eventos, carrito, comprar sin cuenta (Checkout público)              |
-
-### Autenticacion
-
-- Tokens JWT `HS256`, vida de **7 dias**
-- Header: `Authorization: Bearer <token>`
-- Contraseñas con **Bcrypt**
-- Bloqueo tras **5 intentos fallidos**
-
----
-
-## Flujo de Compra
-
-El checkout es **completamente publico** - no se requiere cuenta.
-
-```
-1. Agrega boleto al carrito (btn "Agregar" en cualquier evento)
-   - Alternativa: modo "Lucky Seat" - asiento sorpresa via ruleta
-2. Abre CartModal desde el icono en la Navbar
-3. Revisa articulos -> "Continuar al Pago"
-   - Vista de carrito completa en /cart con recomendaciones de merch
-4. /checkout -> rellena datos de contacto + método de pago
-5. Confirma la compra
-6. Animacion de impresora con efecto laser cinematico (25 seg sinc.)
-7. Boleto enviado al correo + guardado en la Boveda de Boletos
-```
-
-### Lucky Seat Roulette
-
-Modo especial disponible en el detalle de evento. En lugar de elegir asiento manualmente, el sistema:
-1. Muestra una animacion de ruleta cinematica
-2. Selecciona aleatoriamente un asiento disponible en la mejor zona
-3. Presenta el asiento ganador con efecto de reveal premium
-4. Permite confirmar o re-girar la ruleta
-
----
-
-## Modulo de Merchandising
-
-### Para Usuarios (Desde el Detalle de Evento)
-
-La seccion **"MERCH DEL EVENTO"** aparece en la pagina de detalle de cada evento:
-- Grid de productos con imagen, nombre y precio
-- Modal de producto con selector de talla/color, cantidad y CTA de compra
-- Añade merch al carrito junto con los boletos del evento
-
-### Para Gestores (`/manager/merchandise`)
-
-- Dashboard de gestion de productos por evento
-- Crear, editar y eliminar productos de merchandising
-- Productos quedan en estado **"Pendiente de aprobacion"** hasta revision admin
-
-### Para Administradores (`/admin/merchandise-approval`)
-
-- Vista de todos los productos pendientes de aprobacion
-- Aprobar o rechazar productos con comentario
-- Gestion global del catalogo de merch (`/admin/merch`)
-
-
----
-
-## Modulo de Big Data y Analisis Predictivo
-
-El sistema cuenta con un motor de analítica distribuida y procesamiento masivo de datos para soportar la toma de decisiones estratégicas.
-
-### Arquitectura Analítica
-- **Motor Central**: Apache Spark (inicializado en un hilo secundario en `microservices/analytics_bigdata/engine.py`).
-- **Resiliencia Automática**: Si Spark está arrancando, el servicio conmuta automáticamente a **consultas SQL directas a MySQL/SQLite** para evitar caídas o pantallas de carga bloqueadas.
-- **Sincronización (ETL)**: Sincronización asíncrona ("fire-and-forget") de compras de boletos hacia **MongoDB Atlas** mediante `mongodb_sync.py` para análisis OLAP sin bloquear el flujo transaccional de producción.
-
-### Preparación y Limpieza de Datos (Saneamiento)
-- **Relleno de nulos**: PySpark reemplaza valores nulos en columnas críticas por valores por defecto (`"STAND"`, `"ANÓNIMO"`, `0.0`).
-- **Normalización**: Limpieza de cadenas de texto mediante `trim()` y conversión a minúsculas con `lower()`.
-- **Casting**: Conversión de campos numéricos a tipo flotante (`double`) para evitar fallos matemáticos durante el MapReduce.
-
-### Modelado Dimensional (Copo de Nieve)
-Aunque el sistema lee bases de datos transaccionales, la estructura de entidades se modela lógicamente como un **Esquema de Copo de Nieve (Snowflake Schema)**:
-- **Hechos (Fact Table)**: `tickets` (transacciones) y `payments` (pagos).
-- **Dimensiones Directas**: `users` (compradores) y `events` (espectáculos).
-- **Sub-dimensiones Normalizadas**: `events` $\rightarrow$ `venues` (recinto) $\rightarrow$ `venue_rooms` (sala) $\rightarrow$ `seating_zones` (zona de asientos) $\rightarrow$ `room_seats` (asiento individual).
-
-### Modelos de Machine Learning
-1. **Regresiones Predictivas**: Comparación de 6 modelos (Regresión Lineal, Polinomial, Ridge, Lasso) sobre las ventas históricas para estimar los ingresos de conciertos futuros.
-2. **Clasificación (Árboles de Decisión)**: Clasifica la velocidad de compra y ocupación para recomendar la activación de **Tarifas Dinámicas**.
-3. **Clustering (K-Means)**: Agrupamiento automático de usuarios en segmentos (ej. Súper Fans/Ballenas vs. Compradores casuales).
-
-
----
-
-## Scripts de Utilidad y Herramientas Extra
-
-El proyecto cuenta con varias herramientas automatizadas en la raiz para facilitar el desarrollo, despliegue y versionado:
-
-### 1. `setup.py`
-* **Que hace**: Script de preparacion del ecosistema LaikaClub. Revisa dependencias, crea las carpetas operativas (`uploads/`, `microservices_logs/`, `backups/`), crea el archivo `.env` base e importa de forma directa la base de datos estructurada a tu servidor MySQL.
-* **Como usarlo**: Ejecuta `python setup.py` en tu terminal preferida antes de levantar los servicios por primera vez.
-
-### 2. `install_all.bat`
-* **Que hace**: Inicializa y actualiza el entorno completo del proyecto en Windows.
-  * Llama a `conda env update` usando `environment.yml` para actualizar el entorno de Conda `laika`.
-  * Ejecuta `npm install` para instalar las librerias y dependencias del frontend en Node.
-  * Realiza `pip install` sobre `requirements.txt` para asegurar que el entorno de Conda cuente con todas las librerias de FastAPI, SQLAlchemy y PySpark necesarias.
-* **Como usarlo**: Haz doble click en el archivo `install_all.bat` o ejecútalo desde cmd/powershell.
-
-### 3. `run.py`
-* **Que hace**: Consola Maestra Interactiva para gestionar los procesos locales en Windows. Levanta simultaneamente el frontend (enrutando a `npm start`) y la coleccion de backend microservicios (enrutando a `run_microservices.py`) en ventanas independientes de comando.
-* **Control interactivo de procesos**: Permite controlar el estado de los servicios presionando teclas especificas en la terminal:
-  * `1` -> Detener la suite de Backend
-  * `A` -> Iniciar/Levantar la suite de Backend
-  * `Q` -> Reiniciar la suite de Backend
-  * `2` -> Detener el servidor de Frontend
-  * `S` -> Iniciar/Levantar el servidor de Frontend
-  * `W` -> Reiniciar el servidor de Frontend
-  * `ESC` -> Detiene de forma segura todos los procesos y cierra la terminal interactiva.
-* **Como usarlo**: Ejecuta `python run.py`.
-
-### 4. `subir.py`
-* **Que hace**: Asistente de Git interactivo disenado para acelerar el flujo de guardado y subida de cambios a ramas locales o remotas en GitHub sin necesidad de escribir comandos manuales repetitivos.
-* **Modos de ejecucion**:
-  * **Modo Interactivo (`python subir.py`)**: Analiza y lista de forma interactiva que archivos fueron modificados, creados o eliminados. Te permite decidir si deseas continuar en la rama actual o cambiarte/crear una nueva rama. Despues te sugiere un mensaje de commit inteligente basado en los nombres de los archivos modificados y finalmente te consulta si deseas realizar un `git push` a `origin/tu-rama`.
-  * **Modo Rapido (`python subir.py "mensaje del commit"`)**: Agrega todos los cambios del directorio (`git add .`), realiza el commit con el mensaje ingresado y ejecuta inmediatamente un push a la rama de seguimiento remota activa.
-
-### 5. Otros Scripts de Ejecucion
-* `run_all.bat` -> Ejecuta tanto el backend como el frontend de forma directa en un solo click (iniciando `run_microservices.py` y `npm start` de forma paralela en segundo plano).
-* `run_microservices.py` -> Arranca de manera secuencial los 9 microservicios de Python en sus respectivos puertos locales (puertos `8001` a `8008`) y el API Gateway (puerto `8000`), manteniendo un hilo de monitoreo continuo de recursos y salud de base de datos.
-
----
-
-## Credenciales por Defecto
-
-> **Solo para desarrollo.** Cambia estas contraseñas en produccion.
-
-| Rol       | Correo                     | Contraseña  |
-| --------- | -------------------------- | ----------- |
-| Admin     | admin@laikaclub.com        | gearsof2    |
-| Gestor    | gestor@laikaclub.com       | gearsof2    |
-| Operador  | operador@laikaclub.com     | gearsof2    |
-| Usuario   | usuario@laikaclub.com      | gearsof2    |
-
----
-
-## Licencia
-
-Proyecto privado - LAIKA Club © 2026. Todos los derechos reservados.
+Proyecto privado y confidencial - LAIKA Club © 2026. Todos los derechos reservados. Prohibida su copia o redistribucion no autorizada.
