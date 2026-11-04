@@ -148,7 +148,9 @@ export const AuthProvider = ({ children }) => {
           }
         } else {
           // Si el servidor responde pero dice que no es válido
-          throw { status: 401, message: 'Token inválido' }
+          const tokenErr = new Error('Token inválido')
+          tokenErr.status = 401
+          throw tokenErr
         }
       } catch (error) {
         // Si el error es de red (no tiene status) o es un 5xx, NO deslogueamos

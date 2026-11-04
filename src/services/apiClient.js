@@ -54,11 +54,10 @@ class ApiClient {
                 }
             }
 
-            throw {
-                status: response.status,
-                message: errorMessage,
-                data
-            }
+            const error = new Error(errorMessage)
+            error.status = response.status
+            error.data = data
+            throw error
         }
         return data
     }
