@@ -44,11 +44,32 @@ const METADATA_DICTIONARY = {
         priority: 2
     },
     'run-unit-tests.js': {
-        name: '25 Pruebas Unitarias de Lógica y Negocio',
+        name: '35 Pruebas Unitarias de Lógica y Negocio',
         category: 'Pruebas Unitarias',
         description: 'Verifica en frío algoritmos de validación de correo, contraseñas, sanitización y estados de boletos.',
         requiresLive: false,
         priority: 3
+    },
+    'run-ml-unit-tests.js': {
+        name: '25 Pruebas Unitarias de Algoritmos ML & Big Data',
+        category: 'Pruebas Unitarias ML',
+        description: 'Valida en frío cálculos matemáticos de R², MAE/RMSE, K-Means, Elbow SSE, árboles de decisión y reconciliación MATIS.',
+        requiresLive: false,
+        priority: 4
+    },
+    'ml_and_bigdata_live_tests.js': {
+        name: '15 Pruebas en Vivo: ML, Big Data & MATIS BI',
+        category: 'Machine Learning & BI',
+        description: 'Audita endpoints en vivo de regresión, árboles de decisión, clustering B2B, bots con Isolation Forest y MATIS.',
+        requiresLive: true,
+        priority: 5
+    },
+    'simulate_ml_analytics_load.js': {
+        name: 'Simulador de Carga y Concurrencia ML/Big Data',
+        category: 'Rendimiento ML',
+        description: 'Lanza 20 peticiones paralelas contra los modelos de regresión, clustering y gráficos 3D para auditar tiempos de respuesta.',
+        requiresLive: false,
+        priority: 6
     },
     'simulate_concurrency_stress.js': {
         name: 'Simulador de Concurrencia y Doble Compra',

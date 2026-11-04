@@ -10,6 +10,9 @@ performance_schema = OFF
 innodb_buffer_pool_size = 256M
 innodb_log_buffer_size = 8M
 
+# Permite restaurar volcados grandes como laika_db.sql sin errores de paquete
+max_allowed_packet = 128M
+
 # Límite seguro de conexiones para los microservicios internos
 max_connections = 60
 

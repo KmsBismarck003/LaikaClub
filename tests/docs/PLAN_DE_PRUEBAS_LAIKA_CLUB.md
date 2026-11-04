@@ -975,3 +975,61 @@ Ninguna.
 **Revisó:** ______________________________________________
 
 **Fecha de revisión:** ___________________________________
+
+
+---
+
+## 5. APÉNDICE: SUITE DE PRUEBAS DE MACHINE LEARNING, BIG DATA Y MATIS BI (SPRINT ANALYTICS)
+
+Para certificar la entrega del Sprint de Analítica Predictiva y Business Intelligence, se incorporaron **40 nuevos casos de prueba** divididos en pruebas unitarias matemáticas, pruebas de integración de endpoints en vivo y simulación de carga concurrente.
+
+### 5.1 Matriz de Pruebas Unitarias de Algoritmos ML (`tests/unit/run-ml-unit-tests.js`)
+
+| ID | Nombre de la Prueba Algorítmica | Categoría | Componente / Función | Resultado Esperado |
+| :--- | :--- | :--- | :--- | :---: |
+| **CP-037** | Regresión lineal con correlación perfecta | Modelos Predictivos | `calculateLinearRegression` | R² = 1.0, Pendiente exacta |
+| **CP-038** | Manejo de Cold Start con datos insuficientes (<2 puntos) | Resiliencia ML | `calculateLinearRegression` | Retorna status `insufficient_data` sin excepción |
+| **CP-039** | Cálculo de errores MAE y RMSE finitos ante ruido | Modelos Predictivos | `calculateLinearRegression` | MAE > 0, RMSE > 0, R² > 0.95 |
+| **CP-040** | Línea horizontal (pendiente cero) | Modelos Predictivos | `calculateLinearRegression` | Slope = 0, Intercept = Y |
+| **CP-041** | Dataset nulo o vacío en regresión | Resiliencia ML | `calculateLinearRegression` | Retorna status `insufficient_data` |
+| **CP-042** | Árbol de decisión: Alta ocupación (>60%) | Precios Dinámicos | `classifyEventPricing` | Tarifa Dinámica (+15% sobre precio base) |
+| **CP-043** | Árbol de decisión: Baja ocupación (<30%) | Precios Dinámicos | `classifyEventPricing` | Promoción / Descuento Flash (-15%) |
+| **CP-044** | Árbol de decisión: Ocupación promedio (30%-60%) | Precios Dinámicos | `classifyEventPricing` | Precio Estable (multiplicador 1.0) |
+| **CP-045** | Precio base nulo o no positivo | Validación de Entradas | `classifyEventPricing` | Clasificación 'Inválido' |
+| **CP-046** | Distancia Euclidiana estándar 2D (Triángulo 3-4-5) | Clustering K-Means | `euclideanDistance` | Distancia = 5.0 |
+| **CP-047** | Distancia Euclidiana en puntos idénticos | Clustering K-Means | `euclideanDistance` | Distancia = 0.0 |
+| **CP-048** | Asignación de puntos al clúster más cercano | Clustering K-Means | `assignClusters` | Mapeo exacto a centroide con menor distancia |
+| **CP-049** | Cálculo de Suma de Errores al Cuadrado (SSE) | Método del Codo | `calculateClusterSSE` | Inercia SSE estrictamente positiva |
+| **CP-050** | Transacción humana estándar (sin anomalía) | Detección de Fraude | `evaluateBotTransactionRisk` | Nivel SAFE, isAnomaly = false |
+| **CP-051** | Ráfaga de compras sospechosa (>4 compras/min) | Antifraude & Bots | `evaluateBotTransactionRisk` | Dispara bandera `HIGH_VELOCITY_PURCHASE` |
+| **CP-052** | Desviación extrema de precio (reventa o pasarela manipulada) | Detección de Anomalías | `evaluateBotTransactionRisk` | Dispara bandera `EXTREME_PRICE_DEVIATION` |
+| **CP-053** | Bot masivo con tarjeta internacional y alta frecuencia | Antifraude Crítico | `evaluateBotTransactionRisk` | Nivel CRITICAL (Score >= 75) |
+| **CP-054** | Scoring de Churn: Inactividad severa (>60 días) | Marketing & Churn | `evaluateUserChurnRisk` | Riesgo 'High' y cupón de 15% elegible |
+| **CP-055** | Scoring de Churn: Inactividad intermedia (30 a 59 días) | Marketing & Churn | `evaluateUserChurnRisk` | Riesgo 'Medium' sin cupón flash |
+| **CP-056** | Scoring de Churn: Usuario reciente retenido (<30 días) | Marketing & Churn | `evaluateUserChurnRisk` | Riesgo 'Low', sin acción requerida |
+| **CP-057** | Saneamiento KDD: Eliminación de duplicados por ID | Calidad de Datos | `sanitizeDataset` | Elimina duplicados conservando unicidad |
+| **CP-058** | Saneamiento KDD: Imputación de precios nulos o cero | Calidad de Datos | `sanitizeDataset` | Imputa precio por defecto ($50.0) |
+| **CP-059** | Saneamiento KDD: Imputación de categoría vacía | Calidad de Datos | `sanitizeDataset` | Imputa categoría 'General' |
+| **CP-060** | MATIS: Reconciliación contable boletos vs pagos | Business Intelligence | `reconcileMatisFinancialTotals` | Discrepancia = $0.00, isBalanced = true |
+| **CP-061** | MATIS: Boletos cancelados no alteran ingresos netos | Business Intelligence | `reconcileMatisFinancialTotals` | Excluye cancelados manteniendo balance |
+
+### 5.2 Pruebas de Integración en Vivo (`tests/integration/ml_and_bigdata_live_tests.js`)
+* **15 Escenarios de Integración HTTP:** Valida contratos reales de API contra Pilgrim Gateway (`http://localhost:8000`) y el servicio de Big Data (`http://localhost:8007` / `8303`):
+  1. `/api/analytics/tables`: Catálogo de fuentes analíticas disponibles.
+  2. `/api/analytics/ml/regression`: Métricas de regresión y curva de recaudación.
+  3. `/api/analytics/ml/decision-tree`: Recomendaciones de precios dinámicos por evento.
+  4. `/api/analytics/ml/prospecting`: Agrupación de recintos y venues para prospección comercial.
+  5. `/api/analytics/ml/anomaly`: Auditoría de anomalías de pasarela y reventa.
+  6. `/api/analytics/ml/user-behavior`: Clústeres de riesgo de abandono y top de consumidores.
+  7. `/api/analytics/ml/demand-prediction`: Proyección de afluencia por día de semana y franja horaria.
+  8. `/api/analytics/ml/elbow`: Evaluación del método del codo para $k$ clústeres.
+  9. `/api/analytics/ml/pca`: Varianza explicada y reducción dimensional 2D/3D.
+  10. `/api/analytics/clean`: Proceso ETL KDD de saneamiento e imputación en MySQL.
+  11. `/api/analytics/merch/sales-insights`: Recomendaciones prescriptivas sobre inventario y ventas.
+  12. `/api/analytics/3d`: Mapeo de coordenadas X, Y, Z para el visualizador 3D interactivo.
+  13. `/api/analytics/matis/executive`: Métricas ejecutivas consolidadas de facturación y margen.
+  14. `/api/analytics/vault/status`: Salud y conectividad con la bóveda de snapshots en MongoDB Atlas.
+  15. `/api/analytics/ml/recommendations/{id}`: Inferencia de eventos recomendados o Cold Start seguro.
+
+### 5.3 Simulación de Carga y Concurrencia (`tests/performance/simulate_ml_analytics_load.js`)
+* **20 Solicitudes Concurrentes:** Ráfaga en paralelo sobre los endpoints de mayor cómputo (MapReduce 3D, Regresión y Clustering) evaluando tiempos de respuesta inferiores a 1,500 ms y verificando la transición automática entre PySpark y modo SQL directo sin saturación de memoria.

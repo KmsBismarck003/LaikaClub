@@ -37,7 +37,7 @@ services:
       - MERCHANDISE_SERVICE_URL=http://merchandise:8203
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
-      - MYSQL_DATABASE=laika_auth
+      - MYSQL_DATABASE=laika_gateway
     volumes:
       - ./uploads:/app/uploads
     depends_on:
@@ -102,6 +102,7 @@ services:
       - MYSQL_DATABASE=laika_tickets
       - EVENTS_SERVICE_URL=http://events:8201
       - AUTH_SERVICE_URL=http://auth:8101
+      - WEARABLES_SERVICE_URL=${WEARABLES_SERVICE_URL:-}
       - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true
     depends_on:

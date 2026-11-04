@@ -13,6 +13,9 @@ backend/venv/
 # Environment variables
 .env
 .env.*
+!.env.example
+!.env.docker.example
+!.env.production.example
 
 # Database and local data
 data/
@@ -20,6 +23,7 @@ backups/
 diagnosticos/
 *.sql
 *.sql.json
+!laika_db.sql
 laika_club_transfer.zip
 *.sock
 **/#*
@@ -32,8 +36,9 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Junk / Tiradero
+# Junk / Tiradero & Scratch
 tiradero/
+scratch/
 
 # Build artifacts
 build/asset-manifest.json
@@ -45,8 +50,7 @@ LaikaMobile/
 laikaWear/
 microservices/wearables_backend/
 
-
-# Módulos Desacoplados
+# Modulos Desacoplados (Repositorios Independientes)
 /laika-admin/
 /laika-gestor/
 /laika-operador/
@@ -61,9 +65,7 @@ scratch_audit.json
 scratch_curl.json
 
 **/target/
-
-
 microservices2/merchandise/target/
-**/target/
 
 *.rar
+

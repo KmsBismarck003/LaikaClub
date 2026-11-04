@@ -46,6 +46,7 @@ mkdir -p /var/www/laika-web
 mkdir -p /var/www/laika-admin
 mkdir -p /var/www/laika-gestor
 mkdir -p /var/www/laika-operador
+mkdir -p /var/www/laika-matis
 chown -R azureuser:azureuser /app
 chown -R azureuser:www-data /var/www
 
