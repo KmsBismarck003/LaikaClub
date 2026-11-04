@@ -1,10 +1,12 @@
 # Configuración personalizada de variables para Laika Club en Azure
+# Región con latencia mínima a México y sin restricciones de cuota estudiantil
 
-location            = "eastus"
-resource_group_name = "rg-laikaclub-prod"
-vm_size             = "Standard_B2ats_v2" # AMD EPYC 2 vCPU, 4 GB RAM (~$24.82/mes)
+location            = "southcentralus"
+resource_group_name = "rg-laikaclub"
+vm_size             = "Standard_B2ps_v2" # Ampere Altra ARM64 2 vCPU, 8 GB RAM (~$28.03 USD/mes)
+os_image_sku        = "22_04-lts-arm64"
 admin_username      = "azureuser"
 dns_prefix          = "laikaclub"
-allowed_ssh_ip      = "*"                  # Puedes cambiar a tu IP pública: "187.xxx.xxx.xxx/32"
+allowed_ssh_ip      = "*"
 notification_email  = "al222310440@gmail.com"
-budget_amount       = 85.0                 # Alerta a los $85 USD para proteger tus $100
+budget_amount       = 85.0

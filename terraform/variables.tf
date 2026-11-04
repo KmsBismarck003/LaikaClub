@@ -1,7 +1,7 @@
 variable "location" {
-  description = "Región de Azure donde se desplegarán los recursos (ej. eastus, eastus2)"
+  description = "Región de Azure donde se desplegarán los recursos (ej. eastus2, southcentralus)"
   type        = string
-  default     = "eastus"
+  default     = "eastus2"
 }
 
 variable "resource_group_name" {
@@ -23,9 +23,15 @@ variable "subnet_address_prefix" {
 }
 
 variable "vm_size" {
-  description = "Tamaño de la VM optimizado para presupuesto de estudiante ($24.82/mes)"
+  description = "Tamaño de la VM optimizado para presupuesto de estudiante (Standard_B2ps_v2: 2 vCPU, 8 GB RAM)"
   type        = string
-  default     = "Standard_B2ats_v2" # AMD EPYC 2 vCPU, 4 GB RAM
+  default     = "Standard_B2ps_v2" # Ampere Altra 2 vCPU, 8 GB RAM (~$28 USD/mes)
+}
+
+variable "os_image_sku" {
+  description = "SKU de la imagen Ubuntu (22_04-lts-arm64 para ARM64, 22_04-lts-gen2 para x64)"
+  type        = string
+  default     = "22_04-lts-arm64"
 }
 
 variable "os_disk_size_gb" {

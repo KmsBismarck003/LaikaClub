@@ -85,6 +85,8 @@ resource "azurerm_network_security_group" "nsg" {
 resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
   subnet_id                 = azurerm_subnet.subnet.id
   network_security_group_id = azurerm_network_security_group.nsg.id
+
+  depends_on = [azurerm_subnet.subnet]
 }
 
 # 6. Dirección IP Pública Estática con Subdominio Gratuito (*.cloudapp.azure.com)
@@ -104,6 +106,8 @@ resource "azurerm_network_interface" "nic" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   tags                = var.tags
+
+  depends_on = [azurerm_subnet.subnet]
 
   ip_configuration {
     name                          = "ipconfig-laikaclub"
@@ -150,11 +154,11 @@ resource "azurerm_linux_virtual_machine" "vm" {
     disk_size_gb         = var.os_disk_size_gb
   }
 
-  # Imagen Base Ubuntu Server 22.04 LTS Gen2
+  # Imagen Base Ubuntu Server 22.04 LTS (Arm64 para familia Bps_v2 o Gen2 para x64)
   source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts-gen2"
+    sku       = var.os_image_sku
     version   = "latest"
   }
 

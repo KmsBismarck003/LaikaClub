@@ -4,8 +4,11 @@
 **Versión:** 2.0.0 (Producción)  
 **Fecha:** Noviembre 2026  
 **Rama Activa de Git:** `development`  
-**Entorno Cloud:** Microsoft Azure (Máquina Virtual All-in-One / Docker) + Vercel Edge Network  
-**Presupuesto Asignado:** $100.00 USD (Créditos de Estudiante - 3 Meses Continuos a ~$30.14 USD/mes)
+**Entorno Cloud:** Microsoft Azure (Máquina Virtual All-in-One: `Standard_B2ps_v2` ARM64 en `southcentralus`) + Vercel Edge Network  
+**Presupuesto Asignado:** $100.00 USD (Créditos de Estudiante - 3.5 Meses Continuos a ~$28.03 USD/mes)  
+**Host Público:** `40.124.6.253` (`laikaclub-nzhwq8.southcentralus.cloudapp.azure.com`)  
+**Resource Group:** `rg-laikaclub` (Región: `southcentralus`)  
+**Alerta FinOps:** Activa a los $85.00 USD vía Azure Consumption Budgets  
 
 ---
 
@@ -28,7 +31,7 @@
                                          │
                  ┌───────────────────────┴───────────────────────┐
                  ▼ (Frontends / UI)                              ▼ (Tráfico API / Base de Datos)
-       [ VERCEL EDGE CDN ($0) ]                    [ HOST AZURE: Standard_B2ats_v2 (~$30/mes) ]
+       [ VERCEL EDGE CDN ($0) ]                    [ HOST AZURE: Standard_B2ps_v2 (8GB RAM, ~$28/mes) ]
         * Web Principal (/)                         * NGINX Reverse Proxy (Puertos 80 / 443 SSL)
         * Admin (/admin)                            * Let's Encrypt Certbot (HTTPS Universal)
         * Gestor (/gestor)                          * Archivos Persistentes (/uploads)
