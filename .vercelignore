@@ -1,0 +1,12 @@
+requirements.txt
+environment.yml
+microservices/
+microservices2/
+pruebas/
+LaikaMobil/
+terraform/
+*.py
+*.sql
+*.cnf
+*.sh
+*.bat
