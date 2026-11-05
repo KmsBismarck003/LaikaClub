@@ -24,15 +24,23 @@ const DECOUPLED_PORTS = {
 
 const handleRoleRedirection = (userObj, navigate, from = null) => {
   const userRole = userObj?.role
-  const targetPort = DECOUPLED_PORTS[userRole]
-  const currentPort = window.location.port ? parseInt(window.location.port, 10) : 80
+  const isLocalhost = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.endsWith('.local')
+  )
 
-  if (targetPort && currentPort !== targetPort) {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
-    const b64User = btoa(encodeURIComponent(JSON.stringify(userObj)))
-    const targetPath = roleRedirectMap[userRole] || '/'
-    window.location.href = `http://localhost:${targetPort}/auth-sync?token=${token}&user=${b64User}&redirect=${encodeURIComponent(targetPath)}`
-    return true
+  if (isLocalhost) {
+    const targetPort = DECOUPLED_PORTS[userRole]
+    const currentPort = window.location.port ? parseInt(window.location.port, 10) : 80
+
+    if (targetPort && currentPort !== targetPort) {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+      const b64User = btoa(encodeURIComponent(JSON.stringify(userObj)))
+      const targetPath = roleRedirectMap[userRole] || '/'
+      window.location.href = `http://localhost:${targetPort}/auth-sync?token=${token}&user=${b64User}&redirect=${encodeURIComponent(targetPath)}`
+      return true
+    }
   }
 
   const targetPath = from || roleRedirectMap[userRole] || '/'
