@@ -1,7 +1,12 @@
 package com.laikaclub.tickets.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ClaimCourtesyRequest {
 
+    @JsonProperty("claimToken")
+    @JsonAlias({"claim_token", "token"})
     private String claimToken;
 
     public ClaimCourtesyRequest() {

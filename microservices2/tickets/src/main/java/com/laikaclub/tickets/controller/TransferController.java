@@ -105,6 +105,9 @@ public class TransferController {
      */
     @GetMapping("/incoming")
     public List<Map<String, Object>> getIncomingTransfers(@AuthenticationPrincipal UserPrincipal user) {
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
         return transferService.getIncomingTransfers(user.getId(), user.getEmail());
     }
 
@@ -113,6 +116,9 @@ public class TransferController {
      */
     @GetMapping("/outgoing")
     public List<Map<String, Object>> getOutgoingTransfers(@AuthenticationPrincipal UserPrincipal user) {
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
         return transferService.getOutgoingTransfers(user.getId());
     }
 
@@ -121,6 +127,9 @@ public class TransferController {
      */
     @GetMapping("/history")
     public List<Map<String, Object>> getTransferHistory(@AuthenticationPrincipal UserPrincipal user) {
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
         return transferService.getTransferHistory(user.getId(), user.getEmail());
     }
 
