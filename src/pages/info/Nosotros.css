@@ -1,31 +1,69 @@
-/* Nosotros full-width estilo historia de marca.
-   Sin contenedor: secciones de borde a borde, todo con variables claro/oscuro. */
+/* ============================================================
+   LAIKA CLUB — Nosotros Page Styles
+   Full Light & Dark Theme Support, Bento Tier-1 Design
+   ============================================================ */
 
 .nosotros-page {
   width: 100%;
+  min-height: calc(100vh - 120px);
+  background-color: #f8fafc;
+  color: #0f172a;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+[data-theme='dark'] .nosotros-page {
+  background-color: #09090b;
+  color: #ffffff;
 }
 
 .nosotros-hero {
   text-align: center;
-  padding: 4rem 1.5rem 3rem 1.5rem;
-  background: var(--bg-primary);
+  padding: 4.5rem 1.5rem 3.5rem 1.5rem;
+  background: transparent;
 }
 
 .nosotros-hero h1 {
   margin: 0.5rem auto 0 auto;
   max-width: 900px;
-  font-size: 2.5rem;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
   line-height: 1.15;
-  color: var(--text-primary);
+  color: #0f172a;
+}
+
+[data-theme='dark'] .nosotros-hero h1 {
+  color: #ffffff;
+}
+
+.nosotros-hero-desc {
+  max-width: 650px;
+  margin: 0.75rem auto 0;
+  font-size: 1.05rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+[data-theme='dark'] .nosotros-hero-desc {
+  color: #94a3b8;
 }
 
 .nosotros-seccion {
-  padding: 3.5rem 1.5rem;
-  background: var(--bg-primary);
+  padding: 4rem 1.5rem;
+  background: transparent;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme='dark'] .nosotros-seccion {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
 }
 
 .nosotros-seccion-alt {
-  background: var(--bg-primary);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='dark'] .nosotros-seccion-alt {
+  background: rgba(255, 255, 255, 0.015);
 }
 
 .nosotros-contenido {
@@ -35,14 +73,14 @@
 
 .nosotros-hero-logo {
   max-width: 220px;
-  width: 60%;
-  margin-bottom: 1rem;
+  width: 50%;
+  margin-bottom: 1.25rem;
 }
 
 .nosotros-fila {
   display: flex;
   align-items: center;
-  gap: 2.5rem;
+  gap: 3rem;
 }
 
 .nosotros-fila-inv {
@@ -57,15 +95,25 @@
 .nosotros-texto h2 {
   margin: 0 0 1rem 0;
   font-size: 1.8rem;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--text-primary);
+  font-weight: 800;
+  color: #0f172a;
+  border-bottom: 2px solid #ef4444;
   padding-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .nosotros-texto h2 {
+  color: #ffffff;
 }
 
 .nosotros-texto > p {
   line-height: 1.7;
-  color: var(--text-secondary);
-  font-size: 1.05rem;
+  color: #334155;
+  font-size: 1.02rem;
+  margin-bottom: 1rem;
+}
+
+[data-theme='dark'] .nosotros-texto > p {
+  color: #cbd5e1;
 }
 
 .nosotros-media {
@@ -77,62 +125,58 @@
 
 .nosotros-media img {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   border-radius: 16px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-card, var(--bg-primary));
-  padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
-.nosotros-media-libre img {
-  max-width: 560px;
-  border: none;
-  background: none;
-  padding: 0;
-  border-radius: 20px;
-}
-
-.nosotros-contenido h2 {
-  margin: 0 0 1rem 0;
-  font-size: 1.8rem;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--text-primary);
-  padding-bottom: 0.5rem;
-}
-
-.nosotros-contenido > p {
-  line-height: 1.7;
-  color: var(--text-secondary);
-  font-size: 1.05rem;
+[data-theme='dark'] .nosotros-media img {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
 }
 
 .nosotros-kicker {
-  margin: 0 0 0.25rem 0;
+  display: inline-block;
+  margin: 0 0 0.4rem 0;
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--text-primary);
+  letter-spacing: 0.12em;
+  color: #ef4444;
 }
 
 .nosotros-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.75rem;
 }
 
 .nosotros-card {
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.25rem 1rem;
-  background: var(--bg-card, var(--bg-primary));
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.35rem 1.15rem;
+  background: #ffffff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+[data-theme='dark'] .nosotros-card {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: none;
 }
 
 .nosotros-card p {
   margin: 0;
-  color: var(--text-secondary);
+  color: #334155;
   line-height: 1.6;
+  font-size: 0.92rem;
+}
+
+[data-theme='dark'] .nosotros-card p {
+  color: #cbd5e1;
 }
 
 .nosotros-check {
@@ -143,14 +187,20 @@
   height: 28px;
   border-radius: 50%;
   font-weight: 900;
-  color: var(--bg-primary);
-  background: var(--text-primary);
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
   margin-bottom: 0.75rem;
 }
 
 .nosotros-valor h3 {
   margin: 0 0 0.5rem 0;
-  color: var(--text-primary);
+  color: #0f172a;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+[data-theme='dark'] .nosotros-valor h3 {
+  color: #ffffff;
 }
 
 @media (max-width: 768px) {
@@ -165,5 +215,6 @@
   .nosotros-fila,
   .nosotros-fila-inv {
     flex-direction: column;
+    gap: 2rem;
   }
 }

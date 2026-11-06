@@ -1,5 +1,6 @@
 /* ============================================================
    LAIKA CLUB — Contacto Bento Grid Styles
+   Full Light & Dark Theme Support
    ============================================================ */
 
 .contacto-bento-grid {
@@ -24,23 +25,25 @@
   font-family: var(--font-family-heading, 'Inter', sans-serif);
   font-size: 1.25rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #0f172a;
   margin: 0 0 0.35rem 0;
+  transition: color 0.2s ease;
 }
 
-[data-theme='light'] .contacto-panel-header h3 {
-  color: #0f172a;
+[data-theme='dark'] .contacto-panel-header h3 {
+  color: #ffffff;
 }
 
 .contacto-panel-header p {
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: #64748b;
   margin: 0;
   line-height: 1.5;
+  transition: color 0.2s ease;
 }
 
-[data-theme='light'] .contacto-panel-header p {
-  color: #64748b;
+[data-theme='dark'] .contacto-panel-header p {
+  color: #94a3b8;
 }
 
 /* --- CARDS LIST --- */
@@ -56,17 +59,17 @@
   align-items: flex-start;
   gap: 1rem;
   padding: 1.1rem 1.25rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 14px;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
-[data-theme='light'] .contacto-card-link,
-[data-theme='light'] .contacto-card-static {
-  background: #f8fafc;
-  border-color: #e2e8f0;
+[data-theme='dark'] .contacto-card-link,
+[data-theme='dark'] .contacto-card-static {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .contacto-card-link:hover {
@@ -102,39 +105,46 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: #64748b;
+}
+
+[data-theme='dark'] .contacto-tag {
   color: #94a3b8;
 }
 
 .contacto-text-box strong {
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #0f172a;
 }
 
-[data-theme='light'] .contacto-text-box strong {
-  color: #0f172a;
+[data-theme='dark'] .contacto-text-box strong {
+  color: #ffffff;
 }
 
 .contacto-sub {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #64748b;
 }
 
-[data-theme='light'] .contacto-sub {
-  color: #64748b;
+[data-theme='dark'] .contacto-sub {
+  color: #94a3b8;
 }
 
 /* --- FORM --- */
 .contacto-form-panel {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-[data-theme='light'] .contacto-form-panel {
-  background: #f8fafc;
-  border-color: #e2e8f0;
+[data-theme='dark'] .contacto-form-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
 }
 
 .contacto-form {
@@ -153,11 +163,12 @@
   font-family: var(--font-family-heading, 'Inter', sans-serif);
   font-size: 0.85rem;
   font-weight: 600;
-  color: #cbd5e1;
+  color: #1e293b;
+  transition: color 0.2s ease;
 }
 
-[data-theme='light'] .contacto-field-group label {
-  color: #334155;
+[data-theme='dark'] .contacto-field-group label {
+  color: #cbd5e1;
 }
 
 .contacto-field-group input,
@@ -166,20 +177,20 @@
   padding: 0.75rem 1rem;
   font-family: var(--font-family-base, sans-serif);
   font-size: 0.95rem;
-  color: #ffffff;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 10px;
   outline: none;
   box-sizing: border-box;
   transition: all 0.2s ease;
 }
 
-[data-theme='light'] .contacto-field-group input,
-[data-theme='light'] .contacto-field-group textarea {
-  color: #0f172a;
-  background: #ffffff;
-  border-color: #cbd5e1;
+[data-theme='dark'] .contacto-field-group input,
+[data-theme='dark'] .contacto-field-group textarea {
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .contacto-field-group input:focus,
@@ -190,6 +201,11 @@
 
 .contacto-field-group input::placeholder,
 .contacto-field-group textarea::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .contacto-field-group input::placeholder,
+[data-theme='dark'] .contacto-field-group textarea::placeholder {
   color: #64748b;
 }
 
@@ -236,10 +252,14 @@
 }
 
 .contacto-success-banner p {
-  color: #cbd5e1;
+  color: #334155;
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0 0 1rem 0;
+}
+
+[data-theme='dark'] .contacto-success-banner p {
+  color: #cbd5e1;
 }
 
 .contacto-reset-btn {
@@ -256,5 +276,5 @@
 
 .contacto-reset-btn:hover {
   background: #22c55e;
-  color: #000000;
+  color: #ffffff;
 }
