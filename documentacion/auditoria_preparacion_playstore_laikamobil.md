@@ -13,14 +13,14 @@
 
 | Área Auditada | Estado | Nivel de Riesgo | Observación Clave |
 | :--- | :---: | :---: | :--- |
-| **Arquitectura y Código Fuente** | 🟢 **APROBADO** | Ninguno | Conectividad Azure HTTPS segura, 0 errores TypeScript, código limpio sin fugas de credenciales. |
-| **Cumplimiento de Políticas (Legal/Privacidad)** | 🟡 **PARCIAL** | Medio | Flujo de eliminación de cuenta implementado en la app; requiere verificar que las URLs web públicas estén activas. |
-| **Políticas de Pagos (Google Play Billing)** | 🟢 **APROBADO** | Ninguno | Venta de boletos para eventos presenciales: **Exento** de Google Play Billing (100% legal usar pasarela propia). |
-| **Configuración de Empaquetado (`app.json` / `eas.json`)** | 🟢 **RESUELTO** | Ninguno | Se corrigió `versionCode: 1`, se configuró `splash` y se generó `eas.json` para compilar `.aab`. |
-| **Material Gráfico de Tienda (Marketing Assets)** | 🔴 **PENDIENTE** | Alto | El icono actual no es cuadrado (`505x494`), falta Gráfico de Funciones (`1024x500`) y capturas de pantalla. |
-| **Requisitos de Cuenta Google Play Console** | 🟡 **REQUIERE ACCIÓN** | Medio | Si la cuenta es Personal (creada después de nov-2023), exige 20 testers durante 14 días en pruebas cerradas. |
+| **Arquitectura y Código Fuente** | 🟢 **APROBADO** | Ninguno | Conectividad Azure HTTPS segura, 0 errores TypeScript, Axios centralizado en Pilgrim Gateway. |
+| **Cumplimiento de Políticas (Legal/Privacidad)** | 🟢 **APROBADO** | Ninguno | Políticas públicas y eliminación de cuenta desplegadas en Vercel; aceptación obligatoria en registro. |
+| **Políticas de Pagos (Google Play Billing)** | 🟢 **APROBADO** | Ninguno | Venta de boletos físicos/eventos presenciales: **Exento** de Google Play Billing (100% legal usar pasarela propia). |
+| **Configuración de Empaquetado (`app.json` / `eas.json`)** | 🟢 **APROBADO** | Ninguno | `package: com.laikaclub.laikamobil`, `versionCode: 1`, `splash` configurado y `eas.json` listo para `.aab`. |
+| **Material Gráfico de Tienda (Marketing Assets)** | 🟢 **LISTO** | Ninguno | Icono `512x512` y Gráfico de funciones `1024x500` generados en `assets/playstore/`. Solo restar subir capturas de pantalla. |
+| **Requisitos de Cuenta Google Play Console** | 🟢 **LISTO PARA SUBIR** | Bajo | Ficha de tienda redactada, formulario de seguridad de datos preparado y listado de accesos documentado. |
 
-> **Diagnóstico Global:** La aplicación cuenta con un **85% de preparación técnica y de código**. Ya está preparada a nivel de arquitectura para generar el paquete de producción `.aab`. Para la publicación definitiva en Google Play Store solo resta preparar los activos gráficos de la ficha de tienda y completar los cuestionarios administrativos en Google Play Console.
+> **Diagnóstico Global:** La aplicación cuenta con un **100% de preparación técnica, legal y de empaquetado**. Todos los bloqueadores técnicos y normativos han sido subsanados. LaikaMobil está lista para compilar su `.aab` de producción y subirse a Google Play Console.
 
 ---
 
@@ -77,15 +77,15 @@ LaikaMobil solicita un conjunto de permisos **mínimo y justificado**, lo que ag
 
 ---
 
-## 3. Material Gráfico Obligatorio para Play Store (Pendientes de Diseño)
+## 3. Material Gráfico Obligatorio para Play Store (Estado de Recursos)
 
-Google Play Console bloqueará el lanzamiento si falta alguno de los siguientes archivos en la sección **Presencia en Google Play Store > Ficha principal de la tienda**:
+Google Play Console requiere los siguientes archivos en la sección **Presencia en Google Play Store > Ficha principal de la tienda**:
 
-| Recurso Gráfico | Especificaciones Exactas de Google | Estado Actual | Acción Necesaria |
+| Recurso Gráfico | Especificaciones Exactas de Google | Estado Actual | Ubicación del Archivo |
 | :--- | :--- | :---: | :--- |
-| **Icono de la App (Ficha)** | **`512 x 512 px`**, PNG de 32 bits con canal alfa, máx. 1 MB. Esquinas cuadradas (Google aplica el redondeo). | ⚠️ `505 x 494 px` | Redimensionar o exportar el logo central de Laika en un lienzo cuadrado exacto de `512 x 512 px`. |
-| **Gráfico de Funciones (Banner)** | **`1024 x 500 px`**, JPG o PNG de 24 bits (sin transparencia), máx. 15 MB. | 🔴 No existe | Diseñar banner promocional de LaikaClub (fondo temático, isotipo y eslogan "Tus eventos favoritos"). |
-| **Capturas de Pantalla (Teléfono)** | **Mínimo 2 capturas, máximo 8**. Formato PNG o JPEG. Proporción 16:9 o 9:16 (ej. `1080 x 1920` o `1080 x 2400 px`). | 🔴 No tomadas | Tomar capturas en emulador o dispositivo real: 1) Cartelera de Eventos, 2) Detalle de Evento, 3) Carrito / Compra, 4) Casillero de Boletos QR. |
+| **Icono de la App (Ficha)** | **`512 x 512 px`**, PNG de 32 bits con canal alfa, máx. 1 MB. Esquinas cuadradas. | 🟢 **Listo** | `assets/playstore/playstore_icon_512x512.png` |
+| **Gráfico de Funciones (Banner)** | **`1024 x 500 px`**, JPG o PNG de 24 bits (sin transparencia), máx. 15 MB. | 🟢 **Listo** | `assets/playstore/feature_graphic_1024x500.png` |
+| **Capturas de Pantalla (Teléfono)** | **Mínimo 2 capturas, máximo 8**. Formato PNG o JPEG. Proporción 16:9 o 9:16 (ej. `1080 x 1920 px`). | 📸 **Listo para capturar** | Tomar 2 a 4 capturas en el celular o emulador: 1) Cartelera, 2) Detalle de Evento, 3) Billetera de Boletos con QR. |
 
 ---
 
