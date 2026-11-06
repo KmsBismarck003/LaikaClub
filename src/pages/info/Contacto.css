@@ -1,0 +1,260 @@
+/* ============================================================
+   LAIKA CLUB — Contacto Bento Grid Styles
+   ============================================================ */
+
+.contacto-bento-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 840px) {
+  .contacto-bento-grid {
+    grid-template-columns: 1fr 1.25fr;
+    gap: 2.5rem;
+  }
+}
+
+.contacto-panel-header {
+  margin-bottom: 1.5rem;
+}
+
+.contacto-panel-header h3 {
+  font-family: var(--font-family-heading, 'Inter', sans-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.35rem 0;
+}
+
+[data-theme='light'] .contacto-panel-header h3 {
+  color: #0f172a;
+}
+
+.contacto-panel-header p {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+[data-theme='light'] .contacto-panel-header p {
+  color: #64748b;
+}
+
+/* --- CARDS LIST --- */
+.contacto-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contacto-card-link,
+.contacto-card-static {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+[data-theme='light'] .contacto-card-link,
+[data-theme='light'] .contacto-card-static {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.contacto-card-link:hover {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: #ef4444;
+  transform: translateX(4px);
+}
+
+.contacto-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.contacto-text-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.contacto-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.contacto-text-box strong {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+[data-theme='light'] .contacto-text-box strong {
+  color: #0f172a;
+}
+
+.contacto-sub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+[data-theme='light'] .contacto-sub {
+  color: #64748b;
+}
+
+/* --- FORM --- */
+.contacto-form-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+[data-theme='light'] .contacto-form-panel {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.contacto-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.contacto-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.contacto-field-group label {
+  font-family: var(--font-family-heading, 'Inter', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+[data-theme='light'] .contacto-field-group label {
+  color: #334155;
+}
+
+.contacto-field-group input,
+.contacto-field-group textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-family-base, sans-serif);
+  font-size: 0.95rem;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+[data-theme='light'] .contacto-field-group input,
+[data-theme='light'] .contacto-field-group textarea {
+  color: #0f172a;
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.contacto-field-group input:focus,
+.contacto-field-group textarea:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.contacto-field-group input::placeholder,
+.contacto-field-group textarea::placeholder {
+  color: #64748b;
+}
+
+.contacto-submit-btn {
+  margin-top: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-family-heading, 'Inter', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.contacto-submit-btn:hover:not(:disabled) {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+}
+
+.contacto-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* --- SUCCESS BANNER --- */
+.contacto-success-banner {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.contacto-success-banner h4 {
+  color: #22c55e;
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.contacto-success-banner p {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+}
+
+.contacto-reset-btn {
+  background: transparent;
+  color: #22c55e;
+  border: 1px solid #22c55e;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.contacto-reset-btn:hover {
+  background: #22c55e;
+  color: #000000;
+}

@@ -94,6 +94,44 @@
   transform: translateY(-2px);
 }
 
+.footer-tagline {
+  color: #a1a1aa;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.footer-contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #a1a1aa;
+}
+
+.footer-contact-info strong {
+  color: #e4e4e7;
+}
+
+.footer-contact-info a {
+  color: #a1a1aa;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-contact-info a:hover {
+  color: #ffffff;
+}
+
+.footer-highlight-link {
+  color: #ef4444 !important;
+  font-weight: 600;
+}
+
+.footer-highlight-link:hover {
+  text-decoration: underline;
+}
+
 .footer-bottom {
   text-align: center;
   padding-top: 20px;

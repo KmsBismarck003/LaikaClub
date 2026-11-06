@@ -3,45 +3,55 @@ import InfoLayout from './InfoLayout'
 
 const Seguridad = () => {
   return (
-    <InfoLayout title="Seguridad">
+    <InfoLayout 
+      title="Protocolos de Seguridad y Ciberprotección" 
+      subtitle="Infraestructura blindada, encriptación de extremo a extremo y validación criptográfica de accesos para tu tranquilidad."
+      badge="Seguridad Tecnológica"
+      lastUpdated="Noviembre 2026"
+    >
       <div className="info-section">
+        <h2>1. Compromiso con la Integridad del Sistema</h2>
         <p>
-          En LaikaEvents, la seguridad de nuestros usuarios es nuestra máxima prioridad.
-          Implementamos medidas de seguridad avanzadas para proteger tus datos y asegurar transacciones seguras.
+          En <strong>LAIKA Club</strong> la seguridad de tus transacciones y la trazabilidad de tus accesos es nuestra máxima prioridad. 
+          Desarrollamos nuestra infraestructura sobre microservicios contenerizados y puertas de enlace (API Gateways) con defensas multicapa.
         </p>
       </div>
 
       <div className="info-section">
-        <h2>Protección de Datos</h2>
+        <h2>2. Encriptación y Procesamiento de Pagos PCI-DSS</h2>
         <p>
-          Utilizamos encriptación SSL/TLS para proteger la transmisión de datos confidenciales, como la información de tu tarjeta de crédito.
-          Además, cumplimos con los estándares de seguridad de la industria (PCI DSS).
+          Toda la comunicación en la plataforma web y la aplicación móvil viaja a través de túneles cifrados con certificados SSL/TLS de alta graduación. 
+          El procesamiento de pagos electrónicos se realiza mediante pasarelas auditadas con el estándar <strong>PCI-DSS Nivel 1</strong>.
+        </p>
+        <div className="info-callout">
+          <p>
+            <strong>Cero Almacenamiento Bancario:</strong> Ningún servidor o base de datos de LAIKA Club conserva números de tarjeta de crédito, débito o CVVs.
+          </p>
+        </div>
+      </div>
+
+      <div className="info-section">
+        <h2>3. Códigos QR Dinámicos y Prevención de Clonación</h2>
+        <p>
+          Nuestros boletos digitales implementan firmas criptográficas que se refrescan periódicamente y se validan en tiempo real en los accesos del recinto. 
+          Esto previene de raíz la duplicación de accesos, reventas ilícitas o boletos apócrifos.
         </p>
       </div>
 
       <div className="info-section">
-        <h2>Monitoreo y Detección de Fraude</h2>
+        <h2>4. Reporte de Vulnerabilidades y Soporte de Seguridad</h2>
         <p>
-          Contamos con sistemas de monitoreo continuo para detectar y prevenir actividades sospechosas.
-          Nuestro equipo de seguridad trabaja las 24 horas para garantizar la integridad de la plataforma.
+          Si detectas una actividad inusual en tu cuenta o deseas notificar una aclaración de seguridad, comunícate de inmediato:
         </p>
-      </div>
-
-      <div className="info-section">
-        <h2>Consejos de Seguridad para Usuarios</h2>
-        <ul>
-          <li>Utiliza contraseñas fuertes y únicas para tu cuenta.</li>
-          <li>No compartas tu contraseña con nadie.</li>
-          <li>Mantén actualizado el software de tu dispositivo.</li>
-          <li>Ten cuidado con los correos electrónicos de phishing.</li>
-        </ul>
-      </div>
-
-      <div className="info-section">
-        <h2>Reportar un Problema de Seguridad</h2>
-        <p>
-          Si descubres una vulnerabilidad de seguridad o sospechas de una actividad fraudulenta, por favor contáctanos de inmediato en seguridad@laikaevents.com.
-        </p>
+        <div className="info-channels">
+          <a href="mailto:jreyes6458@gmail.com" className="info-channel-item">
+            <div className="info-channel-icon">@</div>
+            <div className="info-channel-details">
+              <span className="info-channel-label">Mesa de Seguridad Informática</span>
+              <span className="info-channel-value">jreyes6458@gmail.com</span>
+            </div>
+          </a>
+        </div>
       </div>
     </InfoLayout>
   )

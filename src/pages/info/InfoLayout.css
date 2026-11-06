@@ -1,75 +1,414 @@
+/* ============================================================
+   LAIKA CLUB — Info & Legal Layout (Bento Tier-1 Design)
+   High contrast, glassmorphism, responsive 320px to 4K
+   ============================================================ */
+
 .info-page-container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 3.5rem 1.5rem 5rem;
+  color: var(--text-primary, #ffffff);
+  box-sizing: border-box;
 }
 
+/* --- HERO HEADER --- */
 .info-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.info-header h1 {
-  font-size: 2.5rem;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
+.info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-family-heading, 'Inter', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
+}
+
+.info-title {
+  font-family: var(--font-family-heading, 'Inter', sans-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #ffffff !important;
+  margin: 0;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme='light'] .info-title {
+  color: #0f172a !important;
+  text-shadow: none;
+}
+
+.info-subtitle {
+  font-size: clamp(1rem, 1.8vw, 1.15rem);
+  color: var(--text-secondary, #cbd5e1);
+  max-width: 720px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.info-meta {
+  margin-top: 0.25rem;
 }
 
 .last-updated {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+  color: var(--text-muted, #94a3b8);
+  font-family: var(--font-family-base, sans-serif);
 }
 
+.last-updated strong {
+  color: #f1f5f9;
+}
+
+[data-theme='light'] .last-updated strong {
+  color: #1e293b;
+}
+
+/* --- BENTO CONTAINER --- */
 .info-content-wrapper {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
 }
 
-.info-card {
-  padding: 2rem;
+.info-card-bento {
+  background: rgba(15, 15, 20, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: clamp(1.75rem, 4vw, 3rem);
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
 }
 
+[data-theme='light'] .info-card-bento {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+}
+
+.info-card-bento::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.6), transparent);
+}
+
+/* --- SECTIONS & TYPOGRAPHY --- */
 .info-section {
-  margin-bottom: 2rem;
+  margin-bottom: 2.25rem;
+}
+
+.info-section:last-child {
+  margin-bottom: 0;
 }
 
 .info-section h2 {
-  color: var(--primary);
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.5rem;
+  font-family: var(--font-family-heading, 'Inter', sans-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: #f8fafc;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+[data-theme='light'] .info-section h2 {
+  color: #0f172a;
+  border-bottom-color: #e2e8f0;
 }
 
 .info-section h3 {
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-  font-size: 1.2rem;
+  font-family: var(--font-family-heading, 'Inter', sans-serif);
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 1.25rem 0 0.5rem 0;
+}
+
+[data-theme='light'] .info-section h3 {
+  color: #1e293b;
 }
 
 .info-section p {
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0 0 1rem 0;
+}
+
+[data-theme='light'] .info-section p {
+  color: #475569;
 }
 
 .info-section ul {
-  list-style-type: disc;
-  padding-left: 1.5rem;
-  margin-bottom: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem 0;
 }
 
 .info-section li {
-  margin-bottom: 0.5rem;
-  color: var(--text-secondary);
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin-bottom: 0.65rem;
+  position: relative;
+  padding-left: 1.4rem;
 }
 
-@media (max-width: 768px) {
-  .info-header h1 {
-    font-size: 2rem;
+[data-theme='light'] .info-section li {
+  color: #475569;
+}
+
+.info-section li::before {
+  content: '•';
+  color: #ef4444;
+  font-weight: bold;
+  font-size: 1.2rem;
+  position: absolute;
+  left: 0.25rem;
+  top: -0.1rem;
+}
+
+.info-section strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+[data-theme='light'] .info-section strong {
+  color: #0f172a;
+}
+
+/* --- HIGHLIGHT CALLOUT BOX --- */
+.info-callout {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.info-callout p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #f1f5f9;
+}
+
+[data-theme='light'] .info-callout p {
+  color: #1e293b;
+}
+
+/* --- BENTO SUBGRID --- */
+.info-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px) {
+  .info-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.info-grid-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 1.25rem 1.4rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+[data-theme='light'] .info-grid-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.info-grid-card:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+  transform: translateY(-2px);
+}
+
+.info-grid-card h4 {
+  margin: 0 0 0.4rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+[data-theme='light'] .info-grid-card h4 {
+  color: #0f172a;
+}
+
+.info-grid-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.55;
+}
+
+[data-theme='light'] .info-grid-card p {
+  color: #64748b;
+}
+
+/* --- CONTACT PILLS & CHANNELS --- */
+.info-channels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.info-channel-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+[data-theme='light'] .info-channel-item {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+.info-channel-item:hover {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+  transform: translateX(4px);
+}
+
+.info-channel-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.info-channel-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-channel-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.info-channel-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+[data-theme='light'] .info-channel-value {
+  color: #0f172a;
+}
+
+/* --- STEP NUMBER LIST (Paso 01, Paso 02) --- */
+.info-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.info-step-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.15rem;
+}
+
+[data-theme='light'] .info-step-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.info-step-num {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ef4444;
+  margin-bottom: 0.35rem;
+}
+
+.info-step-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.35rem;
+}
+
+[data-theme='light'] .info-step-title {
+  color: #0f172a;
+}
+
+.info-step-desc {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 0;
+}
+
+[data-theme='light'] .info-step-desc {
+  color: #64748b;
+}
+
+/* --- RESPONSIVENESS --- */
+@media (max-width: 640px) {
+  .info-page-container {
+    padding: 2.25rem 1rem 4rem;
   }
 
-  .info-card {
-    padding: 1.5rem;
+  .info-card-bento {
+    padding: 1.5rem 1.15rem;
+    border-radius: 16px;
+  }
+
+  .info-section h2 {
+    font-size: 1.2rem;
   }
 }
