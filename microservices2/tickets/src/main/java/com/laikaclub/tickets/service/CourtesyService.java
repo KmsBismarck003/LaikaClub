@@ -276,6 +276,13 @@ public class CourtesyService {
         sendEmailAsync(claimingUserEmail, claimingUserName, eventData, ticket, ticket.getCourtesyMotive(), "LaikaClub Canjes");
 
         Map<String, Object> result = serializeCourtesyTicket(ticket);
+        if (eventData != null) {
+            result.put("event_name", eventData.get("name"));
+            result.put("event_date", eventData.get("event_date"));
+            result.put("event_time", eventData.get("event_time"));
+            result.put("venue_name", eventData.get("venue_name"));
+            result.put("image_url", eventData.get("image_url"));
+        }
         result.put("claimed_at", now.format(DateTimeFormatter.ISO_DATE_TIME));
         result.put("message", "¡Felicidades! Has canjeado tu boleto de cortesía exitosamente.");
         return result;
