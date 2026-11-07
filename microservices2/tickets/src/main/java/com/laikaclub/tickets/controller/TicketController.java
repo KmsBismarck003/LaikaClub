@@ -48,8 +48,24 @@ public class TicketController {
     }
 
     @GetMapping("/my-tickets")
-    public List<Map<String, Object>> myTickets(@AuthenticationPrincipal UserPrincipal user) {
-        return ticketService.getUserTickets(user.getId());
+    public List<Map<String, Object>> myTickets(
+            @AuthenticationPrincipal UserPrincipal user,
+            @RequestHeader(value = "X-User-Id", required = false) String xUserId,
+            @RequestParam(value = "userId", required = false) Long paramUserId) {
+        Long targetUserId = null;
+        if (user != null) {
+            targetUserId = user.getId();
+        } else if (paramUserId != null) {
+            targetUserId = paramUserId;
+        } else if (xUserId != null && !xUserId.trim().isEmpty()) {
+            try {
+                targetUserId = Long.parseLong(xUserId.trim());
+            } catch (NumberFormatException ignored) {}
+        }
+        if (targetUserId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        return ticketService.getUserTickets(targetUserId);
     }
 
     @PostMapping("/verify")

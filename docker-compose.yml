@@ -170,6 +170,8 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_achievements
+      - TICKETS_SERVICE_URL=http://tickets:8202
+      - AUTH_SERVICE_URL=http://auth:8101
     depends_on:
       laika_db:
         condition: service_healthy
