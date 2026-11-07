@@ -147,15 +147,26 @@ Vive tus eventos favoritos con la tranquilidad, velocidad y exclusividad que mer
 ### C. Anuncios
 * **Opción:** Seleccionar **"No, mi app no contiene anuncios"**.
 
-### D. Acceso a Apps (Credenciales de Prueba para el Revisor de Google)
+### D. Acceso a Apps (App Access - Requisito Obligatorio en Inglés)
 * **Estado de acceso:** Seleccionar **"Algunas o todas las funciones están restringidas"**.
-* **Nombre de la instrucción:** `Credenciales de Evaluación y Prueba Oficial`
-* **Nombre de usuario / Email:** `redjar481@gmail.com`
-* **Contraseña:** `gearsof2`
-* **Notas adicionales para el revisor:**
+* **Nombre \*** *(Máx. 60 caracteres):*
   ```text
-  Esta cuenta de demostración permite evaluar el casillero de boletos emitidos (40 pases sincronizados), la navegación por eventos y el módulo de logros/puntos del usuario. No requiere verificación SMS de dos factores.
+  Standard User Demo Account
   ```
+* **Nombre de usuario, dirección de correo electrónico o número de teléfono \*** *(Máx. 100 caracteres):*
+  ```text
+  redjar481@gmail.com
+  ```
+* **Contraseña \*** *(Máx. 100 caracteres):*
+  ```text
+  gearsof2
+  ```
+* **Cualquier otra información necesaria para acceder a la aplicación \*** *(Máx. 500 caracteres, en inglés):*
+  ```text
+  Log in via the Profile or Cart tab using the email and password above. No two-factor authentication (2FA), SMS OTP, or biometric enrollment is required. This demo account has full access to the event catalog, checkout flow, user achievements, and a preloaded digital wallet with active tickets and dynamic QR passes for entrance validation testing.
+  ```
+* **Casilla de verificación:** Marcar la casilla obligatoria:
+  ☑ *"Los detalles de acceso que se especifican en esta declaración proporcionan acceso completo a todas las funciones de esta app y a su contenido, incluido el premium o pagado"*.
 
 ### E. Público Objetivo y Contenido
 * **Grupo de edad:** Seleccionar **18 años o más**.
