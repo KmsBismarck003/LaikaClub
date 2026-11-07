@@ -85,3 +85,21 @@ Los activos requeridos han sido generados con las dimensiones exactas solicitada
    * Ubicación: `LaikaClub/LaikaMobil/assets/playstore/feature_graphic_1024x500.png`
    * Dimensiones: `1024 x 500 px` (Formato PNG 24-bit sin transparencia).
 
+
+
+---
+
+## 6. Credenciales de Acceso para Revisión de Google Play (App Access)
+
+> [!IMPORTANT]
+> Google Play exige que en la sección **Contenido de la aplicación > Acceso a la aplicación** proporciones credenciales válidas si alguna parte de la app requiere inicio de sesión. Si el revisor humano de Google no puede autenticarse, rechazan la aplicación automáticamente.
+
+### Formulario en Google Play Console:
+* **Estado de acceso:** Seleccionar **"Algunas o todas las funciones están restringidas"**.
+* **Nombre de la instrucción:** `Credenciales de Prueba y Demostración Oficial`
+* **Nombre de usuario / Correo:** `redjar481@gmail.com`
+* **Contraseña:** `gearsof2`
+* **Instrucciones adicionales para el evaluador:**
+  ```text
+  Esta cuenta de demostración cuenta con acceso completo a la cartelera, selección de asientos y casillero de boletos digitales activos para evaluar el flujo de compra y la generación del código QR dinámico. No se requieren pasos de verificación SMS ni códigos de autenticación secundarios de dos factores.
+  ```
