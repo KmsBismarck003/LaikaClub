@@ -22,7 +22,19 @@ const DECOUPLED_PORTS = {
   operador: 3030
 }
 
-const handleRoleRedirection = (userObj, navigate, from = null) => {
+const pingPort = async (port, timeoutMs = 300) => {
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    await fetch(`http://localhost:${port}/favicon.ico`, { mode: 'no-cors', signal: controller.signal })
+    clearTimeout(timer)
+    return true
+  } catch {
+    return false
+  }
+}
+
+const handleRoleRedirection = async (userObj, navigate, from = null) => {
   const userRole = userObj?.role
   const isLocalhost = typeof window !== 'undefined' && (
     window.location.hostname === 'localhost' ||
@@ -35,11 +47,14 @@ const handleRoleRedirection = (userObj, navigate, from = null) => {
     const currentPort = window.location.port ? parseInt(window.location.port, 10) : 80
 
     if (targetPort && currentPort !== targetPort) {
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token')
-      const b64User = btoa(encodeURIComponent(JSON.stringify(userObj)))
-      const targetPath = roleRedirectMap[userRole] || '/'
-      window.location.href = `http://localhost:${targetPort}/auth-sync?token=${token}&user=${b64User}&redirect=${encodeURIComponent(targetPath)}`
-      return true
+      const isAlive = await pingPort(targetPort, 300)
+      if (isAlive) {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+        const b64User = btoa(encodeURIComponent(JSON.stringify(userObj)))
+        const targetPath = roleRedirectMap[userRole] || '/'
+        window.location.href = `http://localhost:${targetPort}/auth-sync?token=${token}&user=${b64User}&redirect=${encodeURIComponent(targetPath)}`
+        return true
+      }
     }
   }
 

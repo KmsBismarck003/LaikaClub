@@ -36,7 +36,8 @@ const PermissionWall = ({ permission, label = 'esta función', children }) => {
       const isAllowed = Boolean(
         perms.all ||
         perms[permission] ||
-        (user?.role === 'gestor' && ['canViewUsers', 'canViewEventAnalytics', 'canViewStats', 'canManageVenues', 'canManageMerch', 'canManageAds', 'canCreateEvents', 'canEditEvents'].includes(permission))
+        (user?.role === 'gestor' && ['canViewUsers', 'canViewEventAnalytics', 'canViewStats', 'canManageVenues', 'canManageMerch', 'canManageAds', 'canCreateEvents', 'canEditEvents'].includes(permission)) ||
+        (user?.role === 'operador' && ['canValidateTickets', 'canSellTickets', 'canViewTickets', 'canOverrideValidation', 'canScanMultipleEvents', 'canViewRealTimeAttendance', 'canViewEvents', 'canViewStats', 'canManageMyProfile'].includes(permission))
       )
       setHasPermission(isAllowed)
     } catch {
@@ -44,7 +45,7 @@ const PermissionWall = ({ permission, label = 'esta función', children }) => {
       const local = user?.permissions || {}
       const isLocalAllowed = Boolean(
         local.all ||
-        (local[permission] !== undefined ? !!local[permission] : (user?.role === 'gestor' || user?.role === 'admin'))
+        (local[permission] !== undefined ? !!local[permission] : ['gestor', 'operador', 'admin'].includes(user?.role))
       )
       setHasPermission(isLocalAllowed)
     }
