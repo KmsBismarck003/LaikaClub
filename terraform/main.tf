@@ -183,7 +183,7 @@ resource "azurerm_consumption_budget_resource_group" "budget" {
     threshold      = 80.0
     operator       = "GreaterThan"
     threshold_type = "Actual"
-    contact_emails = [var.notification_email]
+    contact_emails = [var.notification_email, "al222110829@utvtol.edu.mx"]
   }
 
   # Alerta 2: Notificar de urgencia al llegar al 95%
@@ -192,6 +192,6 @@ resource "azurerm_consumption_budget_resource_group" "budget" {
     threshold      = 95.0
     operator       = "GreaterThan"
     threshold_type = "Actual"
-    contact_emails = [var.notification_email]
+    contact_emails = [var.notification_email, "al222110829@utvtol.edu.mx"]
   }
 }
