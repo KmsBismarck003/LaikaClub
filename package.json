@@ -32,6 +32,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:unit": "node tests/unit/run-unit-tests.js",
+    "test:ml": "node tests/unit/run-ml-unit-tests.js",
+    "test:ci": "node tests/unit/run-unit-tests.js && node tests/unit/run-ml-unit-tests.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

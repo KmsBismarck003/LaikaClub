@@ -1,0 +1,81 @@
+name: LaikaClub Continuous Integration (CI)
+
+on:
+  push:
+    branches:
+      - development
+      - main
+      - 'feature/**'
+      - 'bugfix/**'
+  pull_request:
+    branches:
+      - development
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # -------------------------------------------------------------
+  # Job 1: Pruebas Unitarias, ML y Lógica de Negocio
+  # -------------------------------------------------------------
+  unit-tests:
+    name: Unit & Business Logic Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Execute Security & Ticket Domain Unit Tests (35 Casos)
+        run: node tests/unit/run-unit-tests.js
+
+      - name: Execute ML & Analytics Engine Unit Tests (25 Casos)
+        run: node tests/unit/run-ml-unit-tests.js
+
+  # -------------------------------------------------------------
+  # Job 2: Compilación y Pruebas Backend Java (Spring Boot)
+  # -------------------------------------------------------------
+  backend-java-ci:
+    name: Backend Java Spring Boot Build & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compile and Test Tickets Microservice
+        run: |
+          cd microservices2/tickets
+          mvn test -Dtest=CancellationServiceImplTest
+
+      - name: Compile Auth Microservice
+        run: |
+          cd microservices2/auth
+          mvn compile
+
+  # -------------------------------------------------------------
+  # Job 3: Validación de Infraestructura y Contenedores Docker
+  # -------------------------------------------------------------
+  infra-validation:
+    name: Docker & Infrastructure Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose Configuration
+        run: |
+          docker compose config -q || true

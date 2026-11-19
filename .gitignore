@@ -69,3 +69,7 @@ microservices2/merchandise/target/
 
 *.rar
 
+# Suites de Pruebas Locales (Protegidas)
+/test/
+/test2/
+
