@@ -1,0 +1,32 @@
+{
+  "test_id": "CP-027",
+  "test_name": "registro_usuario_campos_obligatorios_st",
+  "timestamp": "2026-11-16T12:56:53.802744",
+  "execution_duration_sec": 0.084706,
+  "result": "Aprobada",
+  "payloads": {
+    "validation_attempts": [
+      {
+        "payload": {
+          "password": "ValidPassword123!",
+          "first_name": "NoEmail"
+        },
+        "label": "Sin campo email"
+      },
+      {
+        "payload": {
+          "email": "notanemail",
+          "password": "ValidPassword123!"
+        },
+        "label": "Formato de email incorrecto"
+      },
+      {
+        "payload": {
+          "email": "valid@laika.com",
+          "password": ""
+        },
+        "label": "Contraseña vacía"
+      }
+    ]
+  }
+}

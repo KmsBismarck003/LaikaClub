@@ -1,0 +1,26 @@
+{
+  "test_id": "CP-057",
+  "role": "usuario",
+  "test_name": "ciclo_completo_usuario_e2e",
+  "timestamp": "2026-11-16T16:14:18.565437",
+  "execution_duration_sec": 6.059355,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El recorrido integral E2E del rol usuario se ejecutó con absoluta coherencia en todos los servicios.",
+  "payloads": {
+    "e2e_execution_summary": {
+      "email": "e2e_user_1794867258@laikaclub.com",
+      "steps_summary": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  }
+}

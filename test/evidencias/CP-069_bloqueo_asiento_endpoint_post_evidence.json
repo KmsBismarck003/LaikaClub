@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-069",
+  "test_name": "bloqueo_asiento_endpoint_post",
+  "timestamp": "2026-11-16T12:56:21.208673",
+  "execution_duration_sec": 0.634605,
+  "result": "Aprobada",
+  "payloads": {
+    "seat_lock_response": {
+      "ticketCode": "TKT-8F167C5D",
+      "status": "success"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-011",
+  "role": "admin",
+  "test_name": "gateway_admin_database_tables_sit",
+  "timestamp": "2026-11-16T16:15:01.315397",
+  "execution_duration_sec": 0.033541,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "tables_response": {
+      "status": 200,
+      "count": 10
+    }
+  }
+}

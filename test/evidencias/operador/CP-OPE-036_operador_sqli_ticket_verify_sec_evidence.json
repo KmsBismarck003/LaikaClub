@@ -1,0 +1,36 @@
+{
+  "test_id": "CP-OPE-036",
+  "role": "operador",
+  "test_name": "operador_sqli_ticket_verify_sec",
+  "timestamp": "2026-11-16T16:15:00.813079",
+  "execution_duration_sec": 0.069915,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "sqli_check": {
+      "status": 200,
+      "data": {
+        "valid": false,
+        "actionable": false,
+        "isError": true,
+        "alreadyUsed": false,
+        "statusCode": "INVALID_CODE",
+        "statusTitle": "CÓDIGO INEXISTENTE",
+        "operatorMessage": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+        "message": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+        "timeRemainingSeconds": 0,
+        "ticketCode": "TKT-' OR '1'='1' --",
+        "terminalContext": {
+          "platform": "WEB_OPERATOR",
+          "accessPoint": "Puerta Principal",
+          "operatorId": null,
+          "operatorName": null,
+          "selectedEventId": null,
+          "selectedFunctionId": null
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-GES-003",
+  "role": "gestor",
+  "test_name": "gestor_merchandise_commission_calc_ut",
+  "timestamp": "2026-11-16T16:15:33.938473",
+  "execution_duration_sec": 4e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "commission_results": {
+      "c1": 29.9,
+      "n1": 269.1,
+      "c2": 150.0,
+      "n2": 850.0
+    }
+  }
+}

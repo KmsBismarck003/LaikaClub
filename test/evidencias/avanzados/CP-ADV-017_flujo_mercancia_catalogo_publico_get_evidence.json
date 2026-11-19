@@ -1,0 +1,127 @@
+{
+  "test_id": "CP-ADV-017",
+  "role": "avanzados",
+  "test_name": "flujo_mercancia_catalogo_publico_get",
+  "timestamp": "2026-11-16T16:15:51.846236",
+  "execution_duration_sec": 0.147061,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Catálogo y artículo 99 consultados exitosamente (HTTP 200, 32 items)",
+  "payloads": {
+    "merch_detail": {
+      "catalog_count": 32,
+      "sample_item": {
+        "id": 99,
+        "name": "Playera Afterlife Spectrum",
+        "description": "Playera oficial con el grafico del androide de Afterlife en la espalda, impresion de alta calidad en algodon negro.",
+        "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800",
+        "managerId": 30051,
+        "category": "ropa",
+        "isOfficial": true,
+        "rating": 5.0,
+        "status": "published",
+        "adminStatus": "approved",
+        "eventId": 19,
+        "attributesSchema": {
+          "talla": [
+            "S",
+            "M",
+            "L",
+            "XL"
+          ]
+        },
+        "deliveryMethods": [
+          "PICKUP_AT_EVENT",
+          "HOME_DELIVERY"
+        ],
+        "maxPerPerson": 3,
+        "createdAt": "2026-06-08T05:14:31",
+        "variants": [
+          {
+            "id": 206,
+            "itemId": 99,
+            "sku": "AL-TEE-S",
+            "attributes": {
+              "talla": "S"
+            },
+            "price": 450.0,
+            "stock": 136,
+            "isActive": true
+          },
+          {
+            "id": 207,
+            "itemId": 99,
+            "sku": "AL-TEE-M",
+            "attributes": {
+              "talla": "M"
+            },
+            "price": 450.0,
+            "stock": 126,
+            "isActive": true
+          },
+          {
+            "id": 208,
+            "itemId": 99,
+            "sku": "AL-TEE-L",
+            "attributes": {
+              "talla": "L"
+            },
+            "price": 450.0,
+            "stock": 157,
+            "isActive": true
+          },
+          {
+            "id": 209,
+            "itemId": 99,
+            "sku": "AL-TEE-XL",
+            "attributes": {
+              "talla": "XL"
+            },
+            "price": 480.0,
+            "stock": 102,
+            "isActive": true
+          }
+        ],
+        "reviews": [
+          {
+            "id": 1,
+            "itemId": 99,
+            "userId": 9892,
+            "userName": "Leticia Becerra Alvarado",
+            "rating": 5,
+            "comment": "Muy bonita prenda, el bordado está muy bien hecho y luce genial.",
+            "createdAt": "2026-03-20T02:59:07"
+          },
+          {
+            "id": 2,
+            "itemId": 99,
+            "userId": 23889,
+            "userName": "Salvador Morales Solís",
+            "rating": 5,
+            "comment": "Me encantó el diseño de la playera, queda perfecta de mi talla.",
+            "createdAt": "2026-04-17T16:00:15"
+          },
+          {
+            "id": 3,
+            "itemId": 99,
+            "userId": 4309,
+            "userName": "Roberto Navarro Valdez",
+            "rating": 5,
+            "comment": "Súper recomendada. La calidad del algodón es muy buena y el color es firme.",
+            "createdAt": "2026-04-01T14:56:57"
+          },
+          {
+            "id": 4,
+            "itemId": 99,
+            "userId": 23444,
+            "userName": "Silvia Martínez",
+            "rating": 5,
+            "comment": "Me encantó el diseño de la playera, queda perfecta de mi talla.",
+            "createdAt": "2026-03-07T04:28:14"
+          }
+        ]
+      }
+    }
+  }
+}

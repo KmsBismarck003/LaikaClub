@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-039",
+  "role": "gestor",
+  "test_name": "gestor_transactions_rbac_bypass_sec",
+  "timestamp": "2026-11-16T16:15:00.320016",
+  "execution_duration_sec": 0.202692,
+  "result": "Fallida",
+  "defect_id": "DEF-GES-001",
+  "defect_severity": "Alta",
+  "observations": "Falla de Control de Acceso RBAC: /api/manager/transactions permite acceso a usuarios regulares sin validar rol gestor",
+  "payloads": {
+    "rbac_transactions": {
+      "status": 200,
+      "body": "[]"
+    }
+  }
+}

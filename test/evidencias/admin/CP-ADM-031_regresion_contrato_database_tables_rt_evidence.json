@@ -1,0 +1,30 @@
+{
+  "test_id": "CP-ADM-031",
+  "role": "admin",
+  "test_name": "regresion_contrato_database_tables_rt",
+  "timestamp": "2026-11-16T16:14:50.852809",
+  "execution_duration_sec": 0.058571,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "tables_contract": {
+      "count": 10,
+      "sample": [
+        {
+          "name": "ad_clicks",
+          "row_count": 27
+        },
+        {
+          "name": "ads",
+          "row_count": 3
+        },
+        {
+          "name": "audit_logs",
+          "row_count": 0
+        }
+      ]
+    }
+  }
+}

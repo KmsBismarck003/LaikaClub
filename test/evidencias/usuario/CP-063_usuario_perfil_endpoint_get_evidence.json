@@ -1,0 +1,29 @@
+{
+  "test_id": "CP-063",
+  "role": "usuario",
+  "test_name": "usuario_perfil_endpoint_get",
+  "timestamp": "2026-11-16T16:14:14.606728",
+  "execution_duration_sec": 0.030912,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El endpoint retorna con fidelidad los datos asociados al token de sesión.",
+  "payloads": {
+    "profile_get_response": {
+      "id": 30078,
+      "firstName": "QA_Automated",
+      "lastName": "Unit_Check",
+      "email": "qa_user_test@laikaclub.com",
+      "phone": "5554443322",
+      "role": "usuario",
+      "status": "active",
+      "createdAt": "2026-11-16T18:33:41",
+      "permissions": {
+        "canViewMyHistory": true,
+        "canViewAchievements": true,
+        "canAccessCart": true,
+        "canViewMyTickets": true
+      }
+    }
+  }
+}

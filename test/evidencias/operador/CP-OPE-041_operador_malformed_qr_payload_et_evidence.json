@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-041",
+  "role": "operador",
+  "test_name": "operador_malformed_qr_payload_et",
+  "timestamp": "2026-11-16T16:14:27.144136",
+  "execution_duration_sec": 0.051552,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "malformed_et": {
+      "status": 200,
+      "body": "{\"valid\":false,\"actionable\":false,\"isError\":true,\"alreadyUsed\":false,\"statusCode\":\"INVALID_CODE\",\"st"
+    }
+  }
+}

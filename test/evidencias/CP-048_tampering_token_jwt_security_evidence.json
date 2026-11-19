@@ -1,0 +1,14 @@
+{
+  "test_id": "CP-048",
+  "test_name": "tampering_token_jwt_security",
+  "timestamp": "2026-11-16T12:56:47.276260",
+  "execution_duration_sec": 0.018032,
+  "result": "Aprobada",
+  "payloads": {
+    "tampering_evidence": {
+      "original_prefix": "eyJhbGciOiJIUzI",
+      "tampered_suffix": "A4PZoEXXXX",
+      "status_code": 401
+    }
+  }
+}

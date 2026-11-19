@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-044",
+  "role": "admin",
+  "test_name": "validacion_id_invalido_borrado_backup_usability",
+  "timestamp": "2026-11-16T16:15:31.235730",
+  "execution_duration_sec": 0.056912,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "invalid_id_feedback": {
+      "status": 400,
+      "body": "{\"message\":\"ID inválido\",\"success\":false}"
+    }
+  }
+}

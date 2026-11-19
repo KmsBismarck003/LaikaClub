@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-ADM-084",
+  "role": "admin",
+  "test_name": "admin_restore_audit_events_endpoint_get",
+  "timestamp": "2026-11-16T16:13:54.450865",
+  "execution_duration_sec": 0.024448,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "data": {
+        "events": [],
+        "total": 0
+      }
+    }
+  }
+}

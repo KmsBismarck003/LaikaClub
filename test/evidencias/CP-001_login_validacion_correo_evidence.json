@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-001",
+  "test_name": "login_validacion_correo",
+  "timestamp": "2026-11-16T12:56:57.721101",
+  "execution_duration_sec": 0.000383,
+  "result": "Aprobada",
+  "payloads": {
+    "evaluated_inputs": [
+      "usuario@laikaclub.com",
+      "arturo.vela+test@gmail.com",
+      "sin_arroba.com",
+      "@sin_usuario.com",
+      "usuario@sin_dominio",
+      ""
+    ]
+  }
+}

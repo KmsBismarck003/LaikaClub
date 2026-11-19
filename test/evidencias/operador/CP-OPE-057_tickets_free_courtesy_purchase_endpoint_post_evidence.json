@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-OPE-057",
+  "role": "operador",
+  "test_name": "tickets_free_courtesy_purchase_endpoint_post",
+  "timestamp": "2026-11-16T16:14:13.711876",
+  "execution_duration_sec": 0.057542,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "403 Forbidden verificado: Este evento no es gratuito. Usa el flujo de pago normal.",
+  "payloads": {
+    "free_courtesy_rejection": {
+      "timestamp": "2026-11-16T22:14:13.766+00:00",
+      "status": 403,
+      "error": "Forbidden",
+      "message": "Este evento no es gratuito. Usa el flujo de pago normal.",
+      "path": "/free"
+    }
+  }
+}

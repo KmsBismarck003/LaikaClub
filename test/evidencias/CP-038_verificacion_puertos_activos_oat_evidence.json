@@ -1,0 +1,43 @@
+{
+  "test_id": "CP-038",
+  "test_name": "verificacion_puertos_activos_oat",
+  "timestamp": "2026-11-16T12:56:36.459137",
+  "execution_duration_sec": 0.034549,
+  "result": "Aprobada",
+  "payloads": {
+    "ports_scan": {
+      "3000": {
+        "description": "React Frontend (SPA)",
+        "open": true
+      },
+      "3306": {
+        "description": "MySQL Database Engine",
+        "open": true
+      },
+      "8000": {
+        "description": "Pilgrim API Gateway",
+        "open": true
+      },
+      "8101": {
+        "description": "Auth Microservice",
+        "open": true
+      },
+      "8201": {
+        "description": "Events Microservice",
+        "open": true
+      },
+      "8202": {
+        "description": "Tickets Microservice",
+        "open": true
+      },
+      "8203": {
+        "description": "Merchandise Microservice",
+        "open": true
+      },
+      "8301": {
+        "description": "Achievements Microservice",
+        "open": true
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-028",
+  "role": "usuario",
+  "test_name": "flujo_reserva_bloqueo_asiento_st",
+  "timestamp": "2026-11-16T14:17:44.453548",
+  "execution_duration_sec": 0.11538,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Mecanismo de concurrencia y bloqueo temporal validado sin bloqueos huérfanos.",
+  "payloads": {
+    "lock_unlock_flow": {
+      "lock_response": {
+        "ticketCode": "TKT-994F37EB",
+        "status": "success"
+      },
+      "unlock_status": 200
+    }
+  }
+}

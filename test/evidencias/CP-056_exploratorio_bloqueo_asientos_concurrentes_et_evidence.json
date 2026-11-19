@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-056",
+  "test_name": "exploratorio_bloqueo_asientos_concurrentes_et",
+  "timestamp": "2026-11-16T12:56:33.038552",
+  "execution_duration_sec": 0.627432,
+  "result": "Aprobada",
+  "payloads": {
+    "lock_collision_exploration": {
+      "r1_status": 200,
+      "r2_status": 409
+    }
+  }
+}

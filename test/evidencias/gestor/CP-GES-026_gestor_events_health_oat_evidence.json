@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-026",
+  "role": "gestor",
+  "test_name": "gestor_events_health_oat",
+  "timestamp": "2026-11-16T16:14:36.366307",
+  "execution_duration_sec": 0.028423,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "events_health": {
+      "status": 200,
+      "body": "{\"service\":\"laika-events\",\"status\":\"healthy\"}"
+    }
+  }
+}

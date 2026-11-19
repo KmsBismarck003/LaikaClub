@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-GES-043",
+  "role": "gestor",
+  "test_name": "gestor_invalid_courtesy_token_feedback_us",
+  "timestamp": "2026-11-16T16:15:31.502670",
+  "execution_duration_sec": 0.091289,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "token_feedback": {
+      "timestamp": "2026-11-16T22:15:31.591+00:00",
+      "status": 404,
+      "error": "Not Found",
+      "message": "Código de cortesía no encontrado",
+      "path": "/courtesy/validate-token/CODIGO-INEXISTENTE-999"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-ADM-076",
+  "role": "admin",
+  "test_name": "admin_config_runtime_endpoint_get",
+  "timestamp": "2026-11-16T16:13:52.660238",
+  "execution_duration_sec": 0.028751,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "data": {
+        "registrationEnabled": true,
+        "maxTicketsPerUser": 5,
+        "sessionTimeout": 35,
+        "maintenanceMode": false
+      }
+    }
+  }
+}

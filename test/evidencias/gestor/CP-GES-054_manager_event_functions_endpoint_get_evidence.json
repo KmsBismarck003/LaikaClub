@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-054",
+  "role": "gestor",
+  "test_name": "manager_event_functions_endpoint_get",
+  "timestamp": "2026-11-16T16:14:04.380160",
+  "execution_duration_sec": 0.036339,
+  "result": "Fallida",
+  "defect_id": "DEF-GES-002",
+  "defect_severity": "Media",
+  "observations": "Endpoint /api/events/{id}/functions responde HTTP 404 a pesar de estar mapeado en el backend",
+  "payloads": {
+    "http_response": {
+      "status": 404,
+      "body": "{\"timestamp\":\"2026-11-16T22:14:04.411+00:00\",\"status\":404,\"error\":\"Not Found\",\"path\":\"/100001/functi"
+    }
+  }
+}

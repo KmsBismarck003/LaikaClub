@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-043",
+  "test_name": "latencia_login_usuario_pt",
+  "timestamp": "2026-11-16T12:56:43.111879",
+  "execution_duration_sec": 0.777177,
+  "result": "Aprobada",
+  "payloads": {
+    "auth_latency_metrics": {
+      "avg_ms": 155.42545318603516,
+      "samples": [
+        161.29016876220703,
+        165.00139236450195,
+        171.30064964294434,
+        140.5634880065918,
+        138.97156715393066
+      ]
+    }
+  }
+}

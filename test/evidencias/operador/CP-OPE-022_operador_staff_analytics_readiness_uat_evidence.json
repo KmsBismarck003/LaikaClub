@@ -1,0 +1,36 @@
+{
+  "test_id": "CP-OPE-022",
+  "role": "operador",
+  "test_name": "operador_staff_analytics_readiness_uat",
+  "timestamp": "2026-11-16T16:15:30.689210",
+  "execution_duration_sec": 0.029659,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "staff_analytics_uat": {
+      "totalScanned": 0,
+      "validScans": 0,
+      "invalidScans": 0,
+      "scansPerHour": [
+        10,
+        45,
+        80,
+        120,
+        210,
+        150,
+        40
+      ],
+      "labels": [
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00"
+      ]
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "test_id": "CP-010",
+  "role": "usuario",
+  "test_name": "schema_constraints_validation",
+  "timestamp": "2026-11-16T16:15:33.266588",
+  "execution_duration_sec": 0.039858,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Esquema relacional en MySQL cumple con las reglas de integridad de datos.",
+  "payloads": {
+    "schema_metadata": {
+      "users_email": [
+        {
+          "COLUMN_NAME": "email",
+          "IS_NULLABLE": "NO",
+          "COLUMN_KEY": "UNI"
+        }
+      ],
+      "tickets_code": [
+        {
+          "COLUMN_NAME": "ticket_code",
+          "IS_NULLABLE": "NO",
+          "COLUMN_KEY": "UNI"
+        }
+      ],
+      "pks": [
+        {
+          "TABLE_SCHEMA": "laika_auth",
+          "TABLE_NAME": "users",
+          "COLUMN_NAME": "id",
+          "EXTRA": "auto_increment"
+        },
+        {
+          "TABLE_SCHEMA": "laika_tickets",
+          "TABLE_NAME": "tickets",
+          "COLUMN_NAME": "id",
+          "EXTRA": "auto_increment"
+        }
+      ]
+    }
+  }
+}

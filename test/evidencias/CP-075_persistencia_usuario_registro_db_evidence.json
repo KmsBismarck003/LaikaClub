@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-075",
+  "test_name": "persistencia_usuario_registro_db",
+  "timestamp": "2026-11-16T12:56:32.052583",
+  "execution_duration_sec": 0.009856,
+  "result": "Aprobada",
+  "payloads": {
+    "db_user_row": {
+      "id": "30078",
+      "email": "qa_user_test@laikaclub.com",
+      "role": "usuario",
+      "status": "active",
+      "password_hash": "$2a$10$TOoFd5.BQg9zO7g99i5wyerE8oG/iwPHHYIXxAJY2mQHsF7ZHE7HW",
+      "created_at": "2026-11-16 18:33:41",
+      "subscription_tier": "standard"
+    }
+  }
+}

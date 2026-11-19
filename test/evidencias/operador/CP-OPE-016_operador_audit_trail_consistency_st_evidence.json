@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-016",
+  "role": "operador",
+  "test_name": "operador_audit_trail_consistency_st",
+  "timestamp": "2026-11-16T16:15:17.628528",
+  "execution_duration_sec": 0.029482,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "audit_trail_check": {
+      "count": 234,
+      "valid": true
+    }
+  }
+}

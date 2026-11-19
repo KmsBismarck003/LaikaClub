@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-ADV-041",
+  "role": "avanzados",
+  "test_name": "flujo_recintos_creacion_y_consulta_post",
+  "timestamp": "2026-11-16T16:15:52.729207",
+  "execution_duration_sec": 0.147464,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Recinto creado y persistido con éxito (ID: 88)",
+  "payloads": {
+    "venue_creation": {
+      "created": {
+        "message": "Recinto creado exitosamente",
+        "id": 88
+      },
+      "venue_id": 88
+    }
+  }
+}

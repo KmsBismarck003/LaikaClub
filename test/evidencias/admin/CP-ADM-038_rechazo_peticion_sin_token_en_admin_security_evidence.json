@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-038",
+  "role": "admin",
+  "test_name": "rechazo_peticion_sin_token_en_admin_security",
+  "timestamp": "2026-11-16T16:14:59.650615",
+  "execution_duration_sec": 0.034626,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "no_token_response": {
+      "status": 401,
+      "body": ""
+    }
+  }
+}

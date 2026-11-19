@@ -1,0 +1,66 @@
+{
+  "test_id": "CP-068",
+  "test_name": "mis_boletos_endpoint_get",
+  "timestamp": "2026-11-16T12:56:28.251574",
+  "execution_duration_sec": 2.16844,
+  "result": "Aprobada",
+  "payloads": {
+    "user_tickets_response": {
+      "count": 18,
+      "sample": {
+        "id": 200242,
+        "user_id": 30078,
+        "event_id": 19,
+        "ticket_code": "TKT-237B3EE9",
+        "qr_data": "TKT-237B3EE9",
+        "section_name": "General",
+        "seat_id": "QA-API-UNLOCK-01",
+        "price": 100.0,
+        "status": "expired",
+        "payment_method": null,
+        "redeemed_at": null,
+        "purchase_date": "2026-11-16T18:56:28",
+        "created_at": null,
+        "event_function_id": null,
+        "is_courtesy": false,
+        "courtesy_issuance_id": null,
+        "claim_token": null,
+        "recipient_type": null,
+        "courtesy_motive": null,
+        "holder_name": null,
+        "holder_email": null,
+        "event": {
+          "id": 19,
+          "name": "Afterlife México 2026",
+          "date": "2026-10-17",
+          "time": "21:00:00",
+          "venue_name": "Auditorio San Marcos",
+          "image_url": "/uploads/imagenes/afterlife.png",
+          "room": {
+            "updated_at": "2026-05-25 06:06:09.0",
+            "name": "Sala A",
+            "created_at": "2026-05-25 06:06:09.0",
+            "layout_metadata": {},
+            "id": 13,
+            "layout_mode": "general_admission",
+            "venue_id": 6,
+            "capacity": 1200,
+            "status": "active",
+            "layout_json": {}
+          },
+          "seating_map": null,
+          "zones": null
+        },
+        "eventName": "Afterlife México 2026",
+        "date": "2026-10-17",
+        "time": "21:00:00",
+        "venue": "Auditorio San Marcos",
+        "imageUrl": "/uploads/imagenes/afterlife.png",
+        "event_name": "Afterlife México 2026",
+        "event_date": "2026-10-17",
+        "event_time": "21:00:00",
+        "venue_name": "Auditorio San Marcos"
+      }
+    }
+  }
+}

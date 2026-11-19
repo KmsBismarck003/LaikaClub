@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-005",
+  "role": "gestor",
+  "test_name": "gestor_seating_occupancy_calc_ut",
+  "timestamp": "2026-11-16T16:15:33.991953",
+  "execution_duration_sec": 3.1e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "occupancy_calc": {
+      "pct1": 0.01,
+      "pct2": 50.0
+    }
+  }
+}

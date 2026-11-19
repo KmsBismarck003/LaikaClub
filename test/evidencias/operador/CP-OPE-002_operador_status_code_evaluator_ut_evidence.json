@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-OPE-002",
+  "role": "operador",
+  "test_name": "operador_status_code_evaluator_ut",
+  "timestamp": "2026-11-16T16:15:34.226141",
+  "execution_duration_sec": 2e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "status_eval": {
+      "valid": {
+        "actionable": true,
+        "valid": true
+      },
+      "used": {
+        "actionable": false,
+        "valid": false
+      }
+    }
+  }
+}

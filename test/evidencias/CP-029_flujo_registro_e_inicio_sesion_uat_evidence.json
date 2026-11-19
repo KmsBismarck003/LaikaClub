@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-029",
+  "test_name": "flujo_registro_e_inicio_sesion_uat",
+  "timestamp": "2026-11-16T12:56:53.893308",
+  "execution_duration_sec": 0.306574,
+  "result": "Aprobada",
+  "payloads": {
+    "uat_onboarding": {
+      "registered_email": "uat_user_1794855413@laikaclub.com",
+      "login_status": 200
+    }
+  }
+}

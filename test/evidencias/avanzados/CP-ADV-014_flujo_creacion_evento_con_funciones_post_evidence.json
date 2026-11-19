@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-014",
+  "role": "avanzados",
+  "test_name": "flujo_creacion_evento_con_funciones_post",
+  "timestamp": "2026-11-16T16:15:51.026121",
+  "execution_duration_sec": 0.040187,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Evento creado exitosamente con ID 100033",
+  "payloads": {
+    "created_event": {
+      "id": 100033,
+      "name": "Concierto Auditoria QA 2026"
+    }
+  }
+}

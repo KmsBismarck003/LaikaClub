@@ -1,0 +1,71 @@
+{
+  "test_id": "CP-ADV-040",
+  "role": "avanzados",
+  "test_name": "flujo_recintos_seat_types_catalog_get",
+  "timestamp": "2026-11-16T16:15:53.140333",
+  "execution_duration_sec": 0.032197,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Tipos de butaca configurables validados: 8 categorías",
+  "payloads": {
+    "seat_types": [
+      {
+        "id": 1,
+        "name": "Normal",
+        "description": "Asiento est├índar",
+        "is_bookable": true,
+        "color_hex": "#4ade80"
+      },
+      {
+        "id": 2,
+        "name": "VIP",
+        "description": "Asiento VIP",
+        "is_bookable": true,
+        "color_hex": "#facc15"
+      },
+      {
+        "id": 3,
+        "name": "Premium",
+        "description": "Asiento Premium",
+        "is_bookable": true,
+        "color_hex": "#c084fc"
+      },
+      {
+        "id": 4,
+        "name": "Discapacitados",
+        "description": "Espacio para silla de ruedas",
+        "is_bookable": true,
+        "color_hex": "#60a5fa"
+      },
+      {
+        "id": 5,
+        "name": "Loveseat",
+        "description": "Asiento doble",
+        "is_bookable": true,
+        "color_hex": "#fb7185"
+      },
+      {
+        "id": 6,
+        "name": "Invisible",
+        "description": "Espacio vac├¡o",
+        "is_bookable": false,
+        "color_hex": "transparent"
+      },
+      {
+        "id": 7,
+        "name": "Mantenimiento",
+        "description": "En reparaci├│n",
+        "is_bookable": false,
+        "color_hex": "#f87171"
+      },
+      {
+        "id": 8,
+        "name": "Bloqueado",
+        "description": "No disponible",
+        "is_bookable": false,
+        "color_hex": "#9ca3af"
+      }
+    ]
+  }
+}

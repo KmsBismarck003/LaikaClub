@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-GES-040",
+  "role": "gestor",
+  "test_name": "gestor_unauthenticated_request_sec",
+  "timestamp": "2026-11-16T16:15:00.542983",
+  "execution_duration_sec": 0.026236,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "unauth_sec": {
+      "status": 401
+    }
+  }
+}

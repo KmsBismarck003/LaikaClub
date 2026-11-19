@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-047",
+  "role": "usuario",
+  "test_name": "xss_payload_perfil_security",
+  "timestamp": "2026-11-16T16:15:01.062182",
+  "execution_duration_sec": 0.107281,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El servicio almacena el payload como texto plano sin interpretación en el servidor.",
+  "payloads": {
+    "xss_response": {
+      "status_code": 200,
+      "stored_value": "<script>alert('XSS_TEST')</script>"
+    }
+  }
+}

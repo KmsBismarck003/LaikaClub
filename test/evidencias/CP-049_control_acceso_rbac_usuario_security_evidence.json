@@ -1,0 +1,21 @@
+{
+  "test_id": "CP-049",
+  "test_name": "control_acceso_rbac_usuario_security",
+  "timestamp": "2026-11-16T12:56:46.698312",
+  "execution_duration_sec": 0.502367,
+  "result": "Fallida",
+  "payloads": {
+    "rbac_violations_attempted": [
+      {
+        "url": "http://localhost:8000/api/admin/users",
+        "label": "Lista de usuarios del Administrador",
+        "status_code": 500
+      },
+      {
+        "url": "http://localhost:8000/api/events/manager/transactions",
+        "label": "Transacciones financieras del Gestor",
+        "status_code": 200
+      }
+    ]
+  }
+}

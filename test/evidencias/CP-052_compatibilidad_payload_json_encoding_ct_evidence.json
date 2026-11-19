@@ -1,0 +1,25 @@
+{
+  "test_id": "CP-052",
+  "test_name": "compatibilidad_payload_json_encoding_ct",
+  "timestamp": "2026-11-16T12:56:31.195788",
+  "execution_duration_sec": 0.079067,
+  "result": "Aprobada",
+  "payloads": {
+    "utf8_verification": {
+      "id": 30078,
+      "firstName": "Íñigo",
+      "lastName": "Peña-Muñoz",
+      "email": "qa_user_test@laikaclub.com",
+      "phone": "5557778888",
+      "role": "usuario",
+      "status": "active",
+      "createdAt": "2026-11-16T18:33:41",
+      "permissions": {
+        "canViewMyHistory": true,
+        "canViewAchievements": true,
+        "canAccessCart": true,
+        "canViewMyTickets": true
+      }
+    }
+  }
+}

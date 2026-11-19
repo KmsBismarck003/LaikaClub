@@ -1,0 +1,32 @@
+{
+  "test_id": "CP-077",
+  "role": "usuario",
+  "test_name": "integridad_transaccional_reembolso_db",
+  "timestamp": "2026-11-16T16:14:17.659662",
+  "execution_duration_sec": 0.006479,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El modelo relacional soporta el ciclo de vida de cancelaciones con auditoría.",
+  "payloads": {
+    "cancellation_schema_columns": [
+      "id",
+      "cancellation_reason",
+      "created_at",
+      "event_id",
+      "gateway_refund_id",
+      "original_price",
+      "payment_method",
+      "payment_reference",
+      "penalty_fee",
+      "refund_amount",
+      "refunded_at",
+      "rejection_reason",
+      "status",
+      "ticket_code",
+      "ticket_id",
+      "updated_at",
+      "user_id"
+    ]
+  }
+}

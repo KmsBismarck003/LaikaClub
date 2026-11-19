@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-045",
+  "role": "usuario",
+  "test_name": "limite_peticiones_gateway_pt",
+  "timestamp": "2026-11-16T16:14:47.952938",
+  "execution_duration_sec": 0.272063,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El Gateway mantiene su estabilidad y no genera bloqueos de socket.",
+  "payloads": {
+    "burst_metrics": {
+      "total": 25,
+      "ok_count": 25,
+      "errors": []
+    }
+  }
+}

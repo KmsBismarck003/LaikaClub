@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-OPE-032",
+  "role": "admin",
+  "test_name": "operador_admin_routes_rejected_sec",
+  "timestamp": "2026-11-16T16:15:00.697717",
+  "execution_duration_sec": 0.027795,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "admin_tables_sec": {
+      "status": 403
+    }
+  }
+}

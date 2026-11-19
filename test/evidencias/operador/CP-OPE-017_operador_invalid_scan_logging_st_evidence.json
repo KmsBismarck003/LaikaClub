@@ -1,0 +1,36 @@
+{
+  "test_id": "CP-OPE-017",
+  "role": "operador",
+  "test_name": "operador_invalid_scan_logging_st",
+  "timestamp": "2026-11-16T16:15:17.749551",
+  "execution_duration_sec": 0.291249,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "invalid_scan_check": {
+      "verify": {
+        "valid": false,
+        "actionable": false,
+        "isError": true,
+        "alreadyUsed": false,
+        "statusCode": "INVALID_CODE",
+        "statusTitle": "CÓDIGO INEXISTENTE",
+        "operatorMessage": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+        "message": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+        "timeRemainingSeconds": 0,
+        "ticketCode": "TKT-FRAUDE-999",
+        "terminalContext": {
+          "platform": "WEB_OPERATOR",
+          "accessPoint": "Puerta Principal",
+          "operatorId": null,
+          "operatorName": null,
+          "selectedEventId": null,
+          "selectedFunctionId": null
+        }
+      },
+      "logs_count": 7
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-031",
+  "role": "operador",
+  "test_name": "operador_staff_dashboard_latency_pt",
+  "timestamp": "2026-11-16T16:14:49.255080",
+  "execution_duration_sec": 0.039059,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "staff_dashboard_latency": {
+      "status": 200,
+      "latency_ms": 39.038658142089844
+    }
+  }
+}

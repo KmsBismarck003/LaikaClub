@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-ADV-021",
+  "role": "gestor",
+  "test_name": "flujo_gestor_aislamiento_eventos_ajenos_sec",
+  "timestamp": "2026-11-16T16:15:49.024922",
+  "execution_duration_sec": 0.156285,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Aislamiento de evento evaluado: HTTP 200",
+  "payloads": {
+    "event_isolation_response": {
+      "status_code": 200
+    }
+  }
+}

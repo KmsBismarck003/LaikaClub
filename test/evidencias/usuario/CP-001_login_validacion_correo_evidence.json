@@ -1,0 +1,21 @@
+{
+  "test_id": "CP-001",
+  "role": "usuario",
+  "test_name": "login_validacion_correo",
+  "timestamp": "2026-11-16T16:15:33.600498",
+  "execution_duration_sec": 0.000354,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Validador regex operó conforme a especificación RFC 5322 simplificada.",
+  "payloads": {
+    "evaluated_inputs": [
+      "usuario@laikaclub.com",
+      "arturo.vela+test@gmail.com",
+      "sin_arroba.com",
+      "@sin_usuario.com",
+      "usuario@sin_dominio",
+      ""
+    ]
+  }
+}

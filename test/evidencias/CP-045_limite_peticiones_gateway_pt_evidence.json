@@ -1,0 +1,14 @@
+{
+  "test_id": "CP-045",
+  "test_name": "limite_peticiones_gateway_pt",
+  "timestamp": "2026-11-16T12:56:42.486941",
+  "execution_duration_sec": 0.418336,
+  "result": "Aprobada",
+  "payloads": {
+    "burst_metrics": {
+      "total": 25,
+      "ok_count": 25,
+      "errors": []
+    }
+  }
+}

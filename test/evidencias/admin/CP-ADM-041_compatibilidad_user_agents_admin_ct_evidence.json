@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-041",
+  "role": "admin",
+  "test_name": "compatibilidad_user_agents_admin_ct",
+  "timestamp": "2026-11-16T16:14:14.665167",
+  "execution_duration_sec": 0.127164,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "user_agents_tested": {
+      "total": 4,
+      "compatible": true
+    }
+  }
+}

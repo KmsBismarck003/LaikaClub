@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-003",
+  "role": "operador",
+  "test_name": "operador_flow_rate_calc_ut",
+  "timestamp": "2026-11-16T16:15:34.135598",
+  "execution_duration_sec": 3.1e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "rate_results": {
+      "rate1": 20.0,
+      "rate2": 3.33
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-ADV-038",
+  "role": "avanzados",
+  "test_name": "flujo_bigdata_vault_status_get",
+  "timestamp": "2026-11-16T16:15:47.641216",
+  "execution_duration_sec": 0.063073,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Bóveda MongoDB Atlas conectada y lista (database: laika_analytics)",
+  "payloads": {
+    "vault_status": {
+      "status": "ready",
+      "provider": "MongoDB Atlas",
+      "database": "laika_analytics",
+      "snapshots_count": 0
+    }
+  }
+}

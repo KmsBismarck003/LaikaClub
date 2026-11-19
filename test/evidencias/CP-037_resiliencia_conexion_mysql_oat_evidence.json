@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-037",
+  "test_name": "resiliencia_conexion_mysql_oat",
+  "timestamp": "2026-11-16T12:56:37.068436",
+  "execution_duration_sec": 0.123917,
+  "result": "Aprobada",
+  "payloads": {
+    "connection_resilience": {
+      "total_tested": 20,
+      "successful": 20
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-OPE-006",
+  "role": "operador",
+  "test_name": "operador_validation_service_mysql_it",
+  "timestamp": "2026-11-16T16:14:34.570590",
+  "execution_duration_sec": 0.005916,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_validation_logs": {
+      "total_logs": 229
+    }
+  }
+}

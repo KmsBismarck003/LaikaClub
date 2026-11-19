@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-OPE-005",
+  "role": "operador",
+  "test_name": "operador_badge_color_mapper_ut",
+  "timestamp": "2026-11-16T16:15:34.053989",
+  "execution_duration_sec": 1.5e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "color_mapping": {
+      "valid": "#22C55E",
+      "already_redeemed": "#EF4444",
+      "future": "#F59E0B"
+    }
+  }
+}

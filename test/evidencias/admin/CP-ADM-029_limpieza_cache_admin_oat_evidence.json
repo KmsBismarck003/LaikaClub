@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-ADM-029",
+  "role": "admin",
+  "test_name": "limpieza_cache_admin_oat",
+  "timestamp": "2026-11-16T16:14:34.642016",
+  "execution_duration_sec": 0.046799,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "clear_cache_result": {
+      "status": 200,
+      "data": {
+        "message": "Caché limpiado",
+        "success": true
+      }
+    }
+  }
+}

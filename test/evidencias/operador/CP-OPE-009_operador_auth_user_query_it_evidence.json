@@ -1,0 +1,21 @@
+{
+  "test_id": "CP-OPE-009",
+  "role": "operador",
+  "test_name": "operador_auth_user_query_it",
+  "timestamp": "2026-11-16T16:14:34.486924",
+  "execution_duration_sec": 0.007736,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_operador_auth": {
+      "user": [
+        2,
+        "operador@laikaclub.com",
+        "operador",
+        "active"
+      ]
+    }
+  }
+}

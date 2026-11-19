@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-043",
+  "role": "usuario",
+  "test_name": "latencia_login_usuario_pt",
+  "timestamp": "2026-11-16T16:14:49.554515",
+  "execution_duration_sec": 1.172893,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El coste computacional de BCrypt se encuentra dentro de parámetros aceptables.",
+  "payloads": {
+    "auth_latency_metrics": {
+      "avg_ms": 234.5698356628418,
+      "samples": [
+        246.53077125549316,
+        204.94842529296875,
+        285.83526611328125,
+        221.67253494262695,
+        213.86218070983887
+      ]
+    }
+  }
+}

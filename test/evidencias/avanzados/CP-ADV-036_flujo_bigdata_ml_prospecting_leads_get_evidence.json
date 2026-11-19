@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-036",
+  "role": "avanzados",
+  "test_name": "flujo_bigdata_ml_prospecting_leads_get",
+  "timestamp": "2026-11-16T16:15:47.224261",
+  "execution_duration_sec": 0.280821,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Modelo de prospección de recintos consultado exitosamente",
+  "payloads": {
+    "ml_prospecting": {
+      "status_code": 200,
+      "count": 1
+    }
+  }
+}

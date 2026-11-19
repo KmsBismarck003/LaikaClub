@@ -1,0 +1,87 @@
+{
+  "test_id": "CP-021",
+  "role": "usuario",
+  "test_name": "comunicacion_achievements_tickets_sit",
+  "timestamp": "2026-11-16T16:15:02.467684",
+  "execution_duration_sec": 12.847601,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Sincronización de reglas de gamificación en tiempo real validada.",
+  "payloads": {
+    "gamification_integration": {
+      "tickets_count": 62,
+      "achievements_payload": {
+        "tier": 7,
+        "achievements": [
+          {
+            "id": 20,
+            "userId": 30078,
+            "achievementId": 1,
+            "tier": 1,
+            "tierName": "Pasaporte Cósmico",
+            "phase": "Gancho",
+            "unlockedAt": "2026-11-16T18:52:56"
+          },
+          {
+            "id": 21,
+            "userId": 30078,
+            "achievementId": 2,
+            "tier": 2,
+            "tierName": "Ignición: T-Minus 0",
+            "phase": "Gancho",
+            "unlockedAt": "2026-11-16T18:52:56"
+          },
+          {
+            "id": 22,
+            "userId": 30078,
+            "achievementId": 3,
+            "tier": 3,
+            "tierName": "Órbita Baja",
+            "phase": "Gancho",
+            "unlockedAt": "2026-11-16T18:52:56"
+          },
+          {
+            "id": 25,
+            "userId": 30078,
+            "achievementId": 4,
+            "tier": 4,
+            "tierName": "Alunizaje VIP",
+            "phase": "Retención",
+            "unlockedAt": "2026-11-16T18:54:27"
+          },
+          {
+            "id": 28,
+            "userId": 30078,
+            "achievementId": 5,
+            "tier": 5,
+            "tierName": "Piloto Sputnik",
+            "phase": "Retención",
+            "unlockedAt": "2026-11-16T18:55:33"
+          },
+          {
+            "id": 35,
+            "userId": 30078,
+            "achievementId": 6,
+            "tier": 6,
+            "tierName": "Viajero de Marte",
+            "phase": "Retención",
+            "unlockedAt": "2026-11-16T19:55:02"
+          },
+          {
+            "id": 44,
+            "userId": 30078,
+            "achievementId": 7,
+            "tier": 7,
+            "tierName": "Comandante Interestelar",
+            "phase": "Fidelización",
+            "unlockedAt": "2026-11-16T22:12:25"
+          }
+        ],
+        "user_id": 30078,
+        "ticket_count": 62,
+        "total_points": 6200
+      }
+    }
+  }
+}

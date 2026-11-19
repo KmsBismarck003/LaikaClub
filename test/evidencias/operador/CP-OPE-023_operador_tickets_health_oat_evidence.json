@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-023",
+  "role": "operador",
+  "test_name": "operador_tickets_health_oat",
+  "timestamp": "2026-11-16T16:14:36.824332",
+  "execution_duration_sec": 0.021052,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "tickets_health_oat": {
+      "service": "ticket-service-java-v3-contextual",
+      "status": "alive"
+    }
+  }
+}

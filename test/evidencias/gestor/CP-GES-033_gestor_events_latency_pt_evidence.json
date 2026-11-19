@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-033",
+  "role": "gestor",
+  "test_name": "gestor_events_latency_pt",
+  "timestamp": "2026-11-16T16:14:48.343126",
+  "execution_duration_sec": 0.364384,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "events_latency": {
+      "status": 200,
+      "latency_ms": 364.29762840270996
+    }
+  }
+}

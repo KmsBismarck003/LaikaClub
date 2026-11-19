@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-045",
+  "role": "admin",
+  "test_name": "exploratorio_paginacion_limites_extremos_et",
+  "timestamp": "2026-11-16T16:14:26.090748",
+  "execution_duration_sec": 0.068435,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "extreme_pagination": {
+      "status": 200,
+      "body": "{\"total\":30062,\"users\":[]}"
+    }
+  }
+}

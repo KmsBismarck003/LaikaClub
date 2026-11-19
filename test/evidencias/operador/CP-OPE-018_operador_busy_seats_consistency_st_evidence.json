@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-018",
+  "role": "operador",
+  "test_name": "operador_busy_seats_consistency_st",
+  "timestamp": "2026-11-16T16:15:17.679619",
+  "execution_duration_sec": 0.051943,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "busy_seats_check": {
+      "status": 200,
+      "count": 4
+    }
+  }
+}

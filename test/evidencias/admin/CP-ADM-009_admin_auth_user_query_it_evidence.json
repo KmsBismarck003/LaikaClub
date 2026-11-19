@@ -1,0 +1,21 @@
+{
+  "test_id": "CP-ADM-009",
+  "role": "admin",
+  "test_name": "admin_auth_user_query_it",
+  "timestamp": "2026-11-16T16:14:27.220911",
+  "execution_duration_sec": 0.006833,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "admin_users": [
+      {
+        "id": 1,
+        "email": "admin@laikaclub.com",
+        "role": "admin",
+        "status": "active"
+      }
+    ]
+  }
+}

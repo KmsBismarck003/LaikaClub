@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-050",
+  "role": "avanzados",
+  "test_name": "flujo_database_export_formatos_json_svg_get",
+  "timestamp": "2026-11-16T16:15:53.685670",
+  "execution_duration_sec": 0.071574,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Exportaciones JSON y SVG validadas exitosamente",
+  "payloads": {
+    "database_exports": {
+      "json_status": 200,
+      "svg_status": 200
+    }
+  }
+}

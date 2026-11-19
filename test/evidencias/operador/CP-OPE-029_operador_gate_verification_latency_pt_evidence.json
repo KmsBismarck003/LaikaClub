@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-029",
+  "role": "operador",
+  "test_name": "operador_gate_verification_latency_pt",
+  "timestamp": "2026-11-16T16:14:49.124114",
+  "execution_duration_sec": 0.109464,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "gate_latency": {
+      "status": 200,
+      "latency_ms": 109.44032669067383
+    }
+  }
+}

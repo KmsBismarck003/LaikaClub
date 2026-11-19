@@ -1,0 +1,32 @@
+{
+  "test_id": "CP-040",
+  "test_name": "regresion_calculo_totales_rt",
+  "timestamp": "2026-11-16T12:56:43.895432",
+  "execution_duration_sec": 6.8e-05,
+  "result": "Aprobada",
+  "payloads": {
+    "regression_datasets": [
+      {
+        "price": 1000.0,
+        "qty": 1,
+        "fee_rate": 0.1,
+        "exp_fee": 100.0,
+        "exp_total": 1100.0
+      },
+      {
+        "price": 450.5,
+        "qty": 2,
+        "fee_rate": 0.1,
+        "exp_fee": 90.1,
+        "exp_total": 991.1
+      },
+      {
+        "price": 200.0,
+        "qty": 3,
+        "fee_rate": 0.1,
+        "exp_fee": 60.0,
+        "exp_total": 660.0
+      }
+    ]
+  }
+}

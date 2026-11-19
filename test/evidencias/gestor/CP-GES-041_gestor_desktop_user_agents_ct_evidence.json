@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-GES-041",
+  "role": "gestor",
+  "test_name": "gestor_desktop_user_agents_ct",
+  "timestamp": "2026-11-16T16:14:15.135077",
+  "execution_duration_sec": 0.702957,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "user_agent_tests": {
+      "success": true
+    }
+  }
+}

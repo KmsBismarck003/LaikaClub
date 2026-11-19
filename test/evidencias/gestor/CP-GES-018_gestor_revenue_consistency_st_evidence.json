@@ -1,0 +1,21 @@
+{
+  "test_id": "CP-GES-018",
+  "role": "gestor",
+  "test_name": "gestor_revenue_consistency_st",
+  "timestamp": "2026-11-16T16:15:16.941058",
+  "execution_duration_sec": 0.021571,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "revenue_check": {
+      "projected_total": 7200.0,
+      "gross": 7200.0,
+      "tickets_sold": 4,
+      "tickets_refunded": 0,
+      "net": 7200.0,
+      "refunded_amount": 0.0
+    }
+  }
+}

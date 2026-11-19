@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-054",
+  "role": "usuario",
+  "test_name": "validacion_formulario_perfil_usability",
+  "timestamp": "2026-11-16T16:15:31.996642",
+  "execution_duration_sec": 0.063766,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El formulario tolera variaciones naturales en el ingreso de datos de contacto.",
+  "payloads": {
+    "phone_formatting_results": {
+      "standard": 200,
+      "hyphenated": 200
+    }
+  }
+}

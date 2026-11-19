@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-069",
+  "role": "usuario",
+  "test_name": "bloqueo_asiento_endpoint_post",
+  "timestamp": "2026-11-16T16:13:57.188845",
+  "execution_duration_sec": 0.280531,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El endpoint de bloqueo registra la reserva temporal con éxito.",
+  "payloads": {
+    "seat_lock_response": {
+      "ticketCode": "TKT-C44EC0F8",
+      "status": "success"
+    }
+  }
+}

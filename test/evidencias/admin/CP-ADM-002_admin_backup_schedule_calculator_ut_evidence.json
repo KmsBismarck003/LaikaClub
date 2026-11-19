@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-ADM-002",
+  "role": "admin",
+  "test_name": "admin_backup_schedule_calculator_ut",
+  "timestamp": "2026-11-16T16:15:32.315494",
+  "execution_duration_sec": 0.009013,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "calculated_next_backup": {
+      "base": "2026-11-16 10:00:00",
+      "next": "2026-11-17 02:00:00",
+      "matched": true
+    }
+  }
+}

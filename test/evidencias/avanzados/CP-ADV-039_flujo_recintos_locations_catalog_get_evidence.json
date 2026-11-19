@@ -1,0 +1,30 @@
+{
+  "test_id": "CP-ADV-039",
+  "role": "avanzados",
+  "test_name": "flujo_recintos_locations_catalog_get",
+  "timestamp": "2026-11-16T16:15:52.989509",
+  "execution_duration_sec": 0.103532,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Catálogos territoriales consultados con éxito",
+  "payloads": {
+    "locations": {
+      "countries": 1,
+      "sample_state": [
+        {
+          "id": 1,
+          "country_id": 1,
+          "name": "Aguascalientes",
+          "code": "AS"
+        },
+        {
+          "id": 2,
+          "country_id": 1,
+          "name": "Baja California",
+          "code": "BC"
+        }
+      ]
+    }
+  }
+}

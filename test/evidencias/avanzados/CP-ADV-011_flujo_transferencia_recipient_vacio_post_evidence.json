@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-011",
+  "role": "avanzados",
+  "test_name": "flujo_transferencia_recipient_vacio_post",
+  "timestamp": "2026-11-16T16:15:54.488843",
+  "execution_duration_sec": 0.022562,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Rechazo validado: {\"timestamp\":\"2026-11-16T22:15:54.508+00:00\",\"status\":400,\"error\":\"Bad Request\",",
+  "payloads": {
+    "transfer_recipient_err": {
+      "status_code": 400,
+      "body": "{\"timestamp\":\"2026-11-16T22:15:54.508+00:00\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"recipient_email requerido\",\"p"
+    }
+  }
+}

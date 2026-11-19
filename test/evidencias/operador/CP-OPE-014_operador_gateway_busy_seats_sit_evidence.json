@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-OPE-014",
+  "role": "operador",
+  "test_name": "operador_gateway_busy_seats_sit",
+  "timestamp": "2026-11-16T16:15:15.481658",
+  "execution_duration_sec": 0.025123,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "busy_seats_sit": {
+      "status": 200,
+      "busy_seats": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}

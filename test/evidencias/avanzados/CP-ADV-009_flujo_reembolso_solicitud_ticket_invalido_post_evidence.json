@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-009",
+  "role": "avanzados",
+  "test_name": "flujo_reembolso_solicitud_ticket_invalido_post",
+  "timestamp": "2026-11-16T16:15:48.251031",
+  "execution_duration_sec": 0.024211,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Validación estricta confirmada: {\"timestamp\":\"2026-11-16T22:15:48.272+00:00\",\"status\":400,\"error\":\"Bad Request\",",
+  "payloads": {
+    "refund_validation_err": {
+      "status_code": 400,
+      "body": "{\"timestamp\":\"2026-11-16T22:15:48.272+00:00\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"ticketId es obligatorio\",\"pat"
+    }
+  }
+}

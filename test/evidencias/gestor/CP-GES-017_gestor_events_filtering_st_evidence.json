@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-017",
+  "role": "gestor",
+  "test_name": "gestor_events_filtering_st",
+  "timestamp": "2026-11-16T16:15:16.703559",
+  "execution_duration_sec": 0.185363,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "events_structure": {
+      "count": 33,
+      "valid": true
+    }
+  }
+}

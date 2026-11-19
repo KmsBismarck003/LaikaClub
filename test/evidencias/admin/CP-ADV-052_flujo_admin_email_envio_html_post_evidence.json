@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-052",
+  "role": "admin",
+  "test_name": "flujo_admin_email_envio_html_post",
+  "timestamp": "2026-11-16T16:15:49.375564",
+  "execution_duration_sec": 0.902618,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Envío de correos evaluado: HTTP 200 (Simulación en entorno local (SMTP offline): Authentication failed)",
+  "payloads": {
+    "email_send": {
+      "message": "Simulación en entorno local (SMTP offline): Authentication failed",
+      "status": "simulated"
+    }
+  }
+}

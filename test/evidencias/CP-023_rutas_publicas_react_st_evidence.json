@@ -1,0 +1,15 @@
+{
+  "test_id": "CP-023",
+  "test_name": "rutas_publicas_react_st",
+  "timestamp": "2026-11-16T12:56:53.680833",
+  "execution_duration_sec": 0.111674,
+  "result": "Aprobada",
+  "payloads": {
+    "frontend_routes_tested": [
+      "/",
+      "/login",
+      "/register",
+      "/shop"
+    ]
+  }
+}

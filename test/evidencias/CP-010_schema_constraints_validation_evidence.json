@@ -1,0 +1,39 @@
+{
+  "test_id": "CP-010",
+  "test_name": "schema_constraints_validation",
+  "timestamp": "2026-11-16T12:56:57.671927",
+  "execution_duration_sec": 0.020731,
+  "result": "Aprobada",
+  "payloads": {
+    "schema_metadata": {
+      "users_email": [
+        {
+          "COLUMN_NAME": "email",
+          "IS_NULLABLE": "NO",
+          "COLUMN_KEY": "UNI"
+        }
+      ],
+      "tickets_code": [
+        {
+          "COLUMN_NAME": "ticket_code",
+          "IS_NULLABLE": "NO",
+          "COLUMN_KEY": "UNI"
+        }
+      ],
+      "pks": [
+        {
+          "TABLE_SCHEMA": "laika_auth",
+          "TABLE_NAME": "users",
+          "COLUMN_NAME": "id",
+          "EXTRA": "auto_increment"
+        },
+        {
+          "TABLE_SCHEMA": "laika_tickets",
+          "TABLE_NAME": "tickets",
+          "COLUMN_NAME": "id",
+          "EXTRA": "auto_increment"
+        }
+      ]
+    }
+  }
+}

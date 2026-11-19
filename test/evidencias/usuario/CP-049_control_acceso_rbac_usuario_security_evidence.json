@@ -1,0 +1,25 @@
+{
+  "test_id": "CP-049",
+  "role": "usuario",
+  "test_name": "control_acceso_rbac_usuario_security",
+  "timestamp": "2026-11-16T16:14:59.874404",
+  "execution_duration_sec": 0.260482,
+  "result": "Fallida",
+  "defect_id": "DEF-003",
+  "defect_severity": "Crítica",
+  "observations": "Falla de control de acceso (OWASP Top 10 A01: Broken Access Control). El endpoint GET /manager/transactions en EventController.java omite validar que el rol del usuario sea 'gestor' o 'admin', permitiendo a cualquier usuario con rol 'usuario' consultar métricas financieras y transacciones del recinto.",
+  "payloads": {
+    "rbac_violations_attempted": [
+      {
+        "url": "http://localhost:8000/api/admin/users",
+        "label": "Lista de usuarios del Administrador",
+        "status_code": 500
+      },
+      {
+        "url": "http://localhost:8000/api/events/manager/transactions",
+        "label": "Transacciones financieras del Gestor",
+        "status_code": 200
+      }
+    ]
+  }
+}

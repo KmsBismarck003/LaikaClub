@@ -1,0 +1,28 @@
+{
+  "test_id": "CP-044",
+  "role": "usuario",
+  "test_name": "concurrencia_consulta_boletos_pt",
+  "timestamp": "2026-11-16T13:56:10.596574",
+  "execution_duration_sec": 8.595167,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El microservicio de boletos soporta concurrencia sin degradación del servicio.",
+  "payloads": {
+    "concurrency_results": {
+      "concurrency": 10,
+      "status_codes": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ]
+    }
+  }
+}

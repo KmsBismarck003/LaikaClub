@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-027",
+  "role": "gestor",
+  "test_name": "gestor_tickets_health_oat",
+  "timestamp": "2026-11-16T16:14:36.499307",
+  "execution_duration_sec": 0.005724,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "tickets_health": {
+      "status": 200,
+      "body": "{\"service\":\"ticket-service-java-v3-contextual\",\"status\":\"alive\"}"
+    }
+  }
+}

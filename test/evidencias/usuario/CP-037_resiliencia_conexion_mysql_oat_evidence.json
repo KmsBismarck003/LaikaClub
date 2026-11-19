@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-037",
+  "role": "usuario",
+  "test_name": "resiliencia_conexion_mysql_oat",
+  "timestamp": "2026-11-16T16:14:36.924813",
+  "execution_duration_sec": 0.261468,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El motor MySQL libera descriptores de socket y memoria limpiamente.",
+  "payloads": {
+    "connection_resilience": {
+      "total_tested": 20,
+      "successful": 20
+    }
+  }
+}

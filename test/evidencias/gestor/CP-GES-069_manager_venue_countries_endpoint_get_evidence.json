@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-GES-069",
+  "role": "gestor",
+  "test_name": "manager_venue_countries_endpoint_get",
+  "timestamp": "2026-11-16T16:14:05.585481",
+  "execution_duration_sec": 0.023719,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "countries": [
+        {
+          "id": 1,
+          "name": "M├®xico",
+          "code": "MX"
+        }
+      ]
+    }
+  }
+}

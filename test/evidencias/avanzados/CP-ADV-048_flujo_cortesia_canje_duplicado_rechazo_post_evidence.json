@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-ADV-048",
+  "role": "avanzados",
+  "test_name": "flujo_cortesia_canje_duplicado_rechazo_post",
+  "timestamp": "2026-11-16T16:15:50.378676",
+  "execution_duration_sec": 0.106069,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Prevención de doble canje confirmada: HTTP 409 Conflict",
+  "payloads": {
+    "double_claim_rejection": {
+      "timestamp": "2026-11-16T22:15:50.480+00:00",
+      "status": 400,
+      "error": "Bad Request",
+      "message": "El boleto no se encuentra en estado canjeable (estado: unutilized)",
+      "path": "/courtesy/claim"
+    }
+  }
+}

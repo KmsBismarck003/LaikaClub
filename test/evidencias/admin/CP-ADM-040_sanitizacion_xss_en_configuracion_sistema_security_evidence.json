@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-040",
+  "role": "admin",
+  "test_name": "sanitizacion_xss_en_configuracion_sistema_security",
+  "timestamp": "2026-11-16T16:14:59.711448",
+  "execution_duration_sec": 0.059231,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "xss_defense": {
+      "status": 200,
+      "stored_value": "<script>alert('XSS_ADMIN_TEST')</script>"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "test_id": "CP-GES-063",
+  "role": "gestor",
+  "test_name": "manager_courtesy_event_dashboard_endpoint_get",
+  "timestamp": "2026-11-16T16:14:03.958421",
+  "execution_duration_sec": 0.029028,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "data": {
+        "totalQuotaAllowed": 25,
+        "totalQuotaIssued": 0,
+        "totalQuotaRemaining": 25,
+        "totalTickets": 0,
+        "assignedCount": 0,
+        "pendingClaimCount": 0,
+        "usedCount": 0,
+        "cancelledCount": 0,
+        "quotas": [],
+        "issuances": [],
+        "tickets": []
+      }
+    }
+  }
+}

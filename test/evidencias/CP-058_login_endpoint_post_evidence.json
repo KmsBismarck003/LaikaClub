@@ -1,0 +1,30 @@
+{
+  "test_id": "CP-058",
+  "test_name": "login_endpoint_post",
+  "timestamp": "2026-11-16T12:56:28.091456",
+  "execution_duration_sec": 0.154077,
+  "result": "Aprobada",
+  "payloads": {
+    "login_success_response": {
+      "status_code": 200,
+      "user": {
+        "id": 30078,
+        "firstName": "QA_User",
+        "lastName": "Tester",
+        "email": "qa_user_test@laikaclub.com",
+        "phone": "55-1234-5678",
+        "role": "usuario",
+        "status": "active",
+        "createdAt": "2026-11-16T18:33:41",
+        "permissions": [
+          "admin.view",
+          "venues.view",
+          "cms.view",
+          "stats.view",
+          "users.view",
+          "events.view"
+        ]
+      }
+    }
+  }
+}

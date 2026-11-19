@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-016",
+  "role": "usuario",
+  "test_name": "user_transactions_rollback_it",
+  "timestamp": "2026-11-16T16:14:34.175809",
+  "execution_duration_sec": 0.017732,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Motor InnoDB respeta estrictamente la atomicidad y aislamiento de transacciones.",
+  "payloads": {
+    "transaction_verification": {
+      "test_email": "rollback_test_temp@laikaclub.com",
+      "persisted_after_rollback": false
+    }
+  }
+}

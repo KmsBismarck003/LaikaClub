@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-016",
+  "test_name": "user_transactions_rollback_it",
+  "timestamp": "2026-11-16T12:56:36.418718",
+  "execution_duration_sec": 0.018655,
+  "result": "Aprobada",
+  "payloads": {
+    "transaction_verification": {
+      "test_email": "rollback_test_temp@laikaclub.com",
+      "persisted_after_rollback": false
+    }
+  }
+}

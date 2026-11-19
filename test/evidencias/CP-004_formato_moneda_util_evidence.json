@@ -1,0 +1,35 @@
+{
+  "test_id": "CP-004",
+  "test_name": "formato_moneda_util",
+  "timestamp": "2026-11-16T12:56:57.714171",
+  "execution_duration_sec": 8.2e-05,
+  "result": "Aprobada",
+  "payloads": {
+    "formatted_cases": [
+      {
+        "input": "0",
+        "expected": "$0.00"
+      },
+      {
+        "input": "1500",
+        "expected": "$1,500.00"
+      },
+      {
+        "input": "2450000.5",
+        "expected": "$2,450,000.50"
+      },
+      {
+        "input": "120.75",
+        "expected": "$120.75"
+      },
+      {
+        "input": "None",
+        "expected": "$0.00"
+      },
+      {
+        "input": "invalido",
+        "expected": "$0.00"
+      }
+    ]
+  }
+}

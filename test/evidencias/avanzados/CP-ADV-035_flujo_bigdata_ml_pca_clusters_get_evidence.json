@@ -1,0 +1,26 @@
+{
+  "test_id": "CP-ADV-035",
+  "role": "avanzados",
+  "test_name": "flujo_bigdata_ml_pca_clusters_get",
+  "timestamp": "2026-11-16T16:15:41.947404",
+  "execution_duration_sec": 5.221287,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Proyección factorial y varianza explicada generadas correctamente",
+  "payloads": {
+    "ml_pca": {
+      "status_code": 200,
+      "keys": [
+        "status",
+        "data",
+        "clusters",
+        "summary",
+        "insights",
+        "varianza_explicada",
+        "silhouette_score",
+        "wcss"
+      ]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-OPE-007",
+  "role": "operador",
+  "test_name": "operador_ticket_service_mysql_it",
+  "timestamp": "2026-11-16T16:14:34.514907",
+  "execution_duration_sec": 0.006018,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_ticket": {
+      "ticket": [
+        200181,
+        "TKT-C853F390",
+        "active",
+        1800.0,
+        100001
+      ]
+    }
+  }
+}

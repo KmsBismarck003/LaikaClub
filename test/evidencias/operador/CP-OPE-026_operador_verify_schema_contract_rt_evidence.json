@@ -1,0 +1,46 @@
+{
+  "test_id": "CP-OPE-026",
+  "role": "operador",
+  "test_name": "operador_verify_schema_contract_rt",
+  "timestamp": "2026-11-16T16:14:51.726031",
+  "execution_duration_sec": 0.10048,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "verify_contract": {
+      "status": 200,
+      "keys": [
+        "valid",
+        "actionable",
+        "isError",
+        "alreadyUsed",
+        "statusCode",
+        "statusTitle",
+        "operatorMessage",
+        "message",
+        "timeRemainingSeconds",
+        "id",
+        "ticketId",
+        "userId",
+        "eventId",
+        "eventFunctionId",
+        "ticketCode",
+        "eventName",
+        "customerName",
+        "ticketType",
+        "purchaseDate",
+        "status",
+        "sectionName",
+        "price",
+        "paymentMethod",
+        "isCourtesy",
+        "ticketDetails",
+        "eventDetails",
+        "terminalContext",
+        "redemptionHistory"
+      ]
+    }
+  }
+}

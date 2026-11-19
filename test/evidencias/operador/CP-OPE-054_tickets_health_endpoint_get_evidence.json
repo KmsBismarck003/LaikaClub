@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-054",
+  "role": "operador",
+  "test_name": "tickets_health_endpoint_get",
+  "timestamp": "2026-11-16T16:14:13.787008",
+  "execution_duration_sec": 0.038732,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "200 OK verificado: status=alive",
+  "payloads": {
+    "tickets_health": {
+      "service": "ticket-service-java-v3-contextual",
+      "status": "alive"
+    }
+  }
+}

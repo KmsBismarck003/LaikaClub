@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-001",
+  "role": "gestor",
+  "test_name": "gestor_event_duration_calculator_ut",
+  "timestamp": "2026-11-16T16:15:33.819306",
+  "execution_duration_sec": 3.6e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "calculation_results": {
+      "test1": "24:00",
+      "test2": "22:00"
+    }
+  }
+}

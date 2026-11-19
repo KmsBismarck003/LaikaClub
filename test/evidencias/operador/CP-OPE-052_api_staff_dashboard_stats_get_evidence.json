@@ -1,0 +1,12 @@
+{
+  "test_id": "CP-OPE-052",
+  "role": "operador",
+  "test_name": "API Staff Dashboard Stats GET",
+  "timestamp": "2026-11-16T14:13:29.017586",
+  "execution_duration_sec": 0,
+  "result": "Fallida",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Esperado: 200 OK con métricas de dashboard staff | Obtenido: Falta clave 'todayValidations'",
+  "payloads": {}
+}

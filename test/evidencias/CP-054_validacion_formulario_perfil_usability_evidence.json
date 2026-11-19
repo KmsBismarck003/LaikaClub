@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-054",
+  "test_name": "validacion_formulario_perfil_usability",
+  "timestamp": "2026-11-16T12:56:57.126839",
+  "execution_duration_sec": 0.135961,
+  "result": "Aprobada",
+  "payloads": {
+    "phone_formatting_results": {
+      "standard": 200,
+      "hyphenated": 200
+    }
+  }
+}

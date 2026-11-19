@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-052",
+  "role": "gestor",
+  "test_name": "manager_event_publish_patch_endpoint",
+  "timestamp": "2026-11-16T16:14:04.446811",
+  "execution_duration_sec": 0.032587,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "body": "{\"message\":\"Evento publicado\",\"status\":\"success\"}"
+    }
+  }
+}

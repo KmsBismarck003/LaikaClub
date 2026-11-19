@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-011",
+  "test_name": "api_client_auth_header",
+  "timestamp": "2026-11-16T12:56:36.444679",
+  "execution_duration_sec": 2.6e-05,
+  "result": "Aprobada",
+  "payloads": {
+    "generated_headers": {
+      "Content-Type": "application/json",
+      "Auth_Prefix": "Bearer eyJhbGci"
+    }
+  }
+}

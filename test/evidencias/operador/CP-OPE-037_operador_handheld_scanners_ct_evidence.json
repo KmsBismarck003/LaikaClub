@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-OPE-037",
+  "role": "operador",
+  "test_name": "operador_handheld_scanners_ct",
+  "timestamp": "2026-11-16T16:14:16.096148",
+  "execution_duration_sec": 0.296092,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "handheld_scanners_ct": {
+      "success": true
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-071",
+  "role": "usuario",
+  "test_name": "compra_boleto_gratuito_endpoint_post",
+  "timestamp": "2026-11-16T16:13:57.623749",
+  "execution_duration_sec": 5.170579,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El servicio de tickets genera el boleto con código QR sin requerir pasarela de pago.",
+  "payloads": {
+    "free_ticket_claim_response": {
+      "tickets": [
+        {
+          "seat": null,
+          "code": "TKT-01C9729D"
+        }
+      ],
+      "message": "Entrada gratuita registrada",
+      "status": "success"
+    }
+  }
+}

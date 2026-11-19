@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-065",
+  "role": "gestor",
+  "test_name": "manager_courtesy_claim_endpoint_post",
+  "timestamp": "2026-11-16T16:14:03.458642",
+  "execution_duration_sec": 0.477409,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 404,
+      "body": "{\"timestamp\":\"2026-11-16T22:14:03.932+00:00\",\"status\":404,\"error\":\"Not Found\",\"message\":\"Código de c"
+    }
+  }
+}

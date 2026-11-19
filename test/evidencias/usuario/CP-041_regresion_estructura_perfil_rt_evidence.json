@@ -1,0 +1,24 @@
+{
+  "test_id": "CP-041",
+  "role": "usuario",
+  "test_name": "regresion_estructura_perfil_rt",
+  "timestamp": "2026-11-16T16:14:59.333493",
+  "execution_duration_sec": 0.026781,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El contrato del perfil de usuario se mantiene 100% compatible con el frontend.",
+  "payloads": {
+    "profile_dto_fields": [
+      "id",
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "role",
+      "status",
+      "createdAt",
+      "permissions"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-020",
+  "role": "usuario",
+  "test_name": "comunicacion_tickets_events_sit",
+  "timestamp": "2026-11-16T16:15:15.353937",
+  "execution_duration_sec": 0.100312,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Coordinación inter-servicio entre laika_tickets y laika_events validada con éxito.",
+  "payloads": {
+    "cross_service_data": {
+      "event_id": 20,
+      "event_name": "Vive Latino 2026",
+      "busy_seats_count": 23498
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-GES-016",
+  "role": "gestor",
+  "test_name": "gestor_workspace_auth_guard_st",
+  "timestamp": "2026-11-16T16:15:17.176089",
+  "execution_duration_sec": 0.15427,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "auth_guard": {
+      "status": 200
+    }
+  }
+}

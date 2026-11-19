@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-004",
+  "role": "operador",
+  "test_name": "operador_device_header_extractor_ut",
+  "timestamp": "2026-11-16T16:15:34.092134",
+  "execution_duration_sec": 1.4e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "device_ident": {
+      "d1": "HARDWARE_SCANNER",
+      "d2": "DESKTOP_STATION"
+    }
+  }
+}

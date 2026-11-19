@@ -1,0 +1,36 @@
+{
+  "test_id": "CP-027",
+  "role": "usuario",
+  "test_name": "registro_usuario_campos_obligatorios_st",
+  "timestamp": "2026-11-16T16:15:18.147433",
+  "execution_duration_sec": 0.094962,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El backend impone validaciones de integridad antes de persistir nuevos registros.",
+  "payloads": {
+    "validation_attempts": [
+      {
+        "payload": {
+          "password": "ValidPassword123!",
+          "first_name": "NoEmail"
+        },
+        "label": "Sin campo email"
+      },
+      {
+        "payload": {
+          "email": "notanemail",
+          "password": "ValidPassword123!"
+        },
+        "label": "Formato de email incorrecto"
+      },
+      {
+        "payload": {
+          "email": "valid@laika.com",
+          "password": ""
+        },
+        "label": "Contraseña vacía"
+      }
+    ]
+  }
+}

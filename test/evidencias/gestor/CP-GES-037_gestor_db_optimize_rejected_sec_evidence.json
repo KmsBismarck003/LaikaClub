@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-GES-037",
+  "role": "gestor",
+  "test_name": "gestor_db_optimize_rejected_sec",
+  "timestamp": "2026-11-16T16:15:00.217240",
+  "execution_duration_sec": 0.022384,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "optimize_sec": {
+      "status": 403
+    }
+  }
+}

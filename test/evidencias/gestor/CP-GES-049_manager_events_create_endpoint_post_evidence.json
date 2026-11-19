@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-049",
+  "role": "gestor",
+  "test_name": "manager_events_create_endpoint_post",
+  "timestamp": "2026-11-16T16:14:04.786113",
+  "execution_duration_sec": 0.082248,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "created_id": 100031
+    }
+  }
+}

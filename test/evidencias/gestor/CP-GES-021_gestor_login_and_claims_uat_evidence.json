@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-GES-021",
+  "role": "gestor",
+  "test_name": "gestor_login_and_claims_uat",
+  "timestamp": "2026-11-16T16:15:29.266314",
+  "execution_duration_sec": 0.42745,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "gestor_login_uat": {
+      "status": 200,
+      "role": "gestor",
+      "token_present": true
+    }
+  }
+}

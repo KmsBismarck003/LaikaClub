@@ -1,0 +1,59 @@
+{
+  "test_id": "CP-GES-061",
+  "role": "gestor",
+  "test_name": "manager_stats_dashboard_endpoint_get",
+  "timestamp": "2026-11-16T16:14:05.225811",
+  "execution_duration_sec": 0.033225,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "data": {
+        "revenue": [
+          1200.0,
+          1500.0,
+          800.0,
+          2200.0,
+          3100.0,
+          4500.0,
+          3800.0
+        ],
+        "tickets": [
+          12,
+          15,
+          8,
+          22,
+          31,
+          45,
+          38
+        ],
+        "categories": [
+          {
+            "name": "Conciertos",
+            "value": 65
+          },
+          {
+            "name": "Teatro",
+            "value": 20
+          },
+          {
+            "name": "Deportes",
+            "value": 15
+          }
+        ],
+        "labels": [
+          "Lun",
+          "Mar",
+          "Mie",
+          "Jue",
+          "Vie",
+          "Sab",
+          "Dom"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-062",
+  "test_name": "register_correo_duplicado_post",
+  "timestamp": "2026-11-16T12:56:30.484408",
+  "execution_duration_sec": 0.434518,
+  "result": "Fallida",
+  "payloads": {
+    "duplicate_email_response": {
+      "status_code": 500,
+      "body": "{\"detail\":\"El correo ya está registrado\"}"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "test_id": "CP-ADM-047",
+  "role": "admin",
+  "test_name": "ciclo_completo_administrador_e2e",
+  "timestamp": "2026-11-16T16:14:17.914359",
+  "execution_duration_sec": 0.622201,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "admin_e2e_summary": {
+      "login": true,
+      "stats": true,
+      "db": true,
+      "users": true,
+      "cfg": true,
+      "logout": true
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-ADV-037",
+  "role": "avanzados",
+  "test_name": "flujo_bigdata_ml_anomaly_detection_get",
+  "timestamp": "2026-11-16T16:15:34.266642",
+  "execution_duration_sec": 0.898065,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Evaluación de anomalías y bots completada: HTTP 200",
+  "payloads": {
+    "ml_anomaly": {
+      "status_code": 200
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-059",
+  "role": "usuario",
+  "test_name": "login_credenciales_invalidas_post",
+  "timestamp": "2026-11-16T16:14:06.003525",
+  "execution_duration_sec": 0.135691,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El servicio rechaza limpiamente credenciales erróneas.",
+  "payloads": {
+    "invalid_credentials_evidence": {
+      "status_code": 401,
+      "body": {
+        "detail": {
+          "max_attempts": 3,
+          "message": "Credenciales inválidas",
+          "attempts": 1
+        }
+      }
+    }
+  }
+}

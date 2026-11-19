@@ -1,0 +1,29 @@
+{
+  "test_id": "CP-GES-013",
+  "role": "gestor",
+  "test_name": "gestor_gateway_courtesy_quotas_sit",
+  "timestamp": "2026-11-16T16:15:01.998639",
+  "execution_duration_sec": 0.039445,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "courtesy_quotas": {
+      "status": 200,
+      "data": [
+        {
+          "id": 4,
+          "managerUserId": 3,
+          "eventId": 24,
+          "eventFunctionId": 45,
+          "sectionName": "General",
+          "maxAllowed": 25,
+          "issuedCount": 4,
+          "createdAt": "2026-11-16T22:08:11.569357",
+          "updatedAt": "2026-11-16T22:13:43.660023"
+        }
+      ]
+    }
+  }
+}

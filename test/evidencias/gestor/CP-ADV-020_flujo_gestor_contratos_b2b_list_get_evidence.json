@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-ADV-020",
+  "role": "gestor",
+  "test_name": "flujo_gestor_contratos_b2b_list_get",
+  "timestamp": "2026-11-16T16:15:49.272085",
+  "execution_duration_sec": 0.043179,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "200 OK obtenido con 4 contratos corporativos",
+  "payloads": {
+    "b2b_contracts_list": {
+      "count": 4
+    }
+  }
+}

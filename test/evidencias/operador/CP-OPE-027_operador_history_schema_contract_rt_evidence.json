@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-027",
+  "role": "operador",
+  "test_name": "operador_history_schema_contract_rt",
+  "timestamp": "2026-11-16T16:14:51.583050",
+  "execution_duration_sec": 0.046265,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "history_contract": {
+      "status": 200,
+      "count": 230
+    }
+  }
+}

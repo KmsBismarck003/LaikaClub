@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-GES-022",
+  "role": "gestor",
+  "test_name": "gestor_event_lifecycle_uat",
+  "timestamp": "2026-11-16T16:15:28.976420",
+  "execution_duration_sec": 0.227188,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "uat_lifecycle": {
+      "create": 200,
+      "publish": true,
+      "unpublish": true,
+      "delete": true
+    }
+  }
+}

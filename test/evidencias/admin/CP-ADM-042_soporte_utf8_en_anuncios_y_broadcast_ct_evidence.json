@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-ADM-042",
+  "role": "admin",
+  "test_name": "soporte_utf8_en_anuncios_y_broadcast_ct",
+  "timestamp": "2026-11-16T16:14:14.824959",
+  "execution_duration_sec": 0.080386,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "utf8_integrity": {
+      "original": "¡Atención administradores! Éxito total en México con señal acústica 🚀 2026.",
+      "saved": "¡Atención administradores! Éxito total en México con señal acústica 🚀 2026.",
+      "matched": true
+    }
+  }
+}

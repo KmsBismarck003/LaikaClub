@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-ADM-023",
+  "role": "admin",
+  "test_name": "flujo_gestion_campanas_publicidad_uat",
+  "timestamp": "2026-11-16T16:15:19.332992",
+  "execution_duration_sec": 0.473871,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "ad_campaign_lifecycle": {
+      "ad_id": 42,
+      "created": true,
+      "clicked": true,
+      "deleted": true
+    }
+  }
+}

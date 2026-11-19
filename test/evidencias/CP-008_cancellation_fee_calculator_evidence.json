@@ -1,0 +1,36 @@
+{
+  "test_id": "CP-008",
+  "test_name": "cancellation_fee_calculator",
+  "timestamp": "2026-11-16T12:56:57.269958",
+  "execution_duration_sec": 0.000472,
+  "result": "Aprobada",
+  "payloads": {
+    "cases_evaluated": [
+      {
+        "label": "Boleto activo a 48h del evento",
+        "eligible": true,
+        "refund": 500.0
+      },
+      {
+        "label": "Boleto ya utilizado",
+        "eligible": false,
+        "refund": 0.0
+      },
+      {
+        "label": "Boleto a 12h del evento (menos de 24h)",
+        "eligible": false,
+        "refund": 0.0
+      },
+      {
+        "label": "Evento en el pasado",
+        "eligible": false,
+        "refund": 0.0
+      },
+      {
+        "label": "Boleto de cortesía gratuito",
+        "eligible": true,
+        "refund": 0.0
+      }
+    ]
+  }
+}

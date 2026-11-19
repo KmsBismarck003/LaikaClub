@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-025",
+  "test_name": "catalogo_eventos_filtro_categoria_st",
+  "timestamp": "2026-11-16T12:56:53.361166",
+  "execution_duration_sec": 0.061315,
+  "result": "Aprobada",
+  "payloads": {
+    "category_filters": [
+      "concert",
+      "theater"
+    ]
+  }
+}

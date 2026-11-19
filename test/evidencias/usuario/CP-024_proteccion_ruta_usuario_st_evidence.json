@@ -1,0 +1,27 @@
+{
+  "test_id": "CP-024",
+  "role": "usuario",
+  "test_name": "proteccion_ruta_usuario_st",
+  "timestamp": "2026-11-16T16:15:17.353141",
+  "execution_duration_sec": 0.061116,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Las guardias de seguridad impiden el acceso anónimo a recursos privados.",
+  "payloads": {
+    "unauthenticated_attempts": [
+      {
+        "url": "http://localhost:8000/api/auth/users/me",
+        "label": "Perfil de usuario"
+      },
+      {
+        "url": "http://localhost:8000/api/tickets/my-tickets",
+        "label": "Cartera de boletos"
+      },
+      {
+        "url": "http://localhost:8000/api/tickets/refund/my-refunds",
+        "label": "Rastreador de reembolsos"
+      }
+    ]
+  }
+}

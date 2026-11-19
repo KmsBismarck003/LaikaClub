@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-002",
+  "role": "gestor",
+  "test_name": "gestor_courtesy_quota_math_ut",
+  "timestamp": "2026-11-16T16:15:33.766453",
+  "execution_duration_sec": 2e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "quota_math": {
+      "remaining": 38,
+      "overflow_handled": true
+    }
+  }
+}

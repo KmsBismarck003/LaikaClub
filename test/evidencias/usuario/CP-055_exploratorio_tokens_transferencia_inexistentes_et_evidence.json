@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-055",
+  "role": "usuario",
+  "test_name": "exploratorio_tokens_transferencia_inexistentes_et",
+  "timestamp": "2026-11-16T16:14:26.446851",
+  "execution_duration_sec": 0.211196,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El servicio maneja adecuadamente tokens erróneos o manipulados con código de error controlado.",
+  "payloads": {
+    "exploratory_transfer_results": {
+      "fake_token": "358c5ffa9130418fa71b870995124307",
+      "validate_status": 404,
+      "claim_status": 404
+    }
+  }
+}

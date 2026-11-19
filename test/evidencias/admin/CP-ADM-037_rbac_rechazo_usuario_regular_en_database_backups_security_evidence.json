@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-037",
+  "role": "admin",
+  "test_name": "rbac_rechazo_usuario_regular_en_database_backups_security",
+  "timestamp": "2026-11-16T16:14:59.549450",
+  "execution_duration_sec": 0.046575,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_backup_security": {
+      "status": 403,
+      "body": "{\"timestamp\":\"2026-11-16T22:14:59.593+00:00\",\"status\":403,\"error\":\"Forbidden\",\"path\":\"/database/backups\"}"
+    }
+  }
+}

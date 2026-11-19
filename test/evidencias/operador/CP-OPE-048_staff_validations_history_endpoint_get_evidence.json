@@ -1,0 +1,60 @@
+{
+  "test_id": "CP-OPE-048",
+  "role": "operador",
+  "test_name": "staff_validations_history_endpoint_get",
+  "timestamp": "2026-11-16T16:14:13.493416",
+  "execution_duration_sec": 0.028573,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "200 OK obtenido con 219 entradas de auditoría",
+  "payloads": {
+    "staff_history": {
+      "total_logs": 219,
+      "sample": [
+        {
+          "id": 219,
+          "ticketId": 200181,
+          "ticketCode": "TKT-C853F390",
+          "userId": 30067,
+          "eventId": 100001,
+          "eventFunctionId": 505,
+          "selectedEventId": 20,
+          "selectedFunctionId": null,
+          "operatorId": null,
+          "operatorName": null,
+          "platform": "WEB_OPERATOR",
+          "deviceInfo": "Estación Operativa",
+          "accessPoint": "Puerta Principal",
+          "actionType": "VERIFY",
+          "resultStatus": "FUTURE_EVENT",
+          "notes": "Verificación previa a apertura de puertas",
+          "validationDate": "2026-11-16",
+          "validationTime": "22:13:45.464280622",
+          "createdAt": "2026-11-16T22:13:45.464271"
+        },
+        {
+          "id": 218,
+          "ticketId": 0,
+          "ticketCode": "TKT-FAKE-FORGED-999",
+          "userId": 0,
+          "eventId": 0,
+          "eventFunctionId": null,
+          "selectedEventId": null,
+          "selectedFunctionId": null,
+          "operatorId": null,
+          "operatorName": null,
+          "platform": "WEB_OPERATOR",
+          "deviceInfo": "Estación Operativa",
+          "accessPoint": "Puerta Principal",
+          "actionType": "VERIFY",
+          "resultStatus": "INVALID_CODE",
+          "notes": "Intento con código inexistente",
+          "validationDate": "2026-11-16",
+          "validationTime": "22:13:45.381228816",
+          "createdAt": "2026-11-16T22:13:45.381217"
+        }
+      ]
+    }
+  }
+}

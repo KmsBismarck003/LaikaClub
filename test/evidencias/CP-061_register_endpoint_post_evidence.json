@@ -1,0 +1,30 @@
+{
+  "test_id": "CP-061",
+  "test_name": "register_endpoint_post",
+  "timestamp": "2026-11-16T12:56:30.927900",
+  "execution_duration_sec": 0.156195,
+  "result": "Aprobada",
+  "payloads": {
+    "registration_response": {
+      "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXN1YXJpbyIsInVzZXJfaWQiOjMwMDkxLCJzdWIiOiJhcGlfcmVnX3Rlc3RfMTc5NDg1NTM5MEBsYWlrYWNsdWIuY29tIiwiaWF0IjoxNzk0ODU1MzkxLCJleHAiOjE3OTU0NjAxOTF9.YzrUMIHvAZ4vSQxLRFMem49JlZ3NoWErhZekC-j9tSw",
+      "user": {
+        "id": 30091,
+        "firstName": "",
+        "lastName": "",
+        "email": "api_reg_test_1794855390@laikaclub.com",
+        "phone": "5551239999",
+        "role": "usuario",
+        "status": "active",
+        "createdAt": "2026-11-16T18:56:31.070117242",
+        "permissions": [
+          "admin.view",
+          "venues.view",
+          "cms.view",
+          "stats.view",
+          "users.view",
+          "events.view"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-032",
+  "role": "avanzados",
+  "test_name": "flujo_logros_cupon_invalido_post",
+  "timestamp": "2026-11-16T16:15:51.452850",
+  "execution_duration_sec": 0.069751,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Cupón inválido rechazado: valid=False, detail=Cupón no válido o no pertenece a tu usuario",
+  "payloads": {
+    "fake_coupon_validation": {
+      "valid": false,
+      "detail": "Cupón no válido o no pertenece a tu usuario"
+    }
+  }
+}

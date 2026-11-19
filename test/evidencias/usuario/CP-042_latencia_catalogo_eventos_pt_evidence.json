@@ -1,0 +1,30 @@
+{
+  "test_id": "CP-042",
+  "role": "usuario",
+  "test_name": "latencia_catalogo_eventos_pt",
+  "timestamp": "2026-11-16T16:14:49.378413",
+  "execution_duration_sec": 0.135059,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El endpoint de eventos cumple holgadamente con los requerimientos de velocidad.",
+  "payloads": {
+    "latency_metrics": {
+      "avg_ms": 13.499617576599121,
+      "max_ms": 46.43440246582031,
+      "min_ms": 7.017612457275391,
+      "samples": [
+        46.43440246582031,
+        7.017612457275391,
+        7.447004318237305,
+        10.707616806030273,
+        16.57414436340332,
+        7.897138595581055,
+        7.030487060546875,
+        16.554594039916992,
+        7.667303085327148,
+        7.665872573852539
+      ]
+    }
+  }
+}

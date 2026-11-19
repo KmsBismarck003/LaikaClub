@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-015",
+  "test_name": "events_query_db_it",
+  "timestamp": "2026-11-16T12:56:34.093286",
+  "execution_duration_sec": 0.042755,
+  "result": "Aprobada",
+  "payloads": {
+    "events_correlation": {
+      "api_count": 4,
+      "db_count": 14,
+      "sample_id": [
+        100000,
+        100001,
+        20
+      ]
+    }
+  }
+}

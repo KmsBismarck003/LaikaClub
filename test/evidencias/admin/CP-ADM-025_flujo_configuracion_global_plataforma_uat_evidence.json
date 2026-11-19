@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-ADM-025",
+  "role": "admin",
+  "test_name": "flujo_configuracion_global_plataforma_uat",
+  "timestamp": "2026-11-16T16:15:19.188852",
+  "execution_duration_sec": 0.107358,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "config_update_flow": {
+      "read": true,
+      "updated": true,
+      "verified": true
+    }
+  }
+}

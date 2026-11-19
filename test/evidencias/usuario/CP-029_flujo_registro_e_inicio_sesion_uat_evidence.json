@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-029",
+  "role": "usuario",
+  "test_name": "flujo_registro_e_inicio_sesion_uat",
+  "timestamp": "2026-11-16T14:17:48.155104",
+  "execution_duration_sec": 0.272234,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El recorrido de bienvenida y acceso satisface los criterios de aceptación del usuario.",
+  "payloads": {
+    "uat_onboarding": {
+      "registered_email": "uat_user_1794860268@laikaclub.com",
+      "login_status": 200
+    }
+  }
+}

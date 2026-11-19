@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-067",
+  "role": "gestor",
+  "test_name": "manager_venue_detail_endpoint_get",
+  "timestamp": "2026-11-16T16:14:05.638845",
+  "execution_duration_sec": 0.032834,
+  "result": "Fallida",
+  "defect_id": "DEF-GES-004",
+  "defect_severity": "Media",
+  "observations": "Falta endpoint GET /venues/{id} en VenueController: responde HTTP 405 Method Not Allowed",
+  "payloads": {
+    "http_response": {
+      "status": 405,
+      "body": "{\"timestamp\":\"2026-11-16T22:14:05.668+00:00\",\"status\":405,\"error\":\"Method Not Allowed\",\"path\":\"/venu"
+    }
+  }
+}

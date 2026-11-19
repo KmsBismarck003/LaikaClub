@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-003",
+  "role": "usuario",
+  "test_name": "carrito_calculo_subtotal",
+  "timestamp": "2026-11-16T16:15:33.381541",
+  "execution_duration_sec": 0.000191,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Precisión decimal conforme a estándares financieros.",
+  "payloads": {
+    "calculation_result": {
+      "subtotal": 1250.0,
+      "service_fee": 125.0,
+      "total": 1275.0
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "test_id": "CP-ADV-007",
+  "role": "avanzados",
+  "test_name": "flujo_reembolso_cotizacion_ticket_propio_get",
+  "timestamp": "2026-11-16T16:15:48.128016",
+  "execution_duration_sec": 0.028114,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Cotización obtenida exitosamente para ticket 200265",
+  "payloads": {
+    "quote_response": {
+      "ticketId": 200265,
+      "ticketCode": "TKT-A482D39B",
+      "eventId": 24,
+      "eventName": null,
+      "eventDate": null,
+      "seatInfo": "General",
+      "originalPrice": 0.0,
+      "refundAmount": 0.0,
+      "penaltyFee": 0.0,
+      "paymentMethod": "Cortesía institucional",
+      "eligible": false,
+      "rejectionReason": "El boleto no se encuentra en un estado activo para solicitar cancelación (estado actual: unutilized).",
+      "policySummary": null,
+      "estimatedDays": null
+    }
+  }
+}

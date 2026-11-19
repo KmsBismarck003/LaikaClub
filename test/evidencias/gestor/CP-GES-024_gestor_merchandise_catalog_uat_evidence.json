@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-024",
+  "role": "gestor",
+  "test_name": "gestor_merchandise_catalog_uat",
+  "timestamp": "2026-11-16T16:15:29.755041",
+  "execution_duration_sec": 0.140236,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "merchandise_uat": {
+      "items_ok": true,
+      "settings_ok": true
+    }
+  }
+}

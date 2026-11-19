@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-062",
+  "role": "usuario",
+  "test_name": "register_correo_duplicado_post",
+  "timestamp": "2026-11-16T16:14:14.253051",
+  "execution_duration_sec": 0.051782,
+  "result": "Fallida",
+  "defect_id": "DEF-001",
+  "defect_severity": "Alta",
+  "observations": "El microservicio de autenticación laika_auth retorna HTTP 500 (Internal Server Error) en lugar de HTTP 409 (Conflict) o HTTP 400 (Bad Request) cuando un usuario intenta registrarse con un correo ya existente. Esto genera falsas alarmas de fallo interno en sistemas de monitoreo y degrada la experiencia del cliente.",
+  "payloads": {
+    "duplicate_email_response": {
+      "status_code": 500,
+      "body": "{\"detail\":\"El correo ya está registrado\"}"
+    }
+  }
+}

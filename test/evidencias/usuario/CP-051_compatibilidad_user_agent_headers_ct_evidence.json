@@ -1,0 +1,35 @@
+{
+  "test_id": "CP-051",
+  "role": "usuario",
+  "test_name": "compatibilidad_user_agent_headers_ct",
+  "timestamp": "2026-11-16T16:14:15.037861",
+  "execution_duration_sec": 0.065939,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El Gateway procesa con neutralidad solicitudes de diversos sistemas operativos y clientes.",
+  "payloads": {
+    "user_agents_evaluated": {
+      "Chrome Desktop": {
+        "status_code": 200,
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64"
+      },
+      "Safari macOS": {
+        "status_code": 200,
+        "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 1"
+      },
+      "Firefox Linux": {
+        "status_code": 200,
+        "ua": "Mozilla/5.0 (X11; Linux x86_64; rv:123.0"
+      },
+      "iPhone Safari": {
+        "status_code": 200,
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 "
+      },
+      "Android Chrome": {
+        "status_code": 200,
+        "ua": "Mozilla/5.0 (Linux; Android 14; Pixel 8)"
+      }
+    }
+  }
+}

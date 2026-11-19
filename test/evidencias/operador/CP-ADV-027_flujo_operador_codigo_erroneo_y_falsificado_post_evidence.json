@@ -1,0 +1,33 @@
+{
+  "test_id": "CP-ADV-027",
+  "role": "operador",
+  "test_name": "flujo_operador_codigo_erroneo_y_falsificado_post",
+  "timestamp": "2026-11-16T16:15:52.204535",
+  "execution_duration_sec": 0.076183,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Código falsificado rechazado con statusCode=INVALID_CODE",
+  "payloads": {
+    "forged_scan": {
+      "valid": false,
+      "actionable": false,
+      "isError": true,
+      "alreadyUsed": false,
+      "statusCode": "INVALID_CODE",
+      "statusTitle": "CÓDIGO INEXISTENTE",
+      "operatorMessage": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+      "message": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+      "timeRemainingSeconds": 0,
+      "ticketCode": "TKT-FAKE-FORGED-999",
+      "terminalContext": {
+        "platform": "WEB_OPERATOR",
+        "accessPoint": "Puerta Principal",
+        "operatorId": null,
+        "operatorName": null,
+        "selectedEventId": null,
+        "selectedFunctionId": null
+      }
+    }
+  }
+}

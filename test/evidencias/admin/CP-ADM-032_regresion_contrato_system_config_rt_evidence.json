@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-ADM-032",
+  "role": "admin",
+  "test_name": "regresion_contrato_system_config_rt",
+  "timestamp": "2026-11-16T16:14:50.953657",
+  "execution_duration_sec": 0.047348,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "runtime_config_contract": {
+      "registrationEnabled": true,
+      "maxTicketsPerUser": 5,
+      "sessionTimeout": 35,
+      "maintenanceMode": false
+    }
+  }
+}

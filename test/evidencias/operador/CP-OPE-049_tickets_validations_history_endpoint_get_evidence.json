@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-OPE-049",
+  "role": "operador",
+  "test_name": "tickets_validations_history_endpoint_get",
+  "timestamp": "2026-11-16T16:14:14.027328",
+  "execution_duration_sec": 0.028394,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "200 OK obtenido con 220 registros",
+  "payloads": {
+    "tickets_history": {
+      "total_logs": 220
+    }
+  }
+}

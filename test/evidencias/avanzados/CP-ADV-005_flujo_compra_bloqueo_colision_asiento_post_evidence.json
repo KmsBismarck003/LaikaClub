@@ -1,0 +1,12 @@
+{
+  "test_id": "CP-ADV-005",
+  "role": "avanzados",
+  "test_name": "flujo_compra_bloqueo_colision_asiento_post",
+  "timestamp": "2026-11-16T16:15:48.306926",
+  "execution_duration_sec": 0.213303,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Bloqueo 1: 200, Bloqueo 2: 409",
+  "payloads": {}
+}

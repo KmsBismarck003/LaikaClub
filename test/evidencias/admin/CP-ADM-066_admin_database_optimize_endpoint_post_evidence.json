@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-066",
+  "role": "admin",
+  "test_name": "admin_database_optimize_endpoint_post",
+  "timestamp": "2026-11-16T16:13:53.295132",
+  "execution_duration_sec": 0.989193,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "body": "{\"message\":\"Optimización completada\",\"success\":true}"
+    }
+  }
+}

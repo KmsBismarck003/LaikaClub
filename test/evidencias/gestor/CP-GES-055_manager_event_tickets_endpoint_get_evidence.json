@@ -1,0 +1,98 @@
+{
+  "test_id": "CP-GES-055",
+  "role": "gestor",
+  "test_name": "manager_event_tickets_endpoint_get",
+  "timestamp": "2026-11-16T16:14:04.561742",
+  "execution_duration_sec": 0.030104,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "data": {
+        "sold": 4,
+        "recent_purchases": [
+          {
+            "purchase_date": "2026-11-16 22:13:41.0",
+            "ticket_code": "TKT-64BCBB7C",
+            "price": 0.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 22:12:55.0",
+            "ticket_code": "TKT-91375C5B",
+            "price": 0.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 22:10:41.0",
+            "ticket_code": "TKT-4468B188",
+            "price": 0.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 21:16:35.0",
+            "ticket_code": "TKT-A66E35F2",
+            "price": 0.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 21:13:56.0",
+            "ticket_code": "TKT-863D0C4E",
+            "price": 0.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 21:08:01.0",
+            "ticket_code": "TKT-EFD4AFC4",
+            "price": 0.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 21:04:20.0",
+            "ticket_code": "TKT-7CE2DCED",
+            "price": 0.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-09-30 18:02:40.0",
+            "ticket_code": "TKT-C853F390",
+            "price": 1800.0,
+            "customer": "bismarck",
+            "status": "active"
+          },
+          {
+            "purchase_date": "2026-09-30 18:02:40.0",
+            "ticket_code": "TKT-FE842B05",
+            "price": 1800.0,
+            "customer": "bismarck",
+            "status": "active"
+          },
+          {
+            "purchase_date": "2026-09-30 17:19:51.0",
+            "ticket_code": "TKT-FFF2D08A",
+            "price": 1800.0,
+            "customer": "bismarck",
+            "status": "active"
+          }
+        ],
+        "available": 49996,
+        "active": 4,
+        "cancelled": 0,
+        "refunded": 0,
+        "sell_through_pct": 0.0,
+        "used": 0,
+        "total_capacity": 50000
+      }
+    }
+  }
+}

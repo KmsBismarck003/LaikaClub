@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-002",
+  "role": "avanzados",
+  "test_name": "flujo_compra_tarjeta_monto_invalido_post",
+  "timestamp": "2026-11-16T16:15:48.947037",
+  "execution_duration_sec": 0.042743,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Rechazo validado con HTTP 400: {\"timestamp\":\"2026-11-16T22:15:48.986+00:00\",\"status\":400,\"error\":\"Bad Request\",",
+  "payloads": {
+    "monto_invalido_response": {
+      "status_code": 400,
+      "body": "{\"timestamp\":\"2026-11-16T22:15:48.986+00:00\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"amount debe ser numérico\",\"pa"
+    }
+  }
+}

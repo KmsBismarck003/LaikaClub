@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-058",
+  "role": "admin",
+  "test_name": "admin_broadcast_endpoint_post",
+  "timestamp": "2026-11-16T16:13:52.474167",
+  "execution_duration_sec": 0.04362,
+  "result": "Fallida",
+  "defect_id": "DEF-ADM-002",
+  "defect_severity": "Crítica",
+  "observations": "DEF-ADM-002: El endpoint ejecuta un bucle síncrono sobre toda la base de usuarios activos (30,040 correos) bloqueando el hilo de Tomcat y provocando DoS en el microservicio de autenticación",
+  "payloads": {
+    "broadcast_audit": {
+      "validation_status": 500,
+      "defect_note": "Broadcast masivo bloquea el servidor al iterar síncronamente sobre 30,040 usuarios sin mensajería asíncrona"
+    }
+  }
+}

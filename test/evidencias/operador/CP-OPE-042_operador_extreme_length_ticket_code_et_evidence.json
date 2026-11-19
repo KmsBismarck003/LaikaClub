@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-OPE-042",
+  "role": "operador",
+  "test_name": "operador_extreme_length_ticket_code_et",
+  "timestamp": "2026-11-16T16:14:27.084978",
+  "execution_duration_sec": 0.039339,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "overflow_et": {
+      "status": 500
+    }
+  }
+}

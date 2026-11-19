@@ -1,0 +1,26 @@
+{
+  "test_id": "CP-ADV-047",
+  "role": "avanzados",
+  "test_name": "flujo_cortesia_token_validacion_previa_get",
+  "timestamp": "2026-11-16T16:15:50.689692",
+  "execution_duration_sec": 0.184159,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Token verificado correctamente: evento 'Cine Club: Joyas de la Animación', estado: unutilized",
+  "payloads": {
+    "validate_token": {
+      "claim_token": "LAIKA-COR-905D1C",
+      "status": "unutilized",
+      "can_claim": false,
+      "section_name": "General",
+      "recipient_type": "PRENSA",
+      "motive": "Cobertura de prensa",
+      "event_name": "Cine Club: Joyas de la Animación",
+      "event_date": "2026-07-17",
+      "event_time": "16:00:00",
+      "venue_name": "Cine Diana Guadalajara",
+      "image_url": "/uploads/imagenes/images.jpg"
+    }
+  }
+}
