@@ -1,0 +1,739 @@
+/* ==========================================================================
+   MANAGER EVENT FORM — Editorial Multi-Section + 1:1 Home Live Preview
+   100% Semantic Tokens (Dark & Light Mode), 320px -> Ultra-Wide 4K Responsive
+   ========================================================================== */
+
+.formShell {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.layoutGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) 340px;
+  align-items: start;
+  gap: 1.5rem;
+}
+
+.formColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+/* ── Draft Recovery Banner ───────────────────────────────────── */
+.draftBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  padding: 0.95rem 1.15rem;
+  border-radius: 14px;
+  background: rgba(59, 130, 246, 0.09);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.draftInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.draftIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.16);
+  color: #3b82f6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.draftTitle {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.draftText {
+  margin: 0.1rem 0 0;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.draftActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Section Cards ───────────────────────────────────────────── */
+.sectionCard {
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  border-radius: 16px;
+  box-shadow: var(--bento-shadow);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid var(--bento-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sectionHeaderMain {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.sectionStepBadge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--text-primary);
+  color: var(--bento-card-bg);
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.96rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+.sectionSubtitle {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.sectionBody {
+  padding: 1.25rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+}
+
+/* ── Inputs, Selects & Grids ─────────────────────────────────── */
+.gridTwo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+  min-width: 0;
+}
+
+.fieldLabel {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--text-primary);
+}
+
+.requiredMark {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-primary);
+  font-size: 0.86rem;
+  font-weight: 500;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.textarea {
+  min-height: 92px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  background: var(--bento-card-bg);
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(120, 120, 140, 0.14);
+}
+
+.input:disabled,
+.select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.select option {
+  background: var(--bento-card-bg);
+  color: var(--text-primary);
+}
+
+.fieldHelper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+/* ── Room + Interactive Seating Map Panel ────────────────────── */
+.roomConfigBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+}
+
+.seatingToggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--bento-card-border);
+}
+
+.checkboxControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.checkboxControlDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.checkboxInput {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--text-primary);
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.planBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #d97706;
+  font-size: 0.72rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+/* ── Multi-Function Scheduler (Spacious 2-Row Composer) ──────── */
+.schedulerBox {
+  padding: 1.05rem;
+  border-radius: 12px;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.schedulerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.schedulerTitle {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.schedulerCount {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.functionList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.functionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+}
+
+.functionMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.functionPrimaryLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.functionSecondaryLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.metaInline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.functionComposer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.35rem;
+}
+
+.functionComposerActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Image Dropzone ──────────────────────────────────────────── */
+.dropzone {
+  position: relative;
+  border: 1.5px dashed var(--bento-card-border);
+  border-radius: 14px;
+  padding: 1.35rem;
+  background: var(--bento-card-subtle-bg);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dropzone:hover {
+    border-color: var(--text-primary);
+    background: var(--bento-card-hover-bg);
+  }
+}
+
+.dropzonePreviewImg {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+.dropzoneCaption {
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.dropzonePlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0;
+}
+
+.dropzoneIconBox {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropzoneTitle {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dropzoneHint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+/* ── Rules & Extras ──────────────────────────────────────────── */
+.rulesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ruleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  font-size: 0.82rem;
+  color: var(--text-primary);
+}
+
+.ruleDesc {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.featuresStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.collapsibleTrigger {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.85rem 1.25rem;
+  background: var(--bento-card-bg);
+  border: none;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.6rem 1.35rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--text-primary);
+  color: var(--bento-card-bg);
+  font-size: 0.84rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnPrimary:hover:not(:disabled) {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+}
+
+.btnPrimary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnSecondary:hover:not(:disabled) {
+    border-color: var(--text-muted);
+    background: var(--bento-card-hover-bg);
+  }
+}
+
+.iconDeleteBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .iconDeleteBtn:hover {
+    background: #ef4444;
+    color: #ffffff;
+  }
+}
+
+/* ── Sticky Action Footer ────────────────────────────────────── */
+.stickyFooter {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  box-shadow: var(--bento-shadow-hover);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.footerSummary {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.footerButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
+/* ── Right Column: Live Home Preview (Sticky) ────────────────── */
+.previewColumn {
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.previewShell {
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  border-radius: 16px;
+  padding: 1.15rem;
+  box-shadow: var(--bento-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.previewTitle {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 750;
+  color: var(--text-primary);
+}
+
+.previewCardStage {
+  width: 100%;
+  pointer-events: none;
+}
+
+.previewMetricsRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--bento-card-border);
+}
+
+.previewMetricCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.previewMetricLabel {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.previewMetricValue {
+  font-size: 0.84rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.previewNote {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── CreateEventPage Wrapper ─────────────────────────────────── */
+.createPageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  max-width: 1240px;
+  margin: 0 auto 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--bento-card-border);
+}
+
+.createPageTitle {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+.createPageSubtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+/* ── Responsive Breakpoints (320px -> Ultra-Wide) ────────────── */
+@media (max-width: 1024px) {
+  .layoutGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .previewColumn {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .gridTwo {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeader,
+  .sectionBody,
+  .stickyFooter {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .footerButtons {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .footerButtons .btnPrimary,
+  .footerButtons .btnSecondary {
+    flex: 1 1 auto;
+  }
+}

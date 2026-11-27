@@ -1,141 +1,98 @@
-import React from 'react';
-import Card from '../../components/Card';
-import Button from '../../components/Button';
-import '../../styles/manager.css';
-import { getImageUrl } from '../../utils/imageUtils';
+import React, { useMemo } from 'react';
+import { Badge } from '../../components';
+import EventCardPremium from '../Home/components/EventCardPremium/EventCardPremium';
+import { buildHomePreviewEvent } from './utils/eventFormUtils';
+import styles from './EventForm.module.css';
 
-const formatTime = (time) => {
-    if (!time) return '';
-    const str = String(time);
-    if (str.includes(':')) return str.substring(0, 5);
-    if (!isNaN(time)) {
-        const totalSec = parseInt(time, 10);
-        const h = Math.floor(totalSec / 3600).toString().padStart(2, '0');
-        const m = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
-        return `${h}:${m}`;
-    }
-    return '';
+const EDITORIAL_POSTER_FALLBACK =
+  'data:image/svg+xml;charset=UTF-8,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#18181b"/>
+          <stop offset="100%" stop-color="#27272a"/>
+        </linearGradient>
+      </defs>
+      <rect width="640" height="400" fill="url(#bg)"/>
+      <circle cx="320" cy="170" r="34" fill="none" stroke="#52525b" stroke-width="2.5"/>
+      <path d="M298 184l16-18 12 12 10-10 14 16H298z" fill="#71717a"/>
+      <circle cx="310" cy="158" r="4" fill="#a1a1aa"/>
+      <text x="320" y="242" text-anchor="middle" fill="#a1a1aa" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="600">
+        Vista previa de portada
+      </text>
+      <text x="320" y="268" text-anchor="middle" fill="#71717a" font-family="system-ui,-apple-system,sans-serif" font-size="13">
+        Sube una imagen o pega una URL en el paso 1
+      </text>
+    </svg>`
+  );
+
+const formatPriceLabel = (price) => {
+  const num = Number(price);
+  if (!Number.isFinite(num) || num <= 0) return 'Entrada libre';
+  return `$${num.toLocaleString('es-MX', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 };
 
-/**
- * EventCardPreview
- * Reuses the Home page Card style to show a live preview.
- */
-const EventCardPreview = ({ eventData }) => {
-    // Default placeholder data if fields are empty
-    const {
-        name = "Nombre del Evento",
-        description = "Descripción breve del evento...",
-        event_date,
-        event_time,
-        location = "Ubicación",
-        price = 0,
-        image_url,
-        category = "concert"
-    } = eventData;
+const EventCardPreview = ({ eventData, functions = [], newFunction = null }) => {
+  const previewModel = useMemo(() => {
+    const built = buildHomePreviewEvent(eventData || {}, functions, newFunction);
+    return {
+      ...built,
+      image_url: built.image_url || EDITORIAL_POSTER_FALLBACK,
+    };
+  }, [eventData, functions, newFunction]);
 
-    // Simulate formatting
-    const formattedDate = event_date ? new Date(event_date).toLocaleDateString() : 'DD/MM/YYYY';
-    const formattedTime = formatTime(event_time) || 'HH:MM';
+  const totalFunctions =
+    functions.length > 0
+      ? functions.length
+      : newFunction?.date || eventData?.event_date
+        ? 1
+        : 0;
 
-    // Fallback image if none provided
-    const displayImage = getImageUrl(image_url);
+  const capacity = Number(eventData?.total_tickets) || 0;
 
-    return (
-        <div className="preview-container" style={{ padding: '2rem', background: '#f1f5f9', borderRadius: '16px', display: 'flex', justifyContent: 'center' }}>
-            <div className="premium-card-wrapper" style={{ width: '100%', maxWidth: '320px' }}>
-                <Card
-                    className="premium-event-card"
-                    style={{ 
-                        padding: 0, 
-                        overflow: 'hidden', 
-                        borderRadius: '24px', 
-                        border: 'none',
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
-                        background: '#fff',
-                        position: 'relative',
-                        transition: 'transform 0.3s ease'
-                    }}
-                >
-                    {/* Imagen con Overlay */}
-                    <div className="premium-image-box" style={{ position: 'relative', height: '380px' }}>
-                        <img
-                            src={displayImage}
-                            alt={name}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                        <div style={{ 
-                            position: 'absolute', 
-                            top: '16px', 
-                            right: '16px', 
-                            background: 'rgba(255,255,255,0.9)', 
-                            backdropFilter: 'blur(10px)',
-                            padding: '6px 12px',
-                            borderRadius: '100px',
-                            fontSize: '0.65rem',
-                            fontWeight: '900',
-                            letterSpacing: '0.05em',
-                            color: '#000'
-                        }}>
-                            {category.toUpperCase()}
-                        </div>
-                        
-                        {/* Gradient Overlay */}
-                        <div style={{ 
-                            position: 'absolute', 
-                            bottom: 0, 
-                            left: 0, 
-                            right: 0, 
-                            height: '60%', 
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)' 
-                        }} />
-                        
-                        {/* Content Floating on Image */}
-                        <div style={{ 
-                            position: 'absolute', 
-                            bottom: '20px', 
-                            left: '20px', 
-                            right: '20px',
-                            color: '#fff'
-                        }}>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, lineHeight: 1.1, textTransform: 'uppercase' }}>
-                                {name}
-                            </h3>
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '10px', fontSize: '0.7rem', opacity: 0.9, fontWeight: '600' }}>
-                                <span> {formattedDate}</span>
-                                <span>🕒 {formattedTime}</span>
-                            </div>
-                        </div>
-                    </div>
+  return (
+    <div className={styles.previewShell}>
+      <div className={styles.previewHeader}>
+        <h3 className={styles.previewTitle}>Vista previa en Inicio</h3>
+        <Badge variant="default" size="small" rounded>
+          En vivo
+        </Badge>
+      </div>
 
-                    {/* Bottom Info */}
-                    <div className="premium-card-footer" style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div className="price-tag">
-                            <p style={{ margin: 0, fontSize: '0.6rem', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase' }}>Desde</p>
-                            <h4 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '900', color: '#0f172a' }}>
-                                ${parseFloat(price).toFixed(2)}
-                            </h4>
-                        </div>
-                        <Button 
-                            variant="primary" 
-                            style={{ 
-                                borderRadius: '12px', 
-                                padding: '12px 20px', 
-                                fontSize: '0.75rem', 
-                                fontWeight: '800',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                            }}
-                        >
-                            VER BOLETOS
-                        </Button>
-                    </div>
-                </Card>
-                <p style={{ textAlign: 'center', fontSize: '0.7rem', color: '#64748b', marginTop: '1.5rem', fontWeight: '500' }}>
-                    Esta es una previsualización de cómo se verá el evento en la plataforma principal.
-                </p>
-            </div>
+      <div className={styles.previewCardStage} aria-label="Vista previa de tarjeta de evento">
+        <EventCardPremium event={previewModel} onClick={() => {}} />
+      </div>
+
+      <div className={styles.previewMetricsRow}>
+        <div className={styles.previewMetricCell}>
+          <span className={styles.previewMetricLabel}>Precio</span>
+          <span className={styles.previewMetricValue}>
+            {formatPriceLabel(eventData?.price)}
+          </span>
         </div>
-    );
+
+        <div className={styles.previewMetricCell}>
+          <span className={styles.previewMetricLabel}>Aforo</span>
+          <span className={styles.previewMetricValue}>
+            {capacity > 0 ? capacity.toLocaleString('es-MX') : '—'}
+          </span>
+        </div>
+
+        <div className={styles.previewMetricCell}>
+          <span className={styles.previewMetricLabel}>Funciones</span>
+          <span className={styles.previewMetricValue}>{totalFunctions}</span>
+        </div>
+      </div>
+
+      <p className={styles.previewNote}>
+        Esta es la tarjeta real que aparecerá en el catálogo público de LaikaClub.
+      </p>
+    </div>
+  );
 };
 
 export default EventCardPreview;

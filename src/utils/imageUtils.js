@@ -17,8 +17,13 @@ export const getImageUrl = (path) => {
         }
     }
 
-    // If it's already an absolute URL (http/https) or blob, return as is
-    if (cleanPath.startsWith('http') || cleanPath.startsWith('https') || cleanPath.startsWith('blob:')) {
+    // If it's already an absolute URL (http/https), blob, or inline data URI, return as is
+    if (
+        cleanPath.startsWith('http') ||
+        cleanPath.startsWith('https') ||
+        cleanPath.startsWith('blob:') ||
+        cleanPath.startsWith('data:')
+    ) {
         return cleanPath;
     }
 

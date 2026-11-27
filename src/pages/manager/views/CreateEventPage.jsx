@@ -1,81 +1,60 @@
-import React, { useState } from 'react';
-import { Card, Icon, Button } from '../../../components';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import EventForm from '../EventForm';
-import { useLocation } from 'react-router-dom';
+import { Icon } from '../../../components';
 import { useNotification } from '../../../context/NotificationContext';
+import EventForm from '../EventForm';
+import styles from '../EventForm.module.css';
 
 const CreateEventPage = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { addNotification } = useNotification();
-    const [isFormOpen, setIsFormOpen] = useState(false);
+  const navigate = useNavigate();
+  const { addNotification } = useNotification();
 
-    // Si venimos con un venue_id, abrir el formulario inmediatamente
-    React.useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        if (params.get('venue_id')) {
-            setIsFormOpen(true);
-        }
-    }, [location.search]);
-
-    const handleSave = (eventData) => {
-        // Disparar Notificación Push Automática (Nuevo Evento)
-        import('../../../specialFun/PushNotifications').then(module => {
-            module.PushEngine.triggerSmart('NEW_EVENT', {
-                eventName: eventData?.name || 'un nuevo evento espectacular',
-                url: `${window.location.origin}/event/${eventData?.id || 1}`
-            });
-        }).catch(e => console.error("Error triggering push:", e));
-
-        // Registrar notificación en la app para usuarios con redirección directa al evento
-        addNotification({
-            title: '¡Nuevo Evento Anunciado!',
-            message: `Acabamos de anunciar ${eventData?.name || 'un nuevo espectáculo en LaikaClub'}.`,
-            detail: 'Los primeros lugares ya se encuentran disponibles en taquilla digital. Descubre las fechas y aparta tus boletos.',
-            actionUrl: `/event/${eventData?.id || 1}`,
-            actionLabel: 'Ver Evento',
-            role: 'all'
+  const handleSave = (eventData) => {
+    import('../../../specialFun/PushNotifications')
+      .then((module) => {
+        module.PushEngine.triggerSmart('NEW_EVENT', {
+          eventName: eventData?.name || 'un nuevo evento espectacular',
+          url: `${window.location.origin}/event/${eventData?.id || 1}`,
         });
+      })
+      .catch((err) => console.error('Error triggering push:', err));
 
-        // Al guardar, redirigimos al monitor de eventos
-        navigate('/events/manage');
-    };
+    addNotification({
+      title: 'Nuevo evento anunciado',
+      message: `Se ha publicado ${eventData?.name || 'un nuevo espectáculo en LaikaClub'}.`,
+      detail:
+        'Los primeros lugares ya se encuentran disponibles en taquilla digital. Descubre las fechas y aparta tus boletos.',
+      actionUrl: `/event/${eventData?.id || 1}`,
+      actionLabel: 'Ver evento',
+      role: 'all',
+    });
 
-    return (
-        <div className="admin-dashboard-page">
-            <header className="dashboard-header">
-                <div>
-                    <h1 className="welcome-greeting">Crear Nuevo Evento</h1>
-                    <p className="welcome-date">Configuración profesional de tu misión</p>
-                </div>
-            </header>
-            
-            <Card className="stat-card" style={{ gridColumn: 'span 4', padding: '2.5rem' }}>
-                <div style={{ textAlign: 'center', padding: '4rem' }}>
-                    <Icon name="plus" size={48} style={{ opacity: 0.1, marginBottom: '1.5rem' }} />
-                    <h2 style={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Módulo de Creación de Eventos</h2>
-                    <p style={{ color: '#888', maxWidth: '600px', margin: '1rem auto' }}>
-                        Como Gestor, ahora tienes acceso total para crear y configurar tus propios eventos, zonas de precios y reglas de acceso.
-                    </p>
-                    <Button 
-                        variant="primary" 
-                        style={{ marginTop: '2rem' }}
-                        onClick={() => setIsFormOpen(true)}
-                    >
-                        ABRIR ASISTENTE DE CREACIÓN
-                    </Button>
-                </div>
-            </Card>
+    navigate('/events/manage');
+  };
 
-            {isFormOpen && (
-                <EventForm 
-                    onClose={() => setIsFormOpen(false)}
-                    onSuccess={handleSave}
-                />
-            )}
+  return (
+    <div className="admin-dashboard-page">
+      <header className={styles.createPageHeader}>
+        <div>
+          <h1 className={styles.createPageTitle}>Crear nuevo evento</h1>
+          <p className={styles.createPageSubtitle}>
+            Completa los datos en orden y verifica cómo aparecerá tu evento en la página principal.
+          </p>
         </div>
-    );
+
+        <button
+          type="button"
+          className={styles.btnSecondary}
+          onClick={() => navigate('/events/manage')}
+        >
+          <Icon name="arrowLeft" size={15} />
+          Volver a mis eventos
+        </button>
+      </header>
+
+      <EventForm onSuccess={handleSave} />
+    </div>
+  );
 };
 
 export default CreateEventPage;
