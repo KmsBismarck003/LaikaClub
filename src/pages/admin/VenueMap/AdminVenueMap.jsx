@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Undo2, Redo2, LayoutTemplate, Save } from 'lucide-react';
+import { ArrowLeft, Undo2, Redo2, LayoutTemplate, Save, Check } from 'lucide-react';
 import { venueAPI } from '../../../services/api';
 import { useNotification } from '../../../context/NotificationContext';
 import BlockGeneratorWizard from './components/BlockGeneratorWizard';
@@ -42,6 +42,7 @@ const AdminVenueMap = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState(null); // null | { type: 'ok' | 'err', text: string }
   const [roomInfo, setRoomInfo] = useState({ name: 'Sala' });
   const [totalCapacity, setTotalCapacity] = useState(0);
 
@@ -405,9 +406,13 @@ const AdminVenueMap = () => {
         }))
       };
       await venueAPI.saveRoomMap(roomId, payload);
-      success('¡Mapa guardado!');
+      success('Mapa guardado correctamente');
+      setSaveFeedback({ type: 'ok', text: 'Guardado' });
+      setTimeout(() => setSaveFeedback(null), 3000);
     } catch (err) {
-      showError('Error al guardar: ' + err.message);
+      const msg = err?.message || 'Error al guardar el mapa';
+      showError('Error al guardar: ' + msg);
+      setSaveFeedback({ type: 'err', text: msg });
     } finally {
       setSaving(false);
     }
@@ -466,10 +471,16 @@ const AdminVenueMap = () => {
             className="avm-save-btn"
             onClick={saveMap}
             disabled={saving}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: saveFeedback?.type === 'ok' ? '#16a34a' : undefined,
+              color: saveFeedback?.type === 'ok' ? '#ffffff' : undefined,
+            }}
           >
-            <Save size={14} />
-            <span>{saving ? 'Guardando...' : 'GUARDAR'}</span>
+            {saveFeedback?.type === 'ok' ? <Check size={14} /> : <Save size={14} />}
+            <span>{saving ? 'Guardando...' : saveFeedback?.type === 'ok' ? 'GUARDADO' : 'GUARDAR'}</span>
           </button>
         </div>
       </header>
