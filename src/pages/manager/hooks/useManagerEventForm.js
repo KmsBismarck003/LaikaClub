@@ -11,6 +11,7 @@ import {
   buildHomePreviewEvent,
   parseGalleryUrls,
   serializeGalleryUrls,
+  extractRoomMapSummary,
 } from '../utils/eventFormUtils';
 
 export default function useManagerEventForm({ event = null, onSuccess }) {
@@ -24,6 +25,8 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
   const [uploadingSeatMap, setUploadingSeatMap] = useState(false);
   const [venues, setVenues] = useState([]);
   const [roomsByVenue, setRoomsByVenue] = useState({});
+  const [roomMapsById, setRoomMapsById] = useState({});
+  const [loadingRoomMap, setLoadingRoomMap] = useState(false);
 
   const hasAdvancedPackage = useMemo(() => {
     const role = (user?.role || '').toLowerCase();
@@ -199,6 +202,44 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
     () => (formData.venue_id ? roomsByVenue[String(formData.venue_id)] || [] : []),
     [formData.venue_id, roomsByVenue]
   );
+
+  // Cargar mapa de la sala seleccionada (con caché por room_id)
+  useEffect(() => {
+    const roomId = formData.room_id ? String(formData.room_id) : '';
+    if (!roomId) {
+      setLoadingRoomMap(false);
+      return undefined;
+    }
+    if (Object.prototype.hasOwnProperty.call(roomMapsById, roomId)) {
+      setLoadingRoomMap(false);
+      return undefined;
+    }
+
+    let active = true;
+    setLoadingRoomMap(true);
+    venueAPI
+      .getRoomMap(roomId)
+      .then((res) => {
+        if (!active) return;
+        setRoomMapsById((prev) => ({ ...prev, [roomId]: extractRoomMapSummary(res) }));
+      })
+      .catch(() => {
+        if (!active) return;
+        setRoomMapsById((prev) => ({ ...prev, [roomId]: extractRoomMapSummary(null) }));
+      })
+      .finally(() => {
+        if (active) setLoadingRoomMap(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [formData.room_id, roomMapsById]);
+
+  const selectedRoomMap = useMemo(() => {
+    const roomId = formData.room_id ? String(formData.room_id) : '';
+    return roomId ? roomMapsById[roomId] || null : null;
+  }, [formData.room_id, roomMapsById]);
 
   const functionVenueRooms = useMemo(() => {
     const targetVenue = newFunction.venue_id || formData.venue_id;
@@ -568,6 +609,8 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
     formData,
     venues,
     primaryRooms,
+    selectedRoomMap,
+    loadingRoomMap,
     functionVenueRooms,
     functions,
     newFunction,

@@ -1,11 +1,14 @@
 import React from 'react';
 import { Badge, Icon } from '../../../../components';
+import VenueMapSVG from '../../../../components/VenueMapSVG';
 import styles from '../../EventForm.module.css';
 
 const EventScheduleSection = ({
   formData,
   venues,
   primaryRooms,
+  selectedRoomMap,
+  loadingRoomMap,
   functionVenueRooms,
   functions,
   newFunction,
@@ -137,6 +140,65 @@ const EventScheduleSection = ({
                 </span>
               ) : null}
             </div>
+
+            {formData.room_id && (
+              loadingRoomMap ? (
+                <div className={styles.roomMapStatusRow}>
+                  <span className={styles.metaInline}>
+                    <Icon name="loader" size={14} />
+                    Cargando mapa de asientos de la sala seleccionada...
+                  </span>
+                </div>
+              ) : selectedRoomMap?.hasMap ? (
+                <div className={styles.roomMapPreviewCard}>
+                  <div className={styles.roomMapPreviewHeader}>
+                    <span className={styles.roomMapPreviewTitle}>
+                      <Icon name="armchair" size={15} />
+                      Mapa de la sala: {getRoomName(formData.room_id, formData.venue_id)}
+                    </span>
+                    <div className={styles.roomMapPreviewMeta}>
+                      <Badge variant="success" size="small" rounded>
+                        {selectedRoomMap.totalSeats > 0
+                          ? `${selectedRoomMap.totalSeats} asientos`
+                          : `${selectedRoomMap.elementsCount} zonas`}
+                      </Badge>
+                      <a
+                        href={`/manager/venues/${formData.venue_id}/rooms/${formData.room_id}/map`}
+                        className={styles.roomMapEditLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Icon name="externalLink" size={12} />
+                        Editar mapa
+                      </a>
+                    </div>
+                  </div>
+                  <div className={styles.roomMapStage}>
+                    <VenueMapSVG
+                      mapData={selectedRoomMap.components}
+                      readOnly={true}
+                      height="100%"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.roomMapStatusRow}>
+                  <span className={styles.metaInline}>
+                    <Icon name="info" size={14} />
+                    Esta sala aún no tiene un mapa de asientos diseñado.
+                  </span>
+                  <a
+                    href={`/manager/venues/${formData.venue_id}/rooms/${formData.room_id}/map`}
+                    className={styles.roomMapEditLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Icon name="externalLink" size={12} />
+                    Diseñar mapa
+                  </a>
+                </div>
+              )
+            )}
           </div>
         )}
 
@@ -298,3 +360,4 @@ const EventScheduleSection = ({
 };
 
 export default EventScheduleSection;
+

@@ -240,6 +240,35 @@ export function serializeGalleryUrls(list = []) {
   return parseGalleryUrls(list).join(', ');
 }
 
+export function extractRoomMapSummary(mapResponse) {
+  const components = Array.isArray(mapResponse?.layout_json?.components)
+    ? mapResponse.layout_json.components
+    : [];
+
+  let computedSeats = 0;
+  for (const comp of components) {
+    if (Array.isArray(comp?.blocks)) {
+      for (const block of comp.blocks) {
+        if (Array.isArray(block?.seats)) {
+          computedSeats += block.seats.length;
+        }
+      }
+    }
+  }
+
+  const totalSeats =
+    computedSeats > 0
+      ? computedSeats
+      : Number(mapResponse?.total_capacity || mapResponse?.capacity || 0);
+
+  return {
+    components,
+    hasMap: components.length > 0,
+    totalSeats,
+    elementsCount: components.length,
+  };
+}
+
 export function buildHomePreviewEvent(formData = {}, functions = [], newFunction = null) {
   const sorted = sortFunctionsChronologically(functions);
   const firstFn = sorted[0] || (newFunction?.date ? newFunction : null);

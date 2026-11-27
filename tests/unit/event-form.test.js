@@ -66,6 +66,7 @@ const {
   buildHomePreviewEvent,
   parseGalleryUrls,
   serializeGalleryUrls,
+  extractRoomMapSummary,
 } = eventFormUtils;
 
 const { getImageUrl } = imageUtils;
@@ -276,6 +277,32 @@ assert(
   parsedGallery.length === 2 &&
     parsedGallery[0] === '/api/events/uploads/events/1.jpg' &&
     serializeGalleryUrls(parsedGallery) === '/api/events/uploads/events/1.jpg, https://cdn.test/2.png'
+);
+
+const roomMapSummary = extractRoomMapSummary({
+  capacity: 120,
+  layout_json: {
+    components: [
+      { id: 'stage-1', type: 'stage' },
+      {
+        id: 'sec-a',
+        type: 'seats',
+        blocks: [
+          { rowLabel: 'A', seats: [{ id: 'A1' }, { id: 'A2' }, { id: 'A3' }] },
+          { rowLabel: 'B', seats: [{ id: 'B1' }, { id: 'B2' }] },
+        ],
+      },
+    ],
+  },
+});
+const emptyRoomMap = extractRoomMapSummary({ layout_json: { components: [] } });
+assert(
+  'extractRoomMapSummary detecta mapas configurados, cuenta butacas reales y maneja salas sin mapa',
+  roomMapSummary.hasMap === true &&
+    roomMapSummary.totalSeats === 5 &&
+    roomMapSummary.elementsCount === 2 &&
+    emptyRoomMap.hasMap === false &&
+    emptyRoomMap.totalSeats === 0
 );
 
 const gestorContractPayload = gestorEventFormUtils.resolveAndValidateEventForm({

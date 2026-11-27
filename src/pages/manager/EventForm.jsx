@@ -13,6 +13,8 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
     formData,
     venues,
     primaryRooms,
+    selectedRoomMap,
+    loadingRoomMap,
     functionVenueRooms,
     functions,
     newFunction,
@@ -114,6 +116,8 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
             formData={formData}
             venues={venues}
             primaryRooms={primaryRooms}
+            selectedRoomMap={selectedRoomMap}
+            loadingRoomMap={loadingRoomMap}
             functionVenueRooms={functionVenueRooms}
             functions={functions}
             newFunction={newFunction}
