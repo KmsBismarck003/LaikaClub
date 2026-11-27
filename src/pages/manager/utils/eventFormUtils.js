@@ -119,6 +119,7 @@ export function resolveAndValidateEventForm({
   functions = [],
   newFunction = null,
   rules = [],
+  newRule = null,
   hasAdvancedPackage = false,
   isEditing = false,
 }) {
@@ -189,6 +190,21 @@ export function resolveAndValidateEventForm({
       )
     : parsedTotal;
 
+  const finalRules = Array.isArray(rules) ? [...rules] : [];
+  if (newRule?.title && String(newRule.title).trim()) {
+    const draftTitle = String(newRule.title).trim();
+    const alreadyAdded = finalRules.some(
+      (r) => String(r?.title || '').trim().toLowerCase() === draftTitle.toLowerCase()
+    );
+    if (!alreadyAdded) {
+      finalRules.push({
+        title: draftTitle,
+        description: String(newRule.description || '').trim(),
+        icon: newRule.icon || 'info',
+      });
+    }
+  }
+
   const payload = {
     ...formData,
     name: String(formData.name).trim(),
@@ -211,7 +227,7 @@ export function resolveAndValidateEventForm({
       venue_id: parseInt(f.venue_id || primaryVenueId, 10),
       room_id: f.room_id ? parseInt(f.room_id, 10) : null,
     })),
-    rules: Array.isArray(rules) ? rules : [],
+    rules: finalRules,
   };
 
   return { valid: true, error: null, payload };

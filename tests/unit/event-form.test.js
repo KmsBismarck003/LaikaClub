@@ -184,13 +184,17 @@ const autoAddedFn = resolveAndValidateEventForm({
   formData: { ...INITIAL_EVENT_FORM, name: 'Noche de Rock', venue_id: '9', room_id: '4', price: 250, total_tickets: 200 },
   functions: [],
   newFunction: { date: '2026-10-05', time: '', venue_id: '9', room_id: '4' },
+  rules: [],
+  newRule: { title: 'Acceso +18', description: 'Traer INE vigente', icon: 'info' },
 });
 assert(
-  'Auto-agrega newFunction si no se pulsó "+ Agregar", preserva room_id y usa 20:00 por defecto',
+  'Auto-agrega newFunction y newRule si no se pulsó "+ Agregar", preserva room_id y usa 20:00 por defecto',
   autoAddedFn.valid &&
     autoAddedFn.payload.functions.length === 1 &&
     autoAddedFn.payload.functions[0].room_id === 4 &&
-    autoAddedFn.payload.event_time === '20:00'
+    autoAddedFn.payload.event_time === '20:00' &&
+    autoAddedFn.payload.rules.length === 1 &&
+    autoAddedFn.payload.rules[0].title === 'Acceso +18'
 );
 
 const editPreservesSales = resolveAndValidateEventForm({

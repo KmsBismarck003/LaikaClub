@@ -18,6 +18,7 @@ const getCategoryLabel = (cat) => {
     case 'sport': return 'Deporte';
     case 'theater': return 'Teatro';
     case 'festival': return 'Festival';
+    case 'family': return 'Familiar';
     case 'other': return 'Otro';
     default: return cat || 'Evento';
   }

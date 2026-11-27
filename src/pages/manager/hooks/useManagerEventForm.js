@@ -549,6 +549,7 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
         functions,
         newFunction,
         rules,
+        newRule,
         hasAdvancedPackage,
         isEditing: Boolean(event && event.id),
       });
@@ -582,7 +583,7 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
         setLoading(false);
       }
     },
-    [formData, functions, newFunction, rules, hasAdvancedPackage, event, draftKey, onSuccess, warning, success, error]
+    [formData, functions, newFunction, rules, newRule, hasAdvancedPackage, event, draftKey, onSuccess, warning, success, error]
   );
 
   const getVenueName = useCallback(

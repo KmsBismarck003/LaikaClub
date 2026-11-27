@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { getImageUrl } from '../../../../utils/imageUtils';
 import './EventGallery.css';
 
 /* ── Inline SVG Icons (sin dependencia de icon registry) ── */
@@ -25,13 +26,13 @@ const IconPlay = () => (
  * Función pura fuera del componente para no violar las reglas de hooks.
  */
 function normalizeUrls(galleryUrls) {
+  let list = [];
   if (typeof galleryUrls === 'string') {
-    return galleryUrls.split(',').map((u) => u.trim()).filter(Boolean);
+    list = galleryUrls.split(/[\n,]+/).map((u) => u.trim()).filter(Boolean);
+  } else if (Array.isArray(galleryUrls)) {
+    list = galleryUrls.map((u) => String(u || '').trim()).filter(Boolean);
   }
-  if (Array.isArray(galleryUrls)) {
-    return galleryUrls.filter(Boolean);
-  }
-  return [];
+  return list.map((u) => getImageUrl(u));
 }
 
 const isVideo = (url) => url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.mov');

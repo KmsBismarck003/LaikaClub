@@ -219,32 +219,37 @@ const EventDetail = () => {
           {/* LEFT COLUMN */}
           <div className="event-left-column">
             {isEventSeating ? (
-              <VenueMapContainer
-                event={event}
-                synchronizedZones={synchronizedZones}
-                sortedSections={ticketEngine.sortedSections}
-                selectedSection={ticketEngine.selectedSection}
-                setSelectedSection={ticketEngine.setSelectedSection}
-                selectedSeats={ticketEngine.selectedSeats}
-                toggleSeat={ticketEngine.toggleSeat}
-                busySeats={busySeats}
-                seatTypes={seatTypes}
-                isRouletteActive={luckySeat.isRouletteActive}
-                winningSeatId={luckySeat.winningSeatId}
-                activeScannerZoneId={luckySeat.activeScannerZoneId}
-                activeScannerSeatId={luckySeat.activeScannerSeatId}
-                showCrownTransition={luckySeat.showCrownTransition}
-                handleRouletteComplete={luckySeat.handleRouletteComplete}
-                mapScale={venueMap.mapScale}
-                mapPos={venueMap.mapPos}
-                isDragging={venueMap.isDragging}
-                dragStart={venueMap.dragStart}
-                setMapPos={venueMap.setMapPos}
-                setIsDragging={venueMap.setIsDragging}
-                setDragStart={venueMap.setDragStart}
-                handleZoom={venueMap.handleZoom}
-                resetMap={venueMap.resetMap}
-              />
+              <>
+                <VenueMapContainer
+                  event={event}
+                  synchronizedZones={synchronizedZones}
+                  sortedSections={ticketEngine.sortedSections}
+                  selectedSection={ticketEngine.selectedSection}
+                  setSelectedSection={ticketEngine.setSelectedSection}
+                  selectedSeats={ticketEngine.selectedSeats}
+                  toggleSeat={ticketEngine.toggleSeat}
+                  busySeats={busySeats}
+                  seatTypes={seatTypes}
+                  isRouletteActive={luckySeat.isRouletteActive}
+                  winningSeatId={luckySeat.winningSeatId}
+                  activeScannerZoneId={luckySeat.activeScannerZoneId}
+                  activeScannerSeatId={luckySeat.activeScannerSeatId}
+                  showCrownTransition={luckySeat.showCrownTransition}
+                  handleRouletteComplete={luckySeat.handleRouletteComplete}
+                  mapScale={venueMap.mapScale}
+                  mapPos={venueMap.mapPos}
+                  isDragging={venueMap.isDragging}
+                  dragStart={venueMap.dragStart}
+                  setMapPos={venueMap.setMapPos}
+                  setIsDragging={venueMap.setIsDragging}
+                  setDragStart={venueMap.setDragStart}
+                  handleZoom={venueMap.handleZoom}
+                  resetMap={venueMap.resetMap}
+                />
+                {event.gallery_urls && (
+                  <EventGallery galleryUrls={event.gallery_urls} />
+                )}
+              </>
             ) : event.gallery_urls ? (
               <EventGallery galleryUrls={event.gallery_urls} />
             ) : (
