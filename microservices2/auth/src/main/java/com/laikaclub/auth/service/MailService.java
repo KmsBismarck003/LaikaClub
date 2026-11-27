@@ -60,19 +60,31 @@ public class MailService {
 
     @Async
     public void sendPasswordReset(String toEmail, String code) {
+        sendPasswordReset(toEmail, null, code);
+    }
+
+    @Async
+    public void sendPasswordReset(String toEmail, String recipientName, String code) {
         try {
             logger.info("Enviando correo de recuperación de contraseña a {}", toEmail);
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
 
+            String safeName = (recipientName != null && !recipientName.trim().isEmpty())
+                    ? recipientName.trim()
+                    : "Miembro de LAIKA Club";
+
             Context context = new Context();
+            context.setVariable("recipientName", safeName);
+            context.setVariable("email", toEmail);
             context.setVariable("code", code);
+            context.setVariable("expiresMinutes", 15);
 
             String html = templateEngine.process("password_reset", context);
 
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
-            helper.setSubject("LAIKA Club - Recuperación de Acceso");
+            helper.setSubject("Tu código de verificación de LAIKA Club: " + code);
             helper.setText(html, true);
 
             mailSender.send(message);

@@ -18,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -286,5 +289,108 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         return user.getPasswordHash() != null && passwordEncoder.matches(password, user.getPasswordHash());
+    }
+
+    @Transactional
+    public void requestPasswordReset(String email, String ip, String userAgent) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("El correo electrónico es requerido");
+        }
+
+        Optional<User> userOpt = userRepository.findByEmailIgnoreCase(email.trim());
+        if (userOpt.isEmpty()) {
+            // Respuesta neutra para no revelar si un correo existe en el sistema
+            logger.info("Solicitud de recuperación recibida para correo no registrado");
+            return;
+        }
+
+        User user = userOpt.get();
+        SecureRandom secureRandom = new SecureRandom();
+        String code = String.format("%06d", secureRandom.nextInt(1_000_000));
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(15);
+
+        user.setResetToken(code);
+        user.setResetTokenExpires(expiresAt.format(formatter));
+        userRepository.save(user);
+
+        String displayName = (user.getFirstName() != null ? user.getFirstName() : "").trim();
+        mailService.sendPasswordReset(user.getEmail(), displayName, code);
+
+        auditService.logAuthEvent(
+                "RECUPERACION_SOLICITADA",
+                user.getEmail(),
+                user.getId(),
+                ((user.getFirstName() != null ? user.getFirstName() : "") + " " + (user.getLastName() != null ? user.getLastName() : "")).trim(),
+                user.getRole(),
+                ip,
+                userAgent,
+                "Código de verificación de 6 dígitos enviado por correo"
+        );
+    }
+
+    @Transactional
+    public void resetPasswordWithCode(String email, String code, String newPassword, String ip, String userAgent) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("El correo electrónico es requerido");
+        }
+        if (code == null || !code.trim().matches("^\\d{6}$")) {
+            throw new IllegalArgumentException("El código de verificación debe tener 6 dígitos");
+        }
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("La nueva contraseña debe tener al menos 8 caracteres");
+        }
+
+        User user = userRepository.findByEmailIgnoreCase(email.trim())
+                .orElseThrow(() -> new InvalidCredentialsException("Código de verificación inválido o expirado"));
+
+        String storedCode = user.getResetToken();
+        String storedExpiry = user.getResetTokenExpires();
+
+        if (storedCode == null || storedExpiry == null) {
+            throw new InvalidCredentialsException("No hay un código de recuperación activo para esta cuenta");
+        }
+
+        boolean matches = MessageDigest.isEqual(
+                storedCode.getBytes(StandardCharsets.UTF_8),
+                code.trim().getBytes(StandardCharsets.UTF_8)
+        );
+        if (!matches) {
+            throw new InvalidCredentialsException("El código de verificación es incorrecto");
+        }
+
+        try {
+            LocalDateTime expiryTime = LocalDateTime.parse(storedExpiry, DateTimeFormatter.ISO_DATE_TIME);
+            if (LocalDateTime.now().isAfter(expiryTime)) {
+                user.setResetToken(null);
+                user.setResetTokenExpires(null);
+                userRepository.save(user);
+                throw new InvalidCredentialsException("El código de verificación ha expirado. Solicita uno nuevo");
+            }
+        } catch (InvalidCredentialsException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvalidCredentialsException("El código de verificación no es válido");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpires(null);
+        user.setFailedAttempts(0);
+        user.setLockoutUntil(null);
+        if ("blocked".equals(user.getStatus())) {
+            user.setStatus("active");
+        }
+        userRepository.save(user);
+
+        auditService.logAuthEvent(
+                "PASSWORD_RESTABLECIDA",
+                user.getEmail(),
+                user.getId(),
+                ((user.getFirstName() != null ? user.getFirstName() : "") + " " + (user.getLastName() != null ? user.getLastName() : "")).trim(),
+                user.getRole(),
+                ip,
+                userAgent,
+                "Contraseña restablecida mediante código de verificación"
+        );
     }
 }

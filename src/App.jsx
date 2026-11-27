@@ -36,6 +36,7 @@ import {
   Checkout
 } from './pages'
 import { adminRoutes, publicRoutes, managerRoutes, staffRoutes, matisRoutes } from './routes'
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
 import ProtectedRoute from './components/Guards/ProtectedRoute'
 import NotificationContainer from './components/Notifications/NotificationContainer/NotificationContainer'
 import DatabaseMonitor from './components/Admin/DatabaseMonitor/DatabaseMonitor'
@@ -90,6 +91,7 @@ function AppContent() {
                   {/* Rutas de Autenticación */}
                   <Route path='/login' element={<Login />} />
                   <Route path='/register' element={<Register />} />
+                  <Route path='/forgot-password' element={<ForgotPassword />} />
 
                   {/* Public Routes from configuration */}
                   {publicRoutes.filter(route => route.layout === 'main').map((route, index) => {

@@ -1,0 +1,651 @@
+/* ==========================================================================
+   AUTH SYSTEM — Editorial Split-Screen (Login · Register · Password Reset)
+   100% Semantic Tokens (Dark & Light Mode), 320px -> Ultra-Wide 4K Responsive
+   ========================================================================== */
+
+.authPage {
+  width: 100%;
+  min-height: calc(100dvh - 76px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(0.9rem, 2.5vw, 1.5rem);
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.authShell {
+  width: 100%;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  border-radius: 22px;
+  box-shadow: var(--bento-shadow-hero);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Form Column (Left) ──────────────────────────────────────── */
+.formPanel {
+  position: relative;
+  padding: clamp(1.5rem, 3.5vw, 2.75rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.35rem;
+  min-width: 0;
+}
+
+.brandMarkRow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.brandBadge {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--text-primary);
+  color: var(--bento-card-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.headerGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1.15;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* ── Form Elements ───────────────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+  min-width: 0;
+}
+
+.fieldLabel {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.65rem 0.9rem;
+  border-radius: 11px;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus {
+  background: var(--bento-card-bg);
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(120, 120, 140, 0.14);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.inputWithIcon {
+  padding-right: 2.8rem;
+}
+
+.inputError {
+  border-color: #ef4444;
+}
+
+.inputCode {
+  font-family: var(--font-family-mono, monospace);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.38em;
+  text-align: center;
+  padding-left: 1.25rem;
+}
+
+.eyeToggle {
+  position: absolute;
+  right: 0.3rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.18s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .eyeToggle:hover {
+    color: var(--text-primary);
+  }
+}
+
+.fieldError {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+/* ── Options Row (Remember me + Forgot link) ─────────────────── */
+.optionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 36px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxInput {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--text-primary);
+  cursor: pointer;
+  margin: 0;
+}
+
+.inlineLink {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--text-primary);
+  text-decoration: none;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .inlineLink:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.submitBtn {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.7rem 1.25rem;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  background: var(--text-primary);
+  color: var(--bento-card-bg);
+  font-size: 0.86rem;
+  font-weight: 750;
+  letter-spacing: 0.015em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .submitBtn:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--bento-card-border);
+}
+
+.googleBtn {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.65rem 1.15rem;
+  border-radius: 11px;
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 650;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .googleBtn:hover:not(:disabled) {
+    border-color: var(--text-muted);
+    background: var(--bento-card-subtle-bg);
+    transform: translateY(-1px);
+  }
+}
+
+.googleBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Feedback / Attempts / Strength / Claim Banners ──────────── */
+.attemptBanner {
+  border-radius: 12px;
+  padding: 0.8rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border: 1px solid transparent;
+}
+
+.attemptBannerWarn {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #d97706;
+}
+
+.attemptBannerDanger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #dc2626;
+}
+
+.attemptHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.attemptTitleRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.attemptBarTrack {
+  width: 100%;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--bento-card-border);
+  overflow: hidden;
+}
+
+.attemptBarFill {
+  height: 100%;
+  border-radius: 9999px;
+  background: currentColor;
+  transition: width 0.35s ease;
+}
+
+.attemptSub {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.claimBanner {
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.claimIcon {
+  color: #3b82f6;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.claimText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.claimTitle {
+  font-size: 0.84rem;
+  font-weight: 750;
+  color: var(--text-primary);
+}
+
+/* Password Strength Meter */
+.strengthWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.strengthTrack {
+  width: 100%;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--bento-card-border);
+  overflow: hidden;
+}
+
+.strengthFill {
+  height: 100%;
+  border-radius: 9999px;
+  background: #10b981;
+  transition: width 0.25s ease;
+}
+
+.strengthReqs {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.strengthReqItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.strengthReqValid {
+  color: #10b981;
+}
+
+/* Stepper for Password Recovery */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stepBar {
+  flex: 1;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--bento-card-border);
+  transition: background-color 0.25s ease;
+}
+
+.stepBarActive {
+  background: var(--text-primary);
+}
+
+/* Footer Link */
+.footer {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--bento-card-border);
+  text-align: center;
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+}
+
+.footerLink {
+  color: var(--text-primary);
+  font-weight: 750;
+  text-decoration: none;
+  margin-left: 0.25rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footerLink:hover {
+    text-decoration: underline;
+  }
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .backLink:hover {
+    color: var(--text-primary);
+  }
+}
+
+/* ── Brand Showcase Panel (Right) — Quiet Architectural Slate ── */
+.brandPanel {
+  position: relative;
+  background: #0c0d11;
+  color: #ffffff;
+  padding: clamp(2rem, 3.8vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  border-left: 1px solid var(--bento-card-border);
+  overflow: hidden;
+}
+
+.brandGridPattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.1));
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.1));
+  pointer-events: none;
+}
+
+.brandPanelTop {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.brandKicker {
+  font-size: 0.7rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #a1a1aa;
+}
+
+.brandHeadline {
+  margin: 0;
+  font-size: clamp(1.45rem, 2.3vw, 1.95rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #ffffff;
+}
+
+.brandCopy {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #a1a1aa;
+  line-height: 1.55;
+}
+
+.pillarList {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pillarItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.pillarIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f4f4f5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pillarContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.pillarTitle {
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.pillarDesc {
+  font-size: 0.76rem;
+  color: #a1a1aa;
+  line-height: 1.4;
+}
+
+/* ── Responsive Breakpoints (320px -> Ultra-Wide) ────────────── */
+@media (max-width: 860px) {
+  .authShell {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+  }
+
+  .brandPanel {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .authPage {
+    padding: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .authShell {
+    border-radius: 16px;
+  }
+
+  .formPanel {
+    padding: 1.35rem 1.15rem;
+    gap: 1.1rem;
+  }
+}

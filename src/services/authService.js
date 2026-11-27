@@ -66,12 +66,15 @@ export const authAPI = {
     },
 
     /**
-     * Restablecer contraseña
-     * @param {string} token
-     * @param {string} newPassword
+     * Restablecer contraseña mediante código de 6 dígitos
+     * Acepta ({ email, code, password }) o (email, code, password)
      */
-    resetPassword: (token, newPassword) => {
-        return apiClient.post('/auth/reset-password', { token, newPassword })
+    resetPassword: (emailOrPayload, code, password) => {
+        const payload =
+            typeof emailOrPayload === 'object' && emailOrPayload !== null
+                ? emailOrPayload
+                : { email: emailOrPayload, code, password }
+        return apiClient.post('/auth/reset-password', payload)
     },
 
     uploadAvatar: (file) => {

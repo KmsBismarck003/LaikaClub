@@ -53,6 +53,8 @@ public class SecurityConfig {
                 .requestMatchers("/login/google").permitAll()
                 .requestMatchers("/login/apple").permitAll()
                 .requestMatchers("/register").permitAll()
+                .requestMatchers("/forgot-password", "/api/auth/forgot-password").permitAll()
+                .requestMatchers("/reset-password", "/api/auth/reset-password").permitAll()
                 .requestMatchers("/check-lockout").permitAll()
                 .requestMatchers("/verify-password", "/api/auth/verify-password").permitAll()
                 .requestMatchers("/users/*/public").permitAll()

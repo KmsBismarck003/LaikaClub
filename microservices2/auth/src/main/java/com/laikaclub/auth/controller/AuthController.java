@@ -67,6 +67,7 @@ public class AuthController {
         routes.add(Map.of("path", "/logout", "methods", List.of("POST")));
         routes.add(Map.of("path", "/refresh", "methods", List.of("POST")));
         routes.add(Map.of("path", "/forgot-password", "methods", List.of("POST")));
+        routes.add(Map.of("path", "/reset-password", "methods", List.of("POST")));
         routes.add(Map.of("path", "/verify-password", "methods", List.of("POST")));
         routes.add(Map.of("path", "/users/me", "methods", List.of("GET")));
         routes.add(Map.of("path", "/users/me/avatar", "methods", List.of("POST")));
@@ -148,13 +149,37 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("token", newToken));
     }
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
+    @PostMapping({"/forgot-password", "/api/auth/forgot-password"})
+    public ResponseEntity<Map<String, String>> forgotPassword(
+            @RequestBody Map<String, String> request,
+            HttpServletRequest httpRequest) {
         String email = request.get("email");
-        // Stub de recuperación de contraseña igual al de Python
+        String ip = httpRequest.getRemoteAddr();
+        String ua = httpRequest.getHeader("User-Agent");
+
+        authService.requestPasswordReset(email, ip, ua);
+
         Map<String, String> res = new HashMap<>();
         res.put("status", "success");
-        res.put("message", "Si el correo existe, se enviarán instrucciones");
+        res.put("message", "Si el correo está registrado, recibirás un código de verificación de 6 dígitos.");
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping({"/reset-password", "/api/auth/reset-password"})
+    public ResponseEntity<Map<String, String>> resetPassword(
+            @RequestBody Map<String, String> request,
+            HttpServletRequest httpRequest) {
+        String email = request.get("email");
+        String code = request.get("code") != null ? request.get("code") : request.get("token");
+        String newPassword = request.get("password") != null ? request.get("password") : request.get("newPassword");
+        String ip = httpRequest.getRemoteAddr();
+        String ua = httpRequest.getHeader("User-Agent");
+
+        authService.resetPasswordWithCode(email, code, newPassword, ip, ua);
+
+        Map<String, String> res = new HashMap<>();
+        res.put("status", "success");
+        res.put("message", "Contraseña actualizada correctamente. Ya puedes iniciar sesión.");
         return ResponseEntity.ok(res);
     }
 

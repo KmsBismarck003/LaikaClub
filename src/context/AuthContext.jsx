@@ -242,6 +242,36 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const forgotPassword = async (email) => {
+    try {
+      const data = await authAPI.forgotPassword(email)
+      return {
+        success: true,
+        message: data?.message || 'Si el correo está registrado, recibirás un código de verificación.'
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error?.response?.data?.message || error?.message || 'No se pudo enviar el código de recuperación.'
+      }
+    }
+  }
+
+  const resetPassword = async ({ email, code, password }) => {
+    try {
+      const data = await authAPI.resetPassword({ email, code, password })
+      return {
+        success: true,
+        message: data?.message || 'Contraseña actualizada correctamente.'
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error?.response?.data?.message || error?.message || 'Código inválido o expirado.'
+      }
+    }
+  }
+
   const updateUser = async updates => {
     try {
       const updatedUser = { ...user, ...updates }
@@ -280,6 +310,8 @@ export const AuthProvider = ({ children }) => {
     loginGoogle,
     loginApple,
     register,
+    forgotPassword,
+    resetPassword,
     logout,
     updateUser,
     hasRole,

@@ -1,276 +1,335 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { useGoogleLogin } from '@react-oauth/google'
-import { Input, Button, Alert } from '../../components'
-import api from '../../services/api'
-import { transferAPI } from '../../services/transfer.service'
-import { useNotification } from '../../context/NotificationContext'
-import { useAuth } from '../../context/AuthContext'
-import './Register.css'
-import '../Login/LoginSocial.css'
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
+import { Alert } from '../../components';
+import Icon from '../../components/Icons/Icons';
+import AuthShell from '../../components/Auth/AuthShell';
+import { transferAPI } from '../../services/transfer.service';
+import { useNotification } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
+import styles from '../../components/Auth/AuthPages.module.css';
 
 const roleRedirectMap = {
   admin: '/admin',
   gestor: '/events/manage',
-  operador: '/staff',
-  usuario: '/user/dashboard'
-}
+  operador: '/staff/dashboard',
+  usuario: '/user/dashboard',
+};
 
 const Register = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const from = location.state?.from || null
-  const { loginGoogle, register: authRegister } = useAuth()
-  const { error: showError, success: showSuccess } = useNotification()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || null;
+  const { loginGoogle, register: authRegister } = useAuth();
+  const { error: showError, success: showSuccess } = useNotification();
 
-  const searchParams = new URLSearchParams(location.search)
-  const claimToken = searchParams.get('claim_token')
-  const urlEmail = searchParams.get('email')
+  const searchParams = new URLSearchParams(location.search);
+  const claimToken = searchParams.get('claim_token');
+  const urlEmail = searchParams.get('email');
 
   const [formData, setFormData] = useState({
     email: urlEmail ? decodeURIComponent(urlEmail).trim() : '',
     password: '',
-    confirmPassword: ''
-  })
-  const [claimInfo, setClaimInfo] = useState(null)
-  const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(false)
-  const [alert, setAlert] = useState(null)
+    confirmPassword: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [claimInfo, setClaimInfo] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     if (claimToken) {
-      transferAPI.getClaimInfo(claimToken)
-        .then(info => {
-          setClaimInfo(info)
+      transferAPI
+        .getClaimInfo(claimToken)
+        .then((info) => {
+          setClaimInfo(info);
           if (info.recipient_email && !formData.email) {
-            setFormData(prev => ({ ...prev, email: info.recipient_email }))
+            setFormData((prev) => ({ ...prev, email: info.recipient_email }));
           }
         })
-        .catch(err => {
-          console.warn('No se pudo cargar la información del boleto reservado', err)
-        })
+        .catch((err) => {
+          console.warn('No se pudo cargar la información del boleto reservado', err);
+        });
     }
-  }, [claimToken])
+  }, [claimToken]);
 
-  const handleChange = e => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }))
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
-  }
+  };
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
     if (!formData.email) {
-      newErrors.email = 'El email es requerido'
+      newErrors.email = 'El correo es requerido';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email inválido'
+      newErrors.email = 'Ingresa un correo válido';
     }
     if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida'
+      newErrors.password = 'La contraseña es requerida';
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Mínimo 8 caracteres'
+      newErrors.password = 'Debe tener al menos 8 caracteres';
     }
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'No coinciden'
+      newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
-    return newErrors
-  }
+    return newErrors;
+  };
 
   const handlePostRegistrationClaim = async () => {
-    if (!claimToken) return false
+    if (!claimToken) return false;
     try {
-      await transferAPI.claimByToken(claimToken)
-      showSuccess('¡Boleto transferido y guardado exitosamente en tu Wallet!')
-      return true
+      await transferAPI.claimByToken(claimToken);
+      showSuccess('Boleto transferido y guardado en tu bóveda.');
+      return true;
     } catch (err) {
-      console.warn('Error al auto-reclamar el boleto tras registrarse:', err)
-      return false
+      console.warn('Error al auto-reclamar el boleto tras registrarse:', err);
+      return false;
     }
-  }
+  };
 
-  const handleSubmit = async e => {
-    e.preventDefault()
-    const newErrors = validateForm()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
+      setErrors(newErrors);
+      return;
     }
-    setLoading(true)
-    setAlert(null)
+
+    setLoading(true);
+    setAlert(null);
     try {
       const result = await authRegister({
         email: formData.email,
-        password: formData.password
-      })
+        password: formData.password,
+      });
+
       if (result.success) {
-        const claimed = await handlePostRegistrationClaim()
+        const claimed = await handlePostRegistrationClaim();
         setAlert({
           type: 'success',
           message: claimed
-            ? '¡Cuenta creada con éxito! Tu boleto ha sido acreditado en tu Wallet.'
-            : '¡Bienvenido a LAIKA Club!'
-        })
-        setTimeout(() => navigate(claimed ? '/user/wallet' : (from || '/user/wallet')), 1500)
+            ? 'Cuenta creada con éxito. Tu boleto ya está guardado en Mis Boletos.'
+            : 'Cuenta creada con éxito. Redirigiendo...',
+        });
+        setTimeout(() => navigate(claimed ? '/user/tickets' : from || '/user/tickets'), 1200);
       } else {
-        setAlert({ type: 'error', message: result.error || 'Error en el registro' })
+        setAlert({ type: 'error', message: result.error || 'Error en el registro' });
       }
-    } catch (error) {
-      setAlert({ type: 'error', message: error.message || 'Error en el registro' })
+    } catch (err) {
+      setAlert({ type: 'error', message: err.message || 'Error en el registro' });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const result = await loginGoogle(tokenResponse.credential || tokenResponse.access_token)
+        const result = await loginGoogle(tokenResponse.credential || tokenResponse.access_token);
         if (result.success) {
-          const claimed = await handlePostRegistrationClaim()
+          const claimed = await handlePostRegistrationClaim();
           if (claimed) {
-            navigate('/user/wallet')
+            navigate('/user/tickets');
           } else {
-            navigate(from || roleRedirectMap[result.user.role] || '/')
+            navigate(from || roleRedirectMap[result.user.role] || '/');
           }
         } else {
-          showError(result.error || 'Error con Google')
+          showError(result.error || 'Error con Google');
         }
-      } catch (err) {
-        showError('Falla en Google login')
+      } catch {
+        showError('Error en autenticación con Google');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
     onError: () => showError('Error al conectar con Google'),
-    flow: 'implicit'
-  })
+    flow: 'implicit',
+  });
+
+  const hasMinLength = formData.password.length >= 8;
+  const hasUpper = /[A-Z]/.test(formData.password);
+  const hasDigit = /\d/.test(formData.password);
+  const strengthPct = ([hasMinLength, hasUpper, hasDigit].filter(Boolean).length / 3) * 100;
 
   return (
-    <div className='register-page'>
-      <div className='register-container'>
-        <div className='register-card'>
-          <div className='register-header'>
-            <h1 className='register-title'>Únete a LAIKA</h1>
-            <p className='register-subtitle'>Crea tu cuenta premium en segundos</p>
+    <AuthShell
+      title="Crea tu cuenta"
+      subtitle="Regístrate en segundos para comprar, transferir y guardar tus boletos."
+      sideKicker="Registro rápido"
+      sideTitle="Todo listo para tu próximo evento"
+      sideCopy="Una sola cuenta para administrar tus accesos digitales, recibir cortesías y seguir tus compras."
+      footer={
+        <>
+          <span>¿Ya tienes cuenta?</span>
+          <Link to="/login" className={styles.footerLink}>
+            Iniciar sesión
+          </Link>
+        </>
+      }
+    >
+      {claimInfo && (
+        <div className={styles.claimBanner}>
+          <span className={styles.claimIcon}>
+            <Icon name="ticket" size={20} />
+          </span>
+          <div className={styles.claimText}>
+            <span className={styles.claimTitle}>
+              Boleto reservado: {claimInfo.event_name}
+            </span>
+            <span>
+              {claimInfo.sender_name} te envió un boleto. Completa tu registro para acreditarlo automáticamente.
+            </span>
           </div>
+        </div>
+      )}
 
-          {claimInfo && (
-            <div style={{
-              background: 'rgba(59, 130, 246, 0.12)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: '14px',
-              padding: '.85rem 1rem',
-              marginBottom: '1.25rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '.75rem'
-            }}>
-              <div style={{ color: '#3b82f6', flexShrink: 0 }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>
-                </svg>
-              </div>
-              <div style={{ fontSize: '.75rem', color: '#ccc', lineHeight: 1.4 }}>
-                <strong style={{ color: '#fff', display: 'block', fontSize: '.82rem' }}>
-                  Boleto reservado: {claimInfo.event_name}
-                </strong>
-                {claimInfo.sender_name} te ha enviado un boleto. Completa tu registro para guardarlo en tu Wallet.
-              </div>
-            </div>
-          )}
+      {alert && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+          closable
+          onClose={() => setAlert(null)}
+        />
+      )}
 
-          {alert && <Alert type={alert.type} message={alert.message} closable onClose={() => setAlert(null)} />}
+      <form onSubmit={handleSubmit} className={styles.form} noValidate>
+        <div className={styles.fieldGroup}>
+          <label htmlFor="register-email" className={styles.fieldLabel}>
+            Correo electrónico
+          </label>
+          <input
+            id="register-email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="tu@correo.com"
+            autoComplete="email"
+            disabled={loading}
+            className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
+            required
+          />
+          {errors.email && <span className={styles.fieldError}>{errors.email}</span>}
+        </div>
 
-          <form onSubmit={handleSubmit} className='register-form'>
-            <Input
-              label='Email'
-              type='email'
-              name='email'
-              value={formData.email}
+        <div className={styles.fieldGroup}>
+          <label htmlFor="register-password" className={styles.fieldLabel}>
+            Contraseña
+          </label>
+          <div className={styles.inputWrap}>
+            <input
+              id="register-password"
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              value={formData.password}
               onChange={handleChange}
-              error={errors.email}
-              fullWidth
+              placeholder="Mínimo 8 caracteres"
+              autoComplete="new-password"
+              disabled={loading}
+              className={`${styles.input} ${styles.inputWithIcon} ${errors.password ? styles.inputError : ''}`}
               required
             />
-
-            <div className="password-field-container">
-              <Input
-                label='Contraseña'
-                type='password'
-                name='password'
-                value={formData.password}
-                onChange={handleChange}
-                error={errors.password}
-                fullWidth
-                required
-              />
-              <div className="password-strength">
-                <div className="strength-bar">
-                  <div className="strength-fill" style={{
-                    width: `${(Object.values({ l: formData.password.length >= 8, u: /[A-Z]/.test(formData.password), d: /\d/.test(formData.password) }).filter(Boolean).length / 3) * 100}%`,
-                    backgroundColor: '#10b981'
-                  }} />
-                </div>
-                <div className="strength-requirements">
-                  <span className={formData.password.length >= 8 ? 'valid' : ''}>8+ carac</span>
-                  <span className={/[A-Z]/.test(formData.password) ? 'valid' : ''}>Mayús</span>
-                  <span className={/\d/.test(formData.password) ? 'valid' : ''}>Núm</span>
-                </div>
-              </div>
-            </div>
-
-            <Input
-              label='Confirmar Contraseña'
-              type='password'
-              name='confirmPassword'
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              fullWidth
-              required
-            />
-
-            <Button type='submit' variant='primary' size='large' fullWidth loading={loading}>
-              CREAR CUENTA
-            </Button>
-          </form>
-
-          <div className="social-login-divider"><span>O continúa con</span></div>
-          <div className="social-login-grid">
-            <button className="social-btn google" onClick={() => googleLogin()} type="button">
-              <svg className="social-svg" viewBox="0 0 24 24" width="20" height="20">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-              </svg>
-              Gmail
+            <button
+              type="button"
+              className={styles.eyeToggle}
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            >
+              <Icon name={showPassword ? 'eyeOff' : 'eye'} size={17} />
             </button>
           </div>
+          {errors.password && <span className={styles.fieldError}>{errors.password}</span>}
 
-          <div className='register-footer'>
-            <p><span>¿Ya tienes cuenta? </span><a href='/login' className='login-link'>Inicia sesión</a></p>
+          <div className={styles.strengthWrap}>
+            <div className={styles.strengthTrack}>
+              <div className={styles.strengthFill} style={{ width: `${strengthPct}%` }} />
+            </div>
+            <div className={styles.strengthReqs}>
+              <span
+                className={`${styles.strengthReqItem} ${hasMinLength ? styles.strengthReqValid : ''}`}
+              >
+                <Icon name="check" size={12} />
+                <span>8+ caracteres</span>
+              </span>
+              <span
+                className={`${styles.strengthReqItem} ${hasUpper ? styles.strengthReqValid : ''}`}
+              >
+                <Icon name="check" size={12} />
+                <span>Mayúscula</span>
+              </span>
+              <span
+                className={`${styles.strengthReqItem} ${hasDigit ? styles.strengthReqValid : ''}`}
+              >
+                <Icon name="check" size={12} />
+                <span>Número</span>
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className='register-illustration'>
-          <div className='illustration-content'>
-            <h2>Registro Instantáneo</h2>
-            <p>Accede a la plataforma más potente de eventos sin complicaciones.</p>
-          </div>
+        <div className={styles.fieldGroup}>
+          <label htmlFor="register-confirm" className={styles.fieldLabel}>
+            Confirmar contraseña
+          </label>
+          <input
+            id="register-confirm"
+            type={showPassword ? 'text' : 'password'}
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="Repite tu contraseña"
+            autoComplete="new-password"
+            disabled={loading}
+            className={`${styles.input} ${errors.confirmPassword ? styles.inputError : ''}`}
+            required
+          />
+          {errors.confirmPassword && (
+            <span className={styles.fieldError}>{errors.confirmPassword}</span>
+          )}
         </div>
-      </div>
-    </div>
-  )
-}
 
-export default Register
+        <button type="submit" className={styles.submitBtn} disabled={loading}>
+          <span>{loading ? 'Creando cuenta...' : 'Crear cuenta'}</span>
+          {!loading && <Icon name="arrowRight" size={16} />}
+        </button>
+      </form>
+
+      <div className={styles.divider}>O continúa con</div>
+
+      <button
+        type="button"
+        className={styles.googleBtn}
+        onClick={() => googleLogin()}
+        disabled={loading}
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path
+            fill="#4285F4"
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+          />
+          <path
+            fill="#34A853"
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+          />
+          <path
+            fill="#EA4335"
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+          />
+        </svg>
+        <span>Continuar con Google</span>
+      </button>
+    </AuthShell>
+  );
+};
+
+export default Register;
