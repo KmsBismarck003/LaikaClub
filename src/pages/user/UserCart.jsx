@@ -4,6 +4,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icons/Icons';
 import { PermissionWall } from '../../components';
+import useCartAvailability, { getCartItemKey } from '../../hooks/useCartAvailability';
 import TicketPrinterOverlay from './UserCart/TicketPrinterOverlay';
 import './UserCart.css';
 
@@ -24,8 +25,35 @@ const UserCart = () => {
     const [showPrinter, setShowPrinter] = useState(false);
     const [printingData, setPrintingData] = useState(null);
 
+    const {
+        checking: checkingAvailability,
+        getItemStatus,
+        unavailableItems,
+        partialStockItems,
+        hasBlockingIssues,
+        resolveAllIssues
+    } = useCartAvailability(cart, { removeFromCart, updateQuantity });
+
+    const handleResolveIssues = async () => {
+        const { removedCount, adjustedCount } = await resolveAllIssues();
+        const parts = [];
+        if (removedCount > 0) {
+            parts.push(`${removedCount} ${removedCount === 1 ? 'artículo no disponible retirado' : 'artículos no disponibles retirados'}`);
+        }
+        if (adjustedCount > 0) {
+            parts.push(`${adjustedCount} ${adjustedCount === 1 ? 'cantidad ajustada' : 'cantidades ajustadas'}`);
+        }
+        if (parts.length > 0) {
+            success(`Carrito actualizado: ${parts.join(' y ')}.`);
+        }
+    };
+
     const handleCheckout = () => {
-        if (cart.length === 0) return;
+        if (cart.length === 0 || checkingAvailability) return;
+        if (hasBlockingIssues) {
+            error('Retira los artículos no disponibles o ajusta las cantidades para continuar al pago.');
+            return;
+        }
         navigate('/checkout');
     };
 
@@ -65,11 +93,71 @@ const UserCart = () => {
 
                     <div className="user-cart-grid">
                         <div className="space-y-8">
+                            {hasBlockingIssues && (
+                                <div
+                                    role="alert"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        flexWrap: 'wrap',
+                                        gap: '0.85rem',
+                                        padding: '1rem 1.25rem',
+                                        borderRadius: '14px',
+                                        background: 'rgba(239, 68, 68, 0.1)',
+                                        border: '1px solid rgba(239, 68, 68, 0.35)',
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', flex: '1 1 260px' }}>
+                                        <Icon name="alertTriangle" size={18} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
+                                        <div style={{ fontSize: '0.82rem', lineHeight: 1.45 }}>
+                                            <strong style={{ display: 'block', color: '#ef4444' }}>
+                                                {unavailableItems.length > 0 && partialStockItems.length > 0
+                                                    ? `${unavailableItems.length} artículo(s) no disponibles y ${partialStockItems.length} con stock limitado`
+                                                    : unavailableItems.length > 0
+                                                        ? `${unavailableItems.length} ${unavailableItems.length === 1 ? 'artículo ya no está disponible' : 'artículos ya no están disponibles'}`
+                                                        : `${partialStockItems.length} ${partialStockItems.length === 1 ? 'artículo supera' : 'artículos superan'} el stock disponible`}
+                                            </strong>
+                                            <span>Retira o ajusta los artículos marcados para habilitar el pago.</span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleResolveIssues}
+                                        style={{
+                                            minHeight: '40px',
+                                            padding: '0.45rem 1rem',
+                                            borderRadius: '10px',
+                                            border: 'none',
+                                            background: '#ef4444',
+                                            color: '#ffffff',
+                                            fontSize: '0.76rem',
+                                            fontWeight: 700,
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        {partialStockItems.length > 0 && unavailableItems.length === 0
+                                            ? 'Ajustar cantidades'
+                                            : 'Limpiar y ajustar'}
+                                    </button>
+                                </div>
+                            )}
+
                             <div className="airy-card">
                                 <h3 className="text-[10px] font-black uppercase tracking-widest opacity-30 mb-6 underline decoration-blue-500/20 underline-offset-8">Experiencias Seleccionadas</h3>
                                 <div className="divide-y divide-white/5">
-                                    {(cart.length > 0 ? cart : [printingData]).filter(Boolean).map(item => (
-                                        <div key={item.eventId || 'printing'} className="cart-item-row group">
+                                    {(cart.length > 0 ? cart : [printingData]).filter(Boolean).map(item => {
+                                        const itemStatus = getItemStatus(item);
+                                        const isUnavailable = itemStatus.status === 'unavailable';
+                                        const isPartial = itemStatus.status === 'partial';
+                                        const canIncrement = !isUnavailable && !isPartial && (itemStatus.maxStock === null || item.quantity < itemStatus.maxStock);
+
+                                        return (
+                                        <div
+                                            key={getCartItemKey(item) || 'printing'}
+                                            className="cart-item-row group"
+                                            style={isUnavailable ? { opacity: 0.65 } : undefined}
+                                        >
                                             <div className="item-img-box group-hover:border-blue-500/30 transition-colors overflow-hidden">
                                                 {item.image ? (
                                                     <img src={item.image} alt={item.eventName} className="w-full h-full object-cover" />
@@ -84,6 +172,21 @@ const UserCart = () => {
                                                 <span className="text-[9px] font-bold uppercase py-1 px-2 bg-white/5 border border-white/10 rounded tracking-widest opacity-60">
                                                     {item.sectionName || 'GENERAL'}
                                                 </span>
+                                                {(isUnavailable || isPartial) && (
+                                                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.45rem', fontSize: '0.75rem', fontWeight: 700, color: isPartial ? '#f59e0b' : '#ef4444' }}>
+                                                        <Icon name="alertTriangle" size={13} />
+                                                        <span>{itemStatus.reason}</span>
+                                                        {isPartial && itemStatus.maxStock > 0 && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => updateQuantity(item.eventId, itemStatus.maxStock, item.functionId, item.sectionId)}
+                                                                style={{ padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid currentColor', background: 'transparent', color: 'inherit', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
+                                                            >
+                                                                Ajustar a {itemStatus.maxStock}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {cart.length > 0 && (
@@ -91,6 +194,7 @@ const UserCart = () => {
                                                     <div className="flex items-center border border-white/5 rounded-lg overflow-hidden bg-black/40 p-1">
                                                         <button
                                                             onClick={() => updateQuantity(item.eventId, item.quantity - 1, item.functionId, item.sectionId)}
+                                                            disabled={item.quantity <= 1 || isUnavailable}
                                                             className="w-8 h-8 flex items-center justify-center hover:bg-white/10 text-white/40 rounded-md transition-all"
                                                         >
                                                             <Icon name="minus" size={10} />
@@ -98,6 +202,7 @@ const UserCart = () => {
                                                         <span className="w-8 text-center text-xs font-black">{item.quantity}</span>
                                                         <button
                                                             onClick={() => updateQuantity(item.eventId, item.quantity + 1, item.functionId, item.sectionId)}
+                                                            disabled={!canIncrement}
                                                             className="w-8 h-8 flex items-center justify-center hover:bg-white/10 text-white/40 rounded-md transition-all"
                                                         >
                                                             <Icon name="plus" size={10} />
@@ -116,7 +221,8 @@ const UserCart = () => {
                                                 </div>
                                             )}
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
@@ -181,9 +287,17 @@ const UserCart = () => {
 
                                     <button
                                         onClick={handleCheckout}
+                                        disabled={hasBlockingIssues || checkingAvailability}
                                         className="w-full py-5 checkout-btn-glow"
+                                        style={(hasBlockingIssues || checkingAvailability) ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
                                     >
-                                        <span>CONTINUAR AL PAGO</span>
+                                        <span>
+                                            {checkingAvailability
+                                                ? 'VERIFICANDO DISPONIBILIDAD...'
+                                                : hasBlockingIssues
+                                                    ? 'RESUELVE ARTÍCULOS NO DISPONIBLES'
+                                                    : 'CONTINUAR AL PAGO'}
+                                        </span>
                                     </button>
                                 </div>
                             </div>

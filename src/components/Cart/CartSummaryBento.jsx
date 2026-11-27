@@ -17,9 +17,12 @@ const CartSummaryBento = ({
     removeCoupon,
     onCheckout,
     hasUnavailableItems = false,
+    checkingAvailability = false,
     cartCount = 0
 }) => {
     const [couponInput, setCouponInput] = useState('');
+    const couponLabel = typeof appliedCoupon === 'string' ? appliedCoupon : appliedCoupon?.code;
+    const isCheckoutBlocked = hasUnavailableItems || checkingAvailability;
     const shippingThreshold = 1500;
     const remainingForFreeShipping = Math.max(0, shippingThreshold - finalTotal);
     const shippingProgress = Math.min(100, (finalTotal / shippingThreshold) * 100);
@@ -83,7 +86,7 @@ const CartSummaryBento = ({
                     <div className="bento-coupon-applied">
                         <div className="bento-coupon-pill">
                             <Icon name="checkCircle" size={13} className="bento-coupon-success-icon" />
-                            <span className="bento-coupon-code">{appliedCoupon}</span>
+                            <span className="bento-coupon-code">{couponLabel}</span>
                         </div>
                         <button
                             type="button"
@@ -135,14 +138,18 @@ const CartSummaryBento = ({
 
                 <button
                     type="button"
-                    disabled={hasUnavailableItems}
+                    disabled={isCheckoutBlocked}
                     onClick={onCheckout}
-                    className={`bento-checkout-btn ${hasUnavailableItems ? 'bento-checkout-btn--disabled' : ''}`}
+                    className={`bento-checkout-btn ${isCheckoutBlocked ? 'bento-checkout-btn--disabled' : ''}`}
                 >
                     <span>
-                        {hasUnavailableItems ? 'Artículos agotados en carrito' : 'Continuar al Pago'}
+                        {checkingAvailability
+                            ? 'Verificando disponibilidad...'
+                            : hasUnavailableItems
+                                ? 'Resuelve artículos no disponibles'
+                                : 'Continuar al Pago'}
                     </span>
-                    {!hasUnavailableItems && (
+                    {!isCheckoutBlocked && (
                         <Icon name="arrowRight" size={16} className="bento-btn-icon" />
                     )}
                 </button>

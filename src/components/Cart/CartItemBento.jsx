@@ -8,7 +8,9 @@ import Icon from '../Icons/Icons';
 const CartItemBento = ({
     item,
     isAvailable = true,
+    availability = null,
     onUpdateQuantity,
+    onAdjustToMax,
     onDelete
 }) => {
     // Normalización de nombres y variantes
@@ -21,8 +23,15 @@ const CartItemBento = ({
     const itemTotal = unitPrice * item.quantity;
     const imageSrc = item.image || item.imageUrl || item.ticket_image_url;
 
+    const status = availability?.status || (isAvailable ? 'available' : 'unavailable');
+    const isUnavailable = status === 'unavailable';
+    const isPartial = status === 'partial';
+    const maxStock = availability?.maxStock ?? null;
+    const warningText = availability?.reason || 'Agotado o no disponible';
+    const canIncrement = !isUnavailable && !isPartial && (maxStock === null || item.quantity < maxStock);
+
     return (
-        <article className={`cart-bento-item ${!isAvailable ? 'cart-bento-item--unavailable' : ''}`}>
+        <article className={`cart-bento-item ${isUnavailable ? 'cart-bento-item--unavailable' : ''} ${isPartial ? 'cart-bento-item--partial' : ''}`}>
             {/* Lado izquierdo: Media con badge contextual */}
             <div className="bento-item-media">
                 {imageSrc ? (
@@ -74,11 +83,31 @@ const CartItemBento = ({
                     )}
                 </div>
 
-                {/* Advertencia si no está disponible en inventario */}
-                {!isAvailable && (
-                    <div className="bento-item-warning">
-                        <Icon name="alertTriangle" size={13} />
-                        <span>Agotado o no disponible</span>
+                {/* Advertencia si no está disponible o si supera el stock real */}
+                {(isUnavailable || isPartial) && (
+                    <div className={`bento-item-warning ${isPartial ? 'bento-item-warning--partial' : ''}`}>
+                        <div className="bento-item-warning-msg">
+                            <Icon name="alertTriangle" size={13} />
+                            <span>{warningText}</span>
+                        </div>
+                        {isPartial && maxStock > 0 && onAdjustToMax && (
+                            <button
+                                type="button"
+                                className="bento-adjust-stock-btn"
+                                onClick={() => onAdjustToMax(maxStock)}
+                            >
+                                Ajustar a {maxStock}
+                            </button>
+                        )}
+                        {isUnavailable && (
+                            <button
+                                type="button"
+                                className="bento-remove-unavail-btn"
+                                onClick={onDelete}
+                            >
+                                Quitar
+                            </button>
+                        )}
                     </div>
                 )}
 
@@ -89,7 +118,7 @@ const CartItemBento = ({
                             type="button"
                             onClick={() => onUpdateQuantity(-1)}
                             className="bento-stepper-btn"
-                            disabled={item.quantity <= 1}
+                            disabled={item.quantity <= 1 || isUnavailable}
                             title="Disminuir cantidad"
                             aria-label="Disminuir cantidad"
                         >
@@ -100,7 +129,7 @@ const CartItemBento = ({
                             type="button"
                             onClick={() => onUpdateQuantity(1)}
                             className="bento-stepper-btn"
-                            disabled={!isAvailable}
+                            disabled={!canIncrement}
                             title="Aumentar cantidad"
                             aria-label="Aumentar cantidad"
                         >

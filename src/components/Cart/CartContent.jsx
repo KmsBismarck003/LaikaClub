@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../Icons/Icons';
 import TicketPrinterOverlay from '../../pages/user/UserCart/TicketPrinterOverlay';
 import { merchService } from '../../services/merch.service';
+import useCartAvailability, { getCartItemKey } from '../../hooks/useCartAvailability';
 import ConfirmDialog from '../Modals/ConfirmDialog/ConfirmDialog';
 import CartItemBento from './CartItemBento';
 import CartSummaryBento from './CartSummaryBento';
@@ -36,58 +37,19 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
     const [upsellMerch, setUpsellMerch] = useState([]);
     const [showUpsellModal, setShowUpsellModal] = useState(false);
 
-    // Mapa de disponibilidad en tiempo real
-    const [availabilityMap, setAvailabilityMap] = useState({});
+    // Validación real en tiempo real de eventos y mercancía
+    const {
+        checking: checkingAvailability,
+        getItemStatus,
+        unavailableItems,
+        partialStockItems,
+        hasBlockingIssues,
+        resolveAllIssues
+    } = useCartAvailability(cart, { removeFromCart, updateQuantity });
 
     // Separación modular de tipos de artículos
     const ticketItems = cart.filter(item => item.sectionId !== 'MERCH');
     const merchItems = cart.filter(item => item.sectionId === 'MERCH');
-
-    // Verificar en tiempo real la disponibilidad de productos en el carrito
-    useEffect(() => {
-        const merchInCart = cart.filter(item => item.sectionId === 'MERCH' || item.type === 'merch' || item.isMerch);
-        if (merchInCart.length > 0) {
-            const checkStock = async () => {
-                const map = {};
-                for (const item of merchInCart) {
-                    let vId = item.variantId;
-                    let pId = item.merchId;
-
-                    if (!vId && item.eventId && item.eventId.toString().startsWith('merch_')) {
-                        const parts = item.eventId.toString().split('_');
-                        if (parts.length >= 3 && !isNaN(parseInt(parts[2], 10))) vId = parseInt(parts[2], 10);
-                        if (!pId && parts.length >= 2 && !isNaN(parseInt(parts[1], 10))) pId = parseInt(parts[1], 10);
-                    }
-                    if (!vId && item.id && item.id.toString().startsWith('merch_')) {
-                        const parts = item.id.toString().split('_');
-                        if (parts.length >= 3 && !isNaN(parseInt(parts[2], 10))) vId = parseInt(parts[2], 10);
-                        if (!pId && parts.length >= 2 && !isNaN(parseInt(parts[1], 10))) pId = parseInt(parts[1], 10);
-                    }
-
-                    const itemKey = `${item.eventId}-${item.sectionId}-${item.id || ''}`;
-                    if (pId) {
-                        try {
-                            const prod = await merchService.getMerchandiseById(pId);
-                            if (!prod || prod.status === 'archived' || prod.status === 'draft') {
-                                map[itemKey] = false;
-                            } else if (vId && prod.variants && prod.variants.length > 0) {
-                                const variant = prod.variants.find(v => v.id === vId);
-                                map[itemKey] = Boolean(variant && variant.stock > 0 && variant.isActive !== false);
-                            } else {
-                                map[itemKey] = Boolean(prod.stock === undefined || prod.stock > 0);
-                            }
-                        } catch {
-                            map[itemKey] = item.isAvailable !== false && (item.stock === undefined || item.stock > 0);
-                        }
-                    } else {
-                        map[itemKey] = item.isAvailable !== false && (item.stock === undefined || item.stock > 0);
-                    }
-                }
-                setAvailabilityMap(map);
-            };
-            checkStock();
-        }
-    }, [cart]);
 
     // Cargar artículos recomendados para el upsell basados en los eventos seleccionados
     useEffect(() => {
@@ -104,20 +66,25 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
         }
     }, [cart]);
 
-    const checkItemAvailability = (item) => {
-        const itemKey = `${item.eventId}-${item.sectionId}-${item.id || ''}`;
-        if (availabilityMap[itemKey] !== undefined) {
-            return availabilityMap[itemKey];
+    const handleResolveIssues = async () => {
+        const { removedCount, adjustedCount } = await resolveAllIssues();
+        const parts = [];
+        if (removedCount > 0) {
+            parts.push(`${removedCount} ${removedCount === 1 ? 'artículo no disponible retirado' : 'artículos no disponibles retirados'}`);
         }
-        return item.isAvailable !== false && (item.stock === undefined || item.stock > 0);
+        if (adjustedCount > 0) {
+            parts.push(`${adjustedCount} ${adjustedCount === 1 ? 'cantidad ajustada al stock disponible' : 'cantidades ajustadas al stock disponible'}`);
+        }
+        if (parts.length > 0) {
+            success(`Carrito actualizado: ${parts.join(' y ')}.`);
+        }
     };
-
-    const hasUnavailableItems = cart.some(item => !checkItemAvailability(item));
 
     const handleCheckout = () => {
         if (cart.length === 0) return;
-        if (hasUnavailableItems) {
-            error('Uno o más artículos en tu carrito ya no están disponibles. Por favor elimínalos para continuar con tu compra.');
+        if (checkingAvailability) return;
+        if (hasBlockingIssues) {
+            error('Hay artículos agotados o con stock insuficiente en tu carrito. Retíralos o ajusta las cantidades para continuar al pago.');
             return;
         }
         if (upsellMerch.length > 0) {
@@ -225,14 +192,36 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
             <div className="cart-bento-grid">
                 {/* ── COLUMNA IZQUIERDA: Artículos en Bento Cells ──────────── */}
                 <main className="cart-bento-items-col">
-                    {/* Banner de alerta de stock */}
-                    {hasUnavailableItems && (
-                        <div className="cart-warning-banner">
+                    {/* Banner de alerta de disponibilidad (eventos y mercancía) */}
+                    {hasBlockingIssues && (
+                        <div className="cart-warning-banner" role="alert">
                             <Icon name="alertTriangle" size={18} className="cart-warning-icon" />
                             <div className="cart-warning-text">
-                                <strong>Artículos agotados detectados:</strong>
-                                <p>Uno o más artículos en tu carrito no tienen inventario disponible. Elimínalos para continuar al pago.</p>
+                                <strong>
+                                    {unavailableItems.length > 0 && partialStockItems.length > 0
+                                        ? `${unavailableItems.length} no disponible(s) y ${partialStockItems.length} con stock limitado`
+                                        : unavailableItems.length > 0
+                                            ? `${unavailableItems.length} ${unavailableItems.length === 1 ? 'artículo ya no está disponible' : 'artículos ya no están disponibles'}`
+                                            : `${partialStockItems.length} ${partialStockItems.length === 1 ? 'artículo supera' : 'artículos superan'} el stock disponible`}
+                                </strong>
+                                <p>
+                                    Retira los artículos agotados o ajusta sus cantidades para poder continuar con el pago.
+                                </p>
                             </div>
+                            <button
+                                type="button"
+                                className="cart-warning-action-btn"
+                                onClick={handleResolveIssues}
+                            >
+                                <Icon name="trash2" size={14} />
+                                <span>
+                                    {partialStockItems.length > 0 && unavailableItems.length === 0
+                                        ? 'Ajustar cantidades'
+                                        : partialStockItems.length > 0
+                                            ? 'Limpiar y ajustar'
+                                            : 'Quitar no disponibles'}
+                                </span>
+                            </button>
                         </div>
                     )}
 
@@ -250,15 +239,30 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                             </header>
 
                             <div className={`cart-bento-items-layout ${ticketItems.length === 1 ? 'layout-single-item' : 'layout-multi-items'}`}>
-                                {ticketItems.map((item) => (
-                                    <CartItemBento
-                                        key={`${item.eventId}-${item.sectionId}-${item.id || ''}`}
-                                        item={item}
-                                        isAvailable={checkItemAvailability(item)}
-                                        onUpdateQuantity={(delta) => updateQuantity(item.eventId, item.quantity + delta, item.functionId, item.sectionId)}
-                                        onDelete={() => setItemToDelete(item)}
-                                    />
-                                ))}
+                                {ticketItems.map((item) => {
+                                    const itemStatus = getItemStatus(item);
+                                    return (
+                                        <CartItemBento
+                                            key={getCartItemKey(item)}
+                                            item={item}
+                                            availability={itemStatus}
+                                            isAvailable={itemStatus.available}
+                                            onUpdateQuantity={(delta) => updateQuantity(item.eventId, item.quantity + delta, item.functionId, item.sectionId)}
+                                            onAdjustToMax={(maxQty) => {
+                                                updateQuantity(item.eventId, maxQty, item.functionId, item.sectionId);
+                                                success(`Cantidad ajustada a ${maxQty}`);
+                                            }}
+                                            onDelete={() => {
+                                                if (itemStatus.status === 'unavailable') {
+                                                    removeFromCart(item.eventId, item.functionId, item.sectionId);
+                                                    success('Artículo no disponible retirado del carrito');
+                                                } else {
+                                                    setItemToDelete(item);
+                                                }
+                                            }}
+                                        />
+                                    );
+                                })}
                             </div>
                         </section>
                     )}
@@ -277,15 +281,30 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                             </header>
 
                             <div className={`cart-bento-items-layout ${merchItems.length === 1 ? 'layout-single-item' : 'layout-multi-items'}`}>
-                                {merchItems.map((item) => (
-                                    <CartItemBento
-                                        key={`${item.eventId}-${item.sectionId}-${item.id || ''}`}
-                                        item={item}
-                                        isAvailable={checkItemAvailability(item)}
-                                        onUpdateQuantity={(delta) => updateQuantity(item.eventId, item.quantity + delta, item.functionId, item.sectionId)}
-                                        onDelete={() => setItemToDelete(item)}
-                                    />
-                                ))}
+                                {merchItems.map((item) => {
+                                    const itemStatus = getItemStatus(item);
+                                    return (
+                                        <CartItemBento
+                                            key={getCartItemKey(item)}
+                                            item={item}
+                                            availability={itemStatus}
+                                            isAvailable={itemStatus.available}
+                                            onUpdateQuantity={(delta) => updateQuantity(item.eventId, item.quantity + delta, item.functionId, item.sectionId)}
+                                            onAdjustToMax={(maxQty) => {
+                                                updateQuantity(item.eventId, maxQty, item.functionId, item.sectionId);
+                                                success(`Cantidad ajustada a ${maxQty}`);
+                                            }}
+                                            onDelete={() => {
+                                                if (itemStatus.status === 'unavailable') {
+                                                    removeFromCart(item.eventId, item.functionId, item.sectionId);
+                                                    success('Producto agotado retirado del carrito');
+                                                } else {
+                                                    setItemToDelete(item);
+                                                }
+                                            }}
+                                        />
+                                    );
+                                })}
                             </div>
                         </section>
                     )}
@@ -302,7 +321,8 @@ const CartContent = ({ onCheckoutComplete, isModal = false, twoColumn = false })
                     applyCoupon={applyCoupon}
                     removeCoupon={removeCoupon}
                     onCheckout={handleCheckout}
-                    hasUnavailableItems={hasUnavailableItems}
+                    hasUnavailableItems={hasBlockingIssues}
+                    checkingAvailability={checkingAvailability}
                     cartCount={cartCount}
                 />
             </div>
