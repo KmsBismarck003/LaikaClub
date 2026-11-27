@@ -1,35 +1,49 @@
-# Pruebas Unitarias y Reglas de Negocio (UT)
+# Pruebas Unitarias de Logica de Negocio y Machine Learning (tests/unit)
 
-Este directorio alberga las pruebas unitarias aisladas para las reglas de negocio críticas de LAIKA Club, enfocadas en validaciones de entrada, seguridad, sanitización, ciclo de vida de boletos y prevención de doble compra/canje.
+Este directorio contiene las dos suites de pruebas unitarias en frio ejecutadas en CI (`npm run test:ci`), con un total de **60 casos automatizados** sin dependencias externas.
 
-## Herramientas Utilizadas
-- **Node.js**: Entorno de ejecución nativo (sin dependencias externas pesadas).
-- **Jest / Vitest** (Opcional): Compatible con runners estándar de JavaScript.
+---
 
-## Casos de Prueba Implementados (25 Pruebas)
-1. **Validación de Correo**: Formato RFC, rechazo de dobles arrobas y correos sin dominio.
-2. **Duplicidad de Correos**: Verificación de correos existentes vs. nuevos registros.
-3. **Robustez de Contraseñas**: Validación de 8 caracteres, mayúsculas, minúsculas, números y símbolos.
-4. **Coincidencia de Contraseña**: Detección de discrepancias en confirmación de registro.
-5. **Detección de Inyección SQL**: Bloqueo de patrones `' OR '1'='1` y comandos `DROP TABLE`.
-6. **Detección de Vectores XSS**: Identificación de etiquetas `<script>` y payloads de inyección.
-7. **Sanitización de Texto**: Remoción de tags HTML y caracteres nulos (`\u0000`).
-8. **Estados de Boletos**: 
-   - `VALID_ACCESS` (Boleto activo).
-   - `ALREADY_REDEEMED` (Prevención de doble ingreso).
-   - `REVOKED_TICKET` (Boletos cancelados o reembolsados).
-   - `TRANSFERRED_TICKET` (Boletos cedidos a otro usuario).
-   - `PENDING_CLAIM` (Cortesías pendientes de reclamo).
-   - `INVALID_CODE` (Códigos inexistentes).
-9. **Bloqueo de Asientos (`SeatLockManager`)**: Prevención de colisión entre dos usuarios apartando el mismo asiento.
-10. **Prevención de Doble Compra**: Detección de boletos ya emitidos y carritos con montos inválidos o negativos.
+## 1. Suite de Seguridad y Dominio de Boletos (`run-unit-tests.js` - 35 Casos)
 
-## Cómo Ejecutar
-Desde la raíz del proyecto, ejecuta:
+Valida las funciones de `authValidation.js` y `ticketBusinessLogic.js`:
+
+1. **Validacion de Correo y Registro (Casos 1-4)**: Formato valido, rechazo de correos malformados y deteccion de duplicidad.
+2. **Seguridad de Contrasena (Casos 5-8)**: Longitud minima (8 caracteres), complejidad (mayusculas, minusculas, numeros y simbolos) y coincidencia de confirmacion.
+3. **Inyeccion SQL, XSS y Sanitizacion (Casos 9-12)**: Deteccion de `' OR 1=1`, `DROP TABLE`, etiquetas `<script>` y limpieza de HTML/caracteres nulos.
+4. **Estados de Boletos (Casos 13-18)**: `INVALID_CODE`, `VALID_ACCESS`, `ALREADY_REDEEMED`, `REVOKED_TICKET`, `TRANSFERRED_TICKET` y `PENDING_CLAIM`.
+5. **Canje, Bloqueo de Asientos y Compras (Casos 19-25)**: Transicion a `used`, bloqueo de segundo canje, colision en `SeatLockManager`, carrito vacio, montos invalidos y `DOUBLE_PURCHASE_PREVENTED`.
+6. **Pagos (Luhn/CVV), Transferencias y Vigencia de Eventos (Casos 26-35)**: Validacion Luhn de tarjeta, formato CVV, rechazo de autotransferencia (`SELF_TRANSFER_PROHIBITED`), bloqueo de transferencia de cortesias (`COURTESY_TRANSFER_FORBIDDEN`), boletos inactivos y rechazo de eventos concluidos.
+
+---
+
+## 2. Suite de Algoritmos ML, Big Data y MATIS BI (`run-ml-unit-tests.js` - 25 Casos)
+
+Valida las funciones de `mlAnalyticsAlgorithms.js`:
+
+1. **Regresion Lineal, R2, MAE y RMSE (Casos 1-5)**: Correlacion exacta, manejo de Cold Start (`insufficient_data`), dispersion estadistica, pendiente cero y conjuntos nulos.
+2. **Arbol de Decision de Precios Dinamicos (Casos 6-9)**: Tarifa dinamica (+15% sobre >60% ocupacion), promocion (-15% en <30%), precio estable (30%-60%) y validacion de precios no positivos.
+3. **Clustering K-Means y Distancia Euclidiana (Casos 10-13)**: Calculo de distancias, asignacion de centroides y calculo de SSE (Metodo del Codo).
+4. **Deteccion de Anomalias y Bots (Casos 14-17)**: Clasificacion `SAFE`, rafagas (>4 tx/min), desviacion extrema de precio (`EXTREME_PRICE_DEVIATION`) y nivel `CRITICAL`.
+5. **Prediccion de Churn y Fidelizacion (Casos 18-20)**: Riesgo `High` (>60 dias de inactividad con cupon de 15%), `Medium` (40 dias) y `Low`.
+6. **Saneamiento KDD y Reconciliacion MATIS BI (Casos 21-25)**: Deduplicacion, imputacion de precios nulos y categorias vacias, reconciliacion de ingresos activos y exclusion contable de boletos cancelados.
+
+---
+
+## 3. Como Ejecutar
+
+Desde la raiz del proyecto:
+```bash
+# Ejecutar ambas suites (60 casos, usado en CI/CD)
+npm run test:ci
+
+# Ejecutar de forma individual
+npm run test:unit
+npm run test:ml
+```
+
+O directamente con Node.js:
 ```bash
 node tests/unit/run-unit-tests.js
-```
-O directamente dentro de esta carpeta:
-```bash
-node run-unit-tests.js
+node tests/unit/run-ml-unit-tests.js
 ```

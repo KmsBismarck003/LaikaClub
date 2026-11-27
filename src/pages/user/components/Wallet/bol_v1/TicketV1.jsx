@@ -7,17 +7,18 @@
  */
 import React from 'react';
 import { qr } from '../constants';
-import { formatDate, formatTime, getSeatLabel } from '../../../../EventDetail/utils/helpers';
+import { formatTicketSeat } from '../walletUtils';
+import Icon from '../../../../../components/Icons/Icons';
+import { formatDate, formatTime } from '../../../../EventDetail/utils/helpers';
 
-export default function TicketV1({ ticket, onClose }) {
+export default function TicketV1({ ticket, onClose, isPast = false }) {
   const code        = ticket.ticket_code || ticket.ticketCode || `TKT-${ticket.id || '000'}`;
   const name        = ticket.event?.name  || ticket.eventName  || 'Evento';
   const dateRaw     = ticket.event?.date  || ticket.date;
   const timeRaw     = ticket.event?.time  || ticket.time || ticket.event_time || 'N/A';
   const venue       = ticket.event?.venue_name || ticket.venue || 'LAIKA ARENA';
-  const seatId      = ticket.seat_id || ticket.seatId;
   const sectionName = ticket.section_name || ticket.sectionName || 'General';
-  const seatLabel   = seatId ? getSeatLabel(seatId, ticket.event) : null;
+  const seatDisplay = formatTicketSeat(ticket);
   const fmtDate     = dateRaw   ? formatDate(dateRaw)  : 'POR CONFIRMAR';
   const fmtTime     = timeRaw !== 'N/A' ? formatTime(timeRaw) : '';
 
@@ -78,25 +79,50 @@ export default function TicketV1({ ticket, onClose }) {
         <div style={{ width:'16px', height:'16px', borderRadius:'50%', background:'#000', marginRight:'-2.5rem', borderLeft:'1px solid rgba(255,255,255,0.12)' }}/>
       </div>
 
-      {/* QR grande */}
-      <div style={{
-        position:'relative', zIndex:1, padding:'0.75rem',
-        borderRadius:'24px', background:'rgba(255,255,255,0.02)',
-        border:'1px solid rgba(255,255,255,0.08)',
-        boxShadow:'inset 0 0 20px rgba(255,255,255,0.02)',
-      }}>
+      {/* QR grande (solo eventos vigentes) o estado conmemorativo en eventos pasados */}
+      {isPast ? (
         <div style={{
-          width:'210px', height:'210px', borderRadius:'16px', overflow:'hidden',
-          background:'#fff', padding:'0.5rem', boxShadow:'0 10px 25px rgba(0,0,0,0.5)',
+          position:'relative', zIndex:1, width:'100%', padding:'1.25rem 1rem',
+          borderRadius:'20px', background:'rgba(255,255,255,0.03)',
+          border:'1px dashed rgba(255,255,255,0.14)',
+          display:'flex', flexDirection:'column', alignItems:'center', gap:'0.45rem', textAlign:'center',
         }}>
-          <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%', display:'block' }}/>
+          <div style={{
+            width:'44px', height:'44px', borderRadius:'50%',
+            background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)',
+            display:'flex', alignItems:'center', justifyContent:'center', color:'#a1a1aa',
+          }}>
+            <Icon name="history" size={20} />
+          </div>
+          <span style={{ fontSize:'0.72rem', fontWeight:900, letterSpacing:'2px', color:'#e4e4e7', textTransform:'uppercase' }}>
+            EVENTO CONCLUIDO
+          </span>
+          <span style={{ fontSize:'0.72rem', color:'#a1a1aa', lineHeight:1.4, maxWidth:'280px' }}>
+            El acceso QR fue deshabilitado porque este evento ya finalizó.
+          </span>
         </div>
-      </div>
+      ) : (
+        <div style={{
+          position:'relative', zIndex:1, padding:'0.75rem',
+          borderRadius:'24px', background:'rgba(255,255,255,0.02)',
+          border:'1px solid rgba(255,255,255,0.08)',
+          boxShadow:'inset 0 0 20px rgba(255,255,255,0.02)',
+        }}>
+          <div style={{
+            width:'210px', height:'210px', borderRadius:'16px', overflow:'hidden',
+            background:'#fff', padding:'0.5rem', boxShadow:'0 10px 25px rgba(0,0,0,0.5)',
+          }}>
+            <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%', display:'block' }}/>
+          </div>
+        </div>
+      )}
 
       {/* Código */}
       <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'0.1rem', zIndex:1 }}>
-        <span style={{ fontSize:'0.5rem', color:'#666', letterSpacing:'2px', fontWeight:800 }}>CÓDIGO DE ACCESO</span>
-        <span style={{ fontFamily:'monospace', fontSize:'1rem', color:'#E9D5FF', letterSpacing:'3px', fontWeight:700 }}>{code}</span>
+        <span style={{ fontSize:'0.5rem', color:'#888', letterSpacing:'2px', fontWeight:800 }}>
+          {isPast ? 'FOLIO DE RECUERDO' : 'CÓDIGO DE ACCESO'}
+        </span>
+        <span style={{ fontFamily:'monospace', fontSize:'1rem', color: isPast ? '#a1a1aa' : '#E9D5FF', letterSpacing:'3px', fontWeight:700 }}>{code}</span>
       </div>
 
       {/* Grid de metadatos */}
@@ -109,8 +135,8 @@ export default function TicketV1({ ticket, onClose }) {
         <MetaField label="HORARIO" value={fmtTime ? `${fmtTime} HRS` : '—'} />
         <MetaField label="LUGAR"  value={venue} span={2} />
         <MetaField label="ZONA"   value={sectionName} color="#A855F7" bold />
-        <MetaField label="ASIENTO" value={seatLabel ? `ASIENTO ${seatLabel}` : 'GENERAL'}
-          color={seatLabel ? '#22C55E' : '#888'} bold />
+        <MetaField label="ASIENTO" value={seatDisplay}
+          color={seatDisplay !== 'General' ? '#22C55E' : '#a1a1aa'} bold />
       </div>
 
       {/* Botón cerrar */}

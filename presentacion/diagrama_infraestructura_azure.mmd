@@ -1,0 +1,84 @@
+flowchart LR
+    subgraph EXT_CLIENTS["Clientes y Distribucion Externa"]
+        direction TB
+        VERCEL["Vercel CDN\nWeb Publica, Admin, Gestor,\nOperador y MATIS BI"]
+        MOBILE["LaikaMobil\nApp React Native y Expo\nDistribucion Google Play Store"]
+        GH["GitHub y GitHub Actions\nCI 60 pruebas y CD remoto"]
+    end
+
+    subgraph AZURE["Microsoft Azure — Aprovisionado con Terraform IaC"]
+        direction TB
+        FINOPS["Control FinOps\nAlertas de presupuesto al 80% y 95%\nCosto estimado 30 USD al mes"]
+
+        subgraph VNET["Virtual Network 10.0.0.0/16 — Subred 10.0.1.0/24"]
+            direction TB
+            NSG["IP Publica Estatica y Firewall NSG\nPuertos permitidos: HTTP 80, HTTPS 443, SSH 22\nDominio cloudapp.azure.com y llave RSA 4096"]
+
+            subgraph VM["VM Linux Ubuntu 22.04 ARM64 — Standard_B2ps_v2 · 2 vCPU · 8 GB RAM · Swap 8 GB"]
+                direction TB
+                NGINX["Nginx Reverse Proxy\nTLS Certbot y compresion Gzip\nRedirige /api/ hacia puerto 8000 y sirve /uploads/"]
+
+                subgraph DOCKER["Red Privada Docker — laika_network · 11 Contenedores"]
+                    direction TB
+                    PILGRIM["Pilgrim API Gateway — Puerto 8000\nFastAPI + HTTPX Asincrono\nRouters por rol, CORS, cache GET 60 s y /api/health"]
+
+                    subgraph MS_CORE["Bloque Core 81xx — Java Spring Boot"]
+                        AUTH["laika_auth :8101\nJWT y auditoria"]
+                        ADMIN["laika_admin :8102\nConfig, respaldos y SMTP"]
+                        STATS["laika_stats :8103\nMetricas operativas"]
+                    end
+
+                    subgraph MS_OPS["Bloque Operaciones 82xx — Java Spring Boot"]
+                        EVENTS["laika_events :8201\nEventos, salas y recintos"]
+                        TICKETS["laika_tickets :8202\nBloqueos ReentrantLock y QR"]
+                        MERCH["laika_merchandise :8203\nTienda y ordenes"]
+                    end
+
+                    subgraph MS_DATA["Bloque Analitica 83xx — Java y Python"]
+                        ACH["laika_achievements :8301\nLogros e hitos"]
+                        ANA["laika_analytics :8302\nReportes SQL"]
+                        BIGDATA["analytics_bigdata :8303\nPython, PySpark, ML y MATIS"]
+                    end
+
+                    MYSQL["MySQL 8.0 — Puerto interno 3306\nEsquemas aislados por microservicio\nVolumenes laika_db_data, uploads y backups"]
+                end
+            end
+        end
+    end
+
+    subgraph EXT_SERVICES["Servicios Externos Complementarios"]
+        direction TB
+        MONGO["MongoDB Atlas M0\nBoveda NoSQL e instantaneas analiticas"]
+        SMTP["Servidor SMTP Externo\nEnvio de correos de confirmacion"]
+    end
+
+    VERCEL -->|"HTTPS REST + Bearer JWT"| NSG
+    MOBILE -->|"HTTPS REST + SSL Pinning"| NSG
+    GH -->|"SSH puerto 22 + deploy_remote.sh"| NSG
+
+    NSG -->|"Puertos 80 y 443"| NGINX
+    NGINX -->|"Proxy local 127.0.0.1:8000"| PILGRIM
+
+    PILGRIM --> AUTH
+    PILGRIM --> ADMIN
+    PILGRIM --> STATS
+    PILGRIM --> EVENTS
+    PILGRIM --> TICKETS
+    PILGRIM --> MERCH
+    PILGRIM --> ACH
+    PILGRIM --> ANA
+    PILGRIM --> BIGDATA
+
+    AUTH --> MYSQL
+    ADMIN --> MYSQL
+    STATS --> MYSQL
+    EVENTS --> MYSQL
+    TICKETS --> MYSQL
+    MERCH --> MYSQL
+    ACH --> MYSQL
+    ANA --> MYSQL
+    BIGDATA --> MYSQL
+
+    BIGDATA -->|"Consultas y snapshots"| MONGO
+    ADMIN -->|"Despacho SMTP"| SMTP
+

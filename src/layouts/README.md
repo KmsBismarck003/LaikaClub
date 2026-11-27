@@ -4,7 +4,7 @@ Sistema de layouts reutilizables para organizar la estructura de la aplicación.
 
 ## Layouts Disponibles
 
-### 🏠 MainLayout
+### MainLayout
 
 Layout principal para páginas públicas y del usuario normal.
 
@@ -48,7 +48,7 @@ import { MainLayout } from './layouts';
 
 ---
 
-### 🔐 AuthLayout
+### AuthLayout
 
 Layout minimalista para páginas de autenticación.
 
@@ -76,7 +76,7 @@ Ninguna (es un layout estático)
 
 ---
 
-### 📊 DashboardLayout
+### DashboardLayout
 
 Layout para paneles administrativos con sidebar.
 

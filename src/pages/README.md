@@ -4,7 +4,7 @@ Páginas completas del sistema LAIKA Club organizadas por roles y funcionalidade
 
 ## Estructura de Páginas
 
-### 📝 Autenticación
+### Autenticación
 
 #### Login.jsx
 Página de inicio de sesión con validación de formularios.
@@ -32,7 +32,7 @@ Página de registro de nuevos usuarios.
 - Aceptación de términos y condiciones
 - Diseño responsive
 
-### 🏠 Páginas Públicas
+### Páginas Públicas
 
 #### Home.jsx
 Página principal con catálogo de eventos (accesible para visitantes y usuarios).
@@ -46,7 +46,7 @@ Página principal con catálogo de eventos (accesible para visitantes y usuarios
 
 **Roles:** Visitante, Usuario, todos los demás roles
 
-### 👤 Usuario Normal
+### Usuario Normal
 
 #### UserProfile.jsx
 Perfil de usuario con historial y logros.
@@ -60,7 +60,7 @@ Perfil de usuario con historial y logros.
 
 **Rol:** Usuario
 
-### 🛡️ Administrador del Sistema
+### Administrador del Sistema
 
 #### AdminDashboard.jsx
 Panel de control completo del sistema.
@@ -74,15 +74,15 @@ Panel de control completo del sistema.
 - Control de permisos y configuraciones
 
 **Actividades principales:**
-- ✅ Gestión de usuarios y roles
-- ✅ Configuración del sistema (modo mantenimiento, registro, sesiones)
-- ✅ Respaldos de base de datos (completo, incremental, selectivo)
-- ✅ Monitoreo de rendimiento
-- ✅ Control total sin tocar código
+- [OK] Gestión de usuarios y roles
+- [OK] Configuración del sistema (modo mantenimiento, registro, sesiones)
+- [OK] Respaldos de base de datos (completo, incremental, selectivo)
+- [OK] Monitoreo de rendimiento
+- [OK] Control total sin tocar código
 
 **Rol:** Administrador
 
-### 🎭 Gestor de Eventos / Marketing
+### Gestor de Eventos / Marketing
 
 #### EventManagerDashboard.jsx
 Panel para gestores de eventos.
@@ -96,15 +96,15 @@ Panel para gestores de eventos.
 - Solo acceso a eventos asignados
 
 **Actividades principales:**
-- ✅ Crear eventos con toda la información
-- ✅ Editar eventos existentes
-- ✅ Configurar precios y disponibilidad
-- ✅ Ver estadísticas de sus eventos
-- ❌ No puede modificar configuraciones globales
+- [OK] Crear eventos con toda la información
+- [OK] Editar eventos existentes
+- [OK] Configurar precios y disponibilidad
+- [OK] Ver estadísticas de sus eventos
+- [NO] No puede modificar configuraciones globales
 
 **Rol:** Gestor de Eventos
 
-### 🎫 Operador / Staff
+### Operador / Staff
 
 #### StaffDashboard.jsx
 Interface para verificación de boletos en el evento.
@@ -119,11 +119,11 @@ Interface para verificación de boletos en el evento.
 - Detección de boletos duplicados
 
 **Actividades principales:**
-- ✅ Verificar autenticidad de boletos
-- ✅ Registrar canje de boletos
-- ✅ Consultar información de eventos asignados
-- ✅ Ver historial de escaneos
-- ❌ Sin acceso a configuraciones
+- [OK] Verificar autenticidad de boletos
+- [OK] Registrar canje de boletos
+- [OK] Consultar información de eventos asignados
+- [OK] Ver historial de escaneos
+- [NO] Sin acceso a configuraciones
 
 **Rol:** Operador/Staff
 
@@ -184,12 +184,12 @@ Todas las páginas utilizan los componentes reutilizables de `/components`:
 
 | Página | Visitante | Usuario | Operador | Gestor | Admin |
 |--------|-----------|---------|----------|--------|-------|
-| Home | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Login/Register | ✅ | ✅ | ✅ | ✅ | ✅ |
-| UserProfile | ❌ | ✅ | ✅ | ✅ | ✅ |
-| StaffDashboard | ❌ | ❌ | ✅ | ❌ | ✅ |
-| EventManagerDashboard | ❌ | ❌ | ❌ | ✅ | ✅ |
-| AdminDashboard | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Home | [OK] | [OK] | [OK] | [OK] | [OK] |
+| Login/Register | [OK] | [OK] | [OK] | [OK] | [OK] |
+| UserProfile | [NO] | [OK] | [OK] | [OK] | [OK] |
+| StaffDashboard | [NO] | [NO] | [OK] | [NO] | [OK] |
+| EventManagerDashboard | [NO] | [NO] | [NO] | [OK] | [OK] |
+| AdminDashboard | [NO] | [NO] | [NO] | [NO] | [OK] |
 
 ## Próximos Pasos
 

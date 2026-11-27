@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import TicketV1 from './bol_v1/TicketV1';
 import TicketV2 from './bol_v2/TicketV2';
-import TicketV3 from './bol_v3/TicketV3';
-import TicketV4 from './bol_v4/TicketV4';
-import TicketCard from '../../../../components/tickets/TicketCard';
-
 import Icon from '../../../../components/Icons/Icons';
+import { isTicketPastEvent } from './walletUtils';
 
-export default function TicketModal({ ticket, onClose }) {
-  const [version, setVersion] = useState('v5'); // Default to v5 (Premium / Phygital)
+// Plantillas habilitadas en producción: únicamente Clásico (v1) y Coleccionista (v2)
+const ENABLED_VERSIONS = {
+  v1: { name: 'Clásico', component: TicketV1 },
+  v2: { name: 'Coleccionista', component: TicketV2 },
+};
+
+export default function TicketModal({ ticket, onClose, isPast = false }) {
+  const [version, setVersion] = useState('v1');
 
   const isCancelled = ticket?.status === 'cancelled' || ticket?.status === 'refunded';
   const isTransferred = ticket?.status === 'transferred';
   const isPendingTransfer = ticket?.status === 'transfer_pending';
+  const isPastEvent = Boolean(isPast) || isTicketPastEvent(ticket);
 
   if (isCancelled || isTransferred || isPendingTransfer) {
     const title = isCancelled
@@ -140,16 +144,7 @@ export default function TicketModal({ ticket, onClose }) {
     );
   }
 
-  // Map versions to their respective components
-  const versions = {
-    v1: { name: 'Clásico', component: TicketV1 },
-    v2: { name: 'Coleccionista', component: TicketV2 },
-    v3: { name: 'Horizontal', component: TicketV3 },
-    v4: { name: 'Concierto', component: TicketV4 },
-    v5: { name: 'Premium', component: TicketCard },
-  };
-
-  const ActiveComponent = versions[version]?.component || TicketV1;
+  const ActiveComponent = ENABLED_VERSIONS[version]?.component || TicketV1;
   const isCourtesy = Boolean(ticket?.is_courtesy || ticket?.isCourtesy);
 
   return (
@@ -159,66 +154,88 @@ export default function TicketModal({ ticket, onClose }) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '1.25rem',
+        gap: '1rem',
+        width: '100%',
+        maxWidth: '460px',
       }}
     >
-      {/* Courtesy banner indicator */}
-      {isCourtesy && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'rgba(139, 92, 246, 0.12)',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
-            borderRadius: '99px',
-            padding: '0.35rem 1rem',
-            color: '#a78bfa',
-            fontSize: '0.65rem',
-            fontWeight: 800,
-            letterSpacing: '1px',
-            textTransform: 'uppercase',
-            zIndex: 10000,
-          }}
-        >
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#8b5cf6' }} />
-          Boleto Oficial de Cortesía • Intransferible
+      {/* Indicators: Courtesy or Past Event archive */}
+      {(isCourtesy || isPastEvent) && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', zIndex: 10000 }}>
+          {isCourtesy && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: 'rgba(139, 92, 246, 0.14)',
+                border: '1px solid rgba(139, 92, 246, 0.35)',
+                borderRadius: '99px',
+                padding: '0.35rem 1rem',
+                color: '#c4b5fd',
+                fontSize: '0.65rem',
+                fontWeight: 800,
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+              }}
+            >
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#8b5cf6' }} />
+              Boleto Oficial de Cortesía • Intransferible
+            </div>
+          )}
+          {isPastEvent && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.16)',
+                borderRadius: '99px',
+                padding: '0.35rem 1rem',
+                color: '#d4d4d8',
+                fontSize: '0.65rem',
+                fontWeight: 800,
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+              }}
+            >
+              <Icon name="history" size={13} />
+              Evento Concluido • Edición de Recuerdo
+            </div>
+          )}
         </div>
       )}
 
-      {/* Sleek presentation switcher */}
+      {/* Sleek presentation switcher: Clásico & Coleccionista */}
       <div
         style={{
           display: 'flex',
-          background: 'rgba(255, 255, 255, 0.04)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'rgba(255, 255, 255, 0.06)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
           borderRadius: '99px',
           padding: '4px',
           zIndex: 10000,
         }}
       >
-        {Object.entries(versions).map(([key, item]) => (
+        {Object.entries(ENABLED_VERSIONS).map(([key, item]) => (
           <button
             key={key}
+            type="button"
             onClick={() => setVersion(key)}
             style={{
-              background: version === key ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-              color: version === key ? '#fff' : '#666',
+              background: version === key ? 'rgba(255, 255, 255, 0.16)' : 'transparent',
+              color: version === key ? '#fff' : '#a1a1aa',
               border: 'none',
-              padding: '0.4rem 1rem',
+              minHeight: '36px',
+              padding: '0.45rem 1.25rem',
               borderRadius: '99px',
-              fontSize: '0.6rem',
-              fontWeight: 900,
+              fontSize: '0.68rem',
+              fontWeight: 800,
               textTransform: 'uppercase',
               letterSpacing: '1px',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-            }}
-            onMouseOver={e => {
-              if (version !== key) e.currentTarget.style.color = '#aaa';
-            }}
-            onMouseOut={e => {
-              if (version !== key) e.currentTarget.style.color = '#666';
             }}
           >
             {item.name}
@@ -226,36 +243,8 @@ export default function TicketModal({ ticket, onClose }) {
         ))}
       </div>
 
-      {/* Render selected ticket version */}
-      {version === 'v5' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', alignItems: 'center' }}>
-          <TicketCard ticket={ticket} />
-          <button
-            onClick={onClose}
-            onMouseOver={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.color = '#fff'; }}
-            onMouseOut={e => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'; e.currentTarget.style.color = '#aaa'; }}
-            style={{
-              background: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              color: '#aaa',
-              padding: '0.65rem 2rem',
-              borderRadius: '99px',
-              fontSize: '0.65rem',
-              fontWeight: 900,
-              textTransform: 'uppercase',
-              letterSpacing: '2px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              width: '100%',
-              textAlign: 'center',
-            }}
-          >
-            Cerrar boleto
-          </button>
-        </div>
-      ) : (
-        <ActiveComponent ticket={ticket} onClose={onClose} />
-      )}
+      {/* Render selected ticket template */}
+      <ActiveComponent ticket={ticket} onClose={onClose} isPast={isPastEvent} />
     </div>
   );
 }

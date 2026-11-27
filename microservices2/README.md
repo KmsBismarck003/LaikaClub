@@ -1,82 +1,74 @@
 # Ecosistema de Microservicios Java - LAIKA Club (microservices2)
 
-Infraestructura de backend desacoplada, orientada a microservicios basados en Java y Spring Boot 3.x, responsable de la logica de negocio, integridad transaccional y persistencia relacional del ecosistema LAIKA Club.
+Infraestructura de backend en Java 17 y Spring Boot `3.2.5`, responsable de la logica de negocio, seguridad, integridad transaccional y persistencia relacional de LAIKA Club.
 
 ---
 
 ## 1. Descripcion General
 
-El directorio `microservices2` concentra los servicios de mision critica de la plataforma. Cada microservicio es un artefacto autonomo empaquetado con Maven, dotado de su propia base de datos relacional en MySQL 8.0 para preservar el aislamiento de dominio y desacoplamiento estructural. 
+El directorio `microservices2` agrupa los microservicios Java compilados con Maven (`mvnw` / `mvnw.cmd`). Cada servicio incluye su propio `pom.xml`, `Dockerfile` y archivo `src/main/resources/application.yml`.
 
-Las comunicaciones externas no impactan directamente a estos microservicios; todas las solicitudes son canalizadas, autenticadas y balanceadas a traves de Pilgrim API Gateway (puerto 8000).
+En Docker Compose (`docker-compose.yml` y `docker-compose.prod.yml`), los 8 microservicios de dominio se ejecutan detras de Pilgrim API Gateway (puerto 8000) y se conectan al contenedor MySQL 8.0 (`laika_db`) con bases de datos segregadas por servicio. En ejecucion local fuera de Docker, cada `application.yml` define `MYSQL_DATABASE` con valor por defecto `laika_club3_v2` e incluye configuracion de fallback a SQLite.
 
 ---
 
 ## 2. Catalogo de Microservicios y Puertos Asignados
 
-Los servicios se agrupan por bloques funcionales numerados en rangos estructurados:
-
-### Bloque 81xx: Identidad, Gobernanza y Monitoreo
-| Microservicio | Directorio | Puerto Interno | Base de Datos MySQL | Responsabilidad Principal |
+### Bloque 81xx: Identidad, Administracion y Estadisticas
+| Microservicio | Directorio | Puerto | Base de Datos (Docker Compose) | Responsabilidad Principal |
 | :--- | :--- | :--- | :--- | :--- |
-| `laika_auth` | `auth/` | **8101** | `laika_auth` | Registro, login, emision de JWT, hashing BCrypt, control de fuerza bruta y auditoria en `auth_logs`. |
-| `laika_admin` | `admin/` | **8102** | `laika_admin` | Administracion central de usuarios, aprobaciones, SqlVault, configuracion de sistema y envio de correos SMTP. |
-| `laika_stats` | `stats/` | **8103** | `laika_stats` | Metricas operativas del sistema, estado de salud de conexiones y registros de auditoria. |
+| `laika-auth` | `auth/` | **8101** | `laika_auth` | Registro, login, emision y verificacion de JWT, hashing BCrypt, control de fuerza bruta y auditoria en `auth_logs`. |
+| `laika-admin` | `admin/` | **8102** | `laika_admin` | Administracion central, configuracion del sistema, respaldos en `/app/backups`, anuncios y envio de correos SMTP. |
+| `laika-stats` | `stats/` | **8103** | `laika_stats` | Metricas operativas, paneles de gestor/staff y monitoreo de estado. |
 
 ### Bloque 82xx: Operaciones Core y Comercio
-| Microservicio | Directorio | Puerto Interno | Base de Datos MySQL | Responsabilidad Principal |
+| Microservicio | Directorio | Puerto | Base de Datos (Docker Compose) | Responsabilidad Principal |
 | :--- | :--- | :--- | :--- | :--- |
-| `laika_events` | `events/` | **8201** | `laika_events` | Ciclo de vida de eventos, recintos, salas, funciones y calculo en tiempo real de boletos vendidos y recaudacion. |
-| `laika_tickets` | `tickets/` | **8202** | `laika_tickets` | Bloqueo concurrente de asientos (`ReentrantLock`), compra, emision de QR, validacion en torniquetes, transferencias y cortesias. |
-| `laika_merchandise` | `merchandise/` | **8203** | `laika_merchandise` | Catalogo de mercancia oficial, gestion de variantes, inventario y procesamiento de pedidos fisicos. |
+| `laika-events` | `events/` | **8201** | `laika_events` | Gestion de eventos, funciones, recintos, salas y consultas agregadas de ventas e ingresos. |
+| `laika-tickets` | `tickets/` | **8202** | `laika_tickets` | Bloqueo concurrente de asientos, compra, emision y validacion de QR, canje en torniquetes, transferencias, cortesias y cancelaciones/reembolsos. |
+| `laika-merchandise` | `merchandise/` | **8203** | `laika_merchandise` | Catalogo de mercancia oficial, variantes, inventario y pedidos. |
 
-### Bloque 83xx: Datos, Gamificacion e Inteligencia
-| Microservicio | Directorio | Puerto Interno | Base de Datos MySQL | Responsabilidad Principal |
+### Bloque 83xx: Gamificacion y Analitica Relacional
+| Microservicio | Directorio | Puerto | Base de Datos (Docker Compose) | Responsabilidad Principal |
 | :--- | :--- | :--- | :--- | :--- |
-| `laika_achievements` | `achievements/` | **8301** | `laika_achievements` | Motor de recompensas, medallas, desbloqueo de hitos por asistencia o compras. |
-| `laika_analytics` | `analytics/` | **8302** | `laika_analytics` | Reportes de ventas, ingresos consolidados y consultas agregadas para dashboards ejecutivos. |
+| `laika-achievements` | `achievements/` | **8301** | `laika_achievements` | Motor de logros, hitos y recompensas de usuario. |
+| `laika-analytics` | `analytics/` | **8302** | `laika_analytics` | Reportes financieros y agregaciones analiticas sobre MySQL. |
+
+### Modulo Alternativo Presente en el Directorio
+| Modulo | Directorio | Puerto | Estado |
+| :--- | :--- | :--- | :--- |
+| `laika-gateway` | `gateway/` | **8000** | Implementacion Spring Boot 3.2.5 alternativa de API Gateway. No se usa en `docker-compose.yml` ni `docker-compose.prod.yml` (el gateway activo es `pilgrim/`). |
 
 ---
 
-## 3. Caracteristicas Tecnicas y Mecanismos de Integridad
+## 3. Mecanismos Tecnicos Verificados
 
-1. **Prevencion de Sobrevendidos y Concurrencia (Tickets)**:
-   - El microservicio `tickets` implementa un gestor de bloqueo en memoria respaldado por `java.util.concurrent.locks.ReentrantLock`.
-   - Cuando dos peticiones concurrentes intentan adquirir el mismo asiento en la misma fraccion de milisegundo, una obtiene el bloqueo exclusivo y completa la compra (`200 OK`), mientras que la segunda es rechazada limpiamente con codigo `409 Conflict`, impidiendo compras duplicadas o cobros dobles.
-
-2. **Calculo Financiero Agregado en Tiempo Real (Events)**:
-   - En lugar de persistir contadores estaticos susceptibles a desincronizacion, el microservicio `events` ejecuta consultas agregadas cruzadas contra `laika_tickets.tickets` (`COUNT` de activos y `SUM` de montos), garantizando cifras exactas para los gestores.
-
-3. **Seguridad y Control de Acceso (RBAC)**:
-   - Los servicios validan los claims del token JWT emitido por `auth`. Las peticiones que carecen de las credenciales adecuadas son interceptadas con respuestas estandarizadas `401 Unauthorized` o `403 Forbidden`.
-
-4. **Validaciones Estrictas de Entrada (Jakarta Validation)**:
-   - DTOs anotados con `@NotBlank`, `@Email`, `@Size` y validadores de negocio propios. Cualquier anomalia en la carga util produce un rechazo inmediato con codigo `422 Unprocessable Entity` o `400 Bad Request`.
+1. **Control de Concurrencia en Compra y Bloqueo de Asientos (`tickets`)**:
+   - `TicketService.java` utiliza un `ConcurrentHashMap<String, ReentrantLock>` indexado por clave compuesta `(eventId, functionId, seatId)` (`getLockKey`).
+   - Ante peticiones concurrentes por el mismo asiento, un hilo completa la reserva o compra (`200 OK`) y los demas son rechazados con `409 Conflict` (`ResponseStatusException(HttpStatus.CONFLICT, ...)`).
+   - Incluye limpieza de bloqueos expirados (`cleanExpiredLocks`).
+2. **Consultas Agregadas de Ventas (`events`)**:
+   - `EventQueryService.java` consulta agregaciones directas de boletos vendidos e ingresos para evitar inconsistencias entre el catalogo de eventos y la tabla transaccional de boletos.
+3. **Pruebas Unitarias Java Existentes**:
+   - `tickets/src/test/`: `CancellationServiceImplTest.java` (ejecutada en `.github/workflows/ci.yml` mediante `mvn test -Dtest=CancellationServiceImplTest`).
+   - `auth/src/test/`: `AuthApplicationTests.java` (`auth` se compila en CI con `mvn compile`).
+   - Los demas microservicios actualmente no cuentan con archivos de prueba Java en `src/test/`.
 
 ---
 
 ## 4. Estructura Comun de Cada Microservicio
 
-Cada carpeta de servicio (ejemplo: `microservices2/tickets`) sigue la arquitectura Clean Architecture / MVC de Spring Boot:
-
-```
+```text
 microservices2/<servicio>/
 ├── src/
 │   ├── main/
-│   │   ├── java/com/laikaclub/<servicio>/
-│   │   │   ├── config/              # Seguridad, CORS, beans de infraestructura
-│   │   │   ├── controller/          # Endpoints REST (@RestController)
-│   │   │   ├── dto/                 # Data Transfer Objects y validaciones
-│   │   │   ├── model/               # Entidades JPA (@Entity)
-│   │   │   ├── repository/          # Interfaces Spring Data JPA
-│   │   │   ├── service/             # Logica de negocio y casos de uso
-│   │   │   └── <Servicio>Application.java # Clase principal Spring Boot
+│   │   ├── java/com/laikaclub/<servicio>/   # Configuracion, controladores REST, DTOs, modelos, repositorios y servicios
 │   │   └── resources/
-│   │       └── application.properties # Configuracion de puerto, MySQL y perfiles
-│   └── test/                        # Pruebas unitarias de controladores y servicios
-├── Dockerfile                       # Construccion de imagen Docker Multi-Stage
-├── mvnw / mvnw.cmd                  # Maven Wrapper
-└── pom.xml                          # Definicion de dependencias y plugins Maven
+│   │       └── application.yml              # Configuracion de puerto, MySQL y fallback SQLite
+│   └── test/                                # Pruebas unitarias Java (presentes en auth y tickets)
+├── Dockerfile                               # Construccion de imagen Docker
+├── mvnw / mvnw.cmd                          # Maven Wrapper
+└── pom.xml                                  # Dependencias Maven (Spring Boot 3.2.5, Java 17)
 ```
 
 ---
@@ -84,25 +76,36 @@ microservices2/<servicio>/
 ## 5. Compilacion y Ejecucion
 
 ### Prerrequisitos
-- Java Development Kit (JDK) 17 o 21.
-- MySQL 8.0 en ejecucion (puerto 3306).
-- Variables de entorno de base de datos (`MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`).
+- Java Development Kit (JDK) 17.
+- MySQL 8.0 en ejecucion (puerto 3306) o variables de entorno configuradas (`MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`).
 
-### Compilacion de un Microservicio Especifico
+### Compilacion de un Microservicio
+En Linux/macOS:
 ```bash
 cd microservices2/tickets
 ./mvnw clean package -DskipTests
 ```
-*(En Windows, utiliza `mvnw.cmd clean package -DskipTests`).*
+En Windows:
+```powershell
+cd microservices2\tickets
+.\mvnw.cmd clean package -DskipTests
+```
+
+### Ejecucion de Pruebas Java (Modulo `tickets`)
+```bash
+cd microservices2/tickets
+mvn test -Dtest=CancellationServiceImplTest
+```
 
 ### Ejecucion Local de un Microservicio
 ```bash
+cd microservices2/auth
 ./mvnw spring-boot:run
 ```
 
-### Ejecucion Orquestada Mediante Docker Compose
-Desde la raiz del proyecto `LaikaClub`, los microservicios se despliegan de forma automatizada junto con MySQL y Pilgrim Gateway:
+### Ejecucion Orquestada con Docker Compose
+Desde la raiz de `LaikaClub`:
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
-Docker realizara la construccion de las imagenes a traves de sus respectivos Dockerfiles y conectara los servicios en la red virtual `laika_network`.
+Los servicios se conectan dentro de la red Docker `laika_network` junto con `laika_db` y `laika_gateway`.

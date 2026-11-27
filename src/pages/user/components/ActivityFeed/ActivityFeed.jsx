@@ -1,65 +1,90 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import Icon from '../../../../components/Icons/Icons';
-import { SectionLabel, FALLBACK_IMAGES } from '../NextEventHero/NextEventHero';
+import { getImageUrl } from '../../../../utils/imageUtils';
+import {
+  getTicketEventName,
+  getTicketCode,
+  formatTicketSeat,
+  isTicketCourtesy,
+} from '../Wallet/walletUtils';
+import styles from '../../UserDashboard.module.css';
 
-const ActivityFeed = ({ myTickets }) => {
-  const navigate = useNavigate();
+export default function ActivityFeed({
+  recentTickets = [],
+  totalCount = 0,
+  onGoToTickets,
+  onGoToHistory,
+}) {
+  if (!recentTickets || recentTickets.length === 0) return null;
 
   return (
-    <div>
-      <SectionLabel>Actividad Reciente</SectionLabel>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '.6rem' }}>
-        {myTickets.slice(0, 3).map((ticket, idx) => (
-          <div key={ticket.id || idx} style={{
-            display: 'flex', alignItems: 'center', gap: '1rem',
-            background: 'rgba(255,255,255,.03)',
-            border: '1px solid rgba(255,255,255,.06)',
-            borderRadius: '14px', padding: '1rem 1.25rem',
-            transition: 'all .2s', cursor: 'pointer'
-          }}
-            onClick={() => navigate('/user/tickets')}
-            onMouseOver={e => { e.currentTarget.style.background='rgba(255,255,255,.05)'; e.currentTarget.style.borderColor='rgba(255,255,255,.1)'; }}
-            onMouseOut={e => { e.currentTarget.style.background='rgba(255,255,255,.03)'; e.currentTarget.style.borderColor='rgba(255,255,255,.06)'; }}
+    <section className={styles.sectionBlock} aria-label="Actividad reciente">
+      <div className={styles.sectionHeaderRow}>
+        <div className={styles.sectionTitleGroup}>
+          <p className={styles.sectionEyebrow}>Resumen de cuenta</p>
+          <h2 className={styles.sectionHeading}>Actividad reciente</h2>
+        </div>
+
+        {totalCount > 3 && (
+          <button
+            type="button"
+            className={styles.sectionLinkBtn}
+            onClick={onGoToHistory}
           >
-            <img
-              src={ticket.event?.image_url || ticket.imageUrl || FALLBACK_IMAGES[idx % FALLBACK_IMAGES.length]}
-              alt=""
-              style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover', flexShrink: 0 }}
-            />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <h4 style={{ margin: '0 0 .15rem', fontSize: '.85rem', fontWeight: 800, color: '#fff',
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {ticket.event?.name || ticket.eventName || 'Evento'}
-              </h4>
-              <p style={{ margin: 0, fontSize: '.65rem', color: '#555', fontWeight: 600 }}>
-                🎫 {ticket.ticket_code || ticket.ticketCode || `TKT-${ticket.id || idx}`}
-              </p>
-            </div>
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: '.85rem', fontWeight: 900, color: '#fff' }}>
-                ${parseFloat(ticket.price || 0).toLocaleString('es-MX')}
-              </div>
-              <Icon name="chevronRight" size={14} style={{ color: '#333', marginTop: '.2rem' }} />
-            </div>
-          </div>
-        ))}
-        {myTickets.length > 3 && (
-          <button onClick={() => navigate('/user/history')} style={{
-            background: 'none', border: '1px solid rgba(255,255,255,.07)',
-            color: '#555', borderRadius: '12px', padding: '.7rem',
-            fontSize: '.62rem', fontWeight: 900, textTransform: 'uppercase',
-            letterSpacing: '1.5px', cursor: 'pointer', transition: 'all .2s'
-          }}
-            onMouseOver={e => { e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='rgba(255,255,255,.15)'; }}
-            onMouseOut={e => { e.currentTarget.style.color='#555'; e.currentTarget.style.borderColor='rgba(255,255,255,.07)'; }}
-          >
-            Ver todos ({myTickets.length}) →
+            <span>Ver historial ({totalCount})</span>
+            <Icon name="arrowRight" size={14} />
           </button>
         )}
       </div>
-    </div>
-  );
-};
 
-export default ActivityFeed;
+      <div className={styles.activityList}>
+        {recentTickets.map((ticket, idx) => {
+          const rawImg = ticket.event?.image_url || ticket.imageUrl;
+          const imgUrl = rawImg ? getImageUrl(rawImg) : null;
+          const name = getTicketEventName(ticket);
+          const code = getTicketCode(ticket, idx);
+          const seat = formatTicketSeat(ticket);
+          const courtesy = isTicketCourtesy(ticket);
+          const price = parseFloat(ticket.price || 0);
+
+          return (
+            <button
+              key={ticket.id || idx}
+              type="button"
+              className={styles.activityItem}
+              onClick={onGoToTickets}
+            >
+              <div className={styles.activityThumb}>
+                {imgUrl ? (
+                  <img src={imgUrl} alt="" loading="lazy" className={styles.activityThumbImg} />
+                ) : (
+                  <Icon name="ticket" size={18} />
+                )}
+              </div>
+
+              <div className={styles.activityContent}>
+                <h3 className={styles.activityName}>{name}</h3>
+                <div className={styles.activityMeta}>
+                  <span className={styles.activityCode}>{code}</span>
+                  <span>&bull;</span>
+                  <span>{seat}</span>
+                </div>
+              </div>
+
+              <div className={styles.activityRight}>
+                <span className={styles.activityPrice}>
+                  {courtesy
+                    ? 'Cortesía'
+                    : price > 0
+                      ? `$${price.toLocaleString('es-MX')}`
+                      : 'Gratis'}
+                </span>
+                <Icon name="chevronRight" size={16} />
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}

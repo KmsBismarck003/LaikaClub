@@ -2,7 +2,7 @@
 
 Colección de funciones reutilizables para toda la aplicación.
 
-## 📁 Estructura
+## Estructura
 
 ```
 utils/
@@ -14,7 +14,7 @@ utils/
 └── index.js        → Exportaciones
 ```
 
-## 🗓️ date.js - Fechas
+## date.js - Fechas
 
 ```js
 import { formatDate, formatDateTime, formatRelativeTime } from './utils';
@@ -29,7 +29,7 @@ isToday('2025-01-18')                     // true
 daysUntil('2025-03-01')                   // 42
 ```
 
-## ✅ validators.js - Validación
+## [OK] validators.js - Validación
 
 ```js
 import { isValidEmail, isValidPassword, isValidPhone } from './utils';
@@ -46,7 +46,7 @@ isRequired(value)                         // true/false
 minLength(value, 8)                       // true/false
 ```
 
-## 💰 format.js - Formateo
+## format.js - Formateo
 
 ```js
 import { formatCurrency, formatNumber, formatPercentage } from './utils';
@@ -62,7 +62,7 @@ calculatePercentage(75, 100)              // 75
 roundTo(3.14159, 2)                       // 3.14
 ```
 
-## 🛠️ helpers.js - Auxiliares
+## helpers.js - Auxiliares
 
 ```js
 import { 
@@ -95,7 +95,7 @@ buildQueryString({ page: 1 })             // "?page=1"
 debounce(func, 300)                       // función debounced
 ```
 
-## 🎯 constants.js - Constantes
+## constants.js - Constantes
 
 ```js
 import { 
@@ -139,7 +139,7 @@ ALLOWED_FILE_TYPES.IMAGES                 // ['image/jpeg', ...]
 MAX_FILE_SIZES.IMAGE                      // 5MB en bytes
 ```
 
-## 💡 Ejemplos de Uso
+## Ejemplos de Uso
 
 ### Validación de Formulario
 ```js
@@ -214,7 +214,7 @@ function canEditEvent(user, event) {
 }
 ```
 
-## 📚 Todas las Funciones
+## Todas las Funciones
 
 ### date.js (8 funciones)
 - formatDate, formatDateShort, formatTime, formatDateTime

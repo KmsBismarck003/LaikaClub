@@ -33,7 +33,7 @@ import { Button } from './components';
 <Button disabled>Deshabilitado</Button>
 
 // Con icono
-<Button icon={<span>🚀</span>}>Con icono</Button>
+<Button icon={<span></span>}>Con icono</Button>
 
 // Ancho completo
 <Button fullWidth>Ancho completo</Button>
@@ -70,7 +70,7 @@ import { Input } from './components';
   required
   error={errors.email}
   helperText="Ingresa tu correo electrónico"
-  icon={<span>📧</span>}
+  icon={<span></span>}
 />
 
 // Input de contraseña con toggle
@@ -183,14 +183,14 @@ import { Dropdown, Button } from './components';
   trigger={<Button>Opciones</Button>}
   align="left"
 >
-  <Dropdown.Item icon="👤" onClick={() => {}}>
+  <Dropdown.Item icon="" onClick={() => {}}>
     Mi perfil
   </Dropdown.Item>
-  <Dropdown.Item icon="⚙️">
+  <Dropdown.Item icon="">
     Configuración
   </Dropdown.Item>
   <Dropdown.Divider />
-  <Dropdown.Item icon="🚪" danger>
+  <Dropdown.Item icon="" danger>
     Cerrar sesión
   </Dropdown.Item>
 </Dropdown>

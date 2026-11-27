@@ -103,8 +103,19 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/permissions")
-    @PreAuthorize("hasAnyRole('admin', 'gestor', 'operador')")
-    public ResponseEntity<PermissionResponse> getPermissions(@PathVariable Long userId) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PermissionResponse> getPermissions(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null) {
+            throw new UnauthorizedException("No autenticado");
+        }
+        boolean isPrivileged = "admin".equalsIgnoreCase(principal.getRole())
+                || "gestor".equalsIgnoreCase(principal.getRole())
+                || "operador".equalsIgnoreCase(principal.getRole());
+        if (!isPrivileged && !userId.equals(principal.getId())) {
+            throw new UnauthorizedException("No tienes permisos para consultar los permisos de otro usuario");
+        }
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         return ResponseEntity.ok(new PermissionResponse(user.getRole(), user.getPermissions()));

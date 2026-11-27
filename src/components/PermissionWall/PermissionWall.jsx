@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
+import {
+  extractPermissionsFromResponse,
+  parsePermissions,
+  resolveRolePermission,
+} from '../../utils/permissionUtils'
 import './PermissionWall.css'
 
 /**
@@ -28,26 +33,17 @@ const PermissionWall = ({ permission, label = 'esta función', children }) => {
     if (isAdmin || !user?.id) { setHasPermission(true); return }
 
     try {
-      const data = await api.user.getPermissions(user.id)
-      const perms = typeof data?.permissions === 'string'
-        ? JSON.parse(data.permissions)
-        : (data?.permissions || {})
-      
-      const isAllowed = Boolean(
-        perms.all ||
-        perms[permission] ||
-        (user?.role === 'gestor' && ['canViewUsers', 'canViewEventAnalytics', 'canViewStats', 'canManageVenues', 'canManageMerch', 'canManageAds', 'canCreateEvents', 'canEditEvents'].includes(permission)) ||
-        (user?.role === 'operador' && ['canValidateTickets', 'canSellTickets', 'canViewTickets', 'canOverrideValidation', 'canScanMultipleEvents', 'canViewRealTimeAttendance', 'canViewEvents', 'canViewStats', 'canManageMyProfile'].includes(permission))
-      )
-      setHasPermission(isAllowed)
+      // El rol usuario consulta su propio perfil (/auth/users/me) para evitar 403 en /users/{id}/permissions
+      const data = user?.role === 'usuario'
+        ? await api.user.getProfile()
+        : await api.user.getPermissions(user.id)
+
+      const perms = extractPermissionsFromResponse(data)
+      setHasPermission(resolveRolePermission(perms, user?.role, permission))
     } catch {
       // Fallback a permisos locales si el servidor no responde
-      const local = user?.permissions || {}
-      const isLocalAllowed = Boolean(
-        local.all ||
-        (local[permission] !== undefined ? !!local[permission] : ['gestor', 'operador', 'admin'].includes(user?.role))
-      )
-      setHasPermission(isLocalAllowed)
+      const local = parsePermissions(user?.permissions)
+      setHasPermission(resolveRolePermission(local, user?.role, permission))
     }
   }, [user?.id, permission, isAdmin, user?.permissions, user?.role])
 

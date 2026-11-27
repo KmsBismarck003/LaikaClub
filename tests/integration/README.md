@@ -1,73 +1,67 @@
-# Pruebas de Integración en Vivo (Cero Mocks)
+# Pruebas de Integracion en Vivo (Cero Mocks)
 
-Este directorio alberga la suite de pruebas de integración **en caliente y sin simulaciones falsas (0 MOCKS)** que se conecta y ejecuta directamente contra los microservicios y la base de datos de LAIKA Club que tienes corriendo en Docker.
-
-## Infraestructura Real Evaluada
-- **API Gateway (Pilgrim)**: `http://localhost:8000`
-- **Microservicio de Autenticación (Spring Boot)**: `http://localhost:8101`
-- **Microservicio de Boletos y Asientos (Spring Boot)**: `http://localhost:8202`
-- **Microservicio de Administración (Spring Boot)**: `http://localhost:8102`
-- **Base de Datos MySQL (Docker `laika_db`)**: `laika_auth`, `laika_tickets`, `laika_events`
+Este directorio contiene las suites de pruebas de integracion en caliente que se ejecutan directamente contra Pilgrim API Gateway (`http://localhost:8000`), los microservicios activos en Docker y la base de datos MySQL (`laika_db`).
 
 ---
 
-## Los 20 Escenarios de Negocio Evaluados en Vivo
+## 1. Suite Transaccional y de Seguridad (`real_system_live_tests.js` - 36 Escenarios)
 
-### Grupo 1: Autenticación, Correo y Contraseñas
-1. **¿El correo existe o no? (Usuario inexistente)**: Comprueba que el backend rechaza correos no registrados con código `401 Unauthorized` y mensaje exacto `"Credenciales inválidas"`.
-2. **¿La contraseña es correcta o no? (Clave incorrecta)**: Verifica que al intentar loguearse con un usuario existente y contraseña errónea se deniega el acceso con `401`.
-3. **Login Exitoso Real**: Autentica al usuario real `admin@laikaclub.com` con su credencial real, valida la emisión del token JWT y el rol `admin`.
-4. **Login Operador Real**: Autentica a `operador@laikaclub.com` y valida la emisión de token con rol `operador`.
-5. **Inyección SQL en Login**: Envía cargas maliciosas (`' OR '1'='1`) y comprueba que la capa de validación las bloquea de forma segura sin romper la base de datos.
+Valida flujos reales contra `laika_auth` (8101), `laika_admin` (8102), `laika_events` (8201), `laika_tickets` (8202) y `laika_merchandise` (8203) via Pilgrim:
 
-### Grupo 2: Creación de Cuenta y Validaciones de Entrada
-6. **Registro con correo ya existente**: Intenta registrar una cuenta con el correo del administrador y comprueba que la base de datos deniega el alta con `"El correo ya está registrado"`.
-7. **Formato de correo inválido**: Envía un correo sin `@` ni dominio y valida el rechazo con código `422` y mensaje exacto `"Formato de email inválido"`.
-8. **Contraseña corta**: Envía una contraseña de 3 caracteres y valida el rechazo con código `422` y mensaje `"La contraseña debe tener al menos 6 caracteres"`.
-9. **Campos obligatorios vacíos**: Intenta registrar usuario con campos en blanco y valida el rechazo por validadores Jakarta / DTO.
+- **Autenticacion y Sesion (Casos 1-4, 18, 36)**: Usuario inexistente (401), contrasena incorrecta (401), login admin y operador con JWT, verificacion `/api/auth/verify` y cierre de sesion con registro en `auth_logs`.
+- **Seguridad y Registro (Casos 5-9, 19)**: Inyeccion SQL en login, correo duplicado, formato invalido (422), contrasena corta (422), campos obligatorios vacios y `/check-lockout`.
+- **RBAC (Casos 10-12)**: Bloqueo anonimo (401), bloqueo de operador en ruta admin y autorizacion legitima de admin (200).
+- **Boletos, Asientos y Concurrencia (Casos 13-16, 30-31, 35)**: Mapa de asientos ocupados, rechazo de asiento ocupado (`409 Conflict`), prueba de doble clic simultaneo (1 `200 OK` y 1 `409 Conflict`), validacion de monto numerico en pagos, bloqueo de eventos concluidos/invalidos y rafaga concurrente de 50 compradores por 1 asiento (1 `200 OK`, 49 `409 Conflict`).
+- **Torniquetes (Caso 17)**: Verificacion de QR inexistente (`INVALID_CODE`).
+- **Transferencias (Casos 20-22)**: Rechazo de autotransferencia, boleto inexistente y solicitud anonima.
+- **Cortesias (Casos 23-26)**: Cuotas en MySQL, token inexistente, canje falso y validacion de `recipientEmail`.
+- **Cancelaciones y Reembolsos (Casos 27-29)**: Politica de devolucion (24h previas), cotizacion de boleto inexistente y obligatoriedad de `ticketId`.
+- **Mercancia (Casos 32-34)**: Salud del servicio, catalogo en vivo y rechazo 404 para articulo inexistente.
 
-### Grupo 3: Control de Acceso por Roles (RBAC)
-10. **Acceso Anónimo**: Intenta consumir rutas administrativas (`/api/admin/users`) sin credenciales y comprueba el bloqueo con `401`.
-11. **¿Si quiere entrar con otro rol? (Violación de Rol)**: Envía una petición a `/api/admin/users` usando el token del Operador y comprueba que el Gateway Pilgrim bloquea el acceso con `"Access Denied"`.
-12. **Acceso Legítimo de Administrador**: Comprueba que con el token de Admin el sistema autoriza el ingreso con código `200` y entrega el catálogo de usuarios.
+Ejecucion:
+```bash
+# Suite completa (36 escenarios)
+node tests/integration/real_system_live_tests.js
 
-### Grupo 4: Compras, Asientos y Prevención de Doble Cobro (Doble Clic)
-13. **Consulta de Asientos Ocupados**: Consulta `/api/tickets/busy-seats/19` y valida que retorna los miles de asientos ocupados reales en la base de datos.
-14. **Apartar Asiento Ocupado**: Intenta apartar el asiento `28-U-5` (que ya está ocupado) y valida que el microservicio de Java responde con código `409 Conflict: "El asiento ... ya está ocupado o siendo comprado por otro usuario"`.
-15. **¿Si se pulsa 2 veces al comprar un boleto, se cobra 2 veces o se previene?**:
-    - Dispara **2 peticiones idénticas en el mismo milisegundo** sobre un asiento libre.
-    - Comprueba que el motor de concurrencia de Java (`ReentrantLock`) autoriza **exactamente 1 compra (`200 OK`)** y **bloquea la segunda con `409 Conflict`**, impidiendo el doble cobro.
-16. **Monto no numérico en Pasarela de Pagos**: Envía texto en lugar de números en `/api/tickets/payments/create-intent` y valida el rechazo con `400 Bad Request: "amount debe ser numérico"`.
-
-### Grupo 5: Control de Acceso (Torniquetes / QR), Sesión y Cierre
-17. **Escaneo de Boleto Inexistente**: Envía un código inventado a `/api/tickets/verify` y valida que el servicio responde con `statusCode: INVALID_CODE` y `valid: false`.
-18. **Verificación de Sesión**: Consulta `/api/auth/verify` con Bearer token y confirma que el microservicio retorna los datos completos del titular activo.
-19. **Protección contra Fuerza Bruta (`/check-lockout`)**: Comprueba el contador de intentos fallidos y el estado de bloqueo de la cuenta.
-20. **Cierre de Sesión Seguro (Logout)**: Envía `/api/auth/logout`, confirma la invalidación de sesión con `200 OK` y el registro de auditoría en la tabla `auth_logs`.
+# Escenario individual (ejemplo: caso 15)
+node tests/integration/real_system_live_tests.js --test=15
+```
 
 ---
 
+## 2. Suite de Machine Learning, Big Data y MATIS BI (`ml_and_bigdata_live_tests.js` - 15 Escenarios)
+
+Audita los endpoints de `analytics_bigdata` a traves de Pilgrim (`LAIKA_GATEWAY_URL`, defecto `http://localhost:8000`) o directo (`ANALYTICS_SERVICE_URL`):
+
+1. `GET /api/analytics/tables`
+2. `GET /api/analytics/ml/regression`
+3. `GET /api/analytics/ml/decision-tree`
+4. `GET /api/analytics/ml/prospecting`
+5. `GET /api/analytics/ml/anomaly`
+6. `GET /api/analytics/ml/user-behavior`
+7. `GET /api/analytics/ml/demand-prediction`
+8. `GET /api/analytics/ml/elbow?max_k=6`
+9. `GET /api/analytics/ml/pca?k=3`
+10. `POST /api/analytics/clean?table=tickets`
+11. `GET /api/analytics/merch/sales-insights`
+12. `GET /api/analytics/3d?table=tickets`
+13. `GET /api/analytics/matis/executive`
+14. `GET /api/analytics/vault/status`
+15. `GET /api/analytics/ml/recommendations/1`
+
+Ejecucion:
+```bash
+node tests/integration/ml_and_bigdata_live_tests.js
+node tests/integration/ml_and_bigdata_live_tests.js --test=3
+```
+
 ---
 
-## Suite 2: Auditoría de Puertos, Métodos HTTP y Pilgrim Gateway
+## 3. Auditoria de Puertos y Metodos HTTP (`pilgrim_and_ports_audit.js`)
 
-El archivo [pilgrim_and_ports_audit.js](file:///c:/Users/redja/Music/entorno%20laika/PruebaJava/LaikaClub/tests/integration/pilgrim_and_ports_audit.js) ejecuta 22 comprobaciones de infraestructura en vivo:
+Verifica la disponibilidad de 12 puertos TCP (`8000`, `8101`, `8102`, `8103`, `8201`, `8202`, `8203`, `8301`, `8302`, `8303`, `3000`, `3306`), endpoints de salud de Pilgrim y verbos HTTP (`GET`, `POST`, `PUT`, `DELETE`, `OPTIONS` CORS).
 
-1. **Escaneo de 12 Puertos TCP**:
-   - `8000` (Pilgrim API Gateway), `8101` (Auth), `8102` (Admin), `8103` (Stats), `8201` (Events), `8202` (Tickets), `8203` (Merch), `8301` (Achievements), `8302` (Analytics), `8303` (BigData), `3000` (Frontend), `3306` (MySQL Database).
-2. **Salud y Proxy Inverso de Pilgrim Gateway**:
-   - `GET /api/health` -> Valida estado `healthy`.
-   - `GET /` -> Valida catálogo maestro de roles y microservicios.
-   - Proxy Inverso a Auth (`/api/auth/health`) y Tickets (`/api/tickets/health`).
-3. **Verificación de Métodos HTTP (Verbos REST)**:
-   - **GET**: Consulta de salud y metadatos.
-   - **POST**: Enrutamiento de payloads en login y registro.
-   - **PUT**: Actualización de permisos y roles en el backend.
-   - **DELETE**: Liberación y borrado de locks de boletos.
-   - **OPTIONS**: Preflight CORS validando cabeceras `Access-Control-Allow-Origin` y métodos autorizados.
-   - **404**: Manejo limpio de rutas inexistentes.
-
-### Cómo Ejecutar Esta Suite
+Ejecucion:
 ```bash
 node tests/integration/pilgrim_and_ports_audit.js
 ```

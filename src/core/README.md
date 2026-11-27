@@ -1,4 +1,4 @@
-# 📁 `src/core/` — Configuración Global del Sistema
+# `src/core/` — Configuración Global del Sistema
 
 ## Propósito
 
@@ -21,15 +21,15 @@ Ningún componente, hook o servicio debe hardcodear:
 ## Cómo Usar
 
 ```js
-// ✅ Correcto — importar desde core
+// [OK] Correcto — importar desde core
 import { API_CONFIG, ROLES, hasPermission } from '../core'
 
-// ❌ Incorrecto — hardcodear constantes
+// [NO] Incorrecto — hardcodear constantes
 const url = 'http://localhost:8000/api'
 if (user.role === 'admin') { ... }
 ```
 
-## ❌ Lo que NO va aquí
+## [NO] Lo que NO va aquí
 
 - Lógica de negocio → `features/` o `hooks/`
 - Componentes React → `components/`

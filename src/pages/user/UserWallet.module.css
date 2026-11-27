@@ -1,0 +1,989 @@
+/* ==========================================================================
+   USER WALLET — Mis Boletos (Tier-1 Bento + Pass Architecture)
+   100% Semantic Tokens (Dark & Light Mode), 320px -> Ultra-Wide 4K Responsive
+   ========================================================================== */
+
+.walletPage {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  padding-bottom: 2.5rem;
+}
+
+/* ── Top Header ──────────────────────────────────────────────── */
+.walletTopBar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.walletHeadingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.walletEyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.walletTitle {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  line-height: 1.15;
+}
+
+.walletSubtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.redeemBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.6rem 1.15rem;
+  border-radius: 9999px;
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: var(--bento-shadow);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s ease,
+              border-color 0.2s ease,
+              background-color 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .redeemBtn:hover {
+    transform: translateY(-2px);
+    border-color: var(--bento-card-border-hover);
+    background: var(--bento-card-hover-bg);
+    box-shadow: var(--bento-shadow-hover);
+  }
+}
+
+.redeemBtn:active {
+  transform: scale(0.97);
+}
+
+/* ── Bento Summary Cards ─────────────────────────────────────── */
+.summaryCardActive {
+  border-color: var(--text-primary) !important;
+}
+
+.summaryCardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.summaryIconBox {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.summaryHint {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 0.35rem;
+  line-height: 1.35;
+}
+
+.nextEventPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.nextEventName {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nextEventMeta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nextEventAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Incoming Transfers Banner ───────────────────────────────── */
+.transfersBanner {
+  background: var(--bento-card-bg);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: var(--radius-bento);
+  padding: 1.25rem;
+  box-shadow: var(--bento-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.transfersBannerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.transfersBannerTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.transfersIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.14);
+  color: #3b82f6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.transfersTitle {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.transfersList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.transferItem {
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  border-radius: var(--radius-bento-sm);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.transferInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.transferEventName {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.transferDetail {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.transferMeta {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.transferActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.btnAccept {
+  min-height: 44px;
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px;
+  border: none;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnAccept:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+}
+
+.btnAccept:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btnReject {
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnReject:hover:not(:disabled) {
+    border-color: rgba(239, 68, 68, 0.45);
+    color: #ef4444;
+  }
+}
+
+/* ── Control Bar: Segmented Tabs + Search ────────────────────── */
+.controlsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+
+.tabsTrack {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.3rem;
+  border-radius: 14px;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  max-width: 100%;
+}
+
+.tabBtn {
+  min-height: 40px;
+  padding: 0.45rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tabBtn:hover {
+    color: var(--text-primary);
+  }
+}
+
+.tabBtnActive {
+  background: var(--bento-card-bg);
+  color: var(--text-primary);
+  border-color: var(--bento-card-border);
+  box-shadow: var(--bento-shadow);
+}
+
+.tabCount {
+  font-size: 0.7rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  padding: 0.1rem 0.48rem;
+  border-radius: 9999px;
+  background: var(--bento-card-subtle-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--bento-card-border);
+}
+
+.tabBtnActive .tabCount {
+  background: var(--text-primary);
+  color: var(--bento-card-bg);
+  border-color: transparent;
+}
+
+.searchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 240px;
+  max-width: 340px;
+  min-width: 200px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  display: inline-flex;
+}
+
+.searchInput {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.55rem 2.4rem 0.55rem 2.4rem;
+  border-radius: 12px;
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchInput::placeholder {
+  color: var(--text-muted);
+}
+
+.searchInput:focus {
+  border-color: var(--bento-card-border-hover);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.searchClear {
+  position: absolute;
+  right: 0.35rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .searchClear:hover {
+    color: var(--text-primary);
+    background: var(--bento-card-subtle-bg);
+  }
+}
+
+/* ── Tickets Grid (Pass Cards) ───────────────────────────────── */
+.ticketsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.ticketCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bento-card-bg);
+  border: 1px solid var(--bento-card-border);
+  border-radius: var(--radius-bento);
+  box-shadow: var(--bento-shadow);
+  overflow: hidden;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ticketCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--bento-shadow-hover);
+    border-color: var(--bento-card-border-hover);
+  }
+}
+
+.ticketCardPast {
+  background: var(--bento-card-subtle-bg);
+  box-shadow: none;
+}
+
+.ticketCardCancelled {
+  border-color: rgba(239, 68, 68, 0.28);
+  background: var(--bento-card-subtle-bg);
+  box-shadow: none;
+}
+
+.ticketCardPending {
+  border-color: rgba(245, 158, 11, 0.38);
+}
+
+/* Top Accent Line (subtle visual anchoring) */
+.cardAccentBar {
+  height: 3px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* Card Main Section */
+.cardMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.posterWrap {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid var(--bento-card-border);
+  background: var(--bento-card-subtle-bg);
+}
+
+.posterImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.posterImgMuted {
+  filter: saturate(0.35) opacity(0.8);
+}
+
+.cardCore {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.countdownChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-secondary);
+}
+
+.eventTitle {
+  margin: 0;
+  font-size: clamp(0.98rem, 1.35vw, 1.1rem);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.metaList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.9rem;
+  margin-top: 0.1rem;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.metaItemText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Date Calendar Block */
+.dateBlock {
+  flex-shrink: 0;
+  min-width: 60px;
+  padding: 0.5rem 0.6rem;
+  border-radius: 12px;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.dateMonth {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dateDay {
+  font-size: 1.35rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  margin: 0.1rem 0;
+}
+
+.dateYear {
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+/* Ticket Perforation Details Strip */
+.detailsStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  padding: 0.8rem 1.25rem;
+  border-top: 1px dashed var(--bento-card-border);
+  background: var(--bento-card-subtle-bg);
+}
+
+.detailCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.detailLabel {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+.detailValue {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detailCode {
+  font-family: var(--font-family-mono, monospace);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detailCodeRevoked {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Card Footer Action Bar */
+.cardFooter {
+  margin-top: auto;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--bento-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  background: var(--bento-card-bg);
+}
+
+.ticketCardPast .cardFooter,
+.ticketCardCancelled .cardFooter {
+  background: transparent;
+}
+
+.footerNote {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 0;
+}
+
+.footerNoteWarning {
+  color: #f59e0b;
+}
+
+.footerNoteDanger {
+  color: #ef4444;
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.btnPrimaryPass {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--text-primary);
+  color: var(--bento-card-bg);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnPrimaryPass:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+}
+
+.btnPrimaryPass:active {
+  transform: scale(0.97);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.55rem 0.95rem;
+  border-radius: 10px;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnSecondary:hover {
+    border-color: var(--bento-card-border-hover);
+    background: var(--bento-card-hover-bg);
+  }
+}
+
+.btnSecondary:active {
+  transform: scale(0.97);
+}
+
+.btnDangerGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0.55rem 0.85rem;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.24);
+  color: #ef4444;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnDangerGhost:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: #ffffff;
+  }
+}
+
+.btnDangerGhost:active {
+  transform: scale(0.97);
+}
+
+/* ── Loading Skeletons ───────────────────────────────────────── */
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.skeletonCard {
+  height: 220px;
+  border-radius: var(--radius-bento);
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  animation: walletPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes walletPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* ── Empty / Error State ─────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  border-radius: var(--radius-bento);
+  background: var(--bento-card-bg);
+  border: 1px dashed var(--bento-card-border);
+  gap: 0.85rem;
+}
+
+.emptyIconWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--bento-card-subtle-bg);
+  border: 1px solid var(--bento-card-border);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.emptyText {
+  margin: 0;
+  max-width: 380px;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* ── Modal Backdrop ──────────────────────────────────────────── */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  min-height: 100dvh;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* ── Responsive Breakpoints (320px -> Ultra-Wide) ────────────── */
+@media (max-width: 1024px) {
+  .ticketsGrid,
+  .skeletonGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .walletPage {
+    gap: 1.15rem;
+  }
+
+  .walletTopBar {
+    align-items: flex-start;
+  }
+
+  .redeemBtn {
+    width: 100%;
+  }
+
+  .controlsBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tabsTrack {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tabBtn {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.74rem;
+  }
+
+  .searchWrap {
+    max-width: none;
+    width: 100%;
+  }
+
+  .cardMain {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .posterWrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+  }
+
+  .dateBlock {
+    min-width: 52px;
+    padding: 0.4rem 0.45rem;
+  }
+
+  .dateDay {
+    font-size: 1.15rem;
+  }
+
+  .detailsStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0.75rem 1rem;
+  }
+
+  .cardFooter {
+    padding: 0.85rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .footerActions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .btnPrimaryPass,
+  .btnSecondary,
+  .btnDangerGhost {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 390px) {
+  .cardMain {
+    flex-wrap: wrap;
+  }
+
+  .dateBlock {
+    flex-direction: row;
+    gap: 0.35rem;
+    width: 100%;
+    padding: 0.35rem 0.65rem;
+    justify-content: flex-start;
+  }
+
+  .dateDay {
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .detailsStrip {
+    grid-template-columns: 1fr;
+  }
+}
+

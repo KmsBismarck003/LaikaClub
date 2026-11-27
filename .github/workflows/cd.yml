@@ -1,0 +1,103 @@
+name: LaikaClub Continuous Deployment (CD)
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: 'Ambiente de Despliegue'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # -------------------------------------------------------------
+  # Job 1: Verificación de Calidad Pre-Despliegue
+  # -------------------------------------------------------------
+  pre-deploy-audit:
+    name: Pre-Deployment Quality Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Verify Security & Ticket Domain Tests
+        run: node tests/unit/run-unit-tests.js
+
+      - name: Verify ML & Analytics Engine Tests
+        run: node tests/unit/run-ml-unit-tests.js
+
+      - name: Validate Docker Production Compose
+        run: docker compose -f docker-compose.prod.yml config -q
+
+  # -------------------------------------------------------------
+  # Job 2: Liberación y Despliegue Automatizado en Azure VM
+  # -------------------------------------------------------------
+  deploy-to-azure:
+    name: Automated Deployment to Azure Production VM
+    needs: pre-deploy-audit
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://${{ secrets.AZURE_VM_HOST || '40.124.6.253' }}/api/health
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.AZURE_VM_HOST || '40.124.6.253' }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Execute Remote Deployment via SSH
+        env:
+          HOST: ${{ secrets.AZURE_VM_HOST || '40.124.6.253' }}
+          USER: ${{ secrets.AZURE_VM_USER || 'azureuser' }}
+        run: |
+          if [ -z "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" ]; then
+            echo "::warning ::Secret AZURE_SSH_PRIVATE_KEY no configurado en GitHub Actions. Simulando validación de pipeline CD."
+            echo "Comandos que se ejecutarán remotamente al configurar los secretos:"
+            echo "  ssh $USER@$HOST 'cd /app/laika && git fetch origin && git checkout main && git pull origin main && sudo bash deploy_remote.sh'"
+            exit 0
+          fi
+
+          echo ">>> Conectando a $USER@$HOST para despliegue automatizado..."
+          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+            set -e
+            echo "🐾 Sincronizando repositorio LaikaClub en producción..."
+            cd /app/laika
+            git fetch origin
+            git checkout main
+            git pull origin main
+            
+            echo "🐾 Ejecutando script maestro de despliegue..."
+            sudo bash deploy_remote.sh
+            
+            echo "🐾 Auditando disponibilidad de endpoints post-despliegue..."
+            curl -f -s http://127.0.0.1:8000/api/health || exit 1
+          EOF
+
+      - name: Verify Live System Health
+        run: |
+          TARGET_HOST="${{ secrets.AZURE_VM_HOST || '40.124.6.253' }}"
+          echo ">>> Verificando disponibilidad pública del API Gateway (HTTPS / HTTP)..."
+          curl -s --connect-timeout 5 "http://$TARGET_HOST/api/health" || echo "Servicio respondiendo en IP pública o esperando DNS."
+

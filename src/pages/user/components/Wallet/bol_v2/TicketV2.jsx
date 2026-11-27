@@ -10,18 +10,19 @@
  */
 import React from 'react';
 import { qr, getEventImageUrl } from '../constants';
-import { formatDate, formatTime, getSeatLabel } from '../../../../EventDetail/utils/helpers';
+import { formatTicketSeat } from '../walletUtils';
+import Icon from '../../../../../components/Icons/Icons';
+import { formatDate, formatTime } from '../../../../EventDetail/utils/helpers';
 
-export default function TicketV2({ ticket, onClose }) {
+export default function TicketV2({ ticket, onClose, isPast = false }) {
   const code        = ticket.ticket_code || ticket.ticketCode || `TKT-${ticket.id || '000'}`;
   const name        = ticket.event?.name  || ticket.eventName  || 'Evento';
   const dateRaw     = ticket.event?.date  || ticket.date;
   const timeRaw     = ticket.event?.time  || ticket.time || ticket.event_time || 'N/A';
   const venue       = ticket.event?.venue_name || ticket.venue || 'LAIKA ARENA';
   const imgUrl      = getEventImageUrl(ticket.event?.image_url || ticket.imageUrl);
-  const seatId      = ticket.seat_id || ticket.seatId;
   const sectionName = ticket.section_name || ticket.sectionName || 'Boleto General';
-  const seatLabel   = seatId ? getSeatLabel(seatId, ticket.event) : null;
+  const seatDisplay = formatTicketSeat(ticket);
   const fmtDate     = dateRaw   ? formatDate(dateRaw)  : 'POR CONFIRMAR';
   const fmtTime     = timeRaw !== 'N/A' ? formatTime(timeRaw) : '';
 
@@ -113,32 +114,49 @@ export default function TicketV2({ ticket, onClose }) {
           <MetaField label="HORARIO" value={fmtTime ? `${fmtTime} horas` : '—'} />
           <MetaField label="LUGAR"   value={venue} span={2} />
           <MetaField label="ZONA"    value={sectionName} color="#C084FC" bold />
-          <MetaField label="ASIENTO" value={seatLabel ? `ASIENTO ${seatLabel}` : 'GENERAL'}
-            color={seatLabel ? '#4ADE80' : '#888'} bold />
+          <MetaField label="ASIENTO" value={seatDisplay}
+            color={seatDisplay !== 'General' ? '#4ADE80' : '#a1a1aa'} bold />
         </div>
 
-        {/* Fila QR + código */}
+        {/* Fila QR + código (o sello de recuerdo sin QR en eventos pasados) */}
         <div style={{
           display:'flex', alignItems:'center', gap:'1rem',
           background:'rgba(255,255,255,0.03)',
-          border:'1px solid rgba(255,255,255,0.07)',
+          border: isPast ? '1px dashed rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.07)',
           borderRadius:'16px', padding:'0.85rem 1rem',
         }}>
-          {/* QR pequeño */}
-          <div style={{
-            width:'72px', height:'72px', flexShrink:0,
-            background:'#fff', borderRadius:'10px',
-            padding:'4px', boxShadow:'0 4px 16px rgba(0,0,0,0.5)',
-          }}>
-            <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%', display:'block' }}/>
-          </div>
-          {/* Código de acceso */}
-          <div style={{ display:'flex', flexDirection:'column', gap:'0.2rem' }}>
-            <span style={{ fontSize:'0.5rem', color:'#555', fontWeight:800, letterSpacing:'2px' }}>CÓDIGO DE ACCESO</span>
+          {isPast ? (
+            <div style={{
+              width:'52px', height:'52px', flexShrink:0,
+              background:'rgba(255,255,255,0.06)', borderRadius:'12px',
+              border:'1px solid rgba(255,255,255,0.12)',
+              display:'flex', alignItems:'center', justifyContent:'center', color:'#d4d4d8',
+            }}>
+              <Icon name="history" size={22} />
+            </div>
+          ) : (
+            <div style={{
+              width:'72px', height:'72px', flexShrink:0,
+              background:'#fff', borderRadius:'10px',
+              padding:'4px', boxShadow:'0 4px 16px rgba(0,0,0,0.5)',
+            }}>
+              <img src={qr(code)} alt="QR" style={{ width:'100%', height:'100%', display:'block' }}/>
+            </div>
+          )}
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.2rem', minWidth:0 }}>
+            <span style={{ fontSize:'0.52rem', color:'#888', fontWeight:800, letterSpacing:'2px' }}>
+              {isPast ? 'EVENTO CONCLUIDO • FOLIO' : 'CÓDIGO DE ACCESO'}
+            </span>
             <span style={{
-              fontFamily:'monospace', fontSize:'1rem',
-              color:'#DDD6FE', letterSpacing:'3px', fontWeight:700,
+              fontFamily:'monospace', fontSize:'0.95rem',
+              color: isPast ? '#d4d4d8' : '#DDD6FE', letterSpacing:'2.5px', fontWeight:700,
+              overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
             }}>{code}</span>
+            {isPast && (
+              <span style={{ fontSize:'0.68rem', color:'#a1a1aa' }}>
+                Edición conmemorativa sin QR activo
+              </span>
+            )}
           </div>
         </div>
 

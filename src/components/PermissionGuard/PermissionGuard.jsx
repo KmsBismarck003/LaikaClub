@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
+import {
+  extractPermissionsFromResponse,
+  parsePermissions,
+  resolveRolePermission,
+} from '../../utils/permissionUtils'
 import './PermissionGuard.css'
 
 /**
@@ -31,17 +36,17 @@ const PermissionGuard = ({ permission, children, label = 'esta función' }) => {
       return
     }
     try {
-      const data = await api.user.getPermissions(user.id)
-      const perms = typeof data.permissions === 'string'
-        ? JSON.parse(data.permissions)
-        : (data.permissions || {})
-      setHasPermission(!!perms[permission])
+      const data = user?.role === 'usuario'
+        ? await api.user.getProfile()
+        : await api.user.getPermissions(user.id)
+      const perms = extractPermissionsFromResponse(data)
+      setHasPermission(resolveRolePermission(perms, user?.role, permission))
     } catch {
       // Si el servidor falla, usar permisos del contexto local como fallback
-      const localPerms = user?.permissions || {}
-      setHasPermission(!!localPerms[permission])
+      const localPerms = parsePermissions(user?.permissions)
+      setHasPermission(resolveRolePermission(localPerms, user?.role, permission))
     }
-  }, [user?.id, permission, isAdmin, user?.permissions])
+  }, [user?.id, permission, isAdmin, user?.permissions, user?.role])
 
   useEffect(() => {
     checkPermission()

@@ -1,134 +1,117 @@
 # MATIS Analytics Dashboard - SolidJS Engine (matis-solid)
 
-Plataforma de inteligencia de negocios, visualizacion analitica y generacion de reportes ejecutivos en PDF de alto rendimiento para LAIKA Club, desarrollada sobre SolidJS.
+Dashboard de inteligencia de negocios, visualizacion analitica y exportacion de reportes PDF para LAIKA Club, desarrollado con SolidJS y Vite.
 
 ---
 
 ## 1. Descripcion General
 
-`matis-solid` es un modulo analitico reactivo disenado para procesar y renderizar grandes volumenes de metricas de eventos, ventas y comportamiento de usuarios sin la sobrecarga del Virtual DOM tradicional. Mediante la reactividad de grano fino de SolidJS, el dashboard actualiza unicamente los nodos especificos del DOM que experimentan cambios de estado, garantizando una tasa de refresco fluida incluso bajo cargas intensivas de datos.
-
-El sistema incorpora un motor nativo de generacion y descarga de reportes PDF ejecutivos, con tablas de datos estructuradas e instantaneas graficas de alta resolucion.
+`matis-solid` consume la sub-API MATIS del microservicio `analytics_bigdata` (via Pilgrim API Gateway en el puerto `8000` o mediante fallback directo) para presentar KPIs ejecutivos, desempeno por categoria, comparativa de eventos, tendencia temporal, eventos de mayor recaudacion y ventas de tienda oficial, con exportacion a PDF desde el navegador.
 
 ---
 
 ## 2. Stack Tecnologico
 
-- **Nucleo Reactivo**: SolidJS 1.9.14
-- **Empaquetador y Servidor**: Vite 8.2.0 con plugin `@vitejs/plugin-solid` 2.11.13
-- **Motor de Generacion PDF**: jsPDF 4.2.1
-- **Tabulado Automatico en PDF**: jspdf-autotable 5.0.8
-- **Captura Grafica de Lienzo**: html2canvas 1.4.1
-- **Estilos**: CSS modular y tokens semanticos centralizados
+Versiones exactas declaradas en `matis-solid/package.json`:
+
+- **Framework Reactivo**: `solid-js` `^1.9.14`
+- **Empaquetador y Servidor**: `vite` `^8.2.0`, `vite-plugin-solid` `^2.11.13`
+- **Generacion de PDF**: `jspdf` `^4.2.1`
+- **Tablas en PDF**: `jspdf-autotable` `^5.0.8`
+- **Captura de Lienzo / Graficas**: `html2canvas` `^1.4.1`
 
 ---
 
-## 3. Arquitectura y Comunicacion
+## 3. Arquitectura y Comunicacion con el Backend
 
-- **Puerto Local**: 3040 (configurado en `package.json` mediante `vite --port 3040 --host`)
-- **Conexion de Datos**: Consume los servicios analiticos y transaccionales a traves de Pilgrim API Gateway (`http://localhost:8000`)
-- **Patron de Reactividad**: Signals y Memos nativos de SolidJS (`createSignal`, `createMemo`, `createResource`), eliminando re-renders en cascada.
+- **Puerto Local**: `3040` (`vite --port 3040 --host`).
+- **Servicio Docker**: Declarado en `docker-compose.yml` como `laika_matis` (puerto `3040:3040`).
+- **Resolucion de Endpoints (`src/funciones/api.js`)**: Intenta conectar en orden a las siguientes bases hasta obtener respuesta satisfactoria:
+  1. `http://localhost:8000/api/analytics/matis` (Pilgrim API Gateway)
+  2. `http://localhost:8303/api/analytics/matis` (servicio `analytics_bigdata` directo)
+  3. `http://localhost:8009/api/analytics/matis`
+  4. `http://localhost:8007/api/analytics/matis`
 
-```
-[ Navegador Web ]
-       |
-       | HTTP / Localhost:3040
-       v
-[ matis-solid (SolidJS Dashboard) ]
-       |
-       | Peticiones HTTP a la API
-       v
-[ Pilgrim API Gateway (Puerto 8000) ]
-       |
-       +---> /api/analytics/*       ---> Microservicio Analytics (Java: 8302 / PySpark: 8303)
-       +---> /api/events/*          ---> Microservicio Events (Puerto 8201)
-       +---> /api/merchandise/*     ---> Microservicio Merchandise (Puerto 8203)
-```
+Endpoints consumidos en `src/funciones/api.js`:
+- `/executive/kpis`
+- `/executive/category-performance`
+- `/executive/sales-trend`
+- `/events/top-revenue`
+- `/products/sales`
+- (y demas endpoints de comparativa/detalles provistos por `microservices/analytics_bigdata/matis/`)
 
 ---
 
-## 4. Modulos Analiticos y Componentes de Graficas
+## 4. Modulos Graficos y Exportacion PDF
 
-La aplicacion divide sus capacidades de visualizacion en modulos independientes ubicados en `src/graficas/`:
+Cada grafica en `src/graficas/` separa su implementacion en `componente.jsx`, `vista.jsx`, `funciones.js` y `estilo.css`:
 
-1. **Grafica de Categorias (`GraficaCategorias`)**:
-   - Distribucion porcentual y volumen de ventas segmentado por genero o categoria de espectaculo (Conciertos, Festivales, Teatro, Deportes).
-
-2. **Comparativa Multievento (`GraficaComparacionEventos`)**:
-   - Evaluacion simultanea de dos o mas eventos para contrastar curvas de venta, velocidad de colocacion de boletos y margen de ganancia.
-
-3. **Tendencias Temporales (`GraficaTendenciaTemporal`)**:
-   - Analisis de series de tiempo para identificar horas pico de compra, patrones semanales y proyecciones de demanda.
-
-4. **Clasificacion de Eventos Top (`GraficaTopEventos`)**:
-   - Ranking de eventos de mayor recaudacion, porcentaje de aforo completado e indice de satisfaccion.
-
-5. **Rendimiento de Tienda Oficial (`GraficaVentasTienda`)**:
-   - Metricas de conversion de articulos de mercancia, ticket promedio y correlacion entre asistencia a eventos y compra de souvenirs.
-
-6. **Generador Ejecutivo PDF (`matispdf`)**:
-   - Generacion de informes impresos directamente desde el navegador, con encabezados corporativos de LAIKA Club, tablas formateadas con `jspdf-autotable` y capturas de graficas mediante `html2canvas`.
+1. `GraficaCategorias`: Rendimiento y ventas segmentadas por categoria.
+2. `GraficaComparacionEventos`: Comparativa entre eventos seleccionados.
+3. `GraficaTendenciaTemporal`: Evolucion temporal de ventas.
+4. `GraficaTopEventos`: Clasificacion de eventos con mayores ingresos.
+5. `GraficaVentasTienda`: Metricas de ventas de articulos de mercancia.
+6. `PlantillasAlternas/MotorGraficoEmergencia.jsx`: Motor grafico de respaldo.
+7. `matispdf/`: Modulo de exportacion compuesto por `components/BotonExportarPDF.jsx`, `services/pdfGenerator.js` e `index.js`.
 
 ---
 
 ## 5. Estructura del Proyecto
 
-```
+```text
 matis-solid/
 ├── src/
-│   ├── estilos/             # Hojas de estilo globales y variables CSS
+│   ├── estilos/
 │   │   └── global.css
-│   ├── funciones/           # Logica pura desacoplada
-│   │   ├── api.js           # Consultas asincronas al API Gateway
-│   │   └── formatters.js    # Formato de moneda (MXN/USD), porcentajes y fechas
-│   ├── graficas/            # Componentes analiticos modulares
+│   ├── funciones/
+│   │   ├── api.js
+│   │   └── formatters.js
+│   ├── graficas/
 │   │   ├── GraficaCategorias/
 │   │   ├── GraficaComparacionEventos/
 │   │   ├── GraficaTendenciaTemporal/
 │   │   ├── GraficaTopEventos/
 │   │   ├── GraficaVentasTienda/
 │   │   └── PlantillasAlternas/
-│   ├── matispdf/            # Modulo de exportacion a documentos PDF
-│   │   ├── components/      # BotonExportarPDF y dialogos de configuracion
-│   │   ├── services/        # pdfGenerator.js (construccion vectorial del PDF)
+│   ├── matispdf/
+│   │   ├── components/BotonExportarPDF.jsx
+│   │   ├── services/pdfGenerator.js
 │   │   └── index.js
-│   ├── vista/               # Pantalla orquestadora principal
-│   │   └── Dashboard.jsx    # Ensamblado del panel analitico
-│   ├── App.jsx              # Componente raiz
-│   ├── index.css            # Reset y tipografia
-│   └── index.jsx            # Punto de montaje SolidJS
+│   ├── vista/
+│   │   └── Dashboard.jsx
+│   ├── App.jsx
+│   ├── index.css
+│   └── index.jsx
+├── Dockerfile
 ├── package.json
 └── vite.config.js
 ```
 
 ---
 
-## 6. Instalacion y Puesta en Marcha
+## 6. Instalacion y Ejecucion
 
 ### Prerrequisitos
-- Node.js version 18 o superior.
-- API Gateway Pilgrim activo en el puerto 8000 para alimentacion de datos en vivo.
+- Node.js 18 o superior.
+- Pilgrim API Gateway activo en el puerto `8000` (o `analytics_bigdata` en el puerto `8303`).
 
-### Instalacion de Dependencias
+### Comandos Disponibles (`package.json`)
 ```bash
 cd matis-solid
 npm install
-```
 
-### Ejecucion en Entorno de Desarrollo
-```bash
+# Servidor de desarrollo en http://localhost:3040
 npm run dev
-```
-El panel estara accesible en `http://localhost:3040`.
 
-### Compilacion de Produccion
-```bash
+# Compilacion de produccion (salida en dist/)
 npm run build
-```
-Genera los archivos estaticos en el directorio `dist/`.
 
-### Previsualizacion de Build
-```bash
+# Previsualizacion del build
 npm run preview
 ```
-Inicia un servidor local para verificar el comportamiento de los artefactos compilados.
+
+### Ejecucion con Docker Compose
+Desde la raiz de `LaikaClub`:
+```bash
+docker compose up -d matis
+```

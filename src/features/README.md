@@ -1,4 +1,4 @@
-# 📁 `src/features/` — Módulos de Dominio
+# `src/features/` — Módulos de Dominio
 
 ## Propósito
 
@@ -34,14 +34,14 @@ features/<nombre>/
 | `manager/` | Gestión de eventos del gestor | `useManagerEvents` |
 | `staff/` | Operaciones del personal | `useTicketValidation` |
 
-## ❌ Lo que NO va aquí
+## [NO] Lo que NO va aquí
 
 - Componentes UI reutilizables en múltiples dominios → `components/`
 - Hooks genéricos (useFetch, useForm, useDebounce) → `hooks/`
 - Llamadas directas a API → `services/`
 - Configuración global → `core/config/`
 
-## ✅ Cómo agregar un nuevo Feature
+## [OK] Cómo agregar un nuevo Feature
 
 ```bash
 mkdir src/features/pagos

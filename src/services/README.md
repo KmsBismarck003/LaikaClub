@@ -2,7 +2,7 @@
 
 Sistema centralizado de conexión con el backend FastAPI que maneja MySQL y MongoDB.
 
-## 🔗 Arquitectura
+## Arquitectura
 
 ```
 React Frontend → api.js → FastAPI Backend → MySQL + MongoDB
@@ -11,7 +11,7 @@ React Frontend → api.js → FastAPI Backend → MySQL + MongoDB
 **IMPORTANTE:** El frontend NUNCA se conecta directamente a las bases de datos.
 Todas las conexiones pasan por FastAPI.
 
-## 📁 Estructura
+## Estructura
 
 ```
 services/
@@ -21,7 +21,7 @@ services/
 └── README.md           → Este archivo
 ```
 
-## 🚀 Configuración
+## Configuración
 
 ### 1. Variables de Entorno (.env)
 
@@ -50,7 +50,7 @@ const newEvent = await api.event.create({
 });
 ```
 
-## 📚 API Completa
+## API Completa
 
 ### Autenticación
 ```js
@@ -150,24 +150,24 @@ api.payment.getHistory()
 api.payment.refund(paymentId)     // Admin
 ```
 
-## 🗄️ Bases de Datos
+## Bases de Datos
 
 ### MySQL (Datos Relacionales)
-- ✅ users
-- ✅ events
-- ✅ tickets
-- ✅ payments
-- ✅ user_achievements
+- [OK] users
+- [OK] events
+- [OK] tickets
+- [OK] payments
+- [OK] user_achievements
 
 ### MongoDB (Logs y Configuración)
-- ✅ system_logs
-- ✅ system_config
-- ✅ event_statistics
-- ✅ user_notifications
-- ✅ active_sessions
-- ✅ system_cache
+- [OK] system_logs
+- [OK] system_config
+- [OK] event_statistics
+- [OK] user_notifications
+- [OK] active_sessions
+- [OK] system_cache
 
-## 🔧 Integración con FastAPI
+## Integración con FastAPI
 
 ### Backend (Python/FastAPI)
 
@@ -205,7 +205,7 @@ async def login(credentials: LoginSchema):
     return {"token": create_token(user)}
 ```
 
-## 📝 Ejemplos de Uso
+## Ejemplos de Uso
 
 ### Login Completo
 ```jsx
@@ -293,7 +293,7 @@ function AdminDashboard() {
 }
 ```
 
-## ⚠️ Manejo de Errores
+## [ADVERTENCIA] Manejo de Errores
 
 ```jsx
 try {
@@ -305,7 +305,7 @@ try {
 }
 ```
 
-## 🔐 Autenticación
+## Autenticación
 
 El token JWT se guarda automáticamente en localStorage y se incluye en todas las peticiones:
 
@@ -316,7 +316,7 @@ headers: {
 }
 ```
 
-## 📊 Esquemas de Base de Datos
+## Esquemas de Base de Datos
 
 Ver `database.config.js` para:
 - Estructura completa de tablas MySQL
@@ -324,7 +324,7 @@ Ver `database.config.js` para:
 - Ejemplos de queries
 - Configuración de conexiones
 
-## 🚀 Próximos Pasos
+## Próximos Pasos
 
 1. Configurar FastAPI backend
 2. Crear tablas en MySQL

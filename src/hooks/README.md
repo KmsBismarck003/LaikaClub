@@ -4,7 +4,7 @@ Colección de hooks reutilizables para simplificar el desarrollo en React.
 
 ## Hooks Disponibles
 
-### 🔐 useAuth
+### useAuth
 
 Hook para manejo completo de autenticación.
 
@@ -66,7 +66,7 @@ const {
 
 ---
 
-### 🌐 useFetch
+### useFetch
 
 Hook para peticiones HTTP con manejo automático de estados.
 
@@ -137,7 +137,7 @@ const {
 
 ---
 
-### 📝 useForm
+### useForm
 
 Hook para manejo de formularios con validación.
 
@@ -213,7 +213,7 @@ const {
 
 ---
 
-### 💾 useLocalStorage
+### useLocalStorage
 
 Hook para persistencia de datos en localStorage.
 
@@ -237,7 +237,7 @@ function ThemeToggle() {
 
 ---
 
-### ⏱️ useDebounce
+### useDebounce
 
 Hook para retrasar actualizaciones (búsquedas, validaciones).
 
@@ -268,7 +268,7 @@ function SearchEvents() {
 
 ---
 
-### 🪟 useModal
+### useModal
 
 Hook para manejo de modales.
 
@@ -295,7 +295,7 @@ function EventDetails() {
 
 ---
 
-### 🔀 useToggle
+### useToggle
 
 Hook para estados booleanos.
 
@@ -319,7 +319,7 @@ function Sidebar() {
 
 ---
 
-### 📄 usePagination
+### usePagination
 
 Hook para paginación de datos.
 
@@ -357,7 +357,7 @@ function EventsList({ events }) {
 
 ---
 
-### 🖱️ useClickOutside
+### useClickOutside
 
 Hook para detectar clics fuera de un elemento.
 
@@ -383,7 +383,7 @@ function Dropdown() {
 
 ---
 
-### 📱 useMediaQuery
+### useMediaQuery
 
 Hook para responsive design.
 

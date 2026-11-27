@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAIKA Club — Plataforma de Eventos y Boletos</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <canvas id="starfield-canvas" aria-hidden="true"></canvas>
+
+  <header class="deck-toolbar">
+    <div class="toolbar-brand">
+      <img src="assets/LogoClaro.png" alt="LAIKA Club" class="toolbar-logo logo-light">
+      <img src="assets/LogoOsc.png" alt="LAIKA Club" class="toolbar-logo logo-dark">
+      <span class="toolbar-divider"></span>
+      <span class="toolbar-section-pill">
+        <span class="toolbar-section-dot" id="toolbar-section-dot"></span>
+        <span id="toolbar-section">Inicio</span>
+      </span>
+    </div>
+    <nav class="toolbar-controls" aria-label="Controles de presentación">
+      <button class="toolbar-btn" id="btn-prev" type="button">Anterior</button>
+      <span class="toolbar-counter" id="toolbar-counter">01 / 26</span>
+      <button class="toolbar-btn" id="btn-next" type="button">Siguiente</button>
+      <button class="toolbar-btn" id="btn-overview" type="button">Vista general</button>
+      <button class="toolbar-btn toolbar-btn--theme" id="btn-theme" type="button">Tema claro</button>
+      <button class="toolbar-btn" id="btn-fullscreen" type="button">Pantalla completa</button>
+      <button class="toolbar-btn" id="btn-print" type="button">Exportar PDF</button>
+    </nav>
+  </header>
+
+  <div class="deck-progress">
+    <div class="deck-progress-bar" id="deck-progress-bar"></div>
+  </div>
+
+  <main class="deck-stage">
+    <div class="deck-viewport" id="deck-viewport">
+
+      <!-- =================================================================
+           LAMINA 01 — PORTADA DIRECTA AL VALOR
+           ================================================================= -->
+      <section class="slide slide--cover block-core is-current" data-section="Inicio" data-block="core">
+        <div class="cover-top">
+          <span class="cover-tag">Plataforma de Eventos y Boletos</span>
+          <span class="cover-meta-right">Web · Móvil · Nube · 2026</span>
+        </div>
+
+        <div class="cover-split">
+          <div>
+            <img src="assets/LogoClaro.png" alt="LAIKA Club" class="cover-logo logo-light">
+            <img src="assets/LogoOsc.png" alt="LAIKA Club" class="cover-logo logo-dark">
+
+            <h1 class="cover-title">Digitaliza tus eventos. Acelera cada boleto.</h1>
+            <p class="cover-subtitle">
+              Venta en tres pasos para tus asistentes y control total de aforo, ingresos y accesos a costo accesible.
+            </p>
+
+            <div class="cover-pills">
+              <div class="cover-chip block-1">01 · Gestión</div>
+              <div class="cover-chip block-2">02 · Producto</div>
+              <div class="cover-chip block-3">03 · Nube</div>
+            </div>
+          </div>
+
+          <div class="cover-art-panel">
+            <img src="assets/vision-laika.png" alt="Visión LAIKA Club" class="cover-art-img">
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Presentación ejecutiva y técnica</span>
+          </div>
+          <span class="footer-num">01 / 26</span>
+        </footer>
+        <span class="overview-badge">01 · Portada</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 02 — GANCHO DE 30 SEGUNDOS: EL DOLOR Y EL IMPACTO
+           ================================================================= -->
+      <section class="slide block-core" data-section="Propuesta Inicial" data-block="core">
+        <header class="slide-header">
+          <p class="slide-kicker">Por qué existe LAIKA Club</p>
+          <h2 class="slide-title">Vender boletos no debería costar una fortuna ni siete pantallas</h2>
+        </header>
+
+        <div class="slide-body">
+          <p class="hook-sub">
+            Los negocios pequeños quedan fuera por altos costos y los compradores abandonan por procesos lentos. LAIKA Club elimina ambas barreras desde el primer clic.
+          </p>
+
+          <div class="hero-metrics">
+            <div class="hero-metric block-2">
+              <div class="hero-metric-num">3 pasos</div>
+              <div class="hero-metric-title">Compra sin fricción</div>
+              <div class="hero-metric-desc">Del evento al pase QR en segundos</div>
+            </div>
+
+            <div class="hero-metric block-1">
+              <div class="hero-metric-num">6 apps</div>
+              <div class="hero-metric-title">Un módulo por rol</div>
+              <div class="hero-metric-desc">Web, móvil, gestor, puerta, admin y BI</div>
+            </div>
+
+            <div class="hero-metric block-3">
+              <div class="hero-metric-num">98.0%</div>
+              <div class="hero-metric-title">Calidad comprobada</div>
+              <div class="hero-metric-desc">Cero sobreventa y operación 24/7</div>
+            </div>
+          </div>
+
+          <div class="pillar-strip">
+            <span>Recorrido:</span>
+            <span class="pillar-dot-item block-1"><span class="pillar-dot"></span>Planificación y gestión</span>
+            <span class="pillar-dot-item block-2"><span class="pillar-dot"></span>Producto y arquitectura</span>
+            <span class="pillar-dot-item block-3"><span class="pillar-dot"></span>Calidad, nube y futuro</span>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Impacto en 30 segundos</span>
+          </div>
+          <span class="footer-num">02 / 26</span>
+        </footer>
+        <span class="overview-badge">02 · Impacto</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 03 — PORTADILLA BLOQUE 1
+           ================================================================= -->
+      <section class="slide slide--section block-1" data-section="Bloque 01 · Gestión" data-block="b1">
+        <div class="section-top-bar">
+          <img src="assets/LogoOsc.png" alt="LAIKA Club" class="section-logo logo-dark">
+          <span class="section-badge">Bloque 01</span>
+        </div>
+
+        <div class="section-main">
+          <div class="section-number">Pilar 01 · Ejecución Ágil</div>
+          <h2 class="section-title">Gestión y planificación</h2>
+          <p class="section-desc">
+            Cómo organizamos al equipo, controlamos cada sprint y aseguramos el avance del producto.
+          </p>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 01 — Gestión</span>
+          </div>
+          <span class="footer-num">03 / 26</span>
+        </footer>
+        <span class="overview-badge">03 · Bloque 01</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 04 — BLOQUE 1: PLANEACION Y EQUIPO
+           ================================================================= -->
+      <section class="slide block-1" data-section="Bloque 01 · Gestión" data-block="b1">
+        <span class="block-watermark">01</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 01 · Planeación</p>
+          <h2 class="slide-title">Objetivos iniciales y equipo de trabajo</h2>
+        </header>
+
+        <div class="slide-body slide-body--top">
+          <div class="pending-banner">Apartado reservado para integrar objetivo, integrantes y marco ágil.</div>
+          <div class="grid-2" style="flex: 1;">
+            <div class="placeholder-box">
+              <div>
+                <h3 class="placeholder-title">Objetivo y alcance inicial</h3>
+                <p class="placeholder-hint">Metas clave trazadas al arranque del proyecto.</p>
+              </div>
+              <span class="placeholder-specs">Bloque 01 · Pendiente</span>
+            </div>
+
+            <div class="placeholder-box">
+              <div>
+                <h3 class="placeholder-title">Roles y metodología ágil</h3>
+                <p class="placeholder-hint">Distribución del equipo y dinámica por iteraciones.</p>
+              </div>
+              <span class="placeholder-specs">Bloque 01 · Pendiente</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 01 — Planeación</span>
+          </div>
+          <span class="footer-num">04 / 26</span>
+        </footer>
+        <span class="overview-badge">04 · Planeación</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 05 — BLOQUE 1: CRONOGRAMA
+           ================================================================= -->
+      <section class="slide block-1" data-section="Bloque 01 · Gestión" data-block="b1">
+        <span class="block-watermark">01</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 01 · Hoja de ruta</p>
+          <h2 class="slide-title">Cronograma y entregas por sprint</h2>
+        </header>
+
+        <div class="slide-body slide-body--top">
+          <div class="pending-banner">Apartado reservado para fechas y entregables cerrados por iteración.</div>
+          <div class="grid-4" style="flex: 1;">
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Sprint 01</h3><p class="placeholder-hint">Fechas y entrega base.</p></div>
+              <span class="placeholder-specs">Cimientos</span>
+            </div>
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Sprint 02</h3><p class="placeholder-hint">Fechas y núcleo activo.</p></div>
+              <span class="placeholder-specs">Núcleo</span>
+            </div>
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Sprint 03</h3><p class="placeholder-hint">Fechas e integración.</p></div>
+              <span class="placeholder-specs">Integración</span>
+            </div>
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Sprint 04</h3><p class="placeholder-hint">Fechas y puesta en marcha.</p></div>
+              <span class="placeholder-specs">Lanzamiento</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 01 — Cronograma</span>
+          </div>
+          <span class="footer-num">05 / 26</span>
+        </footer>
+        <span class="overview-badge">05 · Cronograma</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 06 — BLOQUE 1: SEGUIMIENTO
+           ================================================================= -->
+      <section class="slide block-1" data-section="Bloque 01 · Gestión" data-block="b1">
+        <span class="block-watermark">01</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 01 · Seguimiento</p>
+          <h2 class="slide-title">Control del backlog y cumplimiento</h2>
+        </header>
+
+        <div class="slide-body slide-body--top">
+          <div class="pending-banner">Apartado reservado para herramientas de control, métricas y desviaciones.</div>
+          <div class="grid-3" style="flex: 1;">
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Herramientas</h3><p class="placeholder-hint">Gestión de Product Backlog y Sprint Backlog.</p></div>
+              <span class="placeholder-specs">Seguimiento</span>
+            </div>
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Cumplimiento</h3><p class="placeholder-hint">Porcentaje de historias y metas alcanzadas.</p></div>
+              <span class="placeholder-specs">Métricas</span>
+            </div>
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Ajustes</h3><p class="placeholder-hint">Desviaciones clave y reordenamiento de ruta.</p></div>
+              <span class="placeholder-specs">Control</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 01 — Seguimiento</span>
+          </div>
+          <span class="footer-num">06 / 26</span>
+        </footer>
+        <span class="overview-badge">06 · Seguimiento</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 07 — BLOQUE 1: RIESGOS
+           ================================================================= -->
+      <section class="slide block-1" data-section="Bloque 01 · Gestión" data-block="b1">
+        <span class="block-watermark">01</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 01 · Riesgos</p>
+          <h2 class="slide-title">Retos administrativos y mitigación</h2>
+        </header>
+
+        <div class="slide-body slide-body--top">
+          <div class="pending-banner">Apartado reservado para retos de tiempos, coordinación y bloqueos resueltos.</div>
+          <div class="grid-2" style="flex: 1;">
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Tiempos y coordinación</h3><p class="placeholder-hint">Obstáculos principales en agenda y recursos.</p></div>
+              <span class="placeholder-specs">Desafíos</span>
+            </div>
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Mitigación aplicada</h3><p class="placeholder-hint">Acciones concretas que mantuvieron el ritmo.</p></div>
+              <span class="placeholder-specs">Resolución</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 01 — Riesgos</span>
+          </div>
+          <span class="footer-num">07 / 26</span>
+        </footer>
+        <span class="overview-badge">07 · Riesgos</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 08 — BLOQUE 1: LECCIONES
+           ================================================================= -->
+      <section class="slide block-1" data-section="Bloque 01 · Gestión" data-block="b1">
+        <span class="block-watermark">01</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 01 · Retrospectiva</p>
+          <h2 class="slide-title">Lecciones aprendidas para la siguiente fase</h2>
+        </header>
+
+        <div class="slide-body slide-body--top">
+          <div class="pending-banner">Apartado reservado para retrospectiva y mejoras de gestión.</div>
+          <div class="grid-3" style="flex: 1;">
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Aciertos</h3><p class="placeholder-hint">Prácticas que aceleraron al equipo.</p></div>
+              <span class="placeholder-specs">Conservar</span>
+            </div>
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Ajustes</h3><p class="placeholder-hint">Decisiones que hoy tomaríamos distinto.</p></div>
+              <span class="placeholder-specs">Refinar</span>
+            </div>
+            <div class="placeholder-box">
+              <div><h3 class="placeholder-title">Próximo paso</h3><p class="placeholder-hint">Mejoras de planeación para crecer.</p></div>
+              <span class="placeholder-specs">Escalar</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 01 — Lecciones</span>
+          </div>
+          <span class="footer-num">08 / 26</span>
+        </footer>
+        <span class="overview-badge">08 · Lecciones</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 09 — GALERIA BLOQUE 1
+           ================================================================= -->
+      <section class="slide block-1" data-section="Bloque 01 · Gestión" data-block="b1">
+        <span class="block-watermark">01</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 01 · Evidencia visual</p>
+          <h2 class="slide-title">Tablero ágil y avance de sprints</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="grid-2">
+            <div class="placeholder-box placeholder-box--tall">
+              <h3 class="placeholder-title">Tablero de tareas</h3>
+              <p class="placeholder-hint">Colocar captura del tablero de seguimiento.</p>
+              <span class="placeholder-specs">PNG o SVG</span>
+            </div>
+            <div class="placeholder-box placeholder-box--tall">
+              <h3 class="placeholder-title">Cronograma visual</h3>
+              <p class="placeholder-hint">Colocar diagrama temporal o métricas de avance.</p>
+              <span class="placeholder-specs">PNG o SVG</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 01 — Evidencia</span>
+          </div>
+          <span class="footer-num">09 / 26</span>
+        </footer>
+        <span class="overview-badge">09 · Galería 01</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 10 — PORTADILLA BLOQUE 2
+           ================================================================= -->
+      <section class="slide slide--section block-2" data-section="Bloque 02 · Producto y Arquitectura" data-block="b2">
+        <div class="section-top-bar">
+          <img src="assets/LogoOsc.png" alt="LAIKA Club" class="section-logo logo-dark">
+          <span class="section-badge">Bloque 02</span>
+        </div>
+
+        <div class="section-main">
+          <div class="section-number">Pilar 02 · Solución y Diseño</div>
+          <h2 class="section-title">Producto, arquitectura y experiencia</h2>
+          <p class="section-desc">
+            Cómo simplificamos la compra, empoderamos al organizador y conectamos cada canal en tiempo real.
+          </p>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 02 — Producto</span>
+          </div>
+          <span class="footer-num">10 / 26</span>
+        </footer>
+        <span class="overview-badge">10 · Bloque 02</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 11 — UNA SOLA IDEA: COMPARATIVA VISUAL 7 vs 3 PASOS
+           ================================================================= -->
+      <section class="slide block-2" data-section="Bloque 02 · Producto y Arquitectura" data-block="b2">
+        <span class="block-watermark">02</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 02 · Propuesta de valor</p>
+          <h2 class="slide-title">Menos pasos para tu cliente. Más control para tu negocio.</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="diagram-frame" style="padding: 22px 26px;">
+            <svg viewBox="0 0 1040 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparativa 7 pasos contra 3 pasos">
+              <!-- Flujo tradicional -->
+              <rect x="8" y="10" width="1024" height="106" rx="5" class="svg-col"/>
+              <text x="28" y="40" class="svg-title" style="font-size: 15px; opacity: 0.78;">Boleteras tradicionales</text>
+              <text x="804" y="40" class="svg-mono" style="font-size: 12px;">7 pantallas · Altas comisiones</text>
+
+              <rect x="28" y="58" width="128" height="36" rx="4" class="svg-card"/>
+              <text x="46" y="80" class="svg-sub" style="font-size: 12px;">Registro largo</text>
+              <rect x="170" y="58" width="128" height="36" rx="4" class="svg-card"/>
+              <text x="196" y="80" class="svg-sub" style="font-size: 12px;">Fila virtual</text>
+              <rect x="312" y="58" width="128" height="36" rx="4" class="svg-card"/>
+              <text x="336" y="80" class="svg-sub" style="font-size: 12px;">Datos extra</text>
+              <rect x="454" y="58" width="128" height="36" rx="4" class="svg-card"/>
+              <text x="484" y="80" class="svg-sub" style="font-size: 12px;">Cargos</text>
+              <rect x="596" y="58" width="128" height="36" rx="4" class="svg-card"/>
+              <text x="620" y="80" class="svg-sub" style="font-size: 12px;">Validación</text>
+              <rect x="738" y="58" width="128" height="36" rx="4" class="svg-card"/>
+              <text x="760" y="80" class="svg-sub" style="font-size: 12px;">PDF manual</text>
+              <rect x="880" y="58" width="132" height="36" rx="4" class="svg-card"/>
+              <text x="908" y="80" class="svg-sub" style="font-size: 12px;">Abandono</text>
+
+              <!-- Flujo LAIKA -->
+              <rect x="8" y="138" width="1024" height="122" rx="5" class="svg-card-hi"/>
+              <text x="28" y="170" class="svg-title" style="font-size: 16px;">Experiencia LAIKA Club</text>
+              <text x="790" y="170" class="svg-mono-hi" style="font-size: 12.5px;">3 pasos · Costo accesible</text>
+
+              <rect x="28" y="188" width="298" height="52" rx="4" class="svg-card"/>
+              <text x="48" y="219" class="svg-title" style="font-size: 15px;">01 · Elige tu evento</text>
+
+              <rect x="372" y="188" width="298" height="52" rx="4" class="svg-card"/>
+              <text x="392" y="219" class="svg-title" style="font-size: 15px;">02 · Aparta tu asiento</text>
+
+              <rect x="716" y="188" width="296" height="52" rx="4" class="svg-card"/>
+              <text x="736" y="219" class="svg-title" style="font-size: 15px;">03 · Recibe tu pase QR</text>
+            </svg>
+          </div>
+
+          <div class="profile-strip">
+            <div class="profile-pill">
+              <strong>Comprador</strong>
+              <span>Compra en 3 pasos y bóveda QR</span>
+            </div>
+            <div class="profile-pill">
+              <strong>Gestor de eventos</strong>
+              <span>Publicación, control de ventas y aforo</span>
+            </div>
+            <div class="profile-pill">
+              <strong>Operador en puerta</strong>
+              <span>Escaneo QR y bloqueo de duplicados</span>
+            </div>
+            <div class="profile-pill">
+              <strong>Administrador</strong>
+              <span>Recintos, usuarios, auditoría y BI</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 02 — Valor al cliente</span>
+          </div>
+          <span class="footer-num">11 / 26</span>
+        </footer>
+        <span class="overview-badge">11 · Valor</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 12 — ALCANCE EN DOS COLUMNAS CLARAS
+           ================================================================= -->
+      <section class="slide block-2" data-section="Bloque 02 · Producto y Arquitectura" data-block="b2">
+        <span class="block-watermark">02</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 02 · Alcance, exclusiones y limitaciones</p>
+          <h2 class="slide-title">Núcleo comercial operativo hoy, listo para expandirse</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="grid-2">
+            <article class="card card--accent">
+              <p class="card-label">Desarrollado y cumplido</p>
+              <h3 class="card-title">Requerimientos operativos</h3>
+              <ul class="clean-list">
+                <li><strong>Compra y emisión QR:</strong> Cartelera, asientos, transferencias, cortesías y cancelaciones.</li>
+                <li><strong>Seguridad y concurrencia:</strong> JWT, control por rol RBAC y bloqueo anti-sobreventa HTTP 409.</li>
+                <li><strong>Gestión de eventos:</strong> Alta, publicación, ventas, asistentes y terminal QR en puerta.</li>
+                <li><strong>Movilidad:</strong> App LaikaMobil con biometría, SSL Pinning y sincronización offline.</li>
+              </ul>
+            </article>
+
+            <article class="card card--white" style="border-top: 3px solid var(--ink-muted);">
+              <p class="card-label">Fuera de alcance y limitaciones conocidas</p>
+              <h3 class="card-title">Acotaciones justificadas</h3>
+              <ul class="clean-list">
+                <li><strong>Pasarela bancaria real:</strong> Opera con simulación transaccional recomendada; la lógica queda lista para conectar el proveedor del cliente.</li>
+                <li><strong>Funciones extendidas y wearables:</strong> Excluidas por límite de tiempo y curva técnica; módulo de relojes en fase base.</li>
+                <li><strong>Limitaciones actuales:</strong> Apartados secundarios de interfaz en refinamiento y gestión avanzada de gestor en evolución.</li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="takeaway-bar">
+            <span><strong>Balance del producto:</strong> Flujo principal de compra, emisión QR y control de acceso 100% funcional extremo a extremo.</span>
+            <span class="mono">MVP Operativo</span>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 02 — Alcance</span>
+          </div>
+          <span class="footer-num">12 / 26</span>
+        </footer>
+        <span class="overview-badge">12 · Alcance</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 13 — ARQUITECTURA DISTRIBUIDA EN SVG
+           ================================================================= -->
+      <section class="slide block-2" data-section="Bloque 02 · Producto y Arquitectura" data-block="b2">
+        <span class="block-watermark">02</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 02 · Arquitectura</p>
+          <h2 class="slide-title">Un solo punto de entrada conecta todos los canales</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="diagram-frame">
+            <svg class="diagram-svg" viewBox="0 0 1120 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de arquitectura de LAIKA Club">
+              <defs>
+                <marker id="arrow-fwd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--svg-arrow)"/>
+                </marker>
+                <marker id="arrow-ret" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--svg-arrow-ret)"/>
+                </marker>
+              </defs>
+
+              <rect x="8" y="14" width="218" height="362" rx="4" class="svg-col"/>
+              <text x="22" y="36" class="svg-kicker">CLIENTES POR ROL</text>
+
+              <rect x="20" y="50" width="194" height="44" rx="3" class="svg-card"/>
+              <text x="30" y="69" class="svg-title">Web Pública</text>
+              <text x="30" y="85" class="svg-mono">React 19 · 3000</text>
+
+              <rect x="20" y="102" width="194" height="44" rx="3" class="svg-card"/>
+              <text x="30" y="121" class="svg-title">laika-admin</text>
+              <text x="30" y="137" class="svg-mono">React + Vite · 3010</text>
+
+              <rect x="20" y="154" width="194" height="44" rx="3" class="svg-card"/>
+              <text x="30" y="173" class="svg-title">laika-gestor</text>
+              <text x="30" y="189" class="svg-mono">React + Vite · 3020</text>
+
+              <rect x="20" y="206" width="194" height="44" rx="3" class="svg-card"/>
+              <text x="30" y="225" class="svg-title">laika-operador</text>
+              <text x="30" y="241" class="svg-mono">React + QR · 3030</text>
+
+              <rect x="20" y="258" width="194" height="44" rx="3" class="svg-card"/>
+              <text x="30" y="277" class="svg-title">matis-solid</text>
+              <text x="30" y="293" class="svg-mono">SolidJS BI · 3040</text>
+
+              <rect x="20" y="310" width="194" height="52" rx="3" class="svg-card-hi"/>
+              <text x="30" y="330" class="svg-title">LaikaMobil</text>
+              <text x="30" y="346" class="svg-mono-hi">Expo · Android / iOS</text>
+
+              <rect x="274" y="14" width="248" height="362" rx="4" class="svg-gateway-wrap"/>
+              <text x="290" y="38" font-family="Inter, Segoe UI, sans-serif" font-size="10.8" font-weight="700" fill="#cbd5e1" letter-spacing="1">PERÍMETRO</text>
+
+              <rect x="288" y="52" width="220" height="58" rx="3" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.34)"/>
+              <text x="300" y="74" font-family="Inter, Segoe UI, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff">Nginx Reverse Proxy</text>
+              <text x="300" y="94" font-family="JetBrains Mono, monospace" font-size="10.4" fill="#e2e8f0">80 · 443 · Gzip · /api/</text>
+
+              <line x1="398" y1="110" x2="398" y2="132" stroke="#ffffff" stroke-width="1.6" marker-end="url(#arrow-fwd)"/>
+
+              <rect x="288" y="136" width="220" height="224" rx="3" class="svg-gateway-inner"/>
+              <text x="300" y="160" class="svg-title" style="font-size: 14px;">Pilgrim Gateway</text>
+              <text x="300" y="177" class="svg-mono-hi">FastAPI · Puerto 8000</text>
+              <line x1="300" y1="189" x2="496" y2="189" stroke="var(--svg-border)"/>
+
+              <text x="300" y="212" class="svg-title" style="font-size: 11.2px;">Enrutamiento por rol</text>
+              <text x="300" y="228" class="svg-mono">auth · admin · gestor · staff</text>
+
+              <text x="300" y="256" class="svg-title" style="font-size: 11.2px;">Proxy asíncrono HTTPX</text>
+              <text x="300" y="272" class="svg-sub">Reenvío JWT y control 502</text>
+
+              <text x="300" y="300" class="svg-title" style="font-size: 11.2px;">Caché GET y bitácora</text>
+              <text x="300" y="316" class="svg-sub">TTL 60 s y registro de latencia</text>
+
+              <rect x="300" y="334" width="196" height="18" rx="2" class="svg-card-hi"/>
+              <text x="316" y="346" class="svg-mono-hi" style="font-size: 9.8px;">GET /api/health activo</text>
+
+              <rect x="570" y="14" width="322" height="362" rx="4" class="svg-col"/>
+              <text x="584" y="36" class="svg-kicker">MICROSERVICIOS</text>
+
+              <rect x="584" y="50" width="294" height="88" rx="3" class="svg-card"/>
+              <text x="596" y="69" class="svg-kicker" style="font-size: 10.2px;">81xx · CORE · JAVA SPRING BOOT</text>
+              <text x="596" y="88" class="svg-mono">8101 auth  · JWT y auditoría</text>
+              <text x="596" y="106" class="svg-mono">8102 admin · Respaldos y SMTP</text>
+              <text x="596" y="124" class="svg-mono">8103 stats · Métricas en vivo</text>
+
+              <rect x="584" y="150" width="294" height="96" rx="3" class="svg-card-hi"/>
+              <text x="596" y="169" class="svg-kicker" style="font-size: 10.2px;">82xx · OPERACIONES · JAVA</text>
+              <text x="596" y="188" class="svg-mono">8201 events      · Eventos y salas</text>
+              <text x="596" y="206" class="svg-mono">8202 tickets     · Bloqueos y QR</text>
+              <text x="596" y="224" class="svg-mono">8203 merchandise · Tienda oficial</text>
+              <text x="596" y="239" class="svg-sub" style="font-size: 9.8px;">Bloqueo concurrente anti-sobreventa</text>
+
+              <rect x="584" y="258" width="294" height="104" rx="3" class="svg-card"/>
+              <text x="596" y="277" class="svg-kicker" style="font-size: 10.2px;">83xx · ANALÍTICA Y LOGROS</text>
+              <text x="596" y="296" class="svg-mono">8301 achievements · Java</text>
+              <text x="596" y="314" class="svg-mono">8302 analytics    · Java SQL</text>
+              <text x="596" y="332" class="svg-mono-hi">8303 bigdata      · Python PySpark</text>
+              <text x="596" y="349" class="svg-sub" style="font-size: 9.8px;">API MATIS, clustering y anti-bots</text>
+
+              <rect x="938" y="14" width="174" height="362" rx="4" class="svg-col"/>
+              <text x="952" y="36" class="svg-kicker">DATOS</text>
+
+              <rect x="950" y="64" width="150" height="148" rx="3" class="svg-card-hi"/>
+              <text x="962" y="92" class="svg-title" style="font-size: 13.5px;">MySQL 8.0</text>
+              <text x="962" y="112" class="svg-mono-hi">Puerto 3306</text>
+              <text x="962" y="142" class="svg-sub">Esquemas aislados</text>
+              <text x="962" y="160" class="svg-sub">Integridad ACID</text>
+
+              <rect x="950" y="234" width="150" height="114" rx="3" class="svg-card"/>
+              <text x="962" y="264" class="svg-title" style="font-size: 13.5px;">MongoDB</text>
+              <text x="962" y="284" class="svg-mono">Vault NoSQL</text>
+              <text x="962" y="312" class="svg-sub">Bóveda analítica</text>
+
+              <line x1="226" y1="168" x2="270" y2="168" class="svg-line-fwd" marker-end="url(#arrow-fwd)"/>
+              <line x1="270" y1="216" x2="226" y2="216" class="svg-line-ret" marker-end="url(#arrow-ret)"/>
+              <line x1="522" y1="94" x2="566" y2="94" class="svg-line-fwd" marker-end="url(#arrow-fwd)"/>
+              <line x1="522" y1="196" x2="566" y2="196" class="svg-line-fwd" marker-end="url(#arrow-fwd)"/>
+              <line x1="522" y1="306" x2="566" y2="306" class="svg-line-fwd" marker-end="url(#arrow-fwd)"/>
+              <line x1="566" y1="214" x2="522" y2="214" class="svg-line-ret" marker-end="url(#arrow-ret)"/>
+              <line x1="892" y1="145" x2="934" y2="145" class="svg-line-fwd" marker-end="url(#arrow-fwd)"/>
+              <line x1="892" y1="302" x2="934" y2="302" class="svg-line-fwd" marker-end="url(#arrow-fwd)"/>
+            </svg>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 02 — Flujo técnico</span>
+          </div>
+          <span class="footer-num">13 / 26</span>
+        </footer>
+        <span class="overview-badge">13 · Arquitectura</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 14 — ROLES DESACOPLADOS EN 3 SEGUNDOS
+           ================================================================= -->
+      <section class="slide block-2" data-section="Bloque 02 · Producto y Arquitectura" data-block="b2">
+        <span class="block-watermark">02</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 02 · Roles desacoplados</p>
+          <h2 class="slide-title">Seis aplicaciones enfocadas. Cero pantallas saturadas.</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="role-grid">
+            <article class="role-tile">
+              <div class="role-tile-head">
+                <h3>Web Pública</h3>
+                <span class="role-icon-wrap" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg></span>
+              </div>
+              <span class="mono">React 19 · Router 7 · Puerto 3000</span>
+              <p>Cartelera, mapa de asientos, tienda oficial y compra directa.</p>
+            </article>
+
+            <article class="role-tile">
+              <div class="role-tile-head">
+                <h3>LaikaMobil</h3>
+                <span class="role-icon-wrap" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
+              </div>
+              <span class="mono">React Native 0.88 · Expo 58 · TS</span>
+              <p>Bóveda QR offline, biometría, SecureStore y SSL Pinning.</p>
+            </article>
+
+            <article class="role-tile">
+              <div class="role-tile-head">
+                <h3>laika-gestor</h3>
+                <span class="role-icon-wrap" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+              </div>
+              <span class="mono">React 19 · Vite 8 · Puerto 3020</span>
+              <p>Gestión de eventos, transacciones, asistentes y estadísticas.</p>
+            </article>
+
+            <article class="role-tile">
+              <div class="role-tile-head">
+                <h3>laika-operador</h3>
+                <span class="role-icon-wrap" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+              </div>
+              <span class="mono">React 19 · html5-qrcode · 3030</span>
+              <p>Escaneo óptico QR en puerta, historial e incidencias.</p>
+            </article>
+
+            <article class="role-tile">
+              <div class="role-tile-head">
+                <h3>laika-admin</h3>
+                <span class="role-icon-wrap" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+              </div>
+              <span class="mono">React 19 · Konva · Puerto 3010</span>
+              <p>Editor de recintos, RBAC, auditoría, respaldos y Big Data.</p>
+            </article>
+
+            <article class="role-tile">
+              <div class="role-tile-head">
+                <h3>matis-solid</h3>
+                <span class="role-icon-wrap" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+              </div>
+              <span class="mono">SolidJS 1.9 · jsPDF · Puerto 3040</span>
+              <p>Tablero BI conectado a la API MATIS con exportación a PDF.</p>
+            </article>
+          </div>
+
+          <div class="takeaway-bar" style="margin-top: 16px;">
+            <span><strong>Integración central:</strong> Pilgrim API Gateway en puerto 8000 conecta los seis clientes con 8 microservicios Java, Big Data en Python, MySQL 8.0 y MongoDB.</span>
+            <span class="mono">Red privada Docker</span>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 02 — Ecosistema</span>
+          </div>
+          <span class="footer-num">14 / 26</span>
+        </footer>
+        <span class="overview-badge">14 · Roles</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 15 — GALERIA BLOQUE 2
+           ================================================================= -->
+      <section class="slide block-2" data-section="Bloque 02 · Producto y Arquitectura" data-block="b2">
+        <span class="block-watermark">02</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 02 · Galería visual</p>
+          <h2 class="slide-title">Espacio reservado para pantallas y diagramas</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="grid-2">
+            <div class="placeholder-box placeholder-box--tall">
+              <h3 class="placeholder-title">Diagramas complementarios</h3>
+              <p class="placeholder-hint">Insertar modelo de datos o flujo detallado.</p>
+              <span class="placeholder-specs">PNG o SVG</span>
+            </div>
+            <div class="placeholder-box placeholder-box--tall">
+              <h3 class="placeholder-title">Capturas reales</h3>
+              <p class="placeholder-hint">Insertar vistas de web, roles y LaikaMobil.</p>
+              <span class="placeholder-specs">PNG o SVG</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 02 — Galería</span>
+          </div>
+          <span class="footer-num">15 / 26</span>
+        </footer>
+        <span class="overview-badge">15 · Galería 02</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 16 — POR QUE ESTE STACK EN 4 TARJETAS DE IMPACTO
+           ================================================================= -->
+      <section class="slide block-2" data-section="Bloque 02 · Producto y Arquitectura" data-block="b2">
+        <span class="block-watermark">02</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 02 · Tecnología con propósito</p>
+          <h2 class="slide-title">Cada tecnología responde a una necesidad real del negocio</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="grid-2" style="gap: 20px;">
+            <article class="card card--accent" style="padding: 18px 20px;">
+              <p class="card-label">React 19 · Vite · SolidJS · React Native Expo</p>
+              <h3 class="card-title" style="font-size: 17px; margin-bottom: 6px;">Cobertura en cualquier pantalla</h3>
+              <div class="tech-meta">
+                <div class="tech-meta-line"><strong>Por qué:</strong> Dominio previo del equipo y portabilidad total de escritorio a móvil Android e iOS.</div>
+                <div class="tech-meta-line"><strong>Ventaja:</strong> Compilación rápida en Vite, biometría nativa y exportación PDF en SolidJS.</div>
+                <div class="tech-meta-line"><strong>Compromiso:</strong> Requiere disciplina de versiones entre seis aplicaciones independientes.</div>
+              </div>
+            </article>
+
+            <article class="card card--accent" style="padding: 18px 20px;">
+              <p class="card-label">Java 17 · Spring Boot 3.2.5 · JPA · Security</p>
+              <h3 class="card-title" style="font-size: 17px; margin-bottom: 6px;">Por qué Java y no Python en ventas</h3>
+              <div class="tech-meta">
+                <div class="tech-meta-line"><strong>Por qué:</strong> Tipado estático estricto y concurrencia real sin bloqueo global en compras simultáneas.</div>
+                <div class="tech-meta-line"><strong>Ventaja:</strong> Hilos virtuales, bloqueo con ReentrantLock y respuesta HTTP 409 anti-sobreventa.</div>
+                <div class="tech-meta-line"><strong>Compromiso:</strong> Mayor memoria base JVM, optimizada a 150 MB con SerialGC por servicio.</div>
+              </div>
+            </article>
+
+            <article class="card card--accent" style="padding: 18px 20px;">
+              <p class="card-label">Python · FastAPI · HTTPX · PySpark 3.5</p>
+              <h3 class="card-title" style="font-size: 17px; margin-bottom: 6px;">Gateway veloz y motor analítico</h3>
+              <div class="tech-meta">
+                <div class="tech-meta-line"><strong>Por qué:</strong> Enrutamiento asíncrono ligero en Pilgrim y ecosistema nativo para Machine Learning.</div>
+                <div class="tech-meta-line"><strong>Ventaja:</strong> Caché GET de 60 s, clustering K-Means, PCA y detección de bots en tiempo real.</div>
+                <div class="tech-meta-line"><strong>Compromiso:</strong> Estandarizar contratos JSON entre backends Java y Python.</div>
+              </div>
+            </article>
+
+            <article class="card card--accent" style="padding: 18px 20px;">
+              <p class="card-label">MySQL 8.0 · MongoDB · Docker · Terraform</p>
+              <h3 class="card-title" style="font-size: 17px; margin-bottom: 6px;">Persistencia íntegra y nube reproducible</h3>
+              <div class="tech-meta">
+                <div class="tech-meta-line"><strong>Por qué:</strong> Transacciones ACID en MySQL para ventas más flexibilidad documental en MongoDB.</div>
+                <div class="tech-meta-line"><strong>Ventaja:</strong> Esquemas segregados por microservicio y despliegue automatizado como código.</div>
+                <div class="tech-meta-line"><strong>Compromiso:</strong> Gestión ordenada de migraciones y políticas de respaldo diferenciadas.</div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 02 — Stack</span>
+          </div>
+          <span class="footer-num">16 / 26</span>
+        </footer>
+        <span class="overview-badge">16 · Stack</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 17 — RECORRIDO EN VIVO
+           ================================================================= -->
+      <section class="slide block-2" data-section="Bloque 02 · Producto y Arquitectura" data-block="b2">
+        <span class="block-watermark">02</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 02 · Demostración en vivo</p>
+          <h2 class="slide-title">El ciclo completo en cuatro momentos reales</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="step-row">
+            <article class="step-card">
+              <div class="step-num">01</div>
+              <h3 class="card-title" style="font-size: 16px;">Compra rápida</h3>
+              <p class="card-text">Selección de asiento y boleto QR inmediato.</p>
+            </article>
+
+            <article class="step-card">
+              <div class="step-num">02</div>
+              <h3 class="card-title" style="font-size: 16px;">LaikaMobil</h3>
+              <p class="card-text">Pase sincronizado listo en el teléfono.</p>
+            </article>
+
+            <article class="step-card">
+              <div class="step-num">03</div>
+              <h3 class="card-title" style="font-size: 16px;">Panel gestor</h3>
+              <p class="card-text">Ventas, eventos y asistentes al instante.</p>
+            </article>
+
+            <article class="step-card">
+              <div class="step-num">04</div>
+              <h3 class="card-title" style="font-size: 16px;">Torniquete QR</h3>
+              <p class="card-text">Acceso validado sin boletos duplicados.</p>
+            </article>
+          </div>
+
+          <div class="takeaway-bar">
+            <span><strong>Demostración activa en Azure</strong> acompañada de video de respaldo sobre la versión operativa.</span>
+            <span class="mono">En vivo ahora</span>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 02 — Demo en vivo</span>
+          </div>
+          <span class="footer-num">17 / 26</span>
+        </footer>
+        <span class="overview-badge">17 · Demo</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 18 — PORTADILLA BLOQUE 3
+           ================================================================= -->
+      <section class="slide slide--section block-3" data-section="Bloque 03 · Confiabilidad y Nube" data-block="b3">
+        <div class="section-top-bar">
+          <img src="assets/LogoOsc.png" alt="LAIKA Club" class="section-logo logo-dark">
+          <span class="section-badge">Bloque 03</span>
+        </div>
+
+        <div class="section-main">
+          <div class="section-number">Pilar 03 · Ingeniería y Resiliencia</div>
+          <h2 class="section-title">Confiabilidad, calidad y nube</h2>
+          <p class="section-desc">
+            Retos superados, métricas verificadas de calidad y operación eficiente las 24 horas.
+          </p>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 03 — Confiabilidad</span>
+          </div>
+          <span class="footer-num">18 / 26</span>
+        </footer>
+        <span class="overview-badge">18 · Bloque 03</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 19 — RETOS SUPERADOS EN 4 FRANJAS LIMPIAS
+           ================================================================= -->
+      <section class="slide block-3" data-section="Bloque 03 · Confiabilidad y Nube" data-block="b3">
+        <span class="block-watermark">03</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 03 · Retos superados</p>
+          <h2 class="slide-title">Cuatro obstáculos reales convertidos en ventaja técnica</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="stripe-stack" style="gap: 13px;">
+            <div class="stripe-row">
+              <div class="stripe-topic">1. Desacoplamiento por roles y móvil</div>
+              <div class="stripe-pain"><span class="stripe-col-label">Problema</span>Rutas y acciones desconectadas entre SPAs, app móvil y microservicios.</div>
+              <div class="stripe-pain"><span class="stripe-col-label">Alternativa descartada</span>Conectar cada cliente directo a 9 puertos internos.</div>
+              <div class="stripe-fix"><span class="stripe-col-label stripe-col-label--ok">Solución y resultado</span>Pilgrim FastAPI unificó rutas por rol y contratos HTTP en un solo punto.</div>
+            </div>
+
+            <div class="stripe-row">
+              <div class="stripe-topic">2. Versiones y regresiones modulares</div>
+              <div class="stripe-pain"><span class="stripe-col-label">Problema</span>Incompatibilidad de versiones y cambios que rompían funciones ya activas.</div>
+              <div class="stripe-pain"><span class="stripe-col-label">Alternativa descartada</span>Instalación manual en host compartido sin pruebas previas.</div>
+              <div class="stripe-fix"><span class="stripe-col-label stripe-col-label--ok">Solución y resultado</span>Aislamiento en Docker Compose y compuertas CI con 60 pruebas automáticas.</div>
+            </div>
+
+            <div class="stripe-row">
+              <div class="stripe-topic">3. Bases de datos y rutas en nube</div>
+              <div class="stripe-pain"><span class="stripe-col-label">Problema</span>Desconexiones en MySQL, datos inconsistentes y saltos a puertos locales.</div>
+              <div class="stripe-pain"><span class="stripe-col-label">Alternativa descartada</span>Esquema único acoplado con direcciones fijas en código.</div>
+              <div class="stripe-fix"><span class="stripe-col-label stripe-col-label--ok">Solución y resultado</span>Red privada Docker, esquemas separados, consultas agregadas y variables por entorno.</div>
+            </div>
+
+            <div class="stripe-row">
+              <div class="stripe-topic">4. Regiones, capacidad y costos Azure</div>
+              <div class="stripe-pain"><span class="stripe-col-label">Problema</span>Regiones restringidas, poca RAM para 9 servicios y presupuesto limitado.</div>
+              <div class="stripe-pain"><span class="stripe-col-label">Alternativa descartada</span>Múltiples servidores dedicados fuera de presupuesto.</div>
+              <div class="stripe-fix"><span class="stripe-col-label stripe-col-label--ok">Solución y resultado</span>Terraform en VM ARM64 con swap 8 GB, JVM a 150 MB y portabilidad entre suscripciones 24/7.</div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 03 — Retos</span>
+          </div>
+          <span class="footer-num">19 / 26</span>
+        </footer>
+        <span class="overview-badge">19 · Retos</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 20 — INGENIERIA Y CI/CD EN 3 ETAPAS LIMPIAS
+           ================================================================= -->
+      <section class="slide block-3" data-section="Bloque 03 · Confiabilidad y Nube" data-block="b3">
+        <span class="block-watermark">03</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 03 · Calidad, Git y CI/CD</p>
+          <h2 class="slide-title">Buenas prácticas, control de versiones e integración continua</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="pipeline-flow">
+            <article class="card card--accent">
+              <div class="big-stage-num">SOLID</div>
+              <h3 class="card-title">Arquitectura limpia</h3>
+              <ul class="clean-list" style="gap: 8px;">
+                <li style="font-size: 13.4px;"><strong>Separación por capas:</strong> Controladores, servicios, repositorios y hooks desacoplados.</li>
+                <li style="font-size: 13.4px;"><strong>Análisis estático:</strong> Oxlint en Vite, ESLint en Expo y README por módulo.</li>
+              </ul>
+            </article>
+
+            <div class="pipeline-arrow" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+
+            <article class="card card--accent">
+              <div class="big-stage-num">155+</div>
+              <h3 class="card-title">Git y pipeline CI</h3>
+              <ul class="clean-list" style="gap: 8px;">
+                <li style="font-size: 13.4px;"><strong>Ramas y revisión:</strong> main, development, feature, bugfix, submódulo móvil y pull requests.</li>
+                <li style="font-size: 13.4px;"><strong>GitHub Actions CI:</strong> 60 pruebas Node 18, Maven JDK 17 y validación Docker Compose.</li>
+              </ul>
+            </article>
+
+            <div class="pipeline-arrow" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+
+            <article class="card card--accent">
+              <div class="big-stage-num">CD</div>
+              <h3 class="card-title">Entrega automatizada</h3>
+              <ul class="clean-list" style="gap: 8px;">
+                <li style="font-size: 13.4px;"><strong>Despliegue SSH:</strong> Pipeline CD ejecuta <span class="mono">deploy_remote.sh</span> en Azure.</li>
+                <li style="font-size: 13.4px;"><strong>Salud post-cambio:</strong> Verificación automática de Nginx y <span class="mono">/api/health</span>.</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 03 — Ingeniería</span>
+          </div>
+          <span class="footer-num">20 / 26</span>
+        </footer>
+        <span class="overview-badge">20 · CI/CD</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 21 — CIFRA HEROICA AISLADA + BARRAS DE CALIDAD Y DEFECTOS
+           ================================================================= -->
+      <section class="slide block-3" data-section="Bloque 03 · Confiabilidad y Nube" data-block="b3">
+        <span class="block-watermark">03</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 03 · Estrategia de pruebas y defectos</p>
+          <h2 class="slide-title">Probado a escala en todos los roles con trazabilidad real</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="grid-asymmetric-rev">
+            <div class="stat-hero-box">
+              <div>
+                <p class="card-label">Aprobación consolidada</p>
+                <div class="stat-hero-giant">98.0%</div>
+                <p class="card-text">347 de 354 casos multi-rol aprobados, más 51 escenarios de integración en vivo sin mocks, JMeter, Postman y tablero QA 5050.</p>
+              </div>
+              <div class="stat-mini-row">
+                <div>
+                  <div class="stat-mini-val">60 / 60</div>
+                  <div class="stat-mini-lbl">Unitarias CI</div>
+                </div>
+                <div>
+                  <div class="stat-mini-val">200</div>
+                  <div class="stat-mini-lbl">Estrés concurrente</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card card--white" style="justify-content: space-between;">
+              <div>
+                <p class="card-label">Aprobación por rol</p>
+                <div class="bar-list" style="margin-top: 8px; gap: 10px;">
+                  <div class="bar-row">
+                    <span class="bar-name">Flujos avanzados</span>
+                    <div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div>
+                    <span class="bar-pct">100.0%</span>
+                  </div>
+                  <div class="bar-row">
+                    <span class="bar-name">Administrador</span>
+                    <div class="bar-track"><div class="bar-fill" style="width: 98.9%;"></div></div>
+                    <span class="bar-pct">98.9%</span>
+                  </div>
+                  <div class="bar-row">
+                    <span class="bar-name">Comprador</span>
+                    <div class="bar-track"><div class="bar-fill" style="width: 98.7%;"></div></div>
+                    <span class="bar-pct">98.7%</span>
+                  </div>
+                  <div class="bar-row">
+                    <span class="bar-name">Operador puerta</span>
+                    <div class="bar-track"><div class="bar-fill" style="width: 98.5%;"></div></div>
+                    <span class="bar-pct">98.5%</span>
+                  </div>
+                  <div class="bar-row">
+                    <span class="bar-name">Gestor eventos</span>
+                    <div class="bar-track"><div class="bar-fill" style="width: 94.9%;"></div></div>
+                    <span class="bar-pct">94.9%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="defect-mini-grid">
+                <div class="defect-mini">
+                  <h4>Defectos críticos corregidos</h4>
+                  <p>Sobreventa concurrente con HTTP 409, saltos erróneos a localhost, errores 500 en checkout y sesiones 401 en LaikaMobil.</p>
+                </div>
+                <div class="defect-mini defect-mini--warn">
+                  <h4>Pendientes menores trazados</h4>
+                  <p>7 hallazgos en permisos RBAC de respaldos, estadísticas y preventa sin impacto en compra ni escaneo QR.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 03 — Pruebas y defectos</span>
+          </div>
+          <span class="footer-num">21 / 26</span>
+        </footer>
+        <span class="overview-badge">21 · Calidad</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 22 — DIAGRAMA COMPLETO DE INFRAESTRUCTURA EN AZURE
+           ================================================================= -->
+      <section class="slide block-3" data-section="Bloque 03 · Confiabilidad y Nube" data-block="b3">
+        <span class="block-watermark">03</span>
+        <header class="slide-header" style="margin-bottom: 16px;">
+          <p class="slide-kicker">Bloque 03 · Topología completa en Microsoft Azure</p>
+          <h2 class="slide-title" style="font-size: 27px;">Cómo conviven Vercel, LaikaMobil y los servicios dentro de Azure</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="diagram-frame" style="padding: 12px 14px;">
+            <svg class="diagram-svg" style="max-height: 446px;" viewBox="0 0 1160 442" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama completo de infraestructura en Microsoft Azure">
+              <defs>
+                <marker id="az-fwd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--accent-primary)"/>
+                </marker>
+                <marker id="az-ret" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--svg-arrow-ret)"/>
+                </marker>
+              </defs>
+
+              <!-- COLUMNA 1: CLIENTES Y CI/CD EXTERNO -->
+              <rect x="6" y="8" width="204" height="426" rx="5" class="svg-col"/>
+              <text x="18" y="28" class="svg-kicker" style="font-size: 9.8px;">CLIENTES Y CI/CD</text>
+
+              <rect x="16" y="40" width="184" height="126" rx="4" class="svg-card"/>
+              <text x="26" y="60" class="svg-title" style="font-size: 12.5px;">Vercel CDN</text>
+              <text x="26" y="76" class="svg-mono-hi" style="font-size: 9.6px;">Frontends Web HTTPS</text>
+              <text x="26" y="96" class="svg-sub" style="font-size: 9.8px;">Web Pública · Compradores</text>
+              <text x="26" y="112" class="svg-sub" style="font-size: 9.8px;">laika-admin · laika-gestor</text>
+              <text x="26" y="128" class="svg-sub" style="font-size: 9.8px;">laika-operador · QR puerta</text>
+              <text x="26" y="144" class="svg-sub" style="font-size: 9.8px;">matis-solid · Tablero BI</text>
+
+              <rect x="16" y="180" width="184" height="114" rx="4" class="svg-card-hi"/>
+              <text x="26" y="200" class="svg-title" style="font-size: 12.5px;">LaikaMobil</text>
+              <text x="26" y="216" class="svg-mono-hi" style="font-size: 9.6px;">React Native · Expo</text>
+              <text x="26" y="236" class="svg-sub" style="font-size: 9.8px;">Google Play Store · Android/iOS</text>
+              <text x="26" y="252" class="svg-sub" style="font-size: 9.8px;">JWT SecureStore y biometría</text>
+              <text x="26" y="268" class="svg-sub" style="font-size: 9.8px;">SSL Pinning hacia Azure</text>
+              <text x="26" y="284" class="svg-sub" style="font-size: 9.8px;">Bóveda QR offline</text>
+
+              <rect x="16" y="308" width="184" height="114" rx="4" class="svg-card"/>
+              <text x="26" y="328" class="svg-title" style="font-size: 12.5px;">GitHub Actions</text>
+              <text x="26" y="344" class="svg-mono" style="font-size: 9.6px;">CI 60 pruebas · CD SSH</text>
+              <text x="26" y="364" class="svg-sub" style="font-size: 9.8px;">Compila Java 17 y Docker</text>
+              <text x="26" y="380" class="svg-sub" style="font-size: 9.8px;">Despliegue por puerto 22</text>
+              <text x="26" y="396" class="svg-sub" style="font-size: 9.8px;">Ejecuta deploy_remote.sh</text>
+
+              <!-- COLUMNA 2 Y 3: MICROSOFT AZURE -->
+              <rect x="248" y="8" width="710" height="426" rx="5" class="svg-col" style="stroke: var(--accent-primary); stroke-width: 1.5;"/>
+              <text x="262" y="28" class="svg-kicker" style="font-size: 10px;">MICROSOFT AZURE · TERRAFORM IAC · RG rg-laikaclub · VNET 10.0.0.0/16 · SUBRED 10.0.1.0/24</text>
+              <rect x="816" y="13" width="130" height="20" rx="3" class="svg-card-hi"/>
+              <text x="826" y="26" class="svg-mono-hi" style="font-size: 9.2px;">FinOps: 80% y 95%</text>
+
+              <!-- Subcolumna Perimetro + Host -->
+              <rect x="262" y="40" width="180" height="382" rx="4" class="svg-card"/>
+              <text x="274" y="58" class="svg-kicker" style="font-size: 9.5px;">RED Y PERÍMETRO</text>
+
+              <rect x="272" y="68" width="160" height="122" rx="3" class="svg-card-hi"/>
+              <text x="282" y="86" class="svg-title" style="font-size: 11.5px;">Firewall NSG + IP</text>
+              <text x="282" y="101" class="svg-mono-hi" style="font-size: 9.2px;">IP Estática + DNS Azure</text>
+              <text x="282" y="120" class="svg-mono" style="font-size: 9.8px;">Allow HTTP   80</text>
+              <text x="282" y="136" class="svg-mono" style="font-size: 9.8px;">Allow HTTPS 443</text>
+              <text x="282" y="152" class="svg-mono" style="font-size: 9.8px;">Allow SSH    22</text>
+              <text x="282" y="172" class="svg-sub" style="font-size: 9.4px;">Llave SSH RSA 4096</text>
+
+              <line x1="352" y1="190" x2="352" y2="210" class="svg-line-fwd" marker-end="url(#az-fwd)"/>
+
+              <rect x="272" y="214" width="160" height="114" rx="3" class="svg-gateway-wrap"/>
+              <text x="282" y="234" font-family="Inter, Segoe UI, sans-serif" font-size="11.8" font-weight="700" fill="#ffffff">Nginx Proxy</text>
+              <text x="282" y="250" font-family="JetBrains Mono, monospace" font-size="9.4" fill="#99f6e4">TLS Certbot + Gzip</text>
+              <text x="282" y="270" font-family="Inter, Segoe UI, sans-serif" font-size="9.6" fill="#e2e8f0">Enruta /api/ a :8000</text>
+              <text x="282" y="286" font-family="Inter, Segoe UI, sans-serif" font-size="9.6" fill="#e2e8f0">Sirve /uploads/ 30 d</text>
+              <text x="282" y="302" font-family="Inter, Segoe UI, sans-serif" font-size="9.6" fill="#e2e8f0">Soporte WebSocket</text>
+              <text x="282" y="318" font-family="Inter, Segoe UI, sans-serif" font-size="9.6" fill="#e2e8f0">Límite cuerpo 50 MB</text>
+
+              <rect x="272" y="338" width="160" height="74" rx="3" class="svg-card"/>
+              <text x="282" y="356" class="svg-title" style="font-size: 11px;">VM Ubuntu 22.04 ARM64</text>
+              <text x="282" y="372" class="svg-mono-hi" style="font-size: 9.4px;">Standard_B2ps_v2</text>
+              <text x="282" y="388" class="svg-sub" style="font-size: 9.5px;">2 vCPU · 8 GB RAM</text>
+              <text x="282" y="403" class="svg-sub" style="font-size: 9.5px;">SSD 32 GB · Swap 8 GB</text>
+
+              <!-- Subcolumna Docker -->
+              <rect x="456" y="40" width="490" height="382" rx="4" class="svg-card"/>
+              <text x="470" y="58" class="svg-kicker" style="font-size: 9.5px;">RED PRIVADA DOCKER · laika_network · 11 CONTENEDORES</text>
+
+              <!-- Pilgrim -->
+              <rect x="470" y="68" width="462" height="66" rx="3" class="svg-card-hi"/>
+              <text x="482" y="88" class="svg-title" style="font-size: 12.5px;">Pilgrim API Gateway · Puerto 8000 · FastAPI + HTTPX</text>
+              <text x="482" y="105" class="svg-sub" style="font-size: 10px;">Único punto que recibe todo el tráfico de Vercel y LaikaMobil vía Nginx</text>
+              <text x="482" y="121" class="svg-mono-hi" style="font-size: 9.5px;">5 routers por rol · CORS · Caché GET 60 s · Bitácora dual · GET /api/health</text>
+
+              <!-- Flechas Pilgrim -> 3 bloques -->
+              <line x1="546" y1="134" x2="546" y2="152" class="svg-line-fwd" marker-end="url(#az-fwd)"/>
+              <line x1="701" y1="134" x2="701" y2="152" class="svg-line-fwd" marker-end="url(#az-fwd)"/>
+              <line x1="856" y1="134" x2="856" y2="152" class="svg-line-fwd" marker-end="url(#az-fwd)"/>
+
+              <!-- 3 Bloques Microservicios -->
+              <rect x="470" y="156" width="148" height="142" rx="3" class="svg-col"/>
+              <text x="480" y="174" class="svg-kicker" style="font-size: 9.4px;">CORE 81xx · JAVA</text>
+              <text x="480" y="194" class="svg-mono" style="font-size: 9.8px;">8101 laika_auth</text>
+              <text x="480" y="208" class="svg-sub" style="font-size: 9.2px;">JWT y auditoría</text>
+              <text x="480" y="228" class="svg-mono" style="font-size: 9.8px;">8102 laika_admin</text>
+              <text x="480" y="242" class="svg-sub" style="font-size: 9.2px;">Respaldos y SMTP</text>
+              <text x="480" y="262" class="svg-mono" style="font-size: 9.8px;">8103 laika_stats</text>
+              <text x="480" y="276" class="svg-sub" style="font-size: 9.2px;">Métricas en vivo</text>
+
+              <rect x="627" y="156" width="148" height="142" rx="3" class="svg-card-hi"/>
+              <text x="637" y="174" class="svg-kicker" style="font-size: 9.4px;">OPERACIONES 82xx</text>
+              <text x="637" y="194" class="svg-mono" style="font-size: 9.8px;">8201 laika_events</text>
+              <text x="637" y="208" class="svg-sub" style="font-size: 9.2px;">Eventos y recintos</text>
+              <text x="637" y="228" class="svg-mono-hi" style="font-size: 9.8px;">8202 laika_tickets</text>
+              <text x="637" y="242" class="svg-sub" style="font-size: 9.2px;">Lock 409 y QR</text>
+              <text x="637" y="262" class="svg-mono" style="font-size: 9.8px;">8203 merchandise</text>
+              <text x="637" y="276" class="svg-sub" style="font-size: 9.2px;">Tienda y órdenes</text>
+
+              <rect x="784" y="156" width="148" height="142" rx="3" class="svg-col"/>
+              <text x="794" y="174" class="svg-kicker" style="font-size: 9.4px;">DATOS 83xx</text>
+              <text x="794" y="194" class="svg-mono" style="font-size: 9.8px;">8301 achievements</text>
+              <text x="794" y="208" class="svg-sub" style="font-size: 9.2px;">Java · Logros</text>
+              <text x="794" y="228" class="svg-mono" style="font-size: 9.8px;">8302 analytics</text>
+              <text x="794" y="242" class="svg-sub" style="font-size: 9.2px;">Java · Finanzas SQL</text>
+              <text x="794" y="262" class="svg-mono-hi" style="font-size: 9.8px;">8303 bigdata</text>
+              <text x="794" y="276" class="svg-sub" style="font-size: 9.2px;">Python PySpark ML</text>
+
+              <!-- Franja JVM -->
+              <rect x="470" y="306" width="462" height="22" rx="3" class="svg-col"/>
+              <text x="484" y="320" class="svg-mono" style="font-size: 9.4px;">Optimización FinOps JVM: SerialGC · Xmx150m · Hilos virtuales · restart: always</text>
+
+              <line x1="701" y1="328" x2="701" y2="344" class="svg-line-fwd" marker-end="url(#az-fwd)"/>
+
+              <!-- MySQL -->
+              <rect x="470" y="348" width="462" height="64" rx="3" class="svg-card-hi"/>
+              <text x="482" y="368" class="svg-title" style="font-size: 12.2px;">MySQL 8.0 · Contenedor laika_db · Puerto interno 3306</text>
+              <text x="482" y="385" class="svg-sub" style="font-size: 9.8px;">Esquemas segregados por microservicio · Integridad ACID</text>
+              <text x="482" y="401" class="svg-mono-hi" style="font-size: 9.4px;">Volúmenes persistentes: laika_db_data · /app/uploads · /app/backups</text>
+
+              <!-- COLUMNA 4: SERVICIOS EXTERNOS -->
+              <rect x="990" y="8" width="164" height="426" rx="5" class="svg-col"/>
+              <text x="1002" y="28" class="svg-kicker" style="font-size: 9.6px;">EXTERNOS</text>
+
+              <rect x="1000" y="138" width="144" height="122" rx="4" class="svg-card-hi"/>
+              <text x="1010" y="160" class="svg-title" style="font-size: 12px;">MongoDB Atlas</text>
+              <text x="1010" y="176" class="svg-mono-hi" style="font-size: 9.4px;">Capa NoSQL M0</text>
+              <text x="1010" y="198" class="svg-sub" style="font-size: 9.6px;">Bóveda analítica</text>
+              <text x="1010" y="214" class="svg-sub" style="font-size: 9.6px;">Snapshots Spark</text>
+              <text x="1010" y="230" class="svg-sub" style="font-size: 9.6px;">Consumido por</text>
+              <text x="1010" y="246" class="svg-mono-hi" style="font-size: 9.4px;">bigdata :8303</text>
+
+              <rect x="1000" y="282" width="144" height="114" rx="4" class="svg-card"/>
+              <text x="1010" y="304" class="svg-title" style="font-size: 12px;">Correo SMTP</text>
+              <text x="1010" y="320" class="svg-mono" style="font-size: 9.4px;">Gmail / Brevo</text>
+              <text x="1010" y="342" class="svg-sub" style="font-size: 9.6px;">Confirmaciones y</text>
+              <text x="1010" y="358" class="svg-sub" style="font-size: 9.6px;">difusión de correo</text>
+              <text x="1010" y="378" class="svg-mono" style="font-size: 9.4px;">desde admin :8102</text>
+
+              <!-- CONEXIONES -->
+              <path d="M 200 102 L 228 102 L 228 118 L 268 118" fill="none" class="svg-line-fwd" marker-end="url(#az-fwd)"/>
+              <text x="206" y="96" class="svg-mono-hi" style="font-size: 8.8px;">HTTPS</text>
+
+              <path d="M 200 236 L 228 236 L 228 136 L 268 136" fill="none" class="svg-line-fwd" marker-end="url(#az-fwd)"/>
+              <text x="206" y="230" class="svg-mono-hi" style="font-size: 8.8px;">HTTPS</text>
+
+              <path d="M 200 364 L 236 364 L 236 156 L 268 156" fill="none" class="svg-line-ret" marker-end="url(#az-ret)"/>
+              <text x="206" y="358" class="svg-mono" style="font-size: 8.8px;">SSH 22</text>
+
+              <path d="M 432 268 L 444 268 L 444 100 L 466 100" fill="none" class="svg-line-fwd" marker-end="url(#az-fwd)"/>
+
+              <path d="M 932 268 L 966 268 L 966 202 L 996 202" fill="none" class="svg-line-fwd" marker-end="url(#az-fwd)"/>
+              <path d="M 932 238 L 976 238 L 976 340 L 996 340" fill="none" class="svg-line-ret" marker-end="url(#az-ret)"/>
+            </svg>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 03 — Diagrama de infraestructura Azure</span>
+          </div>
+          <span class="footer-num">22 / 26</span>
+        </footer>
+        <span class="overview-badge">22 · Diagrama Azure</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 23 — DETALLES TECNICOS DE INFRAESTRUCTURA, REDES Y OPERACION
+           ================================================================= -->
+      <section class="slide block-3" data-section="Bloque 03 · Confiabilidad y Nube" data-block="b3">
+        <span class="block-watermark">03</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 03 · Servicios, redes y operación en la nube</p>
+          <h2 class="slide-title">Detalles de infraestructura, seguridad, monitoreo y FinOps</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="grid-3">
+            <article class="card card--accent">
+              <p class="card-label">Redes y seguridad perimetral</p>
+              <h3 class="card-title" style="font-size: 17px;">Aislamiento de punta a punta</h3>
+              <ul class="clean-list" style="gap: 9px;">
+                <li style="font-size: 13.2px;"><strong>Topología Terraform:</strong> Resource Group <span class="mono">rg-laikaclub</span>, VNet <span class="mono">10.0.0.0/16</span>, Subred <span class="mono">10.0.1.0/24</span> e IP estática.</li>
+                <li style="font-size: 13.2px;"><strong>Firewall NSG:</strong> Solo abre puertos 80, 443 y 22 con llave SSH <span class="mono">RSA 4096</span>.</li>
+                <li style="font-size: 13.2px;"><strong>Cifrado y blindaje:</strong> TLS con Certbot, SSL Pinning en LaikaMobil y red interna Docker oculta.</li>
+              </ul>
+            </article>
+
+            <article class="card card--accent">
+              <p class="card-label">Cómputo y despliegue</p>
+              <h3 class="card-title" style="font-size: 17px;">VM ARM64 y 11 contenedores</h3>
+              <ul class="clean-list" style="gap: 9px;">
+                <li style="font-size: 13.2px;"><strong>Servidor base:</strong> Ubuntu 22.04 ARM64 <span class="mono">Standard_B2ps_v2</span>, 2 vCPU, 8 GB RAM, SSD 32 GB y Swap 8 GB vía <span class="mono">cloud-init</span>.</li>
+                <li style="font-size: 13.2px;"><strong>Despliegue continuo:</strong> GitHub Actions ejecuta <span class="mono">deploy_remote.sh</span> actualizando Pilgrim, Nginx y Docker.</li>
+                <li style="font-size: 13.2px;"><strong>Reto de memoria resuelto:</strong> JVM afinada con <span class="mono">SerialGC</span>, <span class="mono">Xmx150m</span> e hilos virtuales.</li>
+              </ul>
+            </article>
+
+            <article class="card card--accent">
+              <p class="card-label">Monitoreo, disponibilidad y costos</p>
+              <h3 class="card-title" style="font-size: 17px;">Operación 24/7 eficiente</h3>
+              <ul class="clean-list" style="gap: 9px;">
+                <li style="font-size: 13.2px;"><strong>Monitoreo activo:</strong> Endpoint <span class="mono">/api/health</span> en Pilgrim más bitácoras duales de latencias y errores HTTP.</li>
+                <li style="font-size: 13.2px;"><strong>Continuidad:</strong> Política <span class="mono">restart: always</span> en contenedores, compresión Gzip y portabilidad rápida con Terraform.</li>
+                <li style="font-size: 13.2px;"><strong>Control FinOps:</strong> Costo cercano a 30 USD al mes con alertas automáticas al 80% y 95%.</li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="takeaway-bar">
+            <span><strong>Convivencia híbrida:</strong> Frontends ligeros en Vercel CDN, app móvil en Expo y Play Store, y núcleo transaccional protegido en Microsoft Azure.</span>
+            <span class="mono">Terraform + Docker</span>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 03 — Detalles de infraestructura</span>
+          </div>
+          <span class="footer-num">23 / 26</span>
+        </footer>
+        <span class="overview-badge">23 · Detalles Azure</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 24 — GALERIA BLOQUE 3
+           ================================================================= -->
+      <section class="slide block-3" data-section="Bloque 03 · Confiabilidad y Nube" data-block="b3">
+        <span class="block-watermark">03</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 03 · Galería técnica</p>
+          <h2 class="slide-title">Espacio reservado para evidencias de nube y QA</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="grid-2">
+            <div class="placeholder-box placeholder-box--tall">
+              <h3 class="placeholder-title">Infraestructura en Azure</h3>
+              <p class="placeholder-hint">Insertar captura del portal de Azure o contenedores en línea.</p>
+              <span class="placeholder-specs">PNG o SVG</span>
+            </div>
+            <div class="placeholder-box placeholder-box--tall">
+              <h3 class="placeholder-title">Pipelines y tablero QA</h3>
+              <p class="placeholder-hint">Insertar captura de GitHub Actions y dashboard de pruebas.</p>
+              <span class="placeholder-specs">PNG o SVG</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 03 — Galería</span>
+          </div>
+          <span class="footer-num">24 / 26</span>
+        </footer>
+        <span class="overview-badge">24 · Galería 03</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 25 — HOJA DE RUTA + MISION LAIKA
+           ================================================================= -->
+      <section class="slide block-3" data-section="Bloque 03 · Confiabilidad y Nube" data-block="b3">
+        <span class="block-watermark">03</span>
+        <header class="slide-header">
+          <p class="slide-kicker">Bloque 03 · Evolución</p>
+          <h2 class="slide-title">Tres pasos para llevar LAIKA Club a escala comercial</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="grid-asymmetric">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <article class="card card--accent" style="padding: 16px 20px;">
+                <p class="card-label">01 · Optimización de componentes</p>
+                <h3 class="card-title" style="font-size: 17px; margin-bottom: 6px;">Usuario comprador y gestor más ágiles</h3>
+                <p class="card-text" style="font-size: 13.5px;">Hacer más interactivos y fluidos los flujos de compra y gestión de eventos con un sistema visual unificado.</p>
+              </article>
+
+              <article class="card card--accent" style="padding: 16px 20px;">
+                <p class="card-label">02 · Deuda técnica identificada</p>
+                <h3 class="card-title" style="font-size: 17px; margin-bottom: 6px;">Funciones en espera, pasarela y cobertura Java</h3>
+                <p class="card-text" style="font-size: 13.5px;">Concluir apartados pausados tras asegurar el MVP, conectar pasarela bancaria real, ampliar pruebas Java y depurar wearables.</p>
+              </article>
+
+              <article class="card card--accent" style="padding: 16px 20px;">
+                <p class="card-label">03 · Evolución arquitectónica</p>
+                <h3 class="card-title" style="font-size: 17px; margin-bottom: 6px;">Arquitectura más ordenada y multi-nodo</h3>
+                <p class="card-text" style="font-size: 13.5px;">Endurecer políticas de CORS y RBAC, migrar a MySQL administrado y habilitar observabilidad con alta disponibilidad.</p>
+              </article>
+            </div>
+
+            <div class="art-frame">
+              <img src="assets/mision-laika.jpg" alt="Visión de crecimiento LAIKA Club">
+            </div>
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Bloque 03 — Evolución</span>
+          </div>
+          <span class="footer-num">25 / 26</span>
+        </footer>
+        <span class="overview-badge">25 · Futuro</span>
+      </section>
+
+      <!-- =================================================================
+           LAMINA 26 — CIERRE ACCIONABLE PARA EL CLIENTE
+           ================================================================= -->
+      <section class="slide block-core" data-section="Próximos Pasos" data-block="core">
+        <header class="slide-header">
+          <p class="slide-kicker">Siguiente paso</p>
+          <h2 class="slide-title">Cómo activar LAIKA Club en tu operación</h2>
+        </header>
+
+        <div class="slide-body">
+          <div class="next-steps-grid">
+            <article class="next-step-card block-2">
+              <div class="next-step-num">01</div>
+              <h3 class="card-title">Prueba guiada hoy</h3>
+              <p class="card-text">Recorremos juntos la compra, el panel gestor y el escaneo en puerta.</p>
+            </article>
+
+            <article class="next-step-card block-1">
+              <div class="next-step-num">02</div>
+              <h3 class="card-title">Ajuste a tu negocio</h3>
+              <p class="card-text">Configuramos tus recintos, marca y pasarela bancaria preferida.</p>
+            </article>
+
+            <article class="next-step-card block-3">
+              <div class="next-step-num">03</div>
+              <h3 class="card-title">Lanzamiento en nube</h3>
+              <p class="card-text">Publicamos tu primer evento con operación continua y control real.</p>
+            </article>
+          </div>
+
+          <div class="action-banner">
+            <div>
+              <h3>Lleva tus eventos al siguiente nivel con LAIKA Club</h3>
+              <p>Abrimos espacio para preguntas y demostración personalizada en vivo.</p>
+            </div>
+            <img src="assets/LogoOsc.png" alt="LAIKA Club" class="closing-logo logo-dark">
+          </div>
+        </div>
+
+        <footer class="slide-footer">
+          <div class="footer-left">
+            <img src="assets/logo.png" alt="" class="footer-icon">
+            <span class="footer-brand">LAIKA CLUB</span>
+            <span class="footer-sep">|</span>
+            <span>Próximos pasos</span>
+          </div>
+          <span class="footer-num">26 / 26</span>
+        </footer>
+        <span class="overview-badge">26 · Cierre</span>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="presentation.js"></script>
+</body>
+</html>
