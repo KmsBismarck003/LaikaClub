@@ -83,9 +83,6 @@ const PropsPanel = ({
   if (!selected) {
     return (
       <aside className="avm-props-panel" key="empty-selection">
-        <div className="avm-props-header">
-          <span className="avm-props-title">PROPIEDADES</span>
-        </div>
         <div className="avm-props-empty">
           <div className="avm-props-empty-icon"><Square size={32} /></div>
           <div className="avm-props-empty-text">Selecciona un elemento para editar sus propiedades</div>
@@ -102,7 +99,10 @@ const PropsPanel = ({
   return (
     <aside className="avm-props-panel" key="element-properties">
       <div className="avm-props-header">
-        <span className="avm-props-title">{`${ELEMENT_ICONS[selected.type]} ${selected.type.toUpperCase()}`}</span>
+        <span className="avm-props-title">
+          {ELEMENT_ICONS[selected.type]}
+          <span>{selected.type.toUpperCase()}</span>
+        </span>
       </div>
 
       <div className="avm-props-body">

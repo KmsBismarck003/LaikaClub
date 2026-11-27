@@ -128,8 +128,10 @@ const AdminVenueMap = () => {
       try {
         const res = await venueAPI.getRoomMap(roomId);
         if (res) {
-          setRoomInfo(res);
-          setTotalCapacity(res.total_capacity || res.capacity || 0);
+          const resolvedName = res.room?.name || res.name || `Sala #${roomId}`;
+          const resolvedCapacity = res.room?.capacity || res.total_capacity || res.capacity || 0;
+          setRoomInfo({ ...res, name: resolvedName });
+          setTotalCapacity(resolvedCapacity);
           if (res.layout_json?.components) {
             setComponents(res.layout_json.components);
           }
@@ -426,21 +428,25 @@ const AdminVenueMap = () => {
       {/* HEADER */}
       <header className="avm-header">
         <div className="avm-header-left">
-          <button
-            className="avm-back-btn"
-            onClick={() =>
-              window.history.length > 1
-                ? navigate(-1)
-                : navigate(isManagerRoute ? '/events/manage' : '/admin/venues')
-            }
-          >
-            <ArrowLeft size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
-            VOLVER
-          </button>
-          <div className="avm-sep" />
+          {!isManagerRoute && (
+            <>
+              <button
+                className="avm-back-btn"
+                onClick={() =>
+                  window.history.length > 1
+                    ? navigate(-1)
+                    : navigate('/admin/venues')
+                }
+              >
+                <ArrowLeft size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                VOLVER
+              </button>
+              <div className="avm-sep" />
+            </>
+          )}
           <div className="avm-title">
-            <span>{roomInfo.name}</span>
-            <span> | Editor</span>
+            {roomInfo.name}
+            <span> | Editor de sala</span>
           </div>
         </div>
 
