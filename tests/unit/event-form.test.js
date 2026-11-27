@@ -351,6 +351,10 @@ const managerFiles = [
   'laika-gestor/src/pages/manager/components/EventForm/EventPricingSection.jsx',
   'laika-gestor/src/pages/manager/components/EventForm/EventExtrasSection.jsx',
   'laika-gestor/src/pages/manager/components/EventForm/HomeEventCardReplica.jsx',
+  'laika-gestor/src/pages/admin/VenueMap/AdminVenueMap.jsx',
+  'laika-gestor/src/pages/admin/VenueMap/components/TemplateSelectorModal.jsx',
+  'src/pages/admin/VenueMap/AdminVenueMap.jsx',
+  'src/pages/admin/VenueMap/components/TemplateSelectorModal.jsx',
 ];
 
 const invalidIcons = [];
@@ -400,9 +404,17 @@ assert(
   brokenImports.join(', ')
 );
 assert(
-  'Cero emojis en los archivos del formulario de eventos',
+  'Cero emojis en los archivos del formulario de eventos y editor de mapas',
   emojiHits.length === 0,
   emojiHits.join(', ')
+);
+
+assert(
+  'Plantillas del diseñador de mapas sincronizadas en laika-gestor y src/',
+  fs.existsSync(path.join(ROOT, 'laika-gestor/src/pages/admin/VenueMap/utils/templates.js')) &&
+    fs.existsSync(path.join(ROOT, 'laika-gestor/src/pages/admin/VenueMap/components/TemplateSelectorModal.jsx')) &&
+    fs.existsSync(path.join(ROOT, 'src/pages/admin/VenueMap/utils/templates.js')) &&
+    fs.existsSync(path.join(ROOT, 'src/pages/admin/VenueMap/components/TemplateSelectorModal.jsx'))
 );
 
 console.log('\n===============================================================');

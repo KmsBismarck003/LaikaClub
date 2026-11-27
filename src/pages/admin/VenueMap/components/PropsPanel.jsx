@@ -24,8 +24,8 @@ const PropsPanel = ({
           <span className="avm-props-title">SELECCIÓN</span>
         </div>
         <div className="avm-props-body">
-          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.5rem' }}>
-            <strong style={{ color: '#ffffff', marginRight: '4px' }}>{selectedSeats.length}</strong>
+          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }}>
+            <strong style={{ color: 'var(--color-text)', marginRight: '4px' }}>{selectedSeats.length}</strong>
             {`asientos seleccionados`}
           </div>
 
@@ -56,16 +56,16 @@ const PropsPanel = ({
 
           <div className="avm-seat-legend">
             <div className="avm-legend-row">
-              <div className="avm-legend-dot" style={{ background: '#2a2a2a', border: '1px solid #555' }} />
+              <div className="avm-legend-dot" style={{ background: 'var(--color-surface-hover)', border: '1px solid var(--color-border-strong)' }} />
               Normal
             </div>
             <div className="avm-legend-row">
-              <div className="avm-legend-dot" style={{ background: '#1a1a2e', border: '1.5px solid #9333ea' }} />
+              <div className="avm-legend-dot" style={{ background: 'var(--color-info-bg)', border: '1.5px solid var(--color-info)' }} />
               VIP
             </div>
             <div className="avm-legend-row">
-              <div className="avm-legend-dot" style={{ background: '#0f2027', border: '1.5px solid #06b6d4' }} />
-              <Accessibility size={12} color="#06b6d4" /> Accesible
+              <div className="avm-legend-dot" style={{ background: 'var(--color-success-bg)', border: '1.5px solid var(--color-success)' }} />
+              <Accessibility size={12} color="var(--color-success)" /> Accesible
             </div>
           </div>
 
@@ -152,7 +152,7 @@ const PropsPanel = ({
             type="range" min={-180} max={180} step={5}
             value={selected.rotation || 0}
             onChange={e => onUpdate({ rotation: +e.target.value })}
-            style={{ width: '100%', accentColor: '#ffffff' }}
+            style={{ width: '100%', accentColor: 'var(--color-primary)' }}
           />
           <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
             {[-90, 0, 90, 180].map(deg => (
@@ -189,10 +189,10 @@ const PropsPanel = ({
         {isSeats && seatCount !== null && (
           <div style={{
             padding: '10px 12px', borderRadius: '8px',
-            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-            fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)'
+            background: 'var(--color-surface-hover)', border: '1px solid var(--color-border)',
+            fontSize: '0.7rem', color: 'var(--color-text-secondary)'
           }}>
-            <span style={{ color: '#ffffff', fontWeight: 800, fontSize: '1rem', marginRight: '4px' }}>{seatCount}</span>
+            <span style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '1rem', marginRight: '4px' }}>{seatCount}</span>
             {`asientos en ${selected.blocks?.length || 0} fila${selected.blocks?.length !== 1 ? 's' : ''}`}
           </div>
         )}
@@ -204,7 +204,7 @@ const PropsPanel = ({
           </button>
         )}
 
-        <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '0.25rem 0' }} />
+        <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.25rem 0' }} />
 
         {/* Duplicate & Delete */}
         <button className="avm-action-btn" onClick={onDuplicate}>
