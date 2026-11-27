@@ -64,6 +64,8 @@ const {
   normalizeEventFunctions,
   resolveAndValidateEventForm,
   buildHomePreviewEvent,
+  parseGalleryUrls,
+  serializeGalleryUrls,
 } = eventFormUtils;
 
 const { getImageUrl } = imageUtils;
@@ -260,11 +262,20 @@ assert(
 
 const dataUri = 'data:image/svg+xml;charset=UTF-8,%3Csvg%3E%3C/svg%3E';
 assert(
-  'getImageUrl (root y laika-gestor) permite data: URIs sin anteponer http://localhost:8000/',
+  'getImageUrl (root y laika-gestor) permite data: URIs y resuelve uploads correctamente',
   getImageUrl(dataUri) === dataUri &&
     gestorImageUtils.getImageUrl(dataUri) === dataUri &&
     getImageUrl('https://cdn.test/img.jpg') === 'https://cdn.test/img.jpg' &&
-    getImageUrl('/api/uploads/events/a.jpg') === '/uploads/events/a.jpg'
+    getImageUrl('/api/uploads/events/a.jpg') === '/uploads/events/a.jpg' &&
+    gestorImageUtils.getImageUrl('/api/events/uploads/events/a.jpg') === 'http://localhost:8000/uploads/events/a.jpg'
+);
+
+const parsedGallery = parseGalleryUrls(' /api/events/uploads/events/1.jpg, https://cdn.test/2.png , /api/events/uploads/events/1.jpg ');
+assert(
+  'parseGalleryUrls y serializeGalleryUrls deduplican y preservan el orden del carrusel',
+  parsedGallery.length === 2 &&
+    parsedGallery[0] === '/api/events/uploads/events/1.jpg' &&
+    serializeGalleryUrls(parsedGallery) === '/api/events/uploads/events/1.jpg, https://cdn.test/2.png'
 );
 
 const gestorContractPayload = gestorEventFormUtils.resolveAndValidateEventForm({

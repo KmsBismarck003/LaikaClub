@@ -26,6 +26,9 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
     hasDraft,
     loading,
     uploading,
+    uploadingGallery,
+    uploadingSeatMap,
+    galleryImages,
     handleRestoreDraft,
     handleDiscardDraft,
     handleChange,
@@ -36,6 +39,13 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
     handleAddRule,
     handleRemoveRule,
     handleImageUpload,
+    handleClearCoverImage,
+    handleGalleryUpload,
+    handleAddGalleryUrl,
+    handleRemoveGalleryImage,
+    handleMoveGalleryImage,
+    handleSeatMapUpload,
+    handleClearSeatMap,
     handlePresaleChange,
     handleSubmit,
     getVenueName,
@@ -43,6 +53,7 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
   } = useManagerEventForm({ event, onSuccess });
 
   const isEditing = Boolean(event && event.id);
+  const isBusy = loading || uploading || uploadingGallery || uploadingSeatMap;
   const submitLabel = loading
     ? 'Guardando...'
     : isEditing
@@ -88,8 +99,15 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
           <EventIdentitySection
             formData={formData}
             uploading={uploading}
+            uploadingGallery={uploadingGallery}
+            galleryImages={galleryImages}
             onChange={handleChange}
             onImageUpload={handleImageUpload}
+            onClearCoverImage={handleClearCoverImage}
+            onGalleryUpload={handleGalleryUpload}
+            onAddGalleryUrl={handleAddGalleryUrl}
+            onRemoveGalleryImage={handleRemoveGalleryImage}
+            onMoveGalleryImage={handleMoveGalleryImage}
           />
 
           <EventScheduleSection
@@ -125,9 +143,12 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
             setNewRule={setNewRule}
             showAdvanced={showAdvanced}
             setShowAdvanced={setShowAdvanced}
+            uploadingSeatMap={uploadingSeatMap}
             onChange={handleChange}
             onAddRule={handleAddRule}
             onRemoveRule={handleRemoveRule}
+            onSeatMapUpload={handleSeatMapUpload}
+            onClearSeatMap={handleClearSeatMap}
           />
 
           <div className={styles.stickyFooter}>
@@ -151,7 +172,7 @@ const EventForm = ({ event = null, onSuccess, onClose }) => {
               <button
                 type="submit"
                 className={styles.btnPrimary}
-                disabled={loading || uploading}
+                disabled={isBusy}
               >
                 <Icon name={loading ? 'loader' : 'check'} size={16} />
                 {submitLabel}

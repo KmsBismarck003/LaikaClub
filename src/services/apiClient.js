@@ -27,11 +27,14 @@ class ApiClient {
 
     async handleResponse(response) {
         const contentType = response.headers.get('content-type')
-        let data
-        if (contentType && contentType.includes('application/json')) {
-            data = await response.json()
-        } else {
-            data = await response.text()
+        const rawText = await response.text()
+        let data = rawText
+        if (contentType && contentType.includes('application/json') && rawText) {
+            try {
+                data = JSON.parse(rawText)
+            } catch {
+                data = { message: rawText }
+            }
         }
         if (!response.ok) {
             let errorMessage = 'Error en la petición'

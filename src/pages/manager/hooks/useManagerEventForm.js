@@ -9,6 +9,8 @@ import {
   normalizeEventFunctions,
   resolveAndValidateEventForm,
   buildHomePreviewEvent,
+  parseGalleryUrls,
+  serializeGalleryUrls,
 } from '../utils/eventFormUtils';
 
 export default function useManagerEventForm({ event = null, onSuccess }) {
@@ -18,6 +20,8 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [uploadingSeatMap, setUploadingSeatMap] = useState(false);
   const [venues, setVenues] = useState([]);
   const [roomsByVenue, setRoomsByVenue] = useState({});
 
@@ -346,19 +350,20 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      if (file.size > 5 * 1024 * 1024) {
-        error('La imagen supera el límite de 5 MB.');
+      if (file.size > 10 * 1024 * 1024) {
+        error('La imagen supera el límite de 10 MB.');
         return;
       }
 
       setUploading(true);
       try {
         const res = await api.manager.uploadImage(file);
+        if (!res?.url) throw new Error('Respuesta sin URL de imagen');
         setFormData((prev) => ({ ...prev, image_url: res.url }));
         success('Portada subida correctamente');
       } catch (err) {
         console.error(err);
-        error('Error al subir la imagen del evento.');
+        error(err?.message || 'Error al subir la imagen del evento.');
       } finally {
         setUploading(false);
         e.target.value = '';
@@ -366,6 +371,129 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
     },
     [success, error]
   );
+
+  const handleClearCoverImage = useCallback(() => {
+    setFormData((prev) => ({ ...prev, image_url: '' }));
+  }, []);
+
+  const galleryImages = useMemo(
+    () => parseGalleryUrls(formData.gallery_urls),
+    [formData.gallery_urls]
+  );
+
+  const handleGalleryUpload = useCallback(
+    async (e) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length === 0) return;
+
+      const validFiles = files.filter((f) => f.size <= 10 * 1024 * 1024);
+      if (validFiles.length < files.length) {
+        warning('Se omitieron archivos que superan el límite de 10 MB.');
+      }
+      if (validFiles.length === 0) {
+        e.target.value = '';
+        return;
+      }
+
+      setUploadingGallery(true);
+      const uploadedUrls = [];
+      let failedCount = 0;
+
+      try {
+        for (const file of validFiles) {
+          try {
+            const res = await api.manager.uploadImage(file);
+            if (res?.url) uploadedUrls.push(res.url);
+            else failedCount++;
+          } catch (err) {
+            console.error('Error uploading gallery image:', err);
+            failedCount++;
+          }
+        }
+
+        if (uploadedUrls.length > 0) {
+          setFormData((prev) => {
+            const current = parseGalleryUrls(prev.gallery_urls);
+            return { ...prev, gallery_urls: serializeGalleryUrls([...current, ...uploadedUrls]) };
+          });
+          success(
+            uploadedUrls.length === 1
+              ? '1 imagen agregada al carrusel'
+              : `${uploadedUrls.length} imágenes agregadas al carrusel`
+          );
+        }
+        if (failedCount > 0) {
+          error(`No se pudieron subir ${failedCount} imagen(es) de la galería.`);
+        }
+      } finally {
+        setUploadingGallery(false);
+        e.target.value = '';
+      }
+    },
+    [success, warning, error]
+  );
+
+  const handleAddGalleryUrl = useCallback(
+    (rawUrl) => {
+      const clean = String(rawUrl || '').trim();
+      if (!clean) return;
+      setFormData((prev) => {
+        const current = parseGalleryUrls(prev.gallery_urls);
+        return { ...prev, gallery_urls: serializeGalleryUrls([...current, clean]) };
+      });
+    },
+    []
+  );
+
+  const handleRemoveGalleryImage = useCallback((index) => {
+    setFormData((prev) => {
+      const current = parseGalleryUrls(prev.gallery_urls);
+      const next = current.filter((_, i) => i !== index);
+      return { ...prev, gallery_urls: serializeGalleryUrls(next) };
+    });
+  }, []);
+
+  const handleMoveGalleryImage = useCallback((index, direction) => {
+    setFormData((prev) => {
+      const current = parseGalleryUrls(prev.gallery_urls);
+      const target = index + direction;
+      if (target < 0 || target >= current.length) return prev;
+      const next = [...current];
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...prev, gallery_urls: serializeGalleryUrls(next) };
+    });
+  }, []);
+
+  const handleSeatMapUpload = useCallback(
+    async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (file.size > 10 * 1024 * 1024) {
+        error('La imagen del mapa supera el límite de 10 MB.');
+        return;
+      }
+
+      setUploadingSeatMap(true);
+      try {
+        const res = await api.manager.uploadImage(file);
+        if (!res?.url) throw new Error('Respuesta sin URL de imagen');
+        setFormData((prev) => ({ ...prev, seat_map_url: res.url }));
+        success('Imagen del mapa de zonas subida correctamente');
+      } catch (err) {
+        console.error(err);
+        error(err?.message || 'Error al subir la imagen del mapa de zonas.');
+      } finally {
+        setUploadingSeatMap(false);
+        e.target.value = '';
+      }
+    },
+    [success, error]
+  );
+
+  const handleClearSeatMap = useCallback(() => {
+    setFormData((prev) => ({ ...prev, seat_map_url: '' }));
+  }, []);
 
   const handlePresaleChange = useCallback((field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -453,6 +581,9 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
     hasDraft,
     loading,
     uploading,
+    uploadingGallery,
+    uploadingSeatMap,
+    galleryImages,
     previewEvent,
     handleRestoreDraft,
     handleDiscardDraft,
@@ -464,9 +595,17 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
     handleAddRule,
     handleRemoveRule,
     handleImageUpload,
+    handleClearCoverImage,
+    handleGalleryUpload,
+    handleAddGalleryUrl,
+    handleRemoveGalleryImage,
+    handleMoveGalleryImage,
+    handleSeatMapUpload,
+    handleClearSeatMap,
     handlePresaleChange,
     handleSubmit,
     getVenueName,
     getRoomName,
   };
 }
+

@@ -78,13 +78,6 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- WebP ImageIO Support -->
-		<dependency>
-			<groupId>org.sejda.imageio</groupId>
-			<artifactId>webp-imageio</artifactId>
-			<version>0.1.6</version>
-		</dependency>
-
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

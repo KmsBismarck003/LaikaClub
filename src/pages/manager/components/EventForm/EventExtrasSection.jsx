@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Badge, Icon } from '../../../../components';
+import { getImageUrl } from '../../../../utils/imageUtils';
 import styles from '../../EventForm.module.css';
 
 const EventExtrasSection = ({
@@ -10,10 +11,21 @@ const EventExtrasSection = ({
   setNewRule,
   showAdvanced,
   setShowAdvanced,
+  uploadingSeatMap,
   onChange,
   onAddRule,
   onRemoveRule,
+  onSeatMapUpload,
+  onClearSeatMap,
 }) => {
+  const seatMapInputRef = useRef(null);
+
+  const handleSeatMapClick = () => {
+    if (!uploadingSeatMap && seatMapInputRef.current) {
+      seatMapInputRef.current.click();
+    }
+  };
+
   return (
     <section className={styles.sectionCard} aria-labelledby="event-extras-heading">
       <header className={styles.sectionHeader}>
@@ -24,14 +36,13 @@ const EventExtrasSection = ({
               Reglas de acceso y ajustes opcionales
             </h3>
             <p className={styles.sectionSubtitle}>
-              Políticas visibles para los asistentes, galería adicional y mapas personalizados.
+              Políticas visibles para los asistentes, mapa de ubicación y mapa de zonas.
             </p>
           </div>
         </div>
       </header>
 
       <div className={styles.sectionBody}>
-        {/* Reglas de acceso */}
         <div className={styles.schedulerBox}>
           <div className={styles.schedulerHeader}>
             <h4 className={styles.schedulerTitle}>Reglas y restricciones de acceso</h4>
@@ -103,23 +114,6 @@ const EventExtrasSection = ({
           </div>
         </div>
 
-        {/* Galería adicional */}
-        <div className={styles.fieldGroup}>
-          <label htmlFor="event-gallery" className={styles.fieldLabel}>
-            Galería adicional (URLs separadas por comas)
-          </label>
-          <textarea
-            id="event-gallery"
-            name="gallery_urls"
-            className={styles.textarea}
-            value={formData.gallery_urls}
-            onChange={onChange}
-            placeholder="https://sitio.com/foto1.jpg, https://sitio.com/foto2.jpg"
-            rows={2}
-          />
-        </div>
-
-        {/* Ajustes avanzados de ubicación y mapas */}
         <div className={styles.roomConfigBox}>
           <button
             type="button"
@@ -136,7 +130,7 @@ const EventExtrasSection = ({
           </button>
 
           {showAdvanced && (
-            <div className={styles.gridTwo}>
+            <>
               <div className={styles.fieldGroup}>
                 <label htmlFor="event-map-url" className={styles.fieldLabel}>
                   Google Maps URL (embed o directa)
@@ -153,9 +147,73 @@ const EventExtrasSection = ({
               </div>
 
               <div className={styles.fieldGroup}>
-                <label htmlFor="event-seat-map-url" className={styles.fieldLabel}>
-                  Imagen del mapa de zonas (URL)
-                </label>
+                <div className={styles.mediaToolbar}>
+                  <span className={styles.fieldLabel}>Imagen del mapa de zonas</span>
+                  {formData.seat_map_url && (
+                    <button
+                      type="button"
+                      className={styles.mediaLinkBtn}
+                      onClick={onClearSeatMap}
+                    >
+                      <Icon name="trash2" size={13} />
+                      Quitar imagen
+                    </button>
+                  )}
+                </div>
+
+                <div
+                  className={styles.dropzone}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Subir imagen del mapa de zonas"
+                  onClick={handleSeatMapClick}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSeatMapClick();
+                    }
+                  }}
+                >
+                  <input
+                    ref={seatMapInputRef}
+                    id="event-seat-map-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={onSeatMapUpload}
+                    className={styles.hiddenInput}
+                    disabled={uploadingSeatMap}
+                  />
+
+                  {formData.seat_map_url ? (
+                    <div>
+                      <img
+                        src={getImageUrl(formData.seat_map_url)}
+                        alt="Mapa de zonas del evento"
+                        className={styles.seatMapPreviewImg}
+                      />
+                      <div className={styles.dropzoneCaption}>
+                        {uploadingSeatMap
+                          ? 'Subiendo mapa...'
+                          : 'Haz clic para reemplazar la imagen del mapa'}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.dropzonePlaceholder}>
+                      <span className={styles.dropzoneIconBox} aria-hidden="true">
+                        <Icon name={uploadingSeatMap ? 'loader' : 'upload'} size={18} />
+                      </span>
+                      <p className={styles.dropzoneTitle}>
+                        {uploadingSeatMap
+                          ? 'Subiendo imagen del mapa...'
+                          : 'Sube la imagen del mapa de zonas desde tu dispositivo'}
+                      </p>
+                      <p className={styles.dropzoneHint}>
+                        PNG, JPG o WEBP de hasta 10 MB.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 <input
                   id="event-seat-map-url"
                   name="seat_map_url"
@@ -163,14 +221,13 @@ const EventExtrasSection = ({
                   className={styles.input}
                   value={formData.seat_map_url}
                   onChange={onChange}
-                  placeholder="https://cdn.tu-sitio.com/mapa-zonas.png"
+                  placeholder="Opcional: pega un enlace directo del mapa de zonas"
                 />
               </div>
-            </div>
+            </>
           )}
         </div>
 
-        {/* Características habilitadas por administración */}
         <div className={styles.roomConfigBox}>
           <span className={styles.fieldLabel}>
             Módulos habilitados para este evento (asignados por administración)

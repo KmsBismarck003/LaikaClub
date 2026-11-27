@@ -221,6 +221,25 @@ export function resolveAndValidateEventForm({
  * Construye el objeto exacto que consume EventCardPremium en la página principal,
  * reflejando en tiempo real las funciones programadas o en edición.
  */
+export function parseGalleryUrls(raw) {
+  if (!raw) return [];
+  const items = Array.isArray(raw) ? raw : String(raw).split(/[\n,]+/);
+  const seen = new Set();
+  const result = [];
+  for (const item of items) {
+    const trimmed = String(item || '').trim();
+    if (trimmed && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      result.push(trimmed);
+    }
+  }
+  return result;
+}
+
+export function serializeGalleryUrls(list = []) {
+  return parseGalleryUrls(list).join(', ');
+}
+
 export function buildHomePreviewEvent(formData = {}, functions = [], newFunction = null) {
   const sorted = sortFunctionsChronologically(functions);
   const firstFn = sorted[0] || (newFunction?.date ? newFunction : null);
@@ -250,3 +269,4 @@ export function buildHomePreviewEvent(formData = {}, functions = [], newFunction
     available_seats: Number.isNaN(totalTickets) ? 100 : totalTickets,
   };
 }
+

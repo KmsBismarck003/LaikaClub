@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Icon } from '../../../../components';
 import { getImageUrl } from '../../../../utils/imageUtils';
 import { EVENT_CATEGORIES } from '../../utils/eventFormUtils';
@@ -7,22 +7,43 @@ import styles from '../../EventForm.module.css';
 const EventIdentitySection = ({
   formData,
   uploading,
+  uploadingGallery,
+  galleryImages = [],
   onChange,
   onImageUpload,
+  onClearCoverImage,
+  onGalleryUpload,
+  onAddGalleryUrl,
+  onRemoveGalleryImage,
+  onMoveGalleryImage,
 }) => {
-  const fileInputRef = useRef(null);
+  const coverInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
+  const [manualGalleryUrl, setManualGalleryUrl] = useState('');
 
-  const handleDropzoneClick = () => {
-    if (!uploading && fileInputRef.current) {
-      fileInputRef.current.click();
+  const handleCoverClick = () => {
+    if (!uploading && coverInputRef.current) {
+      coverInputRef.current.click();
     }
   };
 
-  const handleDropzoneKeyDown = (e) => {
+  const handleGalleryClick = () => {
+    if (!uploadingGallery && galleryInputRef.current) {
+      galleryInputRef.current.click();
+    }
+  };
+
+  const handleKeyTrigger = (fn) => (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      handleDropzoneClick();
+      fn();
     }
+  };
+
+  const handleManualUrlAdd = () => {
+    if (!manualGalleryUrl.trim()) return;
+    onAddGalleryUrl(manualGalleryUrl);
+    setManualGalleryUrl('');
   };
 
   return (
@@ -32,10 +53,10 @@ const EventIdentitySection = ({
           <span className={styles.sectionStepBadge} aria-hidden="true">1</span>
           <div>
             <h3 id="event-identity-heading" className={styles.sectionTitle}>
-              Identidad e imagen
+              Identidad, portada y galería
             </h3>
             <p className={styles.sectionSubtitle}>
-              Define el título, la categoría y la portada que verán los asistentes en el inicio.
+              Define el título, la portada principal y las fotos del carrusel que verán los asistentes.
             </p>
           </div>
         </div>
@@ -111,18 +132,32 @@ const EventIdentitySection = ({
           />
         </div>
 
+        {/* Portada principal */}
         <div className={styles.fieldGroup}>
-          <span className={styles.fieldLabel}>Portada del evento</span>
+          <div className={styles.mediaToolbar}>
+            <span className={styles.fieldLabel}>Portada principal</span>
+            {formData.image_url && (
+              <button
+                type="button"
+                className={styles.mediaLinkBtn}
+                onClick={onClearCoverImage}
+              >
+                <Icon name="trash2" size={13} />
+                Quitar portada
+              </button>
+            )}
+          </div>
+
           <div
             className={styles.dropzone}
             role="button"
             tabIndex={0}
             aria-label="Subir imagen de portada del evento"
-            onClick={handleDropzoneClick}
-            onKeyDown={handleDropzoneKeyDown}
+            onClick={handleCoverClick}
+            onKeyDown={handleKeyTrigger(handleCoverClick)}
           >
             <input
-              ref={fileInputRef}
+              ref={coverInputRef}
               id="event-image-upload"
               type="file"
               accept="image/*"
@@ -139,7 +174,7 @@ const EventIdentitySection = ({
                   className={styles.dropzonePreviewImg}
                 />
                 <div className={styles.dropzoneCaption}>
-                  {uploading ? 'Subiendo nueva imagen...' : 'Haz clic para reemplazar la portada'}
+                  {uploading ? 'Subiendo nueva imagen...' : 'Haz clic para reemplazar la portada desde tu dispositivo'}
                 </div>
               </div>
             ) : (
@@ -148,20 +183,15 @@ const EventIdentitySection = ({
                   <Icon name={uploading ? 'loader' : 'upload'} size={20} />
                 </span>
                 <p className={styles.dropzoneTitle}>
-                  {uploading ? 'Subiendo portada...' : 'Sube la imagen oficial del evento'}
+                  {uploading ? 'Subiendo portada...' : 'Sube la portada desde tu dispositivo'}
                 </p>
                 <p className={styles.dropzoneHint}>
-                  PNG, JPG o WEBP de hasta 5 MB. Recomendado formato horizontal 16:9.
+                  JPG, PNG, WEBP o GIF de hasta 10 MB. Recomendado formato horizontal 16:9.
                 </p>
               </div>
             )}
           </div>
-        </div>
 
-        <div className={styles.fieldGroup}>
-          <label htmlFor="event-image-url" className={styles.fieldLabel}>
-            O pega una URL directa de imagen
-          </label>
           <input
             id="event-image-url"
             name="image_url"
@@ -169,8 +199,125 @@ const EventIdentitySection = ({
             className={styles.input}
             value={formData.image_url}
             onChange={onChange}
-            placeholder="https://cdn.tu-sitio.com/portada.jpg"
+            placeholder="Opcional: pega un enlace directo si ya tienes la imagen en línea"
           />
+        </div>
+
+        {/* Galería para el carrusel */}
+        <div className={styles.schedulerBox}>
+          <div className={styles.schedulerHeader}>
+            <h4 className={styles.schedulerTitle}>Galería para el carrusel del evento</h4>
+            <span className={styles.schedulerCount}>
+              {galleryImages.length}{' '}
+              {galleryImages.length === 1 ? 'imagen' : 'imágenes'}
+            </span>
+          </div>
+
+          <div
+            className={styles.dropzone}
+            role="button"
+            tabIndex={0}
+            aria-label="Subir imágenes para la galería del carrusel"
+            onClick={handleGalleryClick}
+            onKeyDown={handleKeyTrigger(handleGalleryClick)}
+          >
+            <input
+              ref={galleryInputRef}
+              id="event-gallery-upload"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={onGalleryUpload}
+              className={styles.hiddenInput}
+              disabled={uploadingGallery}
+            />
+
+            <div className={styles.dropzonePlaceholder}>
+              <span className={styles.dropzoneIconBox} aria-hidden="true">
+                <Icon name={uploadingGallery ? 'loader' : 'image'} size={20} />
+              </span>
+              <p className={styles.dropzoneTitle}>
+                {uploadingGallery
+                  ? 'Subiendo imágenes a la galería...'
+                  : 'Sube una o varias fotos para el carrusel'}
+              </p>
+              <p className={styles.dropzoneHint}>
+                Puedes seleccionar varios archivos a la vez (JPG, PNG, WEBP o GIF, máx. 10 MB c/u).
+              </p>
+            </div>
+          </div>
+
+          {galleryImages.length > 0 && (
+            <div className={styles.galleryGrid}>
+              {galleryImages.map((imgUrl, idx) => (
+                <div key={`${imgUrl}-${idx}`} className={styles.galleryThumbCard}>
+                  <span className={styles.galleryThumbBadge}>#{idx + 1}</span>
+                  <img
+                    src={getImageUrl(imgUrl)}
+                    alt={`Imagen ${idx + 1} de la galería`}
+                    className={styles.galleryThumbImg}
+                    loading="lazy"
+                  />
+                  <div className={styles.galleryThumbActions}>
+                    <div className={styles.galleryOrderGroup}>
+                      <button
+                        type="button"
+                        className={styles.miniIconBtn}
+                        onClick={() => onMoveGalleryImage(idx, -1)}
+                        disabled={idx === 0}
+                        aria-label={`Mover imagen ${idx + 1} a la izquierda`}
+                      >
+                        <Icon name="chevronLeft" size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.miniIconBtn}
+                        onClick={() => onMoveGalleryImage(idx, 1)}
+                        disabled={idx === galleryImages.length - 1}
+                        aria-label={`Mover imagen ${idx + 1} a la derecha`}
+                      >
+                        <Icon name="chevronRight" size={14} />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.miniDangerBtn}
+                      onClick={() => onRemoveGalleryImage(idx)}
+                      aria-label={`Eliminar imagen ${idx + 1} de la galería`}
+                    >
+                      <Icon name="trash2" size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className={styles.galleryUrlRow}>
+            <input
+              id="gallery-url-manual"
+              type="url"
+              className={styles.input}
+              value={manualGalleryUrl}
+              onChange={(e) => setManualGalleryUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleManualUrlAdd();
+                }
+              }}
+              placeholder="Opcional: agrega una imagen por enlace (https://...)"
+            />
+            <button
+              type="button"
+              className={styles.btnSecondary}
+              onClick={handleManualUrlAdd}
+              disabled={!manualGalleryUrl.trim()}
+            >
+              <Icon name="plus" size={15} />
+              Agregar
+            </button>
+          </div>
         </div>
       </div>
     </section>
