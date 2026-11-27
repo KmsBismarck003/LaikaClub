@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { getImageUrl } from '../../../../utils/imageUtils';
+import { parseLocalDate } from '../../../../utils/date';
 import { formatDate, formatTime } from '../../hooks/useHomeEvents';
 import './EventCardPremium.css';
 
@@ -76,16 +77,19 @@ const EventCardPremium = ({ event, onClick }) => {
       {/* ── INFO ── */}
       <div className="ecp__body">
         {/* Date block */}
-        {date && (
-          <div className="ecp__date-block" aria-label={`Fecha: ${date}`}>
-            <span className="ecp__date-month">
-              {new Date(event?.event_date || event?.date).toLocaleDateString('es-MX', { month: 'short' }).toUpperCase()}
-            </span>
-            <span className="ecp__date-day">
-              {new Date(event?.event_date || event?.date).getDate()}
-            </span>
-          </div>
-        )}
+        {date && (() => {
+          const parsedDate = parseLocalDate(event?.event_date || event?.date);
+          return !Number.isNaN(parsedDate.getTime()) ? (
+            <div className="ecp__date-block" aria-label={`Fecha: ${date}`}>
+              <span className="ecp__date-month">
+                {parsedDate.toLocaleDateString('es-MX', { month: 'short' }).toUpperCase()}
+              </span>
+              <span className="ecp__date-day">
+                {parsedDate.getDate()}
+              </span>
+            </div>
+          ) : null;
+        })()}
 
         {/* Text content */}
         <div className="ecp__text">

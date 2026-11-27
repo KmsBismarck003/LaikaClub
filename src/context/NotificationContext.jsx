@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { useAuth } from './AuthContext';
+import { apiClient } from '../services/apiClient';
 import NotificationDetailModal from '../components/Notifications/NotificationDetailModal';
 
 const NotificationContext = createContext(null);
@@ -106,6 +107,53 @@ export const NotificationProvider = ({ children }) => {
       setHistory([]);
     }
   }, [currentUserId, user?.role, user?.firstName, user?.name]);
+
+  // Sincronización en tiempo real con notificaciones persistentes de eventos (reprogramaciones / cancelaciones)
+  useEffect(() => {
+    if (!currentUserId || !user) return undefined;
+    let active = true;
+
+    const syncServerNotifications = async () => {
+      try {
+        const list = await apiClient.get('/events/my-notifications');
+        if (!active || !Array.isArray(list) || list.length === 0) return;
+
+        setHistory((prev) => {
+          const existingIds = new Set(prev.map((n) => n.id));
+          const incoming = list
+            .map((row) => ({
+              id: `server-ev-${row.id}`,
+              serverId: row.id,
+              userId: currentUserId,
+              role: user?.role || 'usuario',
+              type: row.type === 'cancelled' ? 'error' : 'warning',
+              title: row.title || 'Actualización de evento',
+              message: row.message || '',
+              detail: row.detail || '',
+              actionUrl: row.refund_eligible ? '/user/refunds' : '/user/tickets',
+              actionLabel: row.refund_eligible ? 'Ver boletos / reembolso' : 'Ver mis boletos',
+              read: Boolean(row.is_read),
+              timestamp: row.created_at ? new Date(row.created_at).getTime() : Date.now()
+            }))
+            .filter((item) => !existingIds.has(item.id));
+
+          if (incoming.length === 0) return prev;
+          const merged = [...incoming, ...prev].slice(0, 50);
+          localStorage.setItem(getStorageKey(currentUserId), JSON.stringify(merged));
+          return merged;
+        });
+      } catch {
+        // Silencioso si el usuario no tiene sesión activa o el servicio está reiniciando
+      }
+    };
+
+    syncServerNotifications();
+    const interval = setInterval(syncServerNotifications, 30000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [currentUserId, user]);
 
   // Filtrado de seguridad y rol del historial
   const filteredHistory = useMemo(() => {
@@ -222,6 +270,10 @@ export const NotificationProvider = ({ children }) => {
 
   const markAsRead = useCallback((id) => {
     setHistory(prev => {
+      const target = prev.find(n => n.id === id);
+      if (target?.serverId) {
+        apiClient.patch(`/events/my-notifications/${target.serverId}/read`).catch(() => {});
+      }
       const updated = prev.map(n => n.id === id ? { ...n, read: true } : n);
       const key = getStorageKey(currentUserId);
       localStorage.setItem(key, JSON.stringify(updated));

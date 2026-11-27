@@ -5,10 +5,12 @@ import java.util.List;
 public class EventDTOs {
 
     public static class FunctionCreate {
+        public Long id;
         public String date;
         public String time;
         public Long venue_id;
         public Long room_id;
+        public String change_reason;
     }
 
     public static class EventTicketSectionCreate {
@@ -125,5 +127,7 @@ public class EventDTOs {
         public String presale_bins;
         public String presale_start;
         public String presale_end;
+        public String change_reason;
+        public String cancel_reason;
     }
 }

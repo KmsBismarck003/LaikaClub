@@ -29,20 +29,26 @@ export const ThemeProvider = ({ children }) => {
 
       if (sidebarOnly) {
         // Modo Solo Sidebar: El contenido de la página se queda en blanco (Light Mode)
+        root.style.colorScheme = 'light';
         root.style.setProperty('--bg-primary', '#F8FAFC');
+        root.style.setProperty('--laika-bg-canvas', '#F8FAFC');
         root.style.setProperty('--bg-card', '#FFFFFF');
         root.style.setProperty('--text-primary', '#000000');
         root.style.setProperty('--border-color', '#000000'); // alto contraste
       } else {
         // Modo Oscuro Completo en Todo el Sistema
+        root.style.colorScheme = 'dark';
         root.style.setProperty('--bg-primary', colors.bg);
+        root.style.setProperty('--laika-bg-canvas', colors.bg);
         root.style.setProperty('--bg-card', colors.card);
         root.style.setProperty('--text-primary', colors.text);
         root.style.setProperty('--border-color', colors.border);
       }
     } else {
       // Light Mode (Predeterminado - Alto contraste)
+      root.style.colorScheme = 'light';
       root.style.setProperty('--bg-primary', '#F8FAFC');
+      root.style.setProperty('--laika-bg-canvas', '#F8FAFC');
       root.style.setProperty('--bg-card', '#FFFFFF');
       root.style.setProperty('--text-primary', '#000000');
       root.style.setProperty('--bg-sidebar', '#000000');

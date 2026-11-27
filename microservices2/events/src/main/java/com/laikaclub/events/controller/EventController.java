@@ -103,11 +103,51 @@ public class EventController {
         return eventService.createEvent(dto, principal.getId());
     }
 
-    @PutMapping("/{event_id}")
+    @PutMapping(value = {"/{event_id}", "/manager/events/{event_id}"})
     public Map<String, Object> updateEvent(
             @PathVariable("event_id") Long eventId,
             @RequestBody EventDTOs.EventUpdate dto) {
         return eventService.updateEvent(eventId, dto);
+    }
+
+    @PostMapping(value = {"/{event_id}/functions", "/manager/events/{event_id}/functions"})
+    public Map<String, Object> addEventFunction(
+            @PathVariable("event_id") Long eventId,
+            @RequestBody EventDTOs.FunctionCreate dto) {
+        return eventService.addEventFunction(eventId, dto);
+    }
+
+    @PutMapping(value = {"/{event_id}/functions/{function_id}", "/manager/events/{event_id}/functions/{function_id}"})
+    public Map<String, Object> updateEventFunction(
+            @PathVariable("event_id") Long eventId,
+            @PathVariable("function_id") Long functionId,
+            @RequestBody EventDTOs.FunctionCreate dto) {
+        return eventService.updateEventFunction(eventId, functionId, dto);
+    }
+
+    @DeleteMapping(value = {"/{event_id}/functions/{function_id}", "/manager/events/{event_id}/functions/{function_id}"})
+    public Map<String, Object> deleteEventFunction(
+            @PathVariable("event_id") Long eventId,
+            @PathVariable("function_id") Long functionId) {
+        return eventService.deleteEventFunction(eventId, functionId);
+    }
+
+    @GetMapping("/my-notifications")
+    public List<Map<String, Object>> getMyNotifications(@AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        return eventService.getUserNotifications(principal.getId());
+    }
+
+    @PatchMapping("/my-notifications/{notification_id}/read")
+    public Map<String, Object> markMyNotificationRead(
+            @PathVariable("notification_id") Long notificationId,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        return eventService.markNotificationRead(principal.getId(), notificationId);
     }
 
     @PatchMapping(value = {"/{event_id}/publish", "/manager/events/{event_id}/publish"})

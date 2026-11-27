@@ -1,6 +1,7 @@
 import React from 'react';
 import Icon from '../../../../components/Icons/Icons';
 import { getImageUrl } from '../../../../utils/imageUtils';
+import { parseLocalDate } from '../../../../utils/date';
 import styles from '../../UserDashboard.module.css';
 
 export default function EventCard({ event, onAdd, onView, adding = false }) {
@@ -13,7 +14,7 @@ export default function EventCard({ event, onAdd, onView, adding = false }) {
       : 'Entrada libre';
 
   const fmtDate = event?.date
-    ? new Date(event.date).toLocaleDateString('es-MX', {
+    ? parseLocalDate(event.date).toLocaleDateString('es-MX', {
         day: 'numeric',
         month: 'short',
         year: 'numeric',

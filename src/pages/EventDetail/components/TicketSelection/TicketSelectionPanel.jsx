@@ -16,6 +16,7 @@ import './TicketSelection.css';
 export default function TicketSelectionPanel({
   user,
   event,
+  isEventSeating = false,
   hasFunctions,
   selectedFunction,
   setSelectedFunction,
@@ -36,22 +37,41 @@ export default function TicketSelectionPanel({
   onClaimFree    = null,
   isClaimingFree = false,
 }) {
-  const isSeating = selectedSection?.type === 'seating';
+  const isSeating = isEventSeating || selectedSection?.type === 'seating';
   const seatCount = isSeating ? selectedSeats.length : quantity;
   const unitPrice = cleanPrice(selectedSection?.price || event?.price || 0);
   const total = (seatCount * unitPrice).toFixed(2);
 
-  const [selectedState, setSelectedState] = React.useState(() => {
-    const savedState = localStorage.getItem('laika_preferred_state');
-    if (savedState) return savedState;
-    const homeLoc = localStorage.getItem('laika_search_location') || '';
-    if (homeLoc && homeLoc !== 'Todo México') return homeLoc;
-    return '';
-  });
+  const availableStates = React.useMemo(() => {
+    if (!event?.functions) return [];
+    const statesSet = new Set();
+    event.functions.forEach(f => {
+      if (f.venue_state) statesSet.add(f.venue_state);
+      else if (f.venue_city) statesSet.add(f.venue_city);
+    });
+    return Array.from(statesSet).sort();
+  }, [event?.functions]);
 
-  const [selectedMunicipality, setSelectedMunicipality] = React.useState(() => {
-    return localStorage.getItem('laika_preferred_municipality') || '';
-  });
+  const [selectedState, setSelectedState] = React.useState('');
+  const [selectedMunicipality, setSelectedMunicipality] = React.useState('');
+
+  // Sincronizar ubicación preferida SOLO si el evento tiene funciones en ese estado
+  React.useEffect(() => {
+    if (availableStates.length === 0) {
+      setSelectedState('');
+      setSelectedMunicipality('');
+      return;
+    }
+    const savedState = localStorage.getItem('laika_preferred_state');
+    const homeLoc = localStorage.getItem('laika_search_location') || '';
+    const candidate = savedState || (homeLoc && homeLoc !== 'Todo México' ? homeLoc : '');
+    if (candidate && availableStates.includes(candidate)) {
+      setSelectedState(candidate);
+    } else {
+      setSelectedState('');
+      setSelectedMunicipality('');
+    }
+  }, [availableStates]);
 
   const handleStateChange = (e) => {
     const val = e.target.value;
@@ -66,16 +86,6 @@ export default function TicketSelectionPanel({
     setSelectedMunicipality(val);
     localStorage.setItem('laika_preferred_municipality', val);
   };
-
-  const availableStates = React.useMemo(() => {
-    if (!event?.functions) return [];
-    const statesSet = new Set();
-    event.functions.forEach(f => {
-      if (f.venue_state) statesSet.add(f.venue_state);
-      else if (f.venue_city) statesSet.add(f.venue_city);
-    });
-    return Array.from(statesSet).sort();
-  }, [event?.functions]);
 
   const availableMunicipalities = React.useMemo(() => {
     if (!event?.functions || !selectedState) return [];
@@ -307,7 +317,7 @@ export default function TicketSelectionPanel({
               <button
                 className="buy-btn-premium buy-btn-premium--ghost"
                 onClick={handleAddToCart}
-                disabled={isSeating ? selectedSeats.length === 0 : false}
+                disabled={(hasFunctions && !selectedFunction) || (isSeating && selectedSeats.length === 0)}
               >
                 <Icon name="shopping-cart" size={18} />
                 Añadir
@@ -316,7 +326,7 @@ export default function TicketSelectionPanel({
               <button
                 className="buy-btn-premium buy-btn-premium--primary"
                 onClick={handleDirectBuy}
-                disabled={isSeating ? selectedSeats.length === 0 : false}
+                disabled={(hasFunctions && !selectedFunction) || (isSeating && selectedSeats.length === 0)}
               >
                 <Icon name="credit-card" size={18} />
                 <span>

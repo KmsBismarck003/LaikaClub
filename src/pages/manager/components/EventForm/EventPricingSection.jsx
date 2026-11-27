@@ -86,3 +86,4 @@ const EventPricingSection = ({
 };
 
 export default EventPricingSection;
+

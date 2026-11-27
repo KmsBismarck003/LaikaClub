@@ -5,12 +5,15 @@ import { useSkeletonContext } from '../../../context/SkeletonContext'
 
 import { useAuth } from '../../../context/AuthContext'
 import { analyticsAPI } from '../../../services/miscService'
+import { parseLocalDate } from '../../../utils/date'
 
 const ITEMS_PER_PAGE = 8
 
 export const formatDate = dateString => {
   if (!dateString) return ''
-  return new Date(dateString).toLocaleDateString('es-MX', {
+  const parsed = parseLocalDate(dateString)
+  if (Number.isNaN(parsed.getTime())) return String(dateString)
+  return parsed.toLocaleDateString('es-MX', {
     weekday: 'short', day: 'numeric', month: 'short',
   })
 }

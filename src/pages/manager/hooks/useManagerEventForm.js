@@ -33,6 +33,7 @@ export default function useManagerEventForm({ event = null, onSuccess }) {
     return (
       role === 'admin' ||
       role === 'manager' ||
+      role === 'gestor' ||
       user?.package === 'Avanzado' ||
       user?.package_name === 'Avanzado' ||
       user?.manager_package?.name === 'Avanzado'

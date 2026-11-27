@@ -194,11 +194,14 @@ export default function UserDashboard() {
                 title: eventToConfirm.name,
                 subtitle: [
                   eventToConfirm.date
-                    ? new Date(eventToConfirm.date).toLocaleDateString('es-MX', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })
+                    ? (() => {
+                        const raw = String(eventToConfirm.date).trim();
+                        const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                        const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12) : new Date(raw);
+                        return Number.isNaN(d.getTime())
+                          ? raw
+                          : d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+                      })()
                     : null,
                   eventToConfirm.venue_name || 'LAIKA ARENA',
                 ]

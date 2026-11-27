@@ -40,18 +40,39 @@ export function useDirectPayment({
   }, []);
 
   const confirmDirectPayment = useCallback(async (method) => {
+    const directSeats = ticketEngine.directTicketData?.seats || [];
+    const isSeatingMode =
+      ticketEngine.isEventSeating || ticketEngine.directTicketData?.section?.type === 'seating';
+
+    if (isSeatingMode && directSeats.length === 0) {
+      error('Debes seleccionar al menos un asiento en el mapa antes de pagar.');
+      return;
+    }
+
+    const resolvedFunctionId =
+      ticketEngine.directTicketData?.functionId ||
+      ticketEngine.selectedFunction?.id ||
+      event?.functions?.[0]?.id ||
+      null;
+
+    if (event?.functions?.length > 0 && !resolvedFunctionId) {
+      error('Selecciona una función disponible para continuar con la compra.');
+      return;
+    }
+
     ticketEngine.setIsProcessingPayment(true);
     try {
       const unitPrice = cleanPrice(
         ticketEngine.directTicketData.section?.price || event?.price
       );
-      const amount = unitPrice * ticketEngine.directTicketData.quantity;
+      const qty = isSeatingMode ? directSeats.length : (ticketEngine.directTicketData.quantity || 1);
+      const amount = unitPrice * qty;
 
       const intentResp = await api.payment.createIntent({
         amount,
         method,
-        eventId: id,
-        event_id: id,
+        eventId: Number(id) || id,
+        event_id: Number(id) || id,
       });
       const paymentId = intentResp.payment_id || intentResp.reference;
 
@@ -60,14 +81,14 @@ export function useDirectPayment({
       }
 
       const purchaseItems = [];
-      const directSeats = ticketEngine.directTicketData.seats;
+      const numericEventId = Number(id) || id;
 
-      if (directSeats && directSeats.length > 0) {
+      if (directSeats.length > 0) {
         for (const seat of directSeats) {
           purchaseItems.push({
-            eventId: id,
+            eventId: numericEventId,
             quantity: 1,
-            functionId: ticketEngine.selectedFunction?.id,
+            functionId: resolvedFunctionId,
             sectionId: ticketEngine.directTicketData.section?.id,
             sectionName: ticketEngine.directTicketData.section?.name,
             price: cleanPrice(
@@ -77,11 +98,11 @@ export function useDirectPayment({
           });
         }
       } else {
-        for (let i = 0; i < ticketEngine.directTicketData.quantity; i++) {
+        for (let i = 0; i < qty; i++) {
           purchaseItems.push({
-            eventId: id,
+            eventId: numericEventId,
             quantity: 1,
-            functionId: ticketEngine.selectedFunction?.id,
+            functionId: resolvedFunctionId,
             sectionId: ticketEngine.directTicketData.section?.id,
             sectionName: ticketEngine.directTicketData.section?.name,
             price: cleanPrice(
@@ -104,13 +125,13 @@ export function useDirectPayment({
         id: paymentId,
         event: ticketEngine.directTicketData.event,
         section: ticketEngine.directTicketData.section,
-        seats: ticketEngine.directTicketData.seats,
-        quantity: ticketEngine.directTicketData.quantity,
+        seats: directSeats,
+        quantity: qty,
         total: amount,
       };
 
-      if (ticketEngine.directTicketData.seats?.length > 0) {
-        addBusySeats(ticketEngine.directTicketData.seats);
+      if (directSeats.length > 0) {
+        addBusySeats(directSeats);
       }
 
       ticketEngine.setPrintingData(payload);
@@ -118,12 +139,18 @@ export function useDirectPayment({
       ticketEngine.setSelectedSeats([]);
       ticketEngine.setIsProcessingPayment(false);
       ticketEngine.setShowDirectPayment(false);
-      success('¡Compra realizada con éxito!');
+      success('Compra realizada con éxito');
     } catch (err) {
       ticketEngine.setIsProcessingPayment(false);
-      error(err.response?.data?.detail || 'Error procesando pago');
+      const errMessage =
+        err?.data?.detail ||
+        err?.data?.message ||
+        err?.response?.data?.detail ||
+        err?.message ||
+        'Error procesando pago';
+      error(errMessage);
       // Si el pago falla (ej. asiento ocupado - 409 Conflict), forzamos recarga limpia del mapa
-      fetchBusySeats(id, ticketEngine.selectedFunction?.id);
+      fetchBusySeats(id, resolvedFunctionId);
     }
   }, [
     id,

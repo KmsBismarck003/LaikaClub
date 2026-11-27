@@ -9,6 +9,7 @@ import './VenueMap.css';
  */
 export default function VenueMapContainer({
   event,
+  dynamicMap = null,
   synchronizedZones,
   sortedSections,
   selectedSection,
@@ -33,17 +34,19 @@ export default function VenueMapContainer({
   handleZoom,
   resetMap,
 }) {
-  // New builder format: layout_json.components from the room's saved map
+  // New builder format: layout_json.components from the function's room or event's room saved map
   const newMapData =
+    dynamicMap?.layout_json?.components ||
+    dynamicMap?.layout_metadata?.components ||
     event?.room?.layout_json?.components ||
+    event?.room?.layout_metadata?.components ||
     event?.seating_map?.layout_json?.components ||
     null;
 
-  // Guard: nothing to show
-  if (event?.use_seating_map === false) return null;
-  const hasNewMap = newMapData && newMapData.length > 0;
+  const hasNewMap = Array.isArray(newMapData) && newMapData.length > 0;
   const hasLegacyZones = synchronizedZones && synchronizedZones.length > 0;
-  if (!hasNewMap && !hasLegacyZones) return null;
+  // Guard: solo ocultar si no hay mapa real de sala y el evento desactivó el mapa legacy
+  if (!hasNewMap && (event?.use_seating_map === false || !hasLegacyZones)) return null;
 
   const hasWheelchair = hasNewMap
     ? newMapData.some(c => c.blocks?.some(b => b.seats?.some(s => s.type === 'accessible')))

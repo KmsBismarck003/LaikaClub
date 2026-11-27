@@ -188,9 +188,11 @@ public class EventQueryService {
         String rulesSql = "SELECT * FROM event_rules WHERE event_id = :eventId";
         event.put("rules", cleanResults(jdbcTemplate.queryForList(rulesSql, params)));
 
-        // Functions
+        // Functions (incluye conteo real de boletos vendidos por función para proteger integridad)
         String functionsSql = "SELECT ef.*, v.name AS venue_name, v.city AS venue_city, vr.name AS room_name, " +
-                "       m.name AS venue_municipality, s.name AS venue_state " +
+                "       m.name AS venue_municipality, s.name AS venue_state, " +
+                "       (SELECT COUNT(*) FROM laika_tickets.tickets t " +
+                "        WHERE t.event_function_id = ef.id AND t.status IN ('active', 'confirmed', 'used')) AS sold_tickets " +
                 "FROM event_functions ef " +
                 "LEFT JOIN venues v ON ef.venue_id = v.id " +
                 "LEFT JOIN venue_rooms vr ON ef.room_id = vr.id " +
@@ -203,6 +205,7 @@ public class EventQueryService {
             functionsSql += "AND CONCAT(ef.date, ' ', ef.time) >= :cutoff ";
             params.addValue("cutoff", cutoff.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         }
+        functionsSql += "ORDER BY ef.date ASC, ef.time ASC ";
         
         event.put("functions", cleanResults(jdbcTemplate.queryForList(functionsSql, params)));
 

@@ -79,7 +79,7 @@ const EventDetail = () => {
   }, [fetchEventDetail]);
 
   // 2. Ticket Engine Hook
-  const ticketEngine = useTicketEngine(event, id, user, navigate, location, { success, error }, addToCart, zones);
+  const ticketEngine = useTicketEngine(event, id, user, navigate, location, { success, error }, addToCart, zones, dynamicMap);
   const { isEventSeating } = ticketEngine;
 
   // 3. Presale Hook
@@ -222,6 +222,7 @@ const EventDetail = () => {
               <>
                 <VenueMapContainer
                   event={event}
+                  dynamicMap={dynamicMap}
                   synchronizedZones={synchronizedZones}
                   sortedSections={ticketEngine.sortedSections}
                   selectedSection={ticketEngine.selectedSection}
@@ -288,6 +289,7 @@ const EventDetail = () => {
             <TicketSelectionPanel
               user={user}
               event={event}
+              isEventSeating={isEventSeating}
               hasFunctions={event.functions && event.functions.length > 0}
               selectedFunction={ticketEngine.selectedFunction}
               setSelectedFunction={ticketEngine.setSelectedFunction}

@@ -294,6 +294,8 @@ public class TicketService {
             notifyWearablesService(userId, "purchase");
 
             return purchased;
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Error en compra de boletos: ", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error en procesamiento de compra");
@@ -332,6 +334,8 @@ public class TicketService {
             response.put("status", "pending");
             response.put("amount", amount);
             return response;
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Error al crear intent de pago: ", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error creando pago: " + e.getMessage());

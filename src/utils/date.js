@@ -1,6 +1,28 @@
 /**
  * Utilidades para formateo de fechas
+ * Parsea fechas calendario YYYY-MM-DD en hora local para evitar corrimiento UTC (-1 día en UTC-6).
  */
+export const parseLocalDate = (date) => {
+  if (!date) return new Date(NaN);
+  if (date instanceof Date) return date;
+  const str = String(date).trim();
+
+  // YYYY-MM-DD sin hora -> construir en hora local a mediodía para evitar shift de zona horaria
+  const isoDateOnly = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoDateOnly) {
+    const [, y, m, d] = isoDateOnly;
+    return new Date(Number(y), Number(m) - 1, Number(d), 12, 0, 0);
+  }
+
+  // DD/MM/YYYY o DD-MM-YYYY
+  const ddMmYyyy = str.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  if (ddMmYyyy) {
+    const [, d, m, y] = ddMmYyyy;
+    return new Date(Number(y), Number(m) - 1, Number(d), 12, 0, 0);
+  }
+
+  return new Date(str);
+};
 
 /**
  * Formatear fecha a formato español
@@ -10,8 +32,8 @@
  */
 export const formatDate = (date, options = {}) => {
   if (!date) return '';
-  
-  const d = new Date(date);
+
+  const d = parseLocalDate(date);
   if (isNaN(d.getTime())) return '';
 
   const defaultOptions = {
@@ -31,8 +53,8 @@ export const formatDate = (date, options = {}) => {
  */
 export const formatDateShort = (date) => {
   if (!date) return '';
-  
-  const d = new Date(date);
+
+  const d = parseLocalDate(date);
   if (isNaN(d.getTime())) return '';
 
   const day = String(d.getDate()).padStart(2, '0');
@@ -115,8 +137,12 @@ export const formatRelativeTime = (date) => {
  */
 export const isPastDate = (date) => {
   if (!date) return false;
-  const d = new Date(date);
-  return d < new Date();
+  const d = parseLocalDate(date);
+  if (isNaN(d.getTime())) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return target < today;
 };
 
 /**
@@ -126,9 +152,10 @@ export const isPastDate = (date) => {
  */
 export const isToday = (date) => {
   if (!date) return false;
-  const d = new Date(date);
+  const d = parseLocalDate(date);
+  if (isNaN(d.getTime())) return false;
   const today = new Date();
-  
+
   return d.getDate() === today.getDate() &&
          d.getMonth() === today.getMonth() &&
          d.getFullYear() === today.getFullYear();
@@ -141,15 +168,19 @@ export const isToday = (date) => {
  */
 export const daysUntil = (date) => {
   if (!date) return 0;
-  
-  const d = new Date(date);
+
+  const d = parseLocalDate(date);
+  if (isNaN(d.getTime())) return 0;
   const now = new Date();
-  const diff = d - now;
-  
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  const startOfNow = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfTarget = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diff = startOfTarget - startOfNow;
+
+  return Math.round(diff / (1000 * 60 * 60 * 24));
 };
 
 export default {
+  parseLocalDate,
   formatDate,
   formatDateShort,
   formatTime,

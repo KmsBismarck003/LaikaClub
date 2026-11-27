@@ -98,7 +98,14 @@ const RefundRequest = () => {
                             <div>
                                 <h3 className="font-bold text-lg mb-2">{ticket.event_name}</h3>
                                 <p className="text-gray-500 text-sm mb-4">
-                                    {new Date(ticket.event_date).toLocaleDateString()}
+                                    {ticket.event_date
+                                      ? (() => {
+                                          const raw = String(ticket.event_date).trim();
+                                          const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                                          const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12) : new Date(raw);
+                                          return Number.isNaN(d.getTime()) ? raw : d.toLocaleDateString('es-MX');
+                                        })()
+                                      : 'Fecha por confirmar'}
                                 </p>
                                 <div className="flex justify-between items-center text-sm mb-4">
                                     <span className="font-mono bg-gray-100 px-2 py-1 rounded">

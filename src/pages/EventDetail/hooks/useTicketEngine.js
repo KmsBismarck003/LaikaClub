@@ -4,7 +4,7 @@ import { cleanPrice } from '../utils/helpers';
 /**
  * useTicketEngine — Hook para gestionar la lógica de selección de boletos, secciones, asientos y carrito.
  */
-export function useTicketEngine(event, id, user, navigate, location, { success, error }, addToCart, zones) {
+export function useTicketEngine(event, id, user, navigate, location, { success, error }, addToCart, zones, dynamicMap = null) {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [activeTab, setActiveTab] = useState('sections');
   const [selectedSectionId, setSelectedSectionId] = useState('general');
@@ -34,11 +34,15 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
   }, [event]);
 
   const isEventSeating = useMemo(() => {
-    const hasMapData = (event?.room?.layout_json?.components?.length > 0) ||
-                       (event?.seating_map?.layout_json?.components?.length > 0);
-    // If it has map components, it's a seating event
-    return event?.use_seating_map !== false && hasMapData;
-  }, [event]);
+    const hasMapData =
+      (dynamicMap?.layout_json?.components?.length > 0) ||
+      (dynamicMap?.layout_metadata?.components?.length > 0) ||
+      (event?.room?.layout_json?.components?.length > 0) ||
+      (event?.room?.layout_metadata?.components?.length > 0) ||
+      (event?.seating_map?.layout_json?.components?.length > 0);
+    // Si la sala del evento o de la función seleccionada cuenta con mapa de asientos diseñado, se habilita
+    return hasMapData;
+  }, [event, dynamicMap]);
 
   // Synchronize quantity with selected seats length for seating events
   useEffect(() => {
@@ -109,9 +113,10 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
        return;
     }
 
-    const qty = selectedSection?.type === 'seating' ? selectedSeats.length : quantity;
+    const isSeatingMode = isEventSeating || selectedSection?.type === 'seating';
+    const qty = isSeatingMode ? selectedSeats.length : quantity;
     if (qty <= 0) {
-      error("Selecciona al menos un boleto o asiento");
+      error(isSeatingMode ? "Selecciona al menos un asiento en el mapa" : "Selecciona al menos un boleto");
       return;
     }
 
@@ -126,7 +131,7 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
       price: selectedSection ? parseFloat(selectedSection.price) : parseFloat(event?.price || 0)
     });
     setShowCartConfirm(true);
-  }, [event, selectedSection, quantity, selectedSeats, selectedFunction, error, sortedSections]);
+  }, [event, isEventSeating, selectedSection, quantity, selectedSeats, selectedFunction, error, sortedSections]);
 
   const confirmAddToCart = useCallback(() => {
     if (!cartConfirmData) return;
@@ -143,9 +148,10 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
        return;
     }
 
-    const qty = selectedSection?.type === 'seating' ? selectedSeats.length : quantity;
+    const isSeatingMode = isEventSeating || selectedSection?.type === 'seating';
+    const qty = isSeatingMode ? selectedSeats.length : quantity;
     if (qty <= 0) {
-      error("Selecciona al menos un boleto o asiento");
+      error(isSeatingMode ? "Selecciona al menos un asiento en el mapa" : "Selecciona al menos un boleto");
       return;
     }
 
@@ -155,13 +161,13 @@ export function useTicketEngine(event, id, user, navigate, location, { success, 
       event: event,
       section: selectedSection,
       functionData: effectiveFunction,
-      functionId: effectiveFunction?.id,
+      functionId: effectiveFunction?.id || null,
       seats: selectedSeats,
       quantity: qty,
       total: cleanPrice(selectedSection?.price || event?.price) * qty
     });
     setShowDirectPayment(true);
-  }, [event, selectedSection, selectedSeats, quantity, selectedFunction, sortedSections, error]);
+  }, [event, isEventSeating, selectedSection, selectedSeats, quantity, selectedFunction, sortedSections, error]);
 
   return {
     selectedFunction,

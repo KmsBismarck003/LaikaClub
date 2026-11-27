@@ -454,7 +454,8 @@
   overflow: hidden;
   margin-left: 0;
   min-width: 0;
-  background: var(--laika-bg-canvas, #f8f8f8);
+  background: var(--laika-bg-canvas, var(--bg-primary));
+  color: var(--text-primary);
   animation: pageEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

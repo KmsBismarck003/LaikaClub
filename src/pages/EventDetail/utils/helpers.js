@@ -9,19 +9,23 @@ export const cleanPrice = (price) => {
   return parseFloat(cleaned) || 0;
 };
 
-// Formatea fecha: 2024-05-10 -> 10 MAY 2024 o 18/05/2026 -> 18 MAY 2026
+// Formatea fecha: 2024-05-10 -> 10 MAY 2024 o 18/05/2026 -> 18 MAY 2026 (siempre en hora local)
 export const formatDate = (dateStr) => {
   if (!dateStr) return "TBD";
   try {
+    const raw = String(dateStr).trim();
     let date;
-    // Check if it's in DD/MM/YYYY or DD-MM-YYYY format
-    const ddMmYyyyMatch = String(dateStr).trim().match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-    if (ddMmYyyyMatch) {
+    // YYYY-MM-DD (sin hora): parsear en hora local para evitar desfase UTC (-1 día en México)
+    const isoDateOnly = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const ddMmYyyyMatch = raw.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+    if (isoDateOnly) {
+      const [, year, month, day] = isoDateOnly;
+      date = new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0);
+    } else if (ddMmYyyyMatch) {
       const [, day, month, year] = ddMmYyyyMatch;
-      // month is 0-indexed in JS Date constructor (0 = January)
-      date = new Date(Number(year), Number(month) - 1, Number(day));
+      date = new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0);
     } else {
-      date = new Date(dateStr);
+      date = new Date(raw);
     }
 
     if (isNaN(date.getTime())) {
