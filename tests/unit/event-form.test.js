@@ -47,7 +47,11 @@ function loadPureEsmModule(relPath, sandboxExtras = {}) {
 }
 
 const eventFormUtils = loadPureEsmModule('src/pages/manager/utils/eventFormUtils.js');
+const gestorEventFormUtils = loadPureEsmModule('laika-gestor/src/pages/manager/utils/eventFormUtils.js');
 const imageUtils = loadPureEsmModule('src/utils/imageUtils.js', {
+  window: { location: { protocol: 'http:', hostname: 'localhost' } },
+});
+const gestorImageUtils = loadPureEsmModule('laika-gestor/src/utils/imageUtils.js', {
   window: { location: { protocol: 'http:', hostname: 'localhost' } },
 });
 
@@ -256,10 +260,27 @@ assert(
 
 const dataUri = 'data:image/svg+xml;charset=UTF-8,%3Csvg%3E%3C/svg%3E';
 assert(
-  'getImageUrl permite data: URIs sin anteponer http://localhost:8000/',
+  'getImageUrl (root y laika-gestor) permite data: URIs sin anteponer http://localhost:8000/',
   getImageUrl(dataUri) === dataUri &&
+    gestorImageUtils.getImageUrl(dataUri) === dataUri &&
     getImageUrl('https://cdn.test/img.jpg') === 'https://cdn.test/img.jpg' &&
     getImageUrl('/api/uploads/events/a.jpg') === '/uploads/events/a.jpg'
+);
+
+const gestorContractPayload = gestorEventFormUtils.resolveAndValidateEventForm({
+  formData: {
+    ...gestorEventFormUtils.INITIAL_EVENT_FORM,
+    name: 'Show Gestor B2B',
+    venue_id: '3',
+    price: 350,
+    total_tickets: 150,
+  },
+  functions: [{ date: '2026-11-22', time: '20:00', venue_id: '3', room_id: '' }],
+  activeContractId: 9,
+});
+assert(
+  'laika-gestor resuelve contract_id desde contrato B2B activo (y cae a 1 por defecto)',
+  gestorContractPayload.valid && gestorContractPayload.payload.contract_id === 9
 );
 
 // -------------------------------------------------------------
@@ -282,6 +303,16 @@ const managerFiles = [
   'src/pages/manager/components/EventForm/EventScheduleSection.jsx',
   'src/pages/manager/components/EventForm/EventPricingSection.jsx',
   'src/pages/manager/components/EventForm/EventExtrasSection.jsx',
+  'laika-gestor/src/pages/manager/EventForm.jsx',
+  'laika-gestor/src/pages/manager/EventCardPreview.jsx',
+  'laika-gestor/src/pages/manager/views/CreateEventPage.jsx',
+  'laika-gestor/src/pages/manager/hooks/useManagerEventForm.js',
+  'laika-gestor/src/pages/manager/utils/eventFormUtils.js',
+  'laika-gestor/src/pages/manager/components/EventForm/EventIdentitySection.jsx',
+  'laika-gestor/src/pages/manager/components/EventForm/EventScheduleSection.jsx',
+  'laika-gestor/src/pages/manager/components/EventForm/EventPricingSection.jsx',
+  'laika-gestor/src/pages/manager/components/EventForm/EventExtrasSection.jsx',
+  'laika-gestor/src/pages/manager/components/EventForm/HomeEventCardReplica.jsx',
 ];
 
 const invalidIcons = [];
@@ -341,3 +372,4 @@ console.log(`   RESUMEN: ${passCount} PASSED | ${failCount} FAILED`);
 console.log('===============================================================\n');
 
 process.exit(failCount > 0 ? 1 : 0);
+
