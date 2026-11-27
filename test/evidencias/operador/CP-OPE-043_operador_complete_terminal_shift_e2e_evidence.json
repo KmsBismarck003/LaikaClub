@@ -1,0 +1,21 @@
+{
+  "test_id": "CP-OPE-043",
+  "role": "operador",
+  "test_name": "operador_complete_terminal_shift_e2e",
+  "timestamp": "2026-11-16T16:14:25.383735",
+  "execution_duration_sec": 0.6322,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "e2e_operator_shift": {
+      "login": true,
+      "dashboard": true,
+      "scan_valid": true,
+      "scan_inv": true,
+      "history": true,
+      "logout": true
+    }
+  }
+}

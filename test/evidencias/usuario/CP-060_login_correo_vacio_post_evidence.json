@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-060",
+  "role": "usuario",
+  "test_name": "login_correo_vacio_post",
+  "timestamp": "2026-11-16T16:14:05.942600",
+  "execution_duration_sec": 0.026264,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El servicio rechaza la solicitud antes de intentar verificar el hash.",
+  "payloads": {
+    "empty_email_response": {
+      "status_code": 422,
+      "text": "{\"detail\":[{\"msg\":\"El email es obligatorio\",\"loc\":[\"body\",\"email\"],\"type\":\"value_error\"}]}"
+    }
+  }
+}

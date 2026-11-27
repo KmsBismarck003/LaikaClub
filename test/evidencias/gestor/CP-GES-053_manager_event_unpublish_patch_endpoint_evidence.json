@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-053",
+  "role": "gestor",
+  "test_name": "manager_event_unpublish_patch_endpoint",
+  "timestamp": "2026-11-16T16:14:04.613035",
+  "execution_duration_sec": 0.090174,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "unpublish": 200,
+      "restore": 200
+    }
+  }
+}

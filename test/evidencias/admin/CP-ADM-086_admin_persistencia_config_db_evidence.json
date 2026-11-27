@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-ADM-086",
+  "role": "admin",
+  "test_name": "admin_persistencia_config_db",
+  "timestamp": "2026-11-16T16:14:16.705743",
+  "execution_duration_sec": 0.04016,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_persistence_config": {
+      "key": "db_test_param",
+      "row": {
+        "key": "db_test_param",
+        "value": "value_qa_12345"
+      }
+    }
+  }
+}

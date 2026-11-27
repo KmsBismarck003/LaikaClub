@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-ADV-042",
+  "role": "avanzados",
+  "test_name": "flujo_salas_creacion_en_recinto_post",
+  "timestamp": "2026-11-16T16:15:53.219282",
+  "execution_duration_sec": 0.070842,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Sala creada y asociada al recinto exitosamente (ID: 256)",
+  "payloads": {
+    "room_creation": {
+      "created": {
+        "message": "Sala creada exitosamente",
+        "id": 256
+      },
+      "rooms_count": 5
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-ADM-022",
+  "role": "admin",
+  "test_name": "flujo_administracion_ciclo_vida_usuario_uat",
+  "timestamp": "2026-11-16T16:15:18.278461",
+  "execution_duration_sec": 0.879319,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "user_lifecycle": {
+      "email": "qa_sub_1794867318@laikaclub.com",
+      "created": true,
+      "suspended": true,
+      "deleted": true
+    }
+  }
+}

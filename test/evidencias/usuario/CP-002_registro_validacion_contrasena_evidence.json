@@ -1,0 +1,31 @@
+{
+  "test_id": "CP-002",
+  "role": "usuario",
+  "test_name": "registro_validacion_contrasena",
+  "timestamp": "2026-11-16T16:15:33.683972",
+  "execution_duration_sec": 4.2e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Cumple con la política de contraseña mínima del sistema.",
+  "payloads": {
+    "cases_evaluated": [
+      {
+        "input": "",
+        "expected": false
+      },
+      {
+        "input": "12345",
+        "expected": false
+      },
+      {
+        "input": "Pass12",
+        "expected": true
+      },
+      {
+        "input": "TestQA123!",
+        "expected": true
+      }
+    ]
+  }
+}

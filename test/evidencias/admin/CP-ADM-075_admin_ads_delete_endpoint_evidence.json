@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-075",
+  "role": "admin",
+  "test_name": "admin_ads_delete_endpoint",
+  "timestamp": "2026-11-16T16:13:51.961014",
+  "execution_duration_sec": 0.089596,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "body": "{\"success\":true}"
+    }
+  }
+}

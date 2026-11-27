@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-OPE-060",
+  "role": "operador",
+  "test_name": "operador_user_account_integrity_db",
+  "timestamp": "2026-11-16T16:14:17.724724",
+  "execution_duration_sec": 0.005836,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Usuario ID=2, Email=operador@laikaclub.com, Rol=operador, Status=active",
+  "payloads": {
+    "db_operador_user": {
+      "id": 2,
+      "email": "operador@laikaclub.com",
+      "role": "operador",
+      "status": "active"
+    }
+  }
+}

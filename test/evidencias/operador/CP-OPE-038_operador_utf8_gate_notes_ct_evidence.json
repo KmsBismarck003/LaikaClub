@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-038",
+  "role": "operador",
+  "test_name": "operador_utf8_gate_notes_ct",
+  "timestamp": "2026-11-16T16:14:16.415405",
+  "execution_duration_sec": 0.058228,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "utf8_gate_sample": {
+      "statusTitle": "EVENTO PRÓXIMO / PUERTAS CERRADAS",
+      "ok": true
+    }
+  }
+}

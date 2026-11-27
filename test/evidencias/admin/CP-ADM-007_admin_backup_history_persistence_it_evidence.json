@@ -1,0 +1,45 @@
+{
+  "test_id": "CP-ADM-007",
+  "role": "admin",
+  "test_name": "admin_backup_history_persistence_it",
+  "timestamp": "2026-11-16T16:14:27.267138",
+  "execution_duration_sec": 0.005537,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "backup_history_records": [
+      {
+        "id": 58,
+        "backup_id": "backup_full_20261116_221346_cc246c",
+        "status": "completed",
+        "type": "full"
+      },
+      {
+        "id": 57,
+        "backup_id": "backup_full_20261116_221258_dbaeaa",
+        "status": "completed",
+        "type": "full"
+      },
+      {
+        "id": 56,
+        "backup_id": "backup_full_20261116_221050_6cadc7",
+        "status": "completed",
+        "type": "full"
+      },
+      {
+        "id": 55,
+        "backup_id": "backup_full_20261116_220856_53fe90",
+        "status": "completed",
+        "type": "full"
+      },
+      {
+        "id": 54,
+        "backup_id": "backup_incremental_20261116_174600_8b2bcd",
+        "status": "completed",
+        "type": "incremental"
+      }
+    ]
+  }
+}

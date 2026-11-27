@@ -1,0 +1,30 @@
+{
+  "test_id": "CP-GES-008",
+  "role": "gestor",
+  "test_name": "gestor_merchandise_service_mysql_it",
+  "timestamp": "2026-11-16T16:14:34.401923",
+  "execution_duration_sec": 0.022326,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_merch": {
+      "count": 2,
+      "items": [
+        [
+          129,
+          "Gorra Laika",
+          "accesorios",
+          "published"
+        ],
+        [
+          130,
+          "juasbssba",
+          "playera",
+          "draft"
+        ]
+      ]
+    }
+  }
+}

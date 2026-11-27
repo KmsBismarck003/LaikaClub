@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-042",
+  "role": "gestor",
+  "test_name": "gestor_utf8_encoding_ct",
+  "timestamp": "2026-11-16T16:14:15.866047",
+  "execution_duration_sec": 0.173988,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "utf8_sample": {
+      "sample": "Evento de validación de API para gestor",
+      "ok": true
+    }
+  }
+}

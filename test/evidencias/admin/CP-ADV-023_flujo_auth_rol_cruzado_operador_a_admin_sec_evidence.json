@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-ADV-023",
+  "role": "admin",
+  "test_name": "flujo_auth_rol_cruzado_operador_a_admin_sec",
+  "timestamp": "2026-11-16T16:15:53.967860",
+  "execution_duration_sec": 0.02428,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Acceso denegado correctamente: HTTP 403",
+  "payloads": {
+    "operador_on_admin_rejection": {
+      "status_code": 403
+    }
+  }
+}

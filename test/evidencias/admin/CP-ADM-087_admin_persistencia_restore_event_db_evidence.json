@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-ADM-087",
+  "role": "admin",
+  "test_name": "admin_persistencia_restore_event_db",
+  "timestamp": "2026-11-16T16:14:16.770216",
+  "execution_duration_sec": 0.109815,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_restore_event": {
+      "inserted": true,
+      "row": {
+        "id": 9,
+        "environment": "qa",
+        "severity": "critical",
+        "restore_reason": "Prueba QA Automation"
+      }
+    }
+  }
+}

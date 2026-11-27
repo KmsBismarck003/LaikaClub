@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-071",
+  "role": "admin",
+  "test_name": "admin_ads_list_endpoint_get",
+  "timestamp": "2026-11-16T16:13:52.084325",
+  "execution_duration_sec": 0.030094,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "count": 3
+    }
+  }
+}

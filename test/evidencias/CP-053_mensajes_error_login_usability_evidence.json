@@ -1,0 +1,15 @@
+{
+  "test_id": "CP-053",
+  "test_name": "mensajes_error_login_usability",
+  "timestamp": "2026-11-16T12:56:57.060696",
+  "execution_duration_sec": 0.05759,
+  "result": "Aprobada",
+  "payloads": {
+    "usability_login_feedback": {
+      "status_code": 401,
+      "body": {
+        "detail": "Credenciales inválidas"
+      }
+    }
+  }
+}

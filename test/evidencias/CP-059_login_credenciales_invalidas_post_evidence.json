@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-059",
+  "test_name": "login_credenciales_invalidas_post",
+  "timestamp": "2026-11-16T12:56:27.937589",
+  "execution_duration_sec": 0.147992,
+  "result": "Aprobada",
+  "payloads": {
+    "invalid_credentials_evidence": {
+      "status_code": 401,
+      "body": {
+        "detail": {
+          "max_attempts": 3,
+          "message": "Credenciales inválidas",
+          "attempts": 1
+        }
+      }
+    }
+  }
+}

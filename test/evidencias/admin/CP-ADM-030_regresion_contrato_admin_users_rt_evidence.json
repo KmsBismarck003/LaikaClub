@@ -1,0 +1,29 @@
+{
+  "test_id": "CP-ADM-030",
+  "role": "admin",
+  "test_name": "regresion_contrato_admin_users_rt",
+  "timestamp": "2026-11-16T16:14:50.766140",
+  "execution_duration_sec": 0.052609,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "contract_sample": {
+      "total": 30062,
+      "sample_user": {
+        "role": "usuario",
+        "phone": "5551239876",
+        "last_login": "2026-11-16T22:14:18.862855857",
+        "lockout_until": null,
+        "expo_push_token": null,
+        "last_name": "",
+        "created_at": "2026-11-16T22:14:19",
+        "id": 30184,
+        "first_name": "",
+        "email": "e2e_user_1794867258@laikaclub.com",
+        "status": "active"
+      }
+    }
+  }
+}

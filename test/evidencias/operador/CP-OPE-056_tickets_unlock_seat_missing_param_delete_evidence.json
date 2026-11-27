@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-056",
+  "role": "operador",
+  "test_name": "tickets_unlock_seat_missing_param_delete",
+  "timestamp": "2026-11-16T16:14:13.981367",
+  "execution_duration_sec": 0.026159,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "400 Bad Request validado: {\"timestamp\":\"2026-11-16T22:14:14.003+00:00\",\"status\":400,\"error\":\"Bad Request\",",
+  "payloads": {
+    "unlock_validation_error": {
+      "status_code": 400,
+      "body": "{\"timestamp\":\"2026-11-16T22:14:14.003+00:00\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"seatId requerido\",\"path\":\"/lock\"}"
+    }
+  }
+}

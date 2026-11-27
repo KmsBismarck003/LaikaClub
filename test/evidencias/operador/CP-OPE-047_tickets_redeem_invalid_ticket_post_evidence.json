@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-047",
+  "role": "operador",
+  "test_name": "tickets_redeem_invalid_ticket_post",
+  "timestamp": "2026-11-16T16:14:13.879807",
+  "execution_duration_sec": 0.031435,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Rechazo transaccional validado: HTTP 500",
+  "payloads": {
+    "tickets_redeem_rejection": {
+      "status_code": 500,
+      "text": "{\"timestamp\":\"2026-11-16T22:14:13.907+00:00\",\"status\":500,\"error\":\"Internal Server Error\",\"message\":\"Transaction silently rolled back because it has been marked as rollback-only\",\"path\":\"/redeem\"}"
+    }
+  }
+}

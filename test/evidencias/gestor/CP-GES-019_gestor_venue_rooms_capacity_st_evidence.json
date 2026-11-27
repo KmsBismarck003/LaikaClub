@@ -1,0 +1,38 @@
+{
+  "test_id": "CP-GES-019",
+  "role": "gestor",
+  "test_name": "gestor_venue_rooms_capacity_st",
+  "timestamp": "2026-11-16T16:15:17.130151",
+  "execution_duration_sec": 0.027802,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "venue_rooms": {
+      "status": 200,
+      "rooms": [
+        {
+          "name": "Area 2",
+          "has_map": true,
+          "layout_metadata": {},
+          "id": 28,
+          "layout_mode": "map",
+          "venue_id": 12,
+          "capacity": 800,
+          "status": "active"
+        },
+        {
+          "name": "Sala 1",
+          "has_map": false,
+          "layout_metadata": {},
+          "id": 27,
+          "layout_mode": "general_admission",
+          "venue_id": 12,
+          "capacity": 2000,
+          "status": "active"
+        }
+      ]
+    }
+  }
+}

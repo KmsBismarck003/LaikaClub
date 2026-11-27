@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-032",
+  "role": "gestor",
+  "test_name": "gestor_venues_schema_contract_rt",
+  "timestamp": "2026-11-16T16:14:51.511123",
+  "execution_duration_sec": 0.041677,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "venues_contract": {
+      "status": 200,
+      "count": 85
+    }
+  }
+}

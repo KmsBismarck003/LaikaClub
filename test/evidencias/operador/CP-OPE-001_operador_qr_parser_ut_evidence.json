@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-001",
+  "role": "operador",
+  "test_name": "operador_qr_parser_ut",
+  "timestamp": "2026-11-16T16:15:34.176246",
+  "execution_duration_sec": 2.3e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "parser_results": {
+      "test1": "TKT-C853F390",
+      "test2": "TKT-C853F390"
+    }
+  }
+}

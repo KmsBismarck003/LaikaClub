@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-067",
+  "role": "usuario",
+  "test_name": "evento_inexistente_endpoint_get",
+  "timestamp": "2026-11-16T16:14:03.337106",
+  "execution_duration_sec": 0.024163,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El servicio maneja con propiedad las referencias a recursos no encontrados.",
+  "payloads": {
+    "not_found_response": {
+      "status_code": 404,
+      "text": "{\"timestamp\":\"2026-11-16T22:14:03.356+00:00\",\"status\":404,\"error\":\"Not Found\",\"path\":\"/9999999\"}"
+    }
+  }
+}

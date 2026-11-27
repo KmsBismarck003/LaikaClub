@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-028",
+  "role": "gestor",
+  "test_name": "gestor_merchandise_health_oat",
+  "timestamp": "2026-11-16T16:14:36.420132",
+  "execution_duration_sec": 0.00639,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "merchandise_health": {
+      "status": 200,
+      "body": "{\"service\":\"merchandise_v2\",\"status\":\"ok\"}"
+    }
+  }
+}

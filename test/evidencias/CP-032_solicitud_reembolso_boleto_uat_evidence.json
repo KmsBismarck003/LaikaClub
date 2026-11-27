@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-032",
+  "test_name": "solicitud_reembolso_boleto_uat",
+  "timestamp": "2026-11-16T12:56:56.867445",
+  "execution_duration_sec": 0.048398,
+  "result": "Aprobada",
+  "payloads": {
+    "refunds_uat_summary": {
+      "refund_count": 0,
+      "items": []
+    }
+  }
+}

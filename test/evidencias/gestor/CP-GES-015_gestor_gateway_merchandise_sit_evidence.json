@@ -1,0 +1,132 @@
+{
+  "test_id": "CP-GES-015",
+  "role": "gestor",
+  "test_name": "gestor_gateway_merchandise_sit",
+  "timestamp": "2026-11-16T16:15:02.233275",
+  "execution_duration_sec": 0.056148,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "merch_sit": {
+      "status": 200,
+      "items": [
+        {
+          "id": 129,
+          "name": "Gorra Laika",
+          "description": "Gorra oficial de nuestra tienda Laika Club, diseno snapback estructurado con el logotipo de la marca bordado en relieve tridimensional.",
+          "imageUrl": "https://images.unsplash.com/photo-1588850561407-ed78c282e881?auto=format&fit=crop&w=800",
+          "managerId": 3,
+          "category": "accesorios",
+          "isOfficial": true,
+          "rating": 4.7,
+          "status": "published",
+          "adminStatus": "approved",
+          "eventId": null,
+          "attributesSchema": {
+            "color": [
+              "Negro",
+              "Rojo"
+            ],
+            "talla": [
+              "Unitalla"
+            ]
+          },
+          "deliveryMethods": [
+            "HOME_DELIVERY",
+            "PICKUP_AT_EVENT"
+          ],
+          "maxPerPerson": 5,
+          "createdAt": "2026-06-08T05:14:31",
+          "variants": [
+            {
+              "id": 273,
+              "itemId": 129,
+              "sku": "LK-CAP-BLK",
+              "attributes": {
+                "color": "Negro",
+                "talla": "Unitalla"
+              },
+              "price": 299.0,
+              "stock": 89,
+              "isActive": true
+            },
+            {
+              "id": 274,
+              "itemId": 129,
+              "sku": "LK-CAP-RED",
+              "attributes": {
+                "color": "Rojo",
+                "talla": "Unitalla"
+              },
+              "price": 299.0,
+              "stock": 103,
+              "isActive": true
+            }
+          ],
+          "reviews": [
+            {
+              "id": 149,
+              "itemId": 129,
+              "userId": 27125,
+              "userName": "Claudia Medrano Díaz",
+              "rating": 4,
+              "comment": "Mochila muy práctica, le caben bastantes cosas. Los cierres se sienten algo sencillos.",
+              "createdAt": "2026-05-04T19:04:39"
+            },
+            {
+              "id": 150,
+              "itemId": 129,
+              "userId": 9527,
+              "userName": "Verónica Rendon",
+              "rating": 5,
+              "comment": "Muy bonito accesorio, el diseño está muy bien detallado y original.",
+              "createdAt": "2026-04-11T21:51:06"
+            },
+            {
+              "id": 151,
+              "itemId": 129,
+              "userId": 1864,
+              "userName": "Irene Rojas Navarro",
+              "rating": 5,
+              "comment": "Muy bonito accesorio, el diseño está muy bien detallado y original.",
+              "createdAt": "2026-02-14T23:09:28"
+            }
+          ]
+        },
+        {
+          "id": 130,
+          "name": "juasbssba",
+          "description": "asajdkfs",
+          "imageUrl": null,
+          "managerId": 3,
+          "category": "playera",
+          "isOfficial": true,
+          "rating": 0.0,
+          "status": "draft",
+          "adminStatus": "pending_review",
+          "eventId": null,
+          "attributesSchema": {},
+          "deliveryMethods": [],
+          "maxPerPerson": 5,
+          "createdAt": "2026-09-25T00:36:03",
+          "variants": [
+            {
+              "id": 275,
+              "itemId": 130,
+              "sku": "JUA-XS-1790296542835",
+              "attributes": {
+                "talla": "XS"
+              },
+              "price": 500.0,
+              "stock": 0,
+              "isActive": true
+            }
+          ],
+          "reviews": []
+        }
+      ]
+    }
+  }
+}

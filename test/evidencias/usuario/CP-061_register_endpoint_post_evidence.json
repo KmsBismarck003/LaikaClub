@@ -1,0 +1,34 @@
+{
+  "test_id": "CP-061",
+  "role": "usuario",
+  "test_name": "register_endpoint_post",
+  "timestamp": "2026-11-16T16:14:14.331937",
+  "execution_duration_sec": 0.166288,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El endpoint de registro procesa la creación de usuario conforme al contrato.",
+  "payloads": {
+    "registration_response": {
+      "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoidXN1YXJpbyIsInVzZXJfaWQiOjMwMTgyLCJzdWIiOiJhcGlfcmVnX3Rlc3RfMTc5NDg2NzI1NEBsYWlrYWNsdWIuY29tIiwiaWF0IjoxNzk0ODY3MjU0LCJleHAiOjE3OTU0NzIwNTR9.knSAvtp4A39mkbT12Z_T2e0wkLUIrE_rG6KI3Wa0_0A",
+      "user": {
+        "id": 30182,
+        "firstName": "",
+        "lastName": "",
+        "email": "api_reg_test_1794867254@laikaclub.com",
+        "phone": "5551239999",
+        "role": "usuario",
+        "status": "active",
+        "createdAt": "2026-11-16T22:14:14.453668756",
+        "permissions": [
+          "admin.view",
+          "venues.view",
+          "cms.view",
+          "stats.view",
+          "users.view",
+          "events.view"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "test_id": "CP-022",
+  "test_name": "gateway_cors_headers_sit",
+  "timestamp": "2026-11-16T12:56:47.642169",
+  "execution_duration_sec": 0.051436,
+  "result": "Aprobada",
+  "payloads": {
+    "cors_headers": {
+      "get_headers": {
+        "date": "Mon, 16 Nov 2026 18:56:46 GMT, Mon, 16 Nov 2026 18:56:47 GMT",
+        "server": "uvicorn",
+        "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin",
+        "access-control-allow-origin": "http://localhost:3000",
+        "access-control-allow-credentials": "true",
+        "x-content-type-options": "nosniff",
+        "x-xss-protection": "0",
+        "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+        "pragma": "no-cache",
+        "expires": "0",
+        "x-frame-options": "DENY",
+        "content-type": "application/json",
+        "keep-alive": "timeout=60",
+        "connection": "keep-alive",
+        "content-length": "5942"
+      },
+      "options_status": 200,
+      "options_headers": {
+        "date": "Mon, 16 Nov 2026 18:56:46 GMT",
+        "server": "uvicorn",
+        "vary": "Origin",
+        "access-control-allow-methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT",
+        "access-control-max-age": "600",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-origin": "http://localhost:3000",
+        "access-control-allow-headers": "authorization,content-type",
+        "content-length": "2",
+        "content-type": "text/plain; charset=utf-8"
+      }
+    }
+  }
+}

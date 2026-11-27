@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-035",
+  "role": "operador",
+  "test_name": "operador_staff_dashboard_rbac_bypass_sec",
+  "timestamp": "2026-11-16T16:15:00.902164",
+  "execution_duration_sec": 0.02219,
+  "result": "Fallida",
+  "defect_id": "DEF-OPE-001",
+  "defect_severity": "Alta",
+  "observations": "Falla de Control de Acceso RBAC: /api/stats/staff/dashboard accesible a usuarios regulares sin validar rol operador",
+  "payloads": {
+    "rbac_staff_dashboard": {
+      "status": 200,
+      "body": "{\"totalScanned\":0,\"validScans\":0,\"invalidScans\":0,\"scansPerHour\":[10,45,80,120,210,150,40],\"labels\":"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "test_id": "CP-ADV-030",
+  "role": "avanzados",
+  "test_name": "flujo_logros_beneficios_cupones_get",
+  "timestamp": "2026-11-16T16:15:51.298643",
+  "execution_duration_sec": 0.110718,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "200 OK obtenido con 3 cupones activos (ej. LAIKA-01-2WBIEP)",
+  "payloads": {
+    "user_coupons": {
+      "total": 3,
+      "sample": {
+        "id": 30137,
+        "userId": 30078,
+        "code": "LAIKA-01-2WBIEP",
+        "couponType": "",
+        "discountType": "service_fee",
+        "discountValue": 100.0,
+        "description": "100% discount on Service Fee in first purchase",
+        "usesLeft": 1,
+        "expiresAt": null,
+        "isPermanent": 0,
+        "createdAt": "2026-11-16T18:52:56"
+      }
+    }
+  }
+}

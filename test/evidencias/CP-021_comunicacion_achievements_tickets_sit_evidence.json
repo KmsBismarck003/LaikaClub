@@ -1,0 +1,65 @@
+{
+  "test_id": "CP-021",
+  "test_name": "comunicacion_achievements_tickets_sit",
+  "timestamp": "2026-11-16T12:56:47.706026",
+  "execution_duration_sec": 4.913276,
+  "result": "Aprobada",
+  "payloads": {
+    "gamification_integration": {
+      "tickets_count": 19,
+      "achievements_payload": {
+        "tier": 5,
+        "achievements": [
+          {
+            "id": 20,
+            "userId": 30078,
+            "achievementId": 1,
+            "tier": 1,
+            "tierName": "Pasaporte Cósmico",
+            "phase": "Gancho",
+            "unlockedAt": "2026-11-16T18:52:56"
+          },
+          {
+            "id": 21,
+            "userId": 30078,
+            "achievementId": 2,
+            "tier": 2,
+            "tierName": "Ignición: T-Minus 0",
+            "phase": "Gancho",
+            "unlockedAt": "2026-11-16T18:52:56"
+          },
+          {
+            "id": 22,
+            "userId": 30078,
+            "achievementId": 3,
+            "tier": 3,
+            "tierName": "Órbita Baja",
+            "phase": "Gancho",
+            "unlockedAt": "2026-11-16T18:52:56"
+          },
+          {
+            "id": 25,
+            "userId": 30078,
+            "achievementId": 4,
+            "tier": 4,
+            "tierName": "Alunizaje VIP",
+            "phase": "Retención",
+            "unlockedAt": "2026-11-16T18:54:27"
+          },
+          {
+            "id": 28,
+            "userId": 30078,
+            "achievementId": 5,
+            "tier": 5,
+            "tierName": "Piloto Sputnik",
+            "phase": "Retención",
+            "unlockedAt": "2026-11-16T18:55:33"
+          }
+        ],
+        "user_id": 30078,
+        "ticket_count": 19,
+        "total_points": 1900
+      }
+    }
+  }
+}

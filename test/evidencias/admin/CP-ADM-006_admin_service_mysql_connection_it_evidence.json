@@ -1,0 +1,27 @@
+{
+  "test_id": "CP-ADM-006",
+  "role": "admin",
+  "test_name": "admin_service_mysql_connection_it",
+  "timestamp": "2026-11-16T16:14:27.341825",
+  "execution_duration_sec": 0.005058,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "system_config_sample": [
+      {
+        "key": "news_ticker_config",
+        "value": "{\"content\":\"¡Atención administradores! Éxito total en México con señal acústica 🚀 2026.\",\"enabled\":true}"
+      },
+      {
+        "key": "automatic_backup_config",
+        "value": "{\"enabled\":true,\"frequency\":\"daily\",\"time\":\"03:00\",\"backupType\":\"completo\",\"retentionDays\":15,\"maxBackups\":10,\"notifyOnSuccess\":true,\"notifyOnError\":true,\"dayOfWeek\":0,\"dayOfMonth\":1}"
+      },
+      {
+        "key": "maintenance_reason",
+        "value": "Actualización programada QA 2026"
+      }
+    ]
+  }
+}

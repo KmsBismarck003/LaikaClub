@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-014",
+  "role": "usuario",
+  "test_name": "ticket_persistence_it",
+  "timestamp": "2026-11-16T16:14:27.673297",
+  "execution_duration_sec": 6.451381,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Persistencia relacional de boletos confirmada con integridad referencial.",
+  "payloads": {
+    "persistence_summary": {
+      "user_id": 30078,
+      "api_count": 62,
+      "db_count": 62
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-055",
+  "role": "operador",
+  "test_name": "tickets_lock_seat_missing_param_post",
+  "timestamp": "2026-11-16T16:14:13.842395",
+  "execution_duration_sec": 0.020396,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "400 Bad Request validado: {\"timestamp\":\"2026-11-16T22:14:13.860+00:00\",\"status\":400,\"error\":\"Bad Request\",",
+  "payloads": {
+    "lock_validation_error": {
+      "status_code": 400,
+      "body": "{\"timestamp\":\"2026-11-16T22:14:13.860+00:00\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"seatId requerido\",\"path\":\"/lock\"}"
+    }
+  }
+}

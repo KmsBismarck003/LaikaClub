@@ -1,0 +1,209 @@
+{
+  "test_id": "CP-066",
+  "role": "usuario",
+  "test_name": "evento_detalle_endpoint_get",
+  "timestamp": "2026-11-16T16:14:03.095456",
+  "execution_duration_sec": 0.206901,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El detalle del evento contiene la información requerida para el flujo de compra.",
+  "payloads": {
+    "event_detail_data": {
+      "cancelled_at": null,
+      "total_tickets": 31300,
+      "max_ads": 10,
+      "functions": [],
+      "assigned_manager_id": 30051,
+      "ads_enabled": true,
+      "contract_id": 4,
+      "laika_package": "Enterprise",
+      "rules": [
+        {
+          "icon": "alertTriangle",
+          "description": "No se permite el ingreso con alimentos, bebidas, cámaras profesionales ni objetos peligrosos. Sujeto a revisión de seguridad en la entrada.",
+          "id": 19,
+          "event_id": 19,
+          "title": "Reglas de Acceso"
+        },
+        {
+          "icon": "info",
+          "description": "La duración aproximada es de 2 horas. Una vez iniciada la función o show, el acceso a la sala será controlado por el personal de asistencia.",
+          "id": 20,
+          "event_id": 19,
+          "title": "Duración y Acceso"
+        }
+      ],
+      "use_seating_map": true,
+      "municipality_id": 241,
+      "price": 1800.0,
+      "event_date": "2026-10-17",
+      "grid_span_x": 1,
+      "presale_bank_name": null,
+      "grid_span_y": 1,
+      "id": 19,
+      "venue_id": 6,
+      "grid_position_y": 0,
+      "image_url": "/uploads/imagenes/afterlife.png",
+      "grid_position_x": 0,
+      "presale_end": null,
+      "ticket_summary": {
+        "sold": 29648,
+        "recent_purchases": [
+          {
+            "purchase_date": "2026-11-16 22:14:03.0",
+            "ticket_code": "TKT-1B984DE3",
+            "price": 100.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 22:13:57.0",
+            "ticket_code": "TKT-C44EC0F8",
+            "price": 450.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 22:12:26.0",
+            "ticket_code": "TKT-29A3470F",
+            "price": 500.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 22:11:36.0",
+            "ticket_code": "TKT-6FDE7AA2",
+            "price": 350.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 22:11:11.0",
+            "ticket_code": "TKT-70777AB1",
+            "price": 100.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 22:11:04.0",
+            "ticket_code": "TKT-EE51511A",
+            "price": 450.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 21:16:22.0",
+            "ticket_code": "TKT-181AAA6C",
+            "price": 500.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 21:15:34.0",
+            "ticket_code": "TKT-45DFD4BF",
+            "price": 350.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 21:15:08.0",
+            "ticket_code": "TKT-5D660D2A",
+            "price": 100.0,
+            "customer": "QA_User",
+            "status": "expired"
+          },
+          {
+            "purchase_date": "2026-11-16 21:15:00.0",
+            "ticket_code": "TKT-88D51F19",
+            "price": 450.0,
+            "customer": "QA_User",
+            "status": "expired"
+          }
+        ],
+        "available": 1652,
+        "active": 29648,
+        "cancelled": 0,
+        "refunded": 0,
+        "sell_through_pct": 94.7,
+        "used": 0,
+        "total_capacity": 31300
+      },
+      "created_by": 1,
+      "sections": [
+        {
+          "event_id": 19,
+          "badge_text": "Cerca del Escenario",
+          "price": 3240.0,
+          "name": "VIP Platinum",
+          "available": 172,
+          "color_hex": "#8A2BE2",
+          "id": 26,
+          "capacity": 3130
+        },
+        {
+          "event_id": 19,
+          "badge_text": "Zona Preferente",
+          "price": 2160.0,
+          "name": "General VIP",
+          "available": 344,
+          "color_hex": "#FF4500",
+          "id": 27,
+          "capacity": 6260
+        },
+        {
+          "event_id": 19,
+          "badge_text": "Acceso General",
+          "price": 1440.0,
+          "name": "General de Pie",
+          "available": 1136,
+          "color_hex": "#1E90FF",
+          "id": 28,
+          "capacity": 21910
+        }
+      ],
+      "name": "Nombre Modificado Invasivo",
+      "grid_page": 0,
+      "metrics_enabled": true,
+      "status": "published",
+      "room_id": 13,
+      "venue_name": "Auditorio San Marcos",
+      "venue": "Auditorio San Marcos",
+      "description": "El festival de techno melódico y arte visual más impactante del mundo regresa a México con una producción monumental y una experiencia audiovisual inmersiva sin precedentes.",
+      "created_at": "2026-05-25 06:35:53.0",
+      "merch_enabled": true,
+      "updated_at": "2026-11-16 21:04:21.0",
+      "presale_start": null,
+      "revenue_summary": {
+        "projected_total": 55213200.0,
+        "gross": 52362900.0,
+        "tickets_sold": 29648,
+        "tickets_refunded": 0,
+        "net": 52277040.0,
+        "refunded_amount": 0.0
+      },
+      "cancelled_by": null,
+      "room": {
+        "updated_at": "2026-05-25 06:06:09.0",
+        "name": "Sala A",
+        "created_at": "2026-05-25 06:06:09.0",
+        "layout_metadata": {},
+        "id": 13,
+        "layout_mode": "general_admission",
+        "venue_id": 6,
+        "capacity": 1200,
+        "status": "active",
+        "layout_json": {}
+      },
+      "presale_enabled": false,
+      "cancel_reason": null,
+      "duration_minutes": null,
+      "gallery_urls": null,
+      "available_tickets": 1652,
+      "location": "Aguascalientes",
+      "category": "concert",
+      "presale_bins": null,
+      "event_time": "21:00:00"
+    }
+  }
+}

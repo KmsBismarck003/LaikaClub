@@ -1,0 +1,33 @@
+{
+  "test_id": "CP-OPE-040",
+  "role": "operador",
+  "test_name": "operador_invalid_code_feedback_us",
+  "timestamp": "2026-11-16T16:15:31.919357",
+  "execution_duration_sec": 0.03356,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "invalid_code_feedback": {
+      "valid": false,
+      "actionable": false,
+      "isError": true,
+      "alreadyUsed": false,
+      "statusCode": "INVALID_CODE",
+      "statusTitle": "CÓDIGO INEXISTENTE",
+      "operatorMessage": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+      "message": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+      "timeRemainingSeconds": 0,
+      "ticketCode": "TKT-UNKNOWN-XYZ",
+      "terminalContext": {
+        "platform": "WEB_OPERATOR",
+        "accessPoint": "Puerta Principal",
+        "operatorId": null,
+        "operatorName": null,
+        "selectedEventId": null,
+        "selectedFunctionId": null
+      }
+    }
+  }
+}

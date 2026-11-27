@@ -1,0 +1,42 @@
+{
+  "test_id": "CP-GES-009",
+  "role": "gestor",
+  "test_name": "gestor_venue_service_mysql_it",
+  "timestamp": "2026-11-16T16:14:34.449648",
+  "execution_duration_sec": 0.007869,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_venues": {
+      "venues": [
+        [
+          1,
+          "Bismarfck003",
+          5
+        ],
+        [
+          3,
+          "Tolzu",
+          2
+        ],
+        [
+          4,
+          "Auditorio nacional",
+          3
+        ],
+        [
+          5,
+          "Tolzu2",
+          0
+        ],
+        [
+          6,
+          "Auditorio San Marcos",
+          2
+        ]
+      ]
+    }
+  }
+}

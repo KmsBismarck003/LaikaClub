@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-035",
+  "role": "gestor",
+  "test_name": "gestor_dashboard_latency_pt",
+  "timestamp": "2026-11-16T16:14:48.265172",
+  "execution_duration_sec": 0.046528,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "dashboard_latency": {
+      "status": 200,
+      "latency_ms": 46.50521278381348
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "test_id": "CP-035",
+  "role": "usuario",
+  "test_name": "salud_gateway_pilgrim_oat",
+  "timestamp": "2026-11-16T16:14:36.086209",
+  "execution_duration_sec": 0.030462,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Pilgrim Gateway opera nominalmente con todos sus enrutadores vinculados.",
+  "payloads": {
+    "gateway_health_payload": {
+      "health": {
+        "status": "healthy",
+        "service": "pilgrim"
+      },
+      "root": {
+        "gateway": "Pilgrim API Gateway",
+        "version": "2.0.0",
+        "status": "online",
+        "architecture": "modular-domain-driven",
+        "roles": {
+          "admin": "/api/admin, /api/database, /api/ads, /api/config, /api/restore-audit, /api/monitoring",
+          "auth": "/api/auth",
+          "gestor": "/api/manager, /api/stats/manager",
+          "operador": "/api/staff, /api/stats/staff",
+          "public": "/api/events, /api/venues, /api/tickets, /api/payments, /api/refunds, /api/stats, /uploads"
+        },
+        "target_services": {
+          "auth": "http://auth:8101",
+          "admin": "http://admin:8102",
+          "stats": "http://stats:8103",
+          "events": "http://events:8201",
+          "tickets": "http://tickets:8202",
+          "merchandise": "http://merchandise:8203",
+          "wearables": "http://laika_wearables:8204",
+          "achievements": "http://achievements:8301",
+          "analytics": "http://analytics:8302",
+          "analytics_bigdata": "http://analytics_bigdata:8303"
+        }
+      }
+    }
+  }
+}

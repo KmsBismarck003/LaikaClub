@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-020",
+  "role": "gestor",
+  "test_name": "gestor_transactions_audit_st",
+  "timestamp": "2026-11-16T16:15:16.981767",
+  "execution_duration_sec": 0.128846,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "transactions_audit": {
+      "status": 200,
+      "count": 10
+    }
+  }
+}

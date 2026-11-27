@@ -1,0 +1,15 @@
+{
+  "test_id": "CP-009",
+  "test_name": "coupon_discount_calculator",
+  "timestamp": "2026-11-16T12:56:57.278136",
+  "execution_duration_sec": 5.3e-05,
+  "result": "Aprobada",
+  "payloads": {
+    "discounts_calculated": {
+      "percentage": 150.0,
+      "fixed": 200.0,
+      "capped_fixed": 1000.0,
+      "service_fee": 50.0
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-060",
+  "role": "gestor",
+  "test_name": "manager_presale_info_endpoint_get",
+  "timestamp": "2026-11-16T16:14:05.182950",
+  "execution_duration_sec": 0.021343,
+  "result": "Fallida",
+  "defect_id": "DEF-GES-003",
+  "defect_severity": "Alta",
+  "observations": "Falta ruta de API Gateway: /api/presale/** no está enrutado hacia microservicio Events",
+  "payloads": {
+    "http_response": {
+      "status": 404,
+      "data": {}
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "test_id": "CP-003",
+  "test_name": "carrito_calculo_subtotal",
+  "timestamp": "2026-11-16T12:56:57.699467",
+  "execution_duration_sec": 5.5e-05,
+  "result": "Aprobada",
+  "payloads": {
+    "calculation_result": {
+      "subtotal": 1250.0,
+      "service_fee": 125.0,
+      "total": 1275.0
+    }
+  }
+}

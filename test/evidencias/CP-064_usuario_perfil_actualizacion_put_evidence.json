@@ -1,0 +1,25 @@
+{
+  "test_id": "CP-064",
+  "test_name": "usuario_perfil_actualizacion_put",
+  "timestamp": "2026-11-16T12:56:31.092608",
+  "execution_duration_sec": 0.035446,
+  "result": "Aprobada",
+  "payloads": {
+    "profile_put_response": {
+      "id": 30078,
+      "firstName": "QA_Automated",
+      "lastName": "Unit_Check",
+      "email": "qa_user_test@laikaclub.com",
+      "phone": "5554443322",
+      "role": "usuario",
+      "status": "active",
+      "createdAt": "2026-11-16T18:33:41",
+      "permissions": {
+        "canViewMyHistory": true,
+        "canViewAchievements": true,
+        "canAccessCart": true,
+        "canViewMyTickets": true
+      }
+    }
+  }
+}

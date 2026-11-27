@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-ADV-051",
+  "role": "avanzados",
+  "test_name": "flujo_database_automatic_backup_config_put",
+  "timestamp": "2026-11-16T16:15:53.477814",
+  "execution_duration_sec": 0.027245,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Política de respaldos automáticos actualizada y persistida correctamente",
+  "payloads": {
+    "auto_backup_config": {
+      "nextBackup": "2026-11-17T03:00",
+      "message": "Configuración guardada correctamente",
+      "success": true
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-012",
+  "role": "avanzados",
+  "test_name": "flujo_transferencia_claim_info_token_inexistente_get",
+  "timestamp": "2026-11-16T16:15:54.331181",
+  "execution_duration_sec": 0.028518,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Manejo seguro de claim-info falso: HTTP 404",
+  "payloads": {
+    "fake_claim_info": {
+      "status_code": 404,
+      "body": "{\"timestamp\":\"2026-11-16T22:15:54.356+00:00\",\"status\":404,\"error\":\"Not Found\",\"message\":\"Enlace de transferencia no váli"
+    }
+  }
+}

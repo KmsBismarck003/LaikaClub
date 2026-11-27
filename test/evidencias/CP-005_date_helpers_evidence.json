@@ -1,0 +1,31 @@
+{
+  "test_id": "CP-005",
+  "test_name": "date_helpers",
+  "timestamp": "2026-11-16T12:56:57.706469",
+  "execution_duration_sec": 7.1e-05,
+  "result": "Aprobada",
+  "payloads": {
+    "date_cases": [
+      {
+        "input": "2026-11-20T19:00:00",
+        "expected": "20 nov 2026"
+      },
+      {
+        "input": "2026-12-31",
+        "expected": "31 dic 2026"
+      },
+      {
+        "input": "",
+        "expected": "Fecha por definir"
+      },
+      {
+        "input": "None",
+        "expected": "Fecha por definir"
+      },
+      {
+        "input": "Proximamente",
+        "expected": "Proximamente"
+      }
+    ]
+  }
+}

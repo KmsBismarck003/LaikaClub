@@ -1,0 +1,24 @@
+{
+  "test_id": "CP-044",
+  "test_name": "concurrencia_consulta_boletos_pt",
+  "timestamp": "2026-11-16T12:56:37.207390",
+  "execution_duration_sec": 5.272241,
+  "result": "Aprobada",
+  "payloads": {
+    "concurrency_results": {
+      "concurrency": 10,
+      "status_codes": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ]
+    }
+  }
+}

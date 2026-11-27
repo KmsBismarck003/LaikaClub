@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-009",
+  "role": "usuario",
+  "test_name": "coupon_discount_calculator",
+  "timestamp": "2026-11-16T16:15:32.626591",
+  "execution_duration_sec": 5.6e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Fórmulas alineadas con AchievementsController y el carrito.",
+  "payloads": {
+    "discounts_calculated": {
+      "percentage": 150.0,
+      "fixed": 200.0,
+      "capped_fixed": 1000.0,
+      "service_fee": 50.0
+    }
+  }
+}

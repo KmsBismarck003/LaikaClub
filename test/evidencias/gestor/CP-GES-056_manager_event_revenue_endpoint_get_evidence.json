@@ -1,0 +1,24 @@
+{
+  "test_id": "CP-GES-056",
+  "role": "gestor",
+  "test_name": "manager_event_revenue_endpoint_get",
+  "timestamp": "2026-11-16T16:14:04.500304",
+  "execution_duration_sec": 0.039207,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "data": {
+        "projected_total": 7200.0,
+        "gross": 7200.0,
+        "tickets_sold": 4,
+        "tickets_refunded": 0,
+        "net": 7200.0,
+        "refunded_amount": 0.0
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-024",
+  "role": "operador",
+  "test_name": "operador_stats_health_oat",
+  "timestamp": "2026-11-16T16:14:36.773356",
+  "execution_duration_sec": 0.026571,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "stats_health_oat": {
+      "status": 200,
+      "body": "{\"service\":\"stats-service\",\"status\":\"alive\"}"
+    }
+  }
+}

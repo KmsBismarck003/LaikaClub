@@ -1,0 +1,29 @@
+{
+  "test_id": "CP-052",
+  "role": "usuario",
+  "test_name": "compatibilidad_payload_json_encoding_ct",
+  "timestamp": "2026-11-16T16:14:14.939304",
+  "execution_duration_sec": 0.072216,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El pipeline de serialización JSON y MySQL preserva la integridad del juego de caracteres UTF-8.",
+  "payloads": {
+    "utf8_verification": {
+      "id": 30078,
+      "firstName": "Íñigo",
+      "lastName": "Peña-Muñoz",
+      "email": "qa_user_test@laikaclub.com",
+      "phone": "5557778888",
+      "role": "usuario",
+      "status": "active",
+      "createdAt": "2026-11-16T18:33:41",
+      "permissions": {
+        "canViewMyHistory": true,
+        "canViewAchievements": true,
+        "canAccessCart": true,
+        "canViewMyTickets": true
+      }
+    }
+  }
+}

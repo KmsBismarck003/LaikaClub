@@ -1,0 +1,67 @@
+{
+  "test_id": "CP-034",
+  "test_name": "salud_todos_microservicios_oat",
+  "timestamp": "2026-11-16T12:56:36.562896",
+  "execution_duration_sec": 0.189932,
+  "result": "Aprobada",
+  "payloads": {
+    "microservices_health": {
+      "laika_auth": {
+        "status_code": 200,
+        "payload": {
+          "service": "auth-service",
+          "status": "alive"
+        }
+      },
+      "laika_admin": {
+        "status_code": 200,
+        "payload": {
+          "service": "admin-service",
+          "status": "alive"
+        }
+      },
+      "laika_stats": {
+        "status_code": 200,
+        "payload": {
+          "service": "stats-service",
+          "status": "alive"
+        }
+      },
+      "laika_events": {
+        "status_code": 200,
+        "payload": {
+          "service": "laika-events",
+          "status": "healthy"
+        }
+      },
+      "laika_tickets": {
+        "status_code": 200,
+        "payload": {
+          "service": "ticket-service-java-v3-contextual",
+          "status": "alive"
+        }
+      },
+      "laika_merchandise": {
+        "status_code": 200,
+        "payload": {
+          "service": "merchandise_v2",
+          "status": "ok"
+        }
+      },
+      "laika_achievements": {
+        "status_code": 200,
+        "payload": {
+          "status": "healthy",
+          "service": "laika-achievements"
+        }
+      },
+      "laika_analytics": {
+        "status_code": 200,
+        "payload": {
+          "service": "laika-analytics",
+          "status": "healthy"
+        }
+      }
+    }
+  }
+}

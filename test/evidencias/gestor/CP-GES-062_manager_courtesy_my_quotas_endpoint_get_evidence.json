@@ -1,0 +1,29 @@
+{
+  "test_id": "CP-GES-062",
+  "role": "gestor",
+  "test_name": "manager_courtesy_my_quotas_endpoint_get",
+  "timestamp": "2026-11-16T16:14:04.011131",
+  "execution_duration_sec": 0.035525,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "quotas": [
+        {
+          "id": 4,
+          "managerUserId": 3,
+          "eventId": 24,
+          "eventFunctionId": 45,
+          "sectionName": "General",
+          "maxAllowed": 25,
+          "issuedCount": 4,
+          "createdAt": "2026-11-16T22:08:11.569357",
+          "updatedAt": "2026-11-16T22:13:43.660023"
+        }
+      ]
+    }
+  }
+}

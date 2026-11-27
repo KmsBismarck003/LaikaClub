@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-ADM-039",
+  "role": "admin",
+  "test_name": "inyeccion_sql_en_busqueda_usuarios_security",
+  "timestamp": "2026-11-16T16:14:59.391892",
+  "execution_duration_sec": 0.060952,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "sqli_test_output": {
+      "status": 200,
+      "payload": "' OR '1'='1",
+      "safe": true
+    }
+  }
+}

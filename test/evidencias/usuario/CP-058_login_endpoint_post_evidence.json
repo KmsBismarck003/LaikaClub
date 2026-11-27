@@ -1,0 +1,34 @@
+{
+  "test_id": "CP-058",
+  "role": "usuario",
+  "test_name": "login_endpoint_post",
+  "timestamp": "2026-11-16T16:14:06.164280",
+  "execution_duration_sec": 0.145891,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El endpoint de login responde conforme a la especificación OpenAPI.",
+  "payloads": {
+    "login_success_response": {
+      "status_code": 200,
+      "user": {
+        "id": 30078,
+        "firstName": "QA_User",
+        "lastName": "Tester",
+        "email": "qa_user_test@laikaclub.com",
+        "phone": "55-1234-5678",
+        "role": "usuario",
+        "status": "active",
+        "createdAt": "2026-11-16T18:33:41",
+        "permissions": [
+          "admin.view",
+          "venues.view",
+          "cms.view",
+          "stats.view",
+          "users.view",
+          "events.view"
+        ]
+      }
+    }
+  }
+}

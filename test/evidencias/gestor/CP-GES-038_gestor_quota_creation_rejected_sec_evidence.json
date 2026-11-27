@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-038",
+  "role": "gestor",
+  "test_name": "gestor_quota_creation_rejected_sec",
+  "timestamp": "2026-11-16T16:15:00.259550",
+  "execution_duration_sec": 0.033011,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "quota_sec": {
+      "status": 403,
+      "body": "{\"timestamp\":\"2026-11-16T22:15:00.289+00:00\",\"status\":403,\"error\":\"Forbidden\",\"message\":\"Solo admini"
+    }
+  }
+}

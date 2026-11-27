@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-047",
+  "test_name": "xss_payload_perfil_security",
+  "timestamp": "2026-11-16T12:56:47.302634",
+  "execution_duration_sec": 0.130171,
+  "result": "Aprobada",
+  "payloads": {
+    "xss_response": {
+      "status_code": 200,
+      "stored_value": "<script>alert('XSS_TEST')</script>"
+    }
+  }
+}

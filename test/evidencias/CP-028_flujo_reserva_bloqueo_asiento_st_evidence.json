@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-028",
+  "test_name": "flujo_reserva_bloqueo_asiento_st",
+  "timestamp": "2026-11-16T12:56:53.065891",
+  "execution_duration_sec": 0.288816,
+  "result": "Aprobada",
+  "payloads": {
+    "lock_unlock_flow": {
+      "lock_response": {
+        "ticketCode": "TKT-663585DB",
+        "status": "success"
+      },
+      "unlock_status": 200
+    }
+  }
+}

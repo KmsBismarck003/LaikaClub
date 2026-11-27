@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-012",
+  "role": "usuario",
+  "test_name": "api_client_error_parsing",
+  "timestamp": "2026-11-16T16:14:34.265878",
+  "execution_duration_sec": 2.5e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El cliente HTTP desacopla las variaciones entre microservicios Java y Gateway Python.",
+  "payloads": {
+    "parsed_outputs": {
+      "spring": "Credenciales inválidas",
+      "gateway": "Credenciales inválidas",
+      "pydantic": "email: field required"
+    }
+  }
+}

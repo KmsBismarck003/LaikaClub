@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-045",
+  "role": "admin",
+  "test_name": "flujo_auth_desbloqueo_cuenta_admin_patch",
+  "timestamp": "2026-11-16T16:15:47.947589",
+  "execution_duration_sec": 0.027229,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Cuenta desbloqueada exitosamente por administrador",
+  "payloads": {
+    "unlock_response": {
+      "message": "Usuario desbloqueado",
+      "status": "success"
+    }
+  }
+}

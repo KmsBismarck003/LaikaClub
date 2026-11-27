@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-015",
+  "role": "avanzados",
+  "test_name": "flujo_creacion_evento_colision_recinto_horario_post",
+  "timestamp": "2026-11-16T16:15:50.938169",
+  "execution_duration_sec": 0.042675,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Ejecución de auditoría de colisión: HTTP 500",
+  "payloads": {
+    "colision_test_response": {
+      "status_code": 500,
+      "text": "{\"timestamp\":\"2026-11-16T22:15:50.977+00:00\",\"status\":500,\"error\":\"Internal Server Error\",\"path\":\"/manager/events\"}"
+    }
+  }
+}

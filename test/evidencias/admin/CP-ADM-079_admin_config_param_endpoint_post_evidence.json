@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-079",
+  "role": "admin",
+  "test_name": "admin_config_param_endpoint_post",
+  "timestamp": "2026-11-16T16:13:52.601214",
+  "execution_duration_sec": 0.025839,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "body": "{\"success\":true}"
+    }
+  }
+}

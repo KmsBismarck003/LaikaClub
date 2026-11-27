@@ -1,0 +1,14 @@
+{
+  "test_id": "CP-014",
+  "test_name": "ticket_persistence_it",
+  "timestamp": "2026-11-16T12:56:34.144305",
+  "execution_duration_sec": 2.267181,
+  "result": "Aprobada",
+  "payloads": {
+    "persistence_summary": {
+      "user_id": 30078,
+      "api_count": 19,
+      "db_count": 19
+    }
+  }
+}

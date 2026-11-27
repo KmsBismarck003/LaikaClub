@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-ADM-012",
+  "role": "admin",
+  "test_name": "gateway_admin_config_sit",
+  "timestamp": "2026-11-16T16:15:01.250542",
+  "execution_duration_sec": 0.042124,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "config_response": {
+      "status": 200,
+      "payload": {
+        "registrationEnabled": true,
+        "maxTicketsPerUser": 5,
+        "sessionTimeout": 35,
+        "maintenanceMode": false
+      }
+    }
+  }
+}

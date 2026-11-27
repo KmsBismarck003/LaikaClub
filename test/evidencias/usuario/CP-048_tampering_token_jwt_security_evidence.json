@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-048",
+  "role": "usuario",
+  "test_name": "tampering_token_jwt_security",
+  "timestamp": "2026-11-16T16:15:00.987920",
+  "execution_duration_sec": 0.041215,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "La verificación criptográfica HMAC-SHA256 detecta y bloquea tokens manipulados.",
+  "payloads": {
+    "tampering_evidence": {
+      "original_prefix": "eyJhbGciOiJIUzI",
+      "tampered_suffix": "KTkGTEXXXX",
+      "status_code": 401
+    }
+  }
+}

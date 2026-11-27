@@ -1,0 +1,36 @@
+{
+  "test_id": "CP-OPE-052",
+  "role": "operador",
+  "test_name": "staff_dashboard_stats_endpoint_get",
+  "timestamp": "2026-11-16T16:14:12.860637",
+  "execution_duration_sec": 0.438844,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "200 OK verificado: totalScanned=0, validScans=0",
+  "payloads": {
+    "staff_stats_response": {
+      "totalScanned": 0,
+      "validScans": 0,
+      "invalidScans": 0,
+      "scansPerHour": [
+        10,
+        45,
+        80,
+        120,
+        210,
+        150,
+        40
+      ],
+      "labels": [
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00"
+      ]
+    }
+  }
+}

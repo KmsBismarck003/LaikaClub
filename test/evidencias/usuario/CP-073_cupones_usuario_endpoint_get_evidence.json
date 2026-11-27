@@ -1,0 +1,57 @@
+{
+  "test_id": "CP-073",
+  "role": "usuario",
+  "test_name": "cupones_usuario_endpoint_get",
+  "timestamp": "2026-11-16T16:14:02.821934",
+  "execution_duration_sec": 0.096386,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El motor de recompensas evalúa y entrega los cupones vigentes.",
+  "payloads": {
+    "user_coupons_response": {
+      "count": 3,
+      "coupons": [
+        {
+          "id": 30137,
+          "userId": 30078,
+          "code": "LAIKA-01-2WBIEP",
+          "couponType": "",
+          "discountType": "service_fee",
+          "discountValue": 100.0,
+          "description": "100% discount on Service Fee in first purchase",
+          "usesLeft": 1,
+          "expiresAt": null,
+          "isPermanent": 0,
+          "createdAt": "2026-11-16T18:52:56"
+        },
+        {
+          "id": 30138,
+          "userId": 30078,
+          "code": "LAIKA-03-0VLYX8",
+          "couponType": "",
+          "discountType": "percentage",
+          "discountValue": 5.0,
+          "description": "5% discount direct on next purchase",
+          "usesLeft": 1,
+          "expiresAt": null,
+          "isPermanent": 0,
+          "createdAt": "2026-11-16T18:52:56"
+        },
+        {
+          "id": 30141,
+          "userId": 30078,
+          "code": "LAIKA-05-ITFC5E",
+          "couponType": "",
+          "discountType": "service_fee",
+          "discountValue": 100.0,
+          "description": "Cupones 2x1 en cargos por servicio (2 usos)",
+          "usesLeft": 2,
+          "expiresAt": null,
+          "isPermanent": 0,
+          "createdAt": "2026-11-16T18:55:33"
+        }
+      ]
+    }
+  }
+}

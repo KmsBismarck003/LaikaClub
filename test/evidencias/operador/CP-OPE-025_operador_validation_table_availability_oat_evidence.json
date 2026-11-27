@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-OPE-025",
+  "role": "operador",
+  "test_name": "operador_validation_table_availability_oat",
+  "timestamp": "2026-11-16T16:14:36.868772",
+  "execution_duration_sec": 0.027284,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "table_check": {
+      "result": [
+        [
+          "laika_tickets.ticket_validation_logs",
+          "check",
+          "status",
+          "OK"
+        ]
+      ]
+    }
+  }
+}

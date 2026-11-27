@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-004",
+  "role": "avanzados",
+  "test_name": "flujo_compra_evento_caducado_post",
+  "timestamp": "2026-11-16T16:15:48.556402",
+  "execution_duration_sec": 0.18367,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Venta en evento caducado denegada correctamente: HTTP 403",
+  "payloads": {
+    "compra_caducado": {
+      "status_code": 403,
+      "text": "{\"timestamp\":\"2026-11-16T22:15:48.736+00:00\",\"status\":403,\"error\":\"Forbidden\",\"message\":\"Este evento no es gratuito. Usa"
+    }
+  }
+}

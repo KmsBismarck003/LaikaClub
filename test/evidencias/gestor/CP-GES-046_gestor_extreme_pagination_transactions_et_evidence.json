@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-046",
+  "role": "gestor",
+  "test_name": "gestor_extreme_pagination_transactions_et",
+  "timestamp": "2026-11-16T16:14:26.745950",
+  "execution_duration_sec": 0.294221,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "pagination_et": {
+      "limit0": 200,
+      "limit1m": 200
+    }
+  }
+}

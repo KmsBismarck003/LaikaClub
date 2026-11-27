@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-ADV-016",
+  "role": "avanzados",
+  "test_name": "flujo_publicacion_y_despublicacion_evento_patch",
+  "timestamp": "2026-11-16T16:15:51.121073",
+  "execution_duration_sec": 0.141639,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Ciclo completo de publicación y despublicación validado",
+  "payloads": {
+    "publish_cycle": {
+      "pub": {
+        "message": "Evento publicado",
+        "status": "success"
+      },
+      "unpub": {
+        "message": "Evento movido a borrador",
+        "status": "success"
+      }
+    }
+  }
+}

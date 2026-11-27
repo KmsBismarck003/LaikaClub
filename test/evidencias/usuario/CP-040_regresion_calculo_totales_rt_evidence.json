@@ -1,0 +1,36 @@
+{
+  "test_id": "CP-040",
+  "role": "usuario",
+  "test_name": "regresion_calculo_totales_rt",
+  "timestamp": "2026-11-16T16:14:51.848398",
+  "execution_duration_sec": 4.7e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Fórmulas financieras estables y consistentes con la versión de referencia.",
+  "payloads": {
+    "regression_datasets": [
+      {
+        "price": 1000.0,
+        "qty": 1,
+        "fee_rate": 0.1,
+        "exp_fee": 100.0,
+        "exp_total": 1100.0
+      },
+      {
+        "price": 450.5,
+        "qty": 2,
+        "fee_rate": 0.1,
+        "exp_fee": 90.1,
+        "exp_total": 991.1
+      },
+      {
+        "price": 200.0,
+        "qty": 3,
+        "fee_rate": 0.1,
+        "exp_fee": 60.0,
+        "exp_total": 660.0
+      }
+    ]
+  }
+}

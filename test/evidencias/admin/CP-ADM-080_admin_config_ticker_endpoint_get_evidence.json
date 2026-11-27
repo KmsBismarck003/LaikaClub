@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-080",
+  "role": "admin",
+  "test_name": "admin_config_ticker_endpoint_get",
+  "timestamp": "2026-11-16T16:13:52.772499",
+  "execution_duration_sec": 0.026801,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "body": "{\"content\":\"¡Atención administradores! Éxito total en México con señal acústica \\uD83D\\uDE80 2026.\",\"enabled\":true}"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-ADM-033",
+  "role": "admin",
+  "test_name": "latencia_admin_users_list_pt",
+  "timestamp": "2026-11-16T16:14:37.770529",
+  "execution_duration_sec": 0.031097,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "performance_telemetry": {
+      "latency_ms": 31.07,
+      "threshold_ms": 1500.0,
+      "status": 200
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "test_id": "CP-ADM-019",
+  "role": "admin",
+  "test_name": "admin_database_tables_count_st",
+  "timestamp": "2026-11-16T16:15:15.968049",
+  "execution_duration_sec": 0.033186,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_tables_summary": {
+      "count": 10,
+      "sample": [
+        {
+          "name": "ad_clicks",
+          "row_count": 27
+        },
+        {
+          "name": "ads",
+          "row_count": 3
+        },
+        {
+          "name": "audit_logs",
+          "row_count": 0
+        }
+      ]
+    }
+  }
+}

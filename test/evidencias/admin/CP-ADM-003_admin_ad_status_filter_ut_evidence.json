@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-ADM-003",
+  "role": "admin",
+  "test_name": "admin_ad_status_filter_ut",
+  "timestamp": "2026-11-16T16:15:32.134406",
+  "execution_duration_sec": 3e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "filter_result": {
+      "input_count": 4,
+      "output_ids": [
+        1,
+        3
+      ]
+    }
+  }
+}

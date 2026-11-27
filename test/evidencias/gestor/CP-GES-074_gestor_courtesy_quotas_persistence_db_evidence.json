@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-GES-074",
+  "role": "gestor",
+  "test_name": "gestor_courtesy_quotas_persistence_db",
+  "timestamp": "2026-11-16T16:14:17.534308",
+  "execution_duration_sec": 0.028609,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_quotas": {
+      "total_quotas": 3
+    }
+  }
+}

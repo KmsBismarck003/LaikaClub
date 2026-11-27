@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-ADM-024",
+  "role": "admin",
+  "test_name": "flujo_mantenimiento_base_datos_uat",
+  "timestamp": "2026-11-16T16:15:20.253889",
+  "execution_duration_sec": 0.14693,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_maintenance_flow": {
+      "tables_ok": true,
+      "stats_ok": true,
+      "cache_ok": true
+    }
+  }
+}

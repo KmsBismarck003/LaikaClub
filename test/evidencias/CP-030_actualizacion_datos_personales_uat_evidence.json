@@ -1,0 +1,25 @@
+{
+  "test_id": "CP-030",
+  "test_name": "actualizacion_datos_personales_uat",
+  "timestamp": "2026-11-16T12:56:56.921495",
+  "execution_duration_sec": 0.132716,
+  "result": "Aprobada",
+  "payloads": {
+    "profile_update_uat": {
+      "id": 30078,
+      "firstName": "Usuario UAT",
+      "lastName": "Final",
+      "email": "qa_user_test@laikaclub.com",
+      "phone": "5553334444",
+      "role": "usuario",
+      "status": "active",
+      "createdAt": "2026-11-16T18:33:41",
+      "permissions": {
+        "canViewMyHistory": true,
+        "canViewAchievements": true,
+        "canAccessCart": true,
+        "canViewMyTickets": true
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "test_id": "CP-050",
+  "test_name": "bloqueo_fuerza_bruta_security",
+  "timestamp": "2026-11-16T12:56:46.613273",
+  "execution_duration_sec": 0.076262,
+  "result": "Aprobada",
+  "payloads": {
+    "lockout_telemetry": {
+      "failed_attempts": 0,
+      "retry_after": 0,
+      "locked": false
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-016",
+  "role": "admin",
+  "test_name": "admin_panel_auth_guard_st",
+  "timestamp": "2026-11-16T16:15:16.030989",
+  "execution_duration_sec": 0.01628,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "rejection_response": {
+      "status": 401,
+      "body": ""
+    }
+  }
+}

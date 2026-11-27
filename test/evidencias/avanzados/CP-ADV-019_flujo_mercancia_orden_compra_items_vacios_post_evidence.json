@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-ADV-019",
+  "role": "avanzados",
+  "test_name": "flujo_mercancia_orden_compra_items_vacios_post",
+  "timestamp": "2026-11-16T16:15:52.034262",
+  "execution_duration_sec": 0.046452,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Orden vacía rechazada correctamente: HTTP 401",
+  "payloads": {
+    "empty_order_rejection": {
+      "status_code": 401
+    }
+  }
+}

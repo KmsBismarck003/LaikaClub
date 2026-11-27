@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-ADV-001",
+  "role": "avanzados",
+  "test_name": "flujo_compra_tarjeta_create_intent_post",
+  "timestamp": "2026-11-16T16:15:48.884375",
+  "execution_duration_sec": 0.029251,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Payment Intent creado: ID=PAY-D65D22, status=pending",
+  "payloads": {
+    "payment_intent": {
+      "amount": 450.0,
+      "payment_id": "PAY-D65D22",
+      "status": "pending"
+    }
+  }
+}

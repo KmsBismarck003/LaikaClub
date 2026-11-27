@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-036",
+  "role": "usuario",
+  "test_name": "generacion_logs_docker_oat",
+  "timestamp": "2026-11-16T16:14:36.533863",
+  "execution_duration_sec": 0.194827,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Los contenedores emiten telemetría y bitácora estándar para trazabilidad operativa.",
+  "payloads": {
+    "docker_logs_snippet": {
+      "gateway_sample": "auth/users/me HTTP/1.1\" 200 OK\nINFO:     172.18.0.1:36280 - \"POST /api/database/clear-cache HTTP/1.1\" 200 OK\nINFO:     172.18.0.1:36284 - \"POST /api/database/optimize HTTP/1.1\" 200 OK\nINFO:     172.18.0.1:36302 - \"GET /api/health HTTP/1.1\" 200 OK\nINFO:     172.18.0.1:36306 - \"GET / HTTP/1.1\" 200 OK\n",
+      "tickets_sample": "omcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1736) ~[tomcat-embed-core-10.1.20.jar!/:na]\n\tat org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.20.jar!/:na]\n\tat java.base/java.lang.VirtualThread.run(Unknown Source) ~[na:na]\n\n"
+    }
+  }
+}

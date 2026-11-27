@@ -1,0 +1,28 @@
+{
+  "test_id": "CP-018",
+  "test_name": "token_validation_gateway_sit",
+  "timestamp": "2026-11-16T12:56:47.606164",
+  "execution_duration_sec": 0.029187,
+  "result": "Aprobada",
+  "payloads": {
+    "verification_response": {
+      "valid": true,
+      "user": {
+        "id": 30078,
+        "firstName": "QA_Verified",
+        "lastName": "Tester_Auto",
+        "email": "qa_user_test@laikaclub.com",
+        "phone": "5551234567",
+        "role": "usuario",
+        "status": "active",
+        "createdAt": "2026-11-16T18:33:41",
+        "permissions": {
+          "canViewMyHistory": true,
+          "canViewAchievements": true,
+          "canAccessCart": true,
+          "canViewMyTickets": true
+        }
+      }
+    }
+  }
+}

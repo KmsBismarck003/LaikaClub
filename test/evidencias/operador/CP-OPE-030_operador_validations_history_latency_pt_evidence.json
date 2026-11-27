@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-030",
+  "role": "operador",
+  "test_name": "operador_validations_history_latency_pt",
+  "timestamp": "2026-11-16T16:14:49.316511",
+  "execution_duration_sec": 0.037575,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "history_latency": {
+      "status": 200,
+      "latency_ms": 37.550926208496094
+    }
+  }
+}

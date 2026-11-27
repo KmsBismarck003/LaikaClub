@@ -1,0 +1,45 @@
+{
+  "test_id": "CP-017",
+  "test_name": "login_gateway_auth_sit",
+  "timestamp": "2026-11-16T12:56:47.439137",
+  "execution_duration_sec": 0.161209,
+  "result": "Aprobada",
+  "payloads": {
+    "gateway_sit_response": {
+      "status_code": 200,
+      "headers": {
+        "date": "Mon, 16 Nov 2026 18:56:46 GMT, Mon, 16 Nov 2026 18:56:46 GMT",
+        "server": "uvicorn",
+        "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+        "x-content-type-options": "nosniff",
+        "x-xss-protection": "0",
+        "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+        "pragma": "no-cache",
+        "expires": "0",
+        "x-frame-options": "DENY",
+        "content-type": "application/json",
+        "keep-alive": "timeout=60",
+        "connection": "keep-alive",
+        "content-length": "507"
+      },
+      "user_profile": {
+        "id": 30078,
+        "firstName": "QA_Verified",
+        "lastName": "Tester_Auto",
+        "email": "qa_user_test@laikaclub.com",
+        "phone": "5551234567",
+        "role": "usuario",
+        "status": "active",
+        "createdAt": "2026-11-16T18:33:41",
+        "permissions": [
+          "admin.view",
+          "venues.view",
+          "cms.view",
+          "stats.view",
+          "users.view",
+          "events.view"
+        ]
+      }
+    }
+  }
+}

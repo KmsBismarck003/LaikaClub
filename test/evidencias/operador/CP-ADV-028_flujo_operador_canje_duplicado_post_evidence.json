@@ -1,0 +1,33 @@
+{
+  "test_id": "CP-ADV-028",
+  "role": "operador",
+  "test_name": "flujo_operador_canje_duplicado_post",
+  "timestamp": "2026-11-16T16:15:52.119479",
+  "execution_duration_sec": 0.042586,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Control de acceso denegado correctamente: valid=False",
+  "payloads": {
+    "duplicate_scan": {
+      "valid": false,
+      "actionable": false,
+      "isError": true,
+      "alreadyUsed": false,
+      "statusCode": "INVALID_CODE",
+      "statusTitle": "CÓDIGO INEXISTENTE",
+      "operatorMessage": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+      "message": "El código del boleto no está registrado en el ecosistema LAIKA Club.",
+      "timeRemainingSeconds": 0,
+      "ticketCode": "TKT-INVALIDO-999",
+      "terminalContext": {
+        "platform": "WEB_OPERATOR",
+        "accessPoint": "Puerta Principal",
+        "operatorId": null,
+        "operatorName": null,
+        "selectedEventId": null,
+        "selectedFunctionId": null
+      }
+    }
+  }
+}

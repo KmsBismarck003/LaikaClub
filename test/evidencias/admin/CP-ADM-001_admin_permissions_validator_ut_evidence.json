@@ -1,0 +1,21 @@
+{
+  "test_id": "CP-ADM-001",
+  "role": "admin",
+  "test_name": "admin_permissions_validator_ut",
+  "timestamp": "2026-11-16T16:15:32.406791",
+  "execution_duration_sec": 3.1e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "validation_output": {
+      "valid": true,
+      "invalid_missing": [
+        "canCreateEvents",
+        "canEditEvents",
+        "canManageUsers"
+      ]
+    }
+  }
+}

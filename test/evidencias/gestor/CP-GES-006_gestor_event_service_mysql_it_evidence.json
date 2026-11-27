@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-GES-006",
+  "role": "gestor",
+  "test_name": "gestor_event_service_mysql_it",
+  "timestamp": "2026-11-16T16:14:34.351848",
+  "execution_duration_sec": 0.008515,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_events": {
+      "count": 33,
+      "first": [
+        5,
+        "Prueba 3",
+        "draft",
+        1000.0,
+        3
+      ]
+    }
+  }
+}

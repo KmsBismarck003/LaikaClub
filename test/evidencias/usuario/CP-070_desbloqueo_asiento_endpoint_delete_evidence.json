@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-070",
+  "role": "usuario",
+  "test_name": "desbloqueo_asiento_endpoint_delete",
+  "timestamp": "2026-11-16T16:14:02.949243",
+  "execution_duration_sec": 0.11392,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "La liberación de butacas opera de manera atómica.",
+  "payloads": {
+    "seat_unlock_response": {
+      "status_code": 200,
+      "body": "{\"status\":\"success\"}"
+    }
+  }
+}

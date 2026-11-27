@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-012",
+  "role": "operador",
+  "test_name": "operador_gateway_validations_history_sit",
+  "timestamp": "2026-11-16T16:15:15.779316",
+  "execution_duration_sec": 0.040825,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "validations_history_sit": {
+      "status": 200,
+      "count": 234
+    }
+  }
+}

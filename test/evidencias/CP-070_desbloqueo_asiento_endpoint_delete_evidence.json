@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-070",
+  "test_name": "desbloqueo_asiento_endpoint_delete",
+  "timestamp": "2026-11-16T12:56:27.307765",
+  "execution_duration_sec": 0.340454,
+  "result": "Aprobada",
+  "payloads": {
+    "seat_unlock_response": {
+      "status_code": 200,
+      "body": "{\"status\":\"success\"}"
+    }
+  }
+}

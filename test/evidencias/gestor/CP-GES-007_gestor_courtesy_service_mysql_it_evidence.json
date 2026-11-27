@@ -1,0 +1,27 @@
+{
+  "test_id": "CP-GES-007",
+  "role": "gestor",
+  "test_name": "gestor_courtesy_service_mysql_it",
+  "timestamp": "2026-11-16T16:14:34.295233",
+  "execution_duration_sec": 0.021498,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "courtesy_schema": {
+      "columns": [
+        "id",
+        "created_at",
+        "event_function_id",
+        "event_id",
+        "issued_count",
+        "manager_user_id",
+        "max_allowed",
+        "section_name",
+        "updated_at"
+      ],
+      "missing": []
+    }
+  }
+}

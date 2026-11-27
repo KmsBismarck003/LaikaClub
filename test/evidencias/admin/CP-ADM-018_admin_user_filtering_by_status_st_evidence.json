@@ -1,0 +1,18 @@
+{
+  "test_id": "CP-ADM-018",
+  "role": "admin",
+  "test_name": "admin_user_filtering_by_status_st",
+  "timestamp": "2026-11-16T16:15:16.216022",
+  "execution_duration_sec": 0.035685,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "filter_status_output": {
+      "status": 200,
+      "users_count": 10,
+      "all_match": true
+    }
+  }
+}

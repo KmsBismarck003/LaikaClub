@@ -1,0 +1,14 @@
+{
+  "test_id": "CP-055",
+  "test_name": "exploratorio_tokens_transferencia_inexistentes_et",
+  "timestamp": "2026-11-16T12:56:33.684638",
+  "execution_duration_sec": 0.221881,
+  "result": "Aprobada",
+  "payloads": {
+    "exploratory_transfer_results": {
+      "fake_token": "e002c41d52ea4402b7a535544b0d6c4b",
+      "validate_status": 404,
+      "claim_status": 404
+    }
+  }
+}

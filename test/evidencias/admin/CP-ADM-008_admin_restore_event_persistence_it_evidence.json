@@ -1,0 +1,32 @@
+{
+  "test_id": "CP-ADM-008",
+  "role": "admin",
+  "test_name": "admin_restore_event_persistence_it",
+  "timestamp": "2026-11-16T16:14:27.300858",
+  "execution_duration_sec": 0.009381,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "restore_events_schema": [
+      "id",
+      "backup_size_mb",
+      "confirmed_at",
+      "created_at",
+      "database_name",
+      "end_datetime",
+      "environment",
+      "execution_method",
+      "functional_checks",
+      "is_confirmed",
+      "operational_impact",
+      "restore_reason",
+      "restore_type",
+      "server_name",
+      "severity",
+      "start_datetime",
+      "technical_checks"
+    ]
+  }
+}

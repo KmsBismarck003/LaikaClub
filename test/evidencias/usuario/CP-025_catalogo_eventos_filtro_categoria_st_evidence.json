@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-025",
+  "role": "usuario",
+  "test_name": "catalogo_eventos_filtro_categoria_st",
+  "timestamp": "2026-11-16T16:15:16.418145",
+  "execution_duration_sec": 0.064243,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El motor de búsqueda y filtrado de eventos opera consistentemente.",
+  "payloads": {
+    "category_filters": [
+      "concert",
+      "theater"
+    ]
+  }
+}

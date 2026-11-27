@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-003",
+  "role": "avanzados",
+  "test_name": "flujo_compra_evento_inexistente_post",
+  "timestamp": "2026-11-16T16:15:48.801490",
+  "execution_duration_sec": 0.045647,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Rechazo correcto ante evento inexistente: HTTP 503",
+  "payloads": {
+    "compra_evento_inexistente": {
+      "status_code": 503,
+      "body": "{\"timestamp\":\"2026-11-16T22:15:48.842+00:00\",\"status\":503,\"error\":\"Service Unavailable\",\"message\":\"No se pudo verificar "
+    }
+  }
+}

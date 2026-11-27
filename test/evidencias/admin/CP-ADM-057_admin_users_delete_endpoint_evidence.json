@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-057",
+  "role": "admin",
+  "test_name": "admin_users_delete_endpoint",
+  "timestamp": "2026-11-16T16:13:55.405946",
+  "execution_duration_sec": 0.160377,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "body": "{\"message\":\"Usuario eliminado\",\"status\":\"success\"}"
+    }
+  }
+}

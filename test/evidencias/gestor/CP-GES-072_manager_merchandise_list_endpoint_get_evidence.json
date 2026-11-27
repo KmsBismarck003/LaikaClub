@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-072",
+  "role": "gestor",
+  "test_name": "manager_merchandise_list_endpoint_get",
+  "timestamp": "2026-11-16T16:14:05.127890",
+  "execution_duration_sec": 0.036252,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "count": 2
+    }
+  }
+}

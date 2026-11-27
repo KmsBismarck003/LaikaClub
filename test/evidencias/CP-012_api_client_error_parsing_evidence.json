@@ -1,0 +1,14 @@
+{
+  "test_id": "CP-012",
+  "test_name": "api_client_error_parsing",
+  "timestamp": "2026-11-16T12:56:36.452506",
+  "execution_duration_sec": 4.1e-05,
+  "result": "Aprobada",
+  "payloads": {
+    "parsed_outputs": {
+      "spring": "Credenciales inválidas",
+      "gateway": "Credenciales inválidas",
+      "pydantic": "email: field required"
+    }
+  }
+}

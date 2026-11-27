@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-059",
+  "role": "gestor",
+  "test_name": "manager_events_historical_endpoint_get",
+  "timestamp": "2026-11-16T16:14:04.891347",
+  "execution_duration_sec": 0.038097,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "count": 0
+    }
+  }
+}

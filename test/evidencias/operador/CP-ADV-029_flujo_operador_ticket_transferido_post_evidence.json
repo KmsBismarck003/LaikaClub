@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-ADV-029",
+  "role": "operador",
+  "test_name": "flujo_operador_ticket_transferido_post",
+  "timestamp": "2026-11-16T16:15:52.458422",
+  "execution_duration_sec": 0.037872,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Auditoría obtenida: 106 registros de escaneo registrados",
+  "payloads": {
+    "ticket_transfer_audit": {
+      "total_logs": 106
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "test_id": "CP-ADM-027",
+  "role": "admin",
+  "test_name": "disponibilidad_tablas_admin_mysql_oat",
+  "timestamp": "2026-11-16T16:14:34.601264",
+  "execution_duration_sec": 0.006741,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "admin_tables_list": [
+      "ad_clicks",
+      "ads",
+      "audit_logs",
+      "backup_history",
+      "contract_managers",
+      "contracts",
+      "events",
+      "manager_action_logs",
+      "organizations",
+      "restore_events",
+      "system_config",
+      "users"
+    ]
+  }
+}

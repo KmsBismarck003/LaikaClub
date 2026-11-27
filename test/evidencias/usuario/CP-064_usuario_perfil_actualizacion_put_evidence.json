@@ -1,0 +1,29 @@
+{
+  "test_id": "CP-064",
+  "role": "usuario",
+  "test_name": "usuario_perfil_actualizacion_put",
+  "timestamp": "2026-11-16T16:14:14.522158",
+  "execution_duration_sec": 0.052644,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El servicio actualiza los campos permitidos y retorna el objeto sincronizado.",
+  "payloads": {
+    "profile_put_response": {
+      "id": 30078,
+      "firstName": "QA_Automated",
+      "lastName": "Unit_Check",
+      "email": "qa_user_test@laikaclub.com",
+      "phone": "5554443322",
+      "role": "usuario",
+      "status": "active",
+      "createdAt": "2026-11-16T18:33:41",
+      "permissions": {
+        "canViewMyHistory": true,
+        "canViewAchievements": true,
+        "canAccessCart": true,
+        "canViewMyTickets": true
+      }
+    }
+  }
+}

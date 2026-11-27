@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-013",
+  "role": "usuario",
+  "test_name": "auth_service_mysql_it",
+  "timestamp": "2026-11-16T16:14:27.372036",
+  "execution_duration_sec": 0.192986,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Integración transaccional y consulta entre AuthService y MySQL verificada con éxito real.",
+  "payloads": {
+    "db_record": {
+      "id": 30078,
+      "email": "qa_user_test@laikaclub.com",
+      "role": "usuario",
+      "status": "active"
+    },
+    "api_response": {
+      "status_code": 200,
+      "user_id": 30078
+    }
+  }
+}

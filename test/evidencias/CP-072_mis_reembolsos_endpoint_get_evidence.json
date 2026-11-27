@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-072",
+  "test_name": "mis_reembolsos_endpoint_get",
+  "timestamp": "2026-11-16T12:56:30.427120",
+  "execution_duration_sec": 0.049928,
+  "result": "Aprobada",
+  "payloads": {
+    "refunds_query_response": {
+      "count": 0,
+      "sample": {}
+    }
+  }
+}

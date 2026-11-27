@@ -1,0 +1,44 @@
+{
+  "test_id": "CP-ADV-046",
+  "role": "avanzados",
+  "test_name": "flujo_cortesia_emision_directa_post",
+  "timestamp": "2026-11-16T16:15:50.564746",
+  "execution_duration_sec": 0.088147,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Cortesía emitida con éxito (Token: LAIKA-COR-492A8C, Boleto: TKT-COR-67FAE723)",
+  "payloads": {
+    "courtesy_issuance": {
+      "success": true,
+      "issuance_id": 13,
+      "delivery_method": "CLAIM_CODE",
+      "quantity": 1,
+      "recipient_type": "PATROCINADOR",
+      "motive": "Patrocinio Oficial QA",
+      "tickets": [
+        {
+          "id": 200300,
+          "user_id": null,
+          "event_id": 24,
+          "ticket_code": "TKT-COR-67FAE723",
+          "qr_data": "TKT-COR-67FAE723",
+          "section_name": "General",
+          "seat_id": null,
+          "price": 0.0,
+          "status": "pending_claim",
+          "payment_method": "courtesy",
+          "purchase_date": "2026-11-16T22:15:50.636643936",
+          "is_courtesy": true,
+          "courtesy_issuance_id": 13,
+          "claim_token": "LAIKA-COR-492A8C",
+          "recipient_type": "PATROCINADOR",
+          "courtesy_motive": "Patrocinio Oficial QA",
+          "holder_name": null,
+          "holder_email": null
+        }
+      ],
+      "message": "Lote de códigos de cortesía generado exitosamente para entrega y canje posterior."
+    }
+  }
+}

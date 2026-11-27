@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-025",
+  "role": "avanzados",
+  "test_name": "flujo_auth_sqli_payload_login_post",
+  "timestamp": "2026-11-16T16:15:54.192328",
+  "execution_duration_sec": 0.037033,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Intento de inyección interceptado de forma segura: HTTP 422",
+  "payloads": {
+    "sqli_login_response": {
+      "status_code": 422,
+      "body": "{\"detail\":[{\"msg\":\"Formato de email inválido\",\"loc\":[\"body\",\"email\"],\"type\":\"value_error\"}]}"
+    }
+  }
+}

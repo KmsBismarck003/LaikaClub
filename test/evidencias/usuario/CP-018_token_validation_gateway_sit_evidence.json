@@ -1,0 +1,32 @@
+{
+  "test_id": "CP-018",
+  "role": "usuario",
+  "test_name": "token_validation_gateway_sit",
+  "timestamp": "2026-11-16T16:15:01.844170",
+  "execution_duration_sec": 0.034312,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El middleware de autenticación valida correctamente la firma criptográfica.",
+  "payloads": {
+    "verification_response": {
+      "valid": true,
+      "user": {
+        "id": 30078,
+        "firstName": "QA_Verified",
+        "lastName": "Tester_Auto",
+        "email": "qa_user_test@laikaclub.com",
+        "phone": "5551234567",
+        "role": "usuario",
+        "status": "active",
+        "createdAt": "2026-11-16T18:33:41",
+        "permissions": {
+          "canViewMyHistory": true,
+          "canViewAchievements": true,
+          "canAccessCart": true,
+          "canViewMyTickets": true
+        }
+      }
+    }
+  }
+}

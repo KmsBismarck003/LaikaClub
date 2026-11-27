@@ -1,0 +1,27 @@
+{
+  "test_id": "CP-002",
+  "test_name": "registro_validacion_contrasena",
+  "timestamp": "2026-11-16T12:56:57.728069",
+  "execution_duration_sec": 3.6e-05,
+  "result": "Aprobada",
+  "payloads": {
+    "cases_evaluated": [
+      {
+        "input": "",
+        "expected": false
+      },
+      {
+        "input": "12345",
+        "expected": false
+      },
+      {
+        "input": "Pass12",
+        "expected": true
+      },
+      {
+        "input": "TestQA123!",
+        "expected": true
+      }
+    ]
+  }
+}

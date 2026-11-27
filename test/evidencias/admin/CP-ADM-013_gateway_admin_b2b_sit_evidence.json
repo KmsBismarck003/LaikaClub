@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-013",
+  "role": "admin",
+  "test_name": "gateway_admin_b2b_sit",
+  "timestamp": "2026-11-16T16:15:01.200505",
+  "execution_duration_sec": 0.026256,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "b2b_response": {
+      "status": 200,
+      "count": 2
+    }
+  }
+}

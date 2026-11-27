@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-073",
+  "role": "admin",
+  "test_name": "admin_ads_update_endpoint_put",
+  "timestamp": "2026-11-16T16:13:52.190327",
+  "execution_duration_sec": 0.122488,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "body": "{\"id\":41,\"title\":\"Updated Title QA\",\"imageUrl\":\"http://img.png\",\"linkUrl\":null,\"position\":\"sidebar\",\"active\":true,\"eventId\":null,\"createdAt\":\"2026-11-16T22:13:52\"}"
+    }
+  }
+}

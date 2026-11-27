@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-ADM-085",
+  "role": "admin",
+  "test_name": "admin_persistencia_usuario_creado_db",
+  "timestamp": "2026-11-16T16:14:16.912933",
+  "execution_duration_sec": 0.205972,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_persistence": {
+      "user_id": 30183,
+      "row": {
+        "id": 30183,
+        "email": "db_admin_create_1794867256@laikaclub.com",
+        "role": "gestor",
+        "status": "active"
+      }
+    }
+  }
+}

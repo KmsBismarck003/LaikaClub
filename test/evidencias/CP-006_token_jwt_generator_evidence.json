@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-006",
+  "test_name": "token_jwt_generator",
+  "timestamp": "2026-11-16T12:56:57.665872",
+  "execution_duration_sec": 0.001156,
+  "result": "Aprobada",
+  "payloads": {
+    "jwt_decoded": {
+      "user_id": 30078,
+      "sub": "qa_user_test@laikaclub.com",
+      "role": "usuario",
+      "iat": 1794855417,
+      "exp": 1794859017
+    }
+  }
+}

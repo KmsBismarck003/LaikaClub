@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-011",
+  "role": "usuario",
+  "test_name": "api_client_auth_header",
+  "timestamp": "2026-11-16T16:14:34.228107",
+  "execution_duration_sec": 1.6e-05,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El cliente HTTP ensambla correctamente las cabeceras requeridas para microservicios protegidos.",
+  "payloads": {
+    "generated_headers": {
+      "Content-Type": "application/json",
+      "Auth_Prefix": "Bearer eyJhbGci"
+    }
+  }
+}

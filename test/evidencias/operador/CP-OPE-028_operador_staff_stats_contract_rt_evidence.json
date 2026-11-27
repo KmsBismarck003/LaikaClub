@@ -1,0 +1,23 @@
+{
+  "test_id": "CP-OPE-028",
+  "role": "operador",
+  "test_name": "operador_staff_stats_contract_rt",
+  "timestamp": "2026-11-16T16:14:51.654390",
+  "execution_duration_sec": 0.050794,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "staff_contract": {
+      "status": 200,
+      "keys": [
+        "totalScanned",
+        "validScans",
+        "invalidScans",
+        "scansPerHour",
+        "labels"
+      ]
+    }
+  }
+}

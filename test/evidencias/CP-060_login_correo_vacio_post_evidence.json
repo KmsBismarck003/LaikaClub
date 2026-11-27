@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-060",
+  "test_name": "login_correo_vacio_post",
+  "timestamp": "2026-11-16T12:56:27.905054",
+  "execution_duration_sec": 0.026082,
+  "result": "Aprobada",
+  "payloads": {
+    "empty_email_response": {
+      "status_code": 422,
+      "text": "{\"detail\":[{\"msg\":\"El email es obligatorio\",\"loc\":[\"body\",\"email\"],\"type\":\"value_error\"}]}"
+    }
+  }
+}

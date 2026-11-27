@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-ADV-043",
+  "role": "avanzados",
+  "test_name": "flujo_salas_mapa_asientos_builder_post",
+  "timestamp": "2026-11-16T16:15:53.334356",
+  "execution_duration_sec": 0.102787,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Constructor de mapas validado: 2 butacas interactivas persistidas con éxito",
+  "payloads": {
+    "map_builder": {
+      "save_response": {
+        "message": "Mapa guardado exitosamente",
+        "success": true
+      },
+      "retrieved_seats": 2
+    }
+  }
+}

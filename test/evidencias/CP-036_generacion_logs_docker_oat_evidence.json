@@ -1,0 +1,13 @@
+{
+  "test_id": "CP-036",
+  "test_name": "generacion_logs_docker_oat",
+  "timestamp": "2026-11-16T12:56:36.776015",
+  "execution_duration_sec": 0.285332,
+  "result": "Aprobada",
+  "payloads": {
+    "docker_logs_snippet": {
+      "gateway_sample": "vents/public?limit=50 HTTP/1.1\" 200 OK\nINFO:     172.18.0.1:60986 - \"GET /api/tickets/my-tickets HTTP/1.1\" 200 OK\nINFO:     172.18.0.1:32768 - \"GET /api/auth/users/me HTTP/1.1\" 200 OK\nINFO:     172.18.0.1:32786 - \"GET /api/health HTTP/1.1\" 200 OK\nINFO:     172.18.0.1:32792 - \"GET / HTTP/1.1\" 200 OK\n",
+      "tickets_sample": " Service: I/O error on POST request for \"http://laika_wearables:8204/api/wearables/user/30092/update-tickets\": laika_wearables\n2026-11-16T18:56:32.705Z  INFO 1 --- [laika-tickets] [         task-8] c.l.tickets.service.MongoSyncService     : [MONGO SYNC] Compra sincronizada exitosamente con MongoDB.\n"
+    }
+  }
+}

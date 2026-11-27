@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-036",
+  "role": "admin",
+  "test_name": "rbac_rechazo_usuario_regular_en_admin_users_security",
+  "timestamp": "2026-11-16T16:14:59.480072",
+  "execution_duration_sec": 0.03968,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El microservicio rechaza el acceso denegando la petición al no tener rol 'admin'",
+  "payloads": {
+    "rbac_defense": {
+      "status": 500,
+      "body": "{\"detail\":\"Access Denied\"}"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "CP-ADM-014",
+  "role": "admin",
+  "test_name": "gateway_admin_stats_sit",
+  "timestamp": "2026-11-16T16:15:01.435511",
+  "execution_duration_sec": 0.090663,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "stats_dashboard": {
+      "status": 200,
+      "metrics": {
+        "totalUsers": 30062,
+        "totalEvents": 14,
+        "totalSales": 198238680.0,
+        "activeUsers": 3607,
+        "status": {
+          "database": "online"
+        }
+      }
+    }
+  }
+}

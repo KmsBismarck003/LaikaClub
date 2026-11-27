@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-GES-031",
+  "role": "gestor",
+  "test_name": "gestor_stats_schema_contract_rt",
+  "timestamp": "2026-11-16T16:14:51.437457",
+  "execution_duration_sec": 0.045447,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "stats_contract": {
+      "status": 200,
+      "keys": [
+        "revenue",
+        "tickets",
+        "categories",
+        "labels"
+      ]
+    }
+  }
+}

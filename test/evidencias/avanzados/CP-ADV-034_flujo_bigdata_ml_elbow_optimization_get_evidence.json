@@ -1,0 +1,35 @@
+{
+  "test_id": "CP-ADV-034",
+  "role": "avanzados",
+  "test_name": "flujo_bigdata_ml_elbow_optimization_get",
+  "timestamp": "2026-11-16T16:15:35.198239",
+  "execution_duration_sec": 6.711603,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Optimización de clústeres mediante Método del Codo calculada con éxito",
+  "payloads": {
+    "ml_elbow": {
+      "status_code": 200,
+      "response": {
+        "status": "success",
+        "optimal_k": 3,
+        "wcss_curve": [
+          {
+            "k": 2,
+            "wcss": 48655.31121233893
+          },
+          {
+            "k": 3,
+            "wcss": 36447.95859241077
+          },
+          {
+            "k": 4,
+            "wcss": 28889.263633722476
+          }
+        ],
+        "summary": "Optimización completada. El Método del Codo sugiere un K óptimo de 3 segmentos."
+      }
+    }
+  }
+}

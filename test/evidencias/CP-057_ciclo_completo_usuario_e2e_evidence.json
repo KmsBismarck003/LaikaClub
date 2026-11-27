@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-057",
+  "test_name": "ciclo_completo_usuario_e2e",
+  "timestamp": "2026-11-16T12:56:32.071840",
+  "execution_duration_sec": 0.954553,
+  "result": "Aprobada",
+  "payloads": {
+    "e2e_execution_summary": {
+      "email": "e2e_user_1794855392@laikaclub.com",
+      "steps_summary": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  }
+}

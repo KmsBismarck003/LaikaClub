@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-015",
+  "role": "usuario",
+  "test_name": "events_query_db_it",
+  "timestamp": "2026-11-16T16:14:27.593211",
+  "execution_duration_sec": 0.047127,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "La capa de persistencia hidrata correctamente los modelos de dominio de eventos.",
+  "payloads": {
+    "events_correlation": {
+      "api_count": 4,
+      "db_count": 14,
+      "sample_id": [
+        100000,
+        100001,
+        20
+      ]
+    }
+  }
+}

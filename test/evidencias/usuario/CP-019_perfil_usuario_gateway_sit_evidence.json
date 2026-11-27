@@ -1,0 +1,47 @@
+{
+  "test_id": "CP-019",
+  "role": "usuario",
+  "test_name": "perfil_usuario_gateway_sit",
+  "timestamp": "2026-11-16T16:15:15.837442",
+  "execution_duration_sec": 0.102777,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Persistencia confirmada a través de las capas Gateway -> Microservicio Auth -> MySQL.",
+  "payloads": {
+    "profile_lifecycle": {
+      "initial": {
+        "id": 30078,
+        "firstName": "QA_Verified",
+        "lastName": "Tester_Auto",
+        "email": "qa_user_test@laikaclub.com",
+        "phone": "5551234567",
+        "role": "usuario",
+        "status": "active",
+        "createdAt": "2026-11-16T18:33:41",
+        "permissions": {
+          "canViewMyHistory": true,
+          "canViewAchievements": true,
+          "canAccessCart": true,
+          "canViewMyTickets": true
+        }
+      },
+      "updated": {
+        "id": 30078,
+        "firstName": "QA_Verified",
+        "lastName": "Tester_Auto",
+        "email": "qa_user_test@laikaclub.com",
+        "phone": "5559876543",
+        "role": "usuario",
+        "status": "active",
+        "createdAt": "2026-11-16T18:33:41",
+        "permissions": {
+          "canViewMyHistory": true,
+          "canViewAchievements": true,
+          "canAccessCart": true,
+          "canViewMyTickets": true
+        }
+      }
+    }
+  }
+}

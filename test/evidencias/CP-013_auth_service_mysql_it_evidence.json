@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-013",
+  "test_name": "auth_service_mysql_it",
+  "timestamp": "2026-11-16T12:56:33.915215",
+  "execution_duration_sec": 0.168439,
+  "result": "Aprobada",
+  "payloads": {
+    "db_record": {
+      "id": 30078,
+      "email": "qa_user_test@laikaclub.com",
+      "role": "usuario",
+      "status": "active"
+    },
+    "api_response": {
+      "status_code": 200,
+      "user_id": 30078
+    }
+  }
+}

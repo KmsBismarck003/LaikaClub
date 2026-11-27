@@ -1,0 +1,58 @@
+{
+  "test_id": "CP-GES-073",
+  "role": "gestor",
+  "test_name": "gestor_events_persistence_db",
+  "timestamp": "2026-11-16T16:14:17.581854",
+  "execution_duration_sec": 0.006603,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_records": {
+      "count": 5,
+      "samples": [
+        [
+          5,
+          "Prueba 3",
+          3,
+          "draft",
+          1000.0,
+          100
+        ],
+        [
+          7,
+          "Urusei Yatsura Only you",
+          3,
+          "draft",
+          200.0,
+          100
+        ],
+        [
+          8,
+          "Urusei Yatsura lum forever",
+          3,
+          "draft",
+          100.01,
+          2222
+        ],
+        [
+          9,
+          "Concierto de prueba",
+          3,
+          "draft",
+          500.0,
+          200
+        ],
+        [
+          100001,
+          "Laika Fest 2026",
+          3,
+          "published",
+          1800.0,
+          50000
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-045",
+  "role": "gestor",
+  "test_name": "gestor_extreme_event_id_boundary_et",
+  "timestamp": "2026-11-16T16:14:26.687879",
+  "execution_duration_sec": 0.034466,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "extreme_id_et": {
+      "status": 200,
+      "body": "{\"sold\":0,\"recent_purchases\":[],\"available\":0,\"active\":0,\"cancelled\":0,\"refunded\":0,\"sell_through_pc"
+    }
+  }
+}

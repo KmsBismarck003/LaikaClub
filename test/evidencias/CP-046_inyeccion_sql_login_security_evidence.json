@@ -1,0 +1,32 @@
+{
+  "test_id": "CP-046",
+  "test_name": "inyeccion_sql_login_security",
+  "timestamp": "2026-11-16T12:56:47.208184",
+  "execution_duration_sec": 0.062364,
+  "result": "Aprobada",
+  "payloads": {
+    "sqli_attempts": [
+      {
+        "payload": {
+          "email": "' OR '1'='1",
+          "password": "password"
+        },
+        "status_code": 422
+      },
+      {
+        "payload": {
+          "email": "admin@laikaclub.com'--",
+          "password": "any"
+        },
+        "status_code": 422
+      },
+      {
+        "payload": {
+          "email": "' UNION SELECT 1, 'admin', 'hash'--",
+          "password": "test"
+        },
+        "status_code": 422
+      }
+    ]
+  }
+}

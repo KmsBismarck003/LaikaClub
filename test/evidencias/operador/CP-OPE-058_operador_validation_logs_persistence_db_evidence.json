@@ -1,0 +1,37 @@
+{
+  "test_id": "CP-OPE-058",
+  "role": "operador",
+  "test_name": "operador_validation_logs_persistence_db",
+  "timestamp": "2026-11-16T16:14:17.748705",
+  "execution_duration_sec": 0.018224,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Esquema verificado. Total logs persistidos: 226",
+  "payloads": {
+    "db_validation_logs": {
+      "total_logs": 226,
+      "columns": [
+        "id",
+        "access_point",
+        "action_type",
+        "created_at",
+        "device_info",
+        "event_function_id",
+        "event_id",
+        "notes",
+        "operator_id",
+        "operator_name",
+        "platform",
+        "result_status",
+        "selected_event_id",
+        "selected_function_id",
+        "ticket_code",
+        "ticket_id",
+        "user_id",
+        "validation_date",
+        "validation_time"
+      ]
+    }
+  }
+}

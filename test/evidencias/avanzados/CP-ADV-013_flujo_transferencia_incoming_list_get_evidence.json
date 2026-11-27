@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-ADV-013",
+  "role": "avanzados",
+  "test_name": "flujo_transferencia_incoming_list_get",
+  "timestamp": "2026-11-16T16:15:54.403797",
+  "execution_duration_sec": 0.053245,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "200 OK obtenido con 0 transferencias entrantes",
+  "payloads": {
+    "incoming_transfers": {
+      "total": 0
+    }
+  }
+}

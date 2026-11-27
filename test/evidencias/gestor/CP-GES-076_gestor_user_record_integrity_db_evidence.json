@@ -1,0 +1,22 @@
+{
+  "test_id": "CP-GES-076",
+  "role": "gestor",
+  "test_name": "gestor_user_record_integrity_db",
+  "timestamp": "2026-11-16T16:14:17.634709",
+  "execution_duration_sec": 0.005371,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_gestor_user": {
+      "user_record": [
+        3,
+        "gestor@laikaclub.com",
+        "gestor",
+        "active"
+      ],
+      "valid": true
+    }
+  }
+}

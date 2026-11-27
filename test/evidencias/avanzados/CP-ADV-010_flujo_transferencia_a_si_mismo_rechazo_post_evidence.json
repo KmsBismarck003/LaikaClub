@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADV-010",
+  "role": "avanzados",
+  "test_name": "flujo_transferencia_a_si_mismo_rechazo_post",
+  "timestamp": "2026-11-16T16:15:54.268831",
+  "execution_duration_sec": 0.024444,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Auto-transferencia rechazada con éxito: {\"timestamp\":\"2026-11-16T22:15:54.290+00:00\",\"status\":400,\"error\":\"Bad Request\",",
+  "payloads": {
+    "self_transfer_rejection": {
+      "status_code": 400,
+      "body": "{\"timestamp\":\"2026-11-16T22:15:54.290+00:00\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"No puedes transferirte un bol"
+    }
+  }
+}

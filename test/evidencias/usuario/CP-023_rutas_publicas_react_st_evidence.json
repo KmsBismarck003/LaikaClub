@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-023",
+  "role": "usuario",
+  "test_name": "rutas_publicas_react_st",
+  "timestamp": "2026-11-16T16:15:17.444686",
+  "execution_duration_sec": 0.153388,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El servidor web SPA entrega el contenedor de la aplicación para todas las rutas públicas.",
+  "payloads": {
+    "frontend_routes_tested": [
+      "/",
+      "/login",
+      "/register",
+      "/shop"
+    ]
+  }
+}

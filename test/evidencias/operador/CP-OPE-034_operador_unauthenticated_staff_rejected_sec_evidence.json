@@ -1,0 +1,16 @@
+{
+  "test_id": "CP-OPE-034",
+  "role": "operador",
+  "test_name": "operador_unauthenticated_staff_rejected_sec",
+  "timestamp": "2026-11-16T16:15:00.942534",
+  "execution_duration_sec": 0.028586,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "unauth_sec": {
+      "status": 401
+    }
+  }
+}

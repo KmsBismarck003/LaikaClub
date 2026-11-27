@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-069",
+  "role": "admin",
+  "test_name": "admin_database_auto_backup_config_endpoint_put",
+  "timestamp": "2026-11-16T16:13:52.950202",
+  "execution_duration_sec": 0.032521,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "body": "{\"nextBackup\":\"2026-11-17T03:00\",\"message\":\"Configuración guardada correctamente\",\"success\":true}"
+    }
+  }
+}

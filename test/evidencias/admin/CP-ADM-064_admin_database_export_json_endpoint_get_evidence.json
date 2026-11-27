@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-064",
+  "role": "admin",
+  "test_name": "admin_database_export_json_endpoint_get",
+  "timestamp": "2026-11-16T16:13:53.135732",
+  "execution_duration_sec": 0.048668,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "bytes": 23924
+    }
+  }
+}

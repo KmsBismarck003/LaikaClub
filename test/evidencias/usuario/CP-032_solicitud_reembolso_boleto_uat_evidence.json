@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-032",
+  "role": "usuario",
+  "test_name": "solicitud_reembolso_boleto_uat",
+  "timestamp": "2026-11-16T16:15:28.616387",
+  "execution_duration_sec": 0.048351,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "El rastreador de reembolsos provee certidumbre y transparencia al usuario.",
+  "payloads": {
+    "refunds_uat_summary": {
+      "refund_count": 0,
+      "items": []
+    }
+  }
+}

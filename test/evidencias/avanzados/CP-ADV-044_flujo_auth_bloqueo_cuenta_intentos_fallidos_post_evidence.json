@@ -1,0 +1,20 @@
+{
+  "test_id": "CP-ADV-044",
+  "role": "avanzados",
+  "test_name": "flujo_auth_bloqueo_cuenta_intentos_fallidos_post",
+  "timestamp": "2026-11-16T16:15:47.750595",
+  "execution_duration_sec": 0.168173,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Mecanismo de seguridad de intentos fallidos activo: HTTP 401 con max_attempts=3",
+  "payloads": {
+    "failed_attempt": {
+      "detail": {
+        "max_attempts": 3,
+        "message": "Credenciales inválidas",
+        "attempts": 1
+      }
+    }
+  }
+}

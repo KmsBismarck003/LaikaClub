@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-OPE-033",
+  "role": "operador",
+  "test_name": "operador_courtesy_quota_rejected_sec",
+  "timestamp": "2026-11-16T16:15:00.756348",
+  "execution_duration_sec": 0.037211,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "quota_sec": {
+      "status": 403,
+      "body": "{\"timestamp\":\"2026-11-16T22:15:00.791+00:00\",\"status\":403,\"error\":\"Forbidden\",\"message\":\"Solo admini"
+    }
+  }
+}

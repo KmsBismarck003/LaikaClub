@@ -1,0 +1,32 @@
+{
+  "test_id": "CP-ADM-068",
+  "role": "admin",
+  "test_name": "admin_database_auto_backup_config_endpoint_get",
+  "timestamp": "2026-11-16T16:13:52.890228",
+  "execution_duration_sec": 0.029316,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "http_response": {
+      "status": 200,
+      "data": {
+        "lastBackup": "2026-11-16T22:12:58",
+        "nextBackup": "2026-11-17T03:00",
+        "config": {
+          "enabled": true,
+          "frequency": "daily",
+          "time": "03:00",
+          "backupType": "completo",
+          "retentionDays": 15,
+          "maxBackups": 10,
+          "notifyOnSuccess": true,
+          "notifyOnError": true,
+          "dayOfWeek": 0,
+          "dayOfMonth": 1
+        }
+      }
+    }
+  }
+}

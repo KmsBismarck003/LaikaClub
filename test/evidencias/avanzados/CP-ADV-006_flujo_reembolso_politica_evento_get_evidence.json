@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-ADV-006",
+  "role": "avanzados",
+  "test_name": "flujo_reembolso_politica_evento_get",
+  "timestamp": "2026-11-16T16:15:48.190434",
+  "execution_duration_sec": 0.026185,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "Política: eligible=True, porcentaje=100%",
+  "payloads": {
+    "refund_policy": {
+      "reason": "Cancelaciones permitidas hasta 24 horas antes del inicio del evento.",
+      "eventId": 100001,
+      "refundPercentage": 100,
+      "eligible": true
+    }
+  }
+}

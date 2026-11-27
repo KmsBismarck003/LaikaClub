@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-ADM-046",
+  "role": "admin",
+  "test_name": "exploratorio_ids_inexistentes_en_usuarios_et",
+  "timestamp": "2026-11-16T16:14:26.037649",
+  "execution_duration_sec": 0.028282,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "non_existent_id": {
+      "status": 500,
+      "body": "{\"detail\":\"Usuario no encontrado\"}"
+    }
+  }
+}

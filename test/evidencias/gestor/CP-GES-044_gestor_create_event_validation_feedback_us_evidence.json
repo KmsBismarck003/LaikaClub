@@ -1,0 +1,17 @@
+{
+  "test_id": "CP-GES-044",
+  "role": "gestor",
+  "test_name": "gestor_create_event_validation_feedback_us",
+  "timestamp": "2026-11-16T16:15:31.385141",
+  "execution_duration_sec": 0.059684,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "validation_feedback": {
+      "status": 500,
+      "body": "{\"timestamp\":\"2026-11-16T22:15:31.441+00:00\",\"status\":500,\"error\":\"Internal Server Error\",\"path\":\"/m"
+    }
+  }
+}

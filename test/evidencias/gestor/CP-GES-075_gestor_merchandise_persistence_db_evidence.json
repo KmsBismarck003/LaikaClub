@@ -1,0 +1,32 @@
+{
+  "test_id": "CP-GES-075",
+  "role": "gestor",
+  "test_name": "gestor_merchandise_persistence_db",
+  "timestamp": "2026-11-16T16:14:17.610771",
+  "execution_duration_sec": 0.005263,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "",
+  "payloads": {
+    "db_merch_items": {
+      "count": 2,
+      "samples": [
+        [
+          129,
+          "Gorra Laika",
+          3,
+          "published",
+          "approved"
+        ],
+        [
+          130,
+          "juasbssba",
+          3,
+          "draft",
+          "pending_review"
+        ]
+      ]
+    }
+  }
+}

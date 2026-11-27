@@ -1,0 +1,19 @@
+{
+  "test_id": "CP-053",
+  "role": "usuario",
+  "test_name": "mensajes_error_login_usability",
+  "timestamp": "2026-11-16T16:15:31.663536",
+  "execution_duration_sec": 0.051864,
+  "result": "Aprobada",
+  "defect_id": "N/A",
+  "defect_severity": "N/A",
+  "observations": "La interfaz provee mensajes sobrios y profesionales orientados al usuario final.",
+  "payloads": {
+    "usability_login_feedback": {
+      "status_code": 401,
+      "body": {
+        "detail": "Credenciales inválidas"
+      }
+    }
+  }
+}
