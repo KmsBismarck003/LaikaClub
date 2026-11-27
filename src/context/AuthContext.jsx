@@ -252,7 +252,12 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        error: error?.response?.data?.message || error?.message || 'No se pudo enviar el código de recuperación.'
+        error:
+          error?.response?.data?.detail ||
+          error?.response?.data?.message ||
+          error?.detail ||
+          error?.message ||
+          'No se pudo enviar el código de recuperación.'
       }
     }
   }
@@ -267,7 +272,12 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        error: error?.response?.data?.message || error?.message || 'Código inválido o expirado.'
+        error:
+          error?.response?.data?.detail ||
+          error?.response?.data?.message ||
+          error?.detail ||
+          error?.message ||
+          'Código inválido o expirado.'
       }
     }
   }
