@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { parseLocalDate } from '../../../../utils/date';
 import './CourtesyGiftRevealModal.css';
 
 export default function CourtesyGiftRevealModal({ isOpen, ticket, onClose, onOpenTicket }) {
@@ -15,7 +16,7 @@ export default function CourtesyGiftRevealModal({ isOpen, ticket, onClose, onOpe
   const eventName = ticket.event?.name || ticket.eventName || ticket.event_name || 'Evento Exclusivo';
   const dateRaw = ticket.event?.date || ticket.date || ticket.purchase_date;
   const fmtDate = dateRaw
-    ? new Date(dateRaw).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+    ? parseLocalDate(dateRaw).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
     : 'Fecha por confirmar';
   const venue = ticket.event?.venue_name || ticket.venue || 'LAIKA Club';
   const recipient = ticket.recipient_type || ticket.recipientType || 'Invitado Especial';

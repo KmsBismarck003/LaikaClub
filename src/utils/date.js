@@ -7,8 +7,10 @@ export const parseLocalDate = (date) => {
   if (date instanceof Date) return date;
   const str = String(date).trim();
 
-  // YYYY-MM-DD sin hora -> construir en hora local a mediodía para evitar shift de zona horaria
-  const isoDateOnly = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  // YYYY-MM-DD (sin hora o con medianoche 00:00:00 UTC) -> construir en hora local a mediodía para evitar shift de zona horaria
+  const isoDateOnly = str.match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[T ]00:00(?::00(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/
+  );
   if (isoDateOnly) {
     const [, y, m, d] = isoDateOnly;
     return new Date(Number(y), Number(m) - 1, Number(d), 12, 0, 0);

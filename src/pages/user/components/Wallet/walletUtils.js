@@ -1,4 +1,5 @@
 import { getSeatLabel } from '../../../EventDetail/utils/helpers';
+import { parseLocalDate } from '../../../../utils/date';
 
 const MONTHS_SHORT = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
 
@@ -29,8 +30,10 @@ export function getTicketDate(ticket) {
 
 export function isTicketUpcoming(ticket) {
   const dateRaw = getTicketDate(ticket);
-  const parsed = dateRaw ? new Date(dateRaw) : null;
-  const isFutureOrUndated = !parsed || Number.isNaN(parsed.getTime()) || parsed >= new Date();
+  const parsed = dateRaw ? parseLocalDate(dateRaw) : null;
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const isFutureOrUndated = !parsed || Number.isNaN(parsed.getTime()) || parsed >= startOfToday;
   return isFutureOrUndated && !isTicketCancelled(ticket) && !isTicketTransferred(ticket);
 }
 
@@ -44,8 +47,10 @@ export function isTicketPastEvent(ticket) {
   if (st === 'used') return true;
   const dateRaw = getTicketDate(ticket);
   if (!dateRaw) return false;
-  const parsed = new Date(dateRaw);
-  return !Number.isNaN(parsed.getTime()) && parsed < new Date();
+  const parsed = parseLocalDate(dateRaw);
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return !Number.isNaN(parsed.getTime()) && parsed < startOfToday;
 }
 
 export function getTicketCode(ticket, idx = 0) {
@@ -100,7 +105,7 @@ export function parseTicketDateParts(dateRaw) {
   if (!dateRaw) {
     return { day: '—', month: 'TBD', year: '', full: 'Por confirmar' };
   }
-  const date = new Date(dateRaw);
+  const date = parseLocalDate(dateRaw);
   if (Number.isNaN(date.getTime())) {
     return { day: '—', month: 'TBD', year: '', full: String(dateRaw) };
   }
@@ -114,7 +119,7 @@ export function parseTicketDateParts(dateRaw) {
 
 export function getEventCountdownLabel(dateRaw) {
   if (!dateRaw) return null;
-  const target = new Date(dateRaw);
+  const target = parseLocalDate(dateRaw);
   if (Number.isNaN(target.getTime())) return null;
 
   const now = new Date();

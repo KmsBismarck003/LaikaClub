@@ -1,5 +1,6 @@
 import React from 'react';
 import { ACCENTS, getEventImageUrl, qr } from './constants';
+import { parseLocalDate } from '../../../../utils/date';
 import { formatDate, formatTime, getSeatLabel } from '../../../EventDetail/utils/helpers';
 
 export function BigTicketCard({ ticket, idx, isPast, onQr }) {
@@ -9,9 +10,10 @@ export function BigTicketCard({ ticket, idx, isPast, onQr }) {
   const dateRaw = ticket.event?.date || ticket.date;
   const venue   = ticket.event?.venue_name || ticket.venue || 'LAIKA ARENA';
   const imgUrl  = getEventImageUrl(ticket.event?.image_url || ticket.imageUrl, idx);
-  const status  = ticket.status || (dateRaw && new Date(dateRaw) < new Date() ? 'used' : 'confirmed');
-  const fmtDate = dateRaw
-    ? new Date(dateRaw).toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'numeric' })
+  const parsedDate = dateRaw ? parseLocalDate(dateRaw) : null;
+  const status  = ticket.status || (parsedDate && parsedDate < new Date() ? 'used' : 'confirmed');
+  const fmtDate = parsedDate && !Number.isNaN(parsedDate.getTime())
+    ? parsedDate.toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'numeric' })
     : '—';
 
   const badgeMap = {
@@ -23,7 +25,7 @@ export function BigTicketCard({ ticket, idx, isPast, onQr }) {
   };
   const badgeDef = badgeMap[status] || badgeMap.confirmed;
 
-  const badgeFinal = (status==='confirmed' && dateRaw && new Date(dateRaw) > new Date())
+  const badgeFinal = (status==='confirmed' && parsedDate && parsedDate > new Date())
     ? { label:'PRÓXIMO', color:'#fff', bg:'#3b82f6' }
     : badgeDef;
 
@@ -121,7 +123,7 @@ export function SmallTicketCard({ ticket, idx, onQr }) {
   const dateRaw = ticket.event?.date || ticket.date;
   const venue   = ticket.event?.venue_name || ticket.venue || '';
   const imgUrl  = getEventImageUrl(ticket.event?.image_url || ticket.imageUrl, idx);
-  const fmtDate = dateRaw ? new Date(dateRaw).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}) : '—';
+  const fmtDate = dateRaw ? parseLocalDate(dateRaw).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}) : '—';
 
   return (
     <div style={{

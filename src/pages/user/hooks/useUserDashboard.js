@@ -64,9 +64,14 @@ export default function useUserDashboard() {
     const activeUpcoming = myTickets
       .filter((t) => isTicketUpcoming(t))
       .sort((a, b) => {
-        const da = getTicketDate(a) ? new Date(getTicketDate(a)).getTime() : Number.MAX_SAFE_INTEGER;
-        const db = getTicketDate(b) ? new Date(getTicketDate(b)).getTime() : Number.MAX_SAFE_INTEGER;
-        return da - db;
+        const daRaw = getTicketDate(a);
+        const dbRaw = getTicketDate(b);
+        const toMs = (raw) => {
+          if (!raw) return Number.MAX_SAFE_INTEGER;
+          const m = String(raw).trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+          return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12).getTime() : new Date(raw).getTime();
+        };
+        return toMs(daRaw) - toMs(dbRaw);
       });
 
     return {

@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Icon from '../../components/Icons/Icons'
 import { PermissionWall } from '../../components'
+import { parseLocalDate } from '../../utils/date'
 
 const FALLBACK_IMGS = [
   'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=120&q=80',
@@ -38,7 +39,7 @@ function groupByMonth(tickets) {
     const dateStr = t.event?.date || t.date
     let key = 'Sin fecha'
     if (dateStr) {
-      const d = new Date(dateStr)
+      const d = parseLocalDate(dateStr)
       const month = d.toLocaleDateString('es-MX', { month:'short' }).toUpperCase().replace('.','')
       const year  = d.getFullYear()
       key = `${month} ${year}`
@@ -397,7 +398,7 @@ export default function UserHistory() {
                     const imgUrl  = ticket.event?.image_url || ticket.imageUrl || FALLBACK_IMGS[idx % FALLBACK_IMGS.length]
                     const price   = parseFloat(ticket.price || 0)
                     const fmtDate = dateRaw
-                      ? new Date(dateRaw).toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'numeric' })
+                      ? parseLocalDate(dateRaw).toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'numeric' })
                       : '—'
 
                     return (

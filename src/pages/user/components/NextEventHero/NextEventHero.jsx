@@ -1,6 +1,7 @@
 import React from 'react';
 import Icon from '../../../../components/Icons/Icons';
 import { getImageUrl } from '../../../../utils/imageUtils';
+import { parseLocalDate } from '../../../../utils/date';
 import { formatTime } from '../../../EventDetail/utils/helpers';
 import useEventCountdown from '../../hooks/useEventCountdown';
 import {
@@ -63,12 +64,17 @@ export default function NextEventHero({
   const fmtTime = timeRaw && timeRaw !== 'N/A' ? formatTime(timeRaw) : '';
 
   const formattedFullDate = dateRaw
-    ? new Date(dateRaw).toLocaleDateString('es-MX', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
+    ? (() => {
+        const parsed = parseLocalDate(dateRaw);
+        return Number.isNaN(parsed.getTime())
+          ? String(dateRaw)
+          : parsed.toLocaleDateString('es-MX', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            });
+      })()
     : 'Fecha por confirmar';
 
   const phase = countdown?.phase || 'calm';

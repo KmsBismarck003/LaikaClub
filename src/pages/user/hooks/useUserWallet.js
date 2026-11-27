@@ -95,19 +95,17 @@ export default function useUserWallet() {
       }
     }
 
+    const toMs = (raw, fallback) => {
+      if (!raw) return fallback;
+      const m = String(raw).trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+      return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12).getTime() : new Date(raw).getTime();
+    };
+
     // Orden cronológico ascendente para próximos (lo más cercano primero = menor fricción cognitiva)
-    up.sort((a, b) => {
-      const da = getTicketDate(a) ? new Date(getTicketDate(a)).getTime() : Number.MAX_SAFE_INTEGER;
-      const db = getTicketDate(b) ? new Date(getTicketDate(b)).getTime() : Number.MAX_SAFE_INTEGER;
-      return da - db;
-    });
+    up.sort((a, b) => toMs(getTicketDate(a), Number.MAX_SAFE_INTEGER) - toMs(getTicketDate(b), Number.MAX_SAFE_INTEGER));
 
     // Orden cronológico descendente para pasados (recuerdo más reciente primero)
-    pa.sort((a, b) => {
-      const da = getTicketDate(a) ? new Date(getTicketDate(a)).getTime() : 0;
-      const db = getTicketDate(b) ? new Date(getTicketDate(b)).getTime() : 0;
-      return db - da;
-    });
+    pa.sort((a, b) => toMs(getTicketDate(b), 0) - toMs(getTicketDate(a), 0));
 
     return {
       upcoming: up,

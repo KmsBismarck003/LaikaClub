@@ -12,23 +12,33 @@ function buildTargetTimestamp(dateRaw, timeRaw) {
 
   let baseDate;
   const trimmed = String(dateRaw).trim();
+  const isoCalendar = trimmed.match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[T ]00:00(?::00(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/
+  );
   const ddMmYyyy = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-  if (ddMmYyyy) {
+  if (isoCalendar) {
+    const [, year, month, day] = isoCalendar;
+    baseDate = new Date(Number(year), Number(month) - 1, Number(day), 0, 0, 0, 0);
+  } else if (ddMmYyyy) {
     const [, day, month, year] = ddMmYyyy;
-    baseDate = new Date(Number(year), Number(month) - 1, Number(day));
+    baseDate = new Date(Number(year), Number(month) - 1, Number(day), 0, 0, 0, 0);
   } else {
     baseDate = new Date(trimmed);
   }
 
   if (Number.isNaN(baseDate.getTime())) return null;
 
-  // Si dateRaw es solo fecha (sin hora explícita) y existe timeRaw válido, la combinamos
+  // Si dateRaw es solo fecha (sin hora explícita) y existe timeRaw válido, la combinamos en hora local
   const hasExplicitTime = /T\d{2}:\d{2}/.test(trimmed) && !/T00:00(:00)?/.test(trimmed);
-  if (!hasExplicitTime && timeRaw && timeRaw !== 'N/A') {
-    const formatted = formatTime(timeRaw);
-    const match = formatted.match(/^(\d{1,2}):(\d{2})$/);
-    if (match) {
-      baseDate.setHours(Number(match[1]), Number(match[2]), 0, 0);
+  if (!hasExplicitTime) {
+    if (timeRaw && timeRaw !== 'N/A') {
+      const formatted = formatTime(timeRaw);
+      const match = formatted.match(/^(\d{1,2}):(\d{2})$/);
+      if (match) {
+        baseDate.setHours(Number(match[1]), Number(match[2]), 0, 0);
+      }
+    } else {
+      baseDate.setHours(23, 59, 0, 0);
     }
   }
 
@@ -51,11 +61,12 @@ function computeSnapshot(targetMs) {
   const seconds = Math.floor((clampedMs % MINUTE_MS) / SECOND_MS);
 
   const targetDate = new Date(targetMs);
-  const isSameDay =
-    now.getFullYear() === targetDate.getFullYear() &&
-    now.getMonth() === targetDate.getMonth() &&
-    now.getDate() === targetDate.getDate();
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startTarget = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+  const calendarDayDiff = Math.round((startTarget - startToday) / DAY_MS);
 
+  const isSameDay = calendarDayDiff === 0;
+  const isTomorrow = calendarDayDiff === 1;
   const isStarted = diffMs <= 0;
 
   let phase = 'calm';
@@ -63,17 +74,20 @@ function computeSnapshot(targetMs) {
   let eyebrow = 'Tu próxima experiencia';
   let emotionNote = 'Tu lugar está asegurado. Prepárate para disfrutarlo.';
 
-  if (isStarted || isSameDay || clampedMs < DAY_MS) {
+  if (isStarted) {
     phase = 'live_today';
-    badge = isStarted ? 'En curso' : 'Hoy';
-    eyebrow = isStarted ? 'El momento llegó' : 'Es hoy • Prepara tu acceso';
-    emotionNote = isStarted
-      ? 'Tu evento está sucediendo hoy. Ten tu boleto a la mano.'
-      : 'Faltan horas para empezar. Revisa tu zona y abre tu acceso al llegar.';
-  } else if (clampedMs <= 2 * DAY_MS) {
+    badge = 'En curso';
+    eyebrow = 'El momento llegó';
+    emotionNote = 'Tu evento ya comenzó. Ten tu boleto a la mano.';
+  } else if (isSameDay) {
+    phase = 'live_today';
+    badge = 'Hoy';
+    eyebrow = 'Es hoy • Prepara tu acceso';
+    emotionNote = 'Faltan horas para empezar. Revisa tu zona y abre tu acceso al llegar.';
+  } else if (isTomorrow || clampedMs <= 2 * DAY_MS) {
     phase = 'imminent';
-    badge = 'Muy pronto';
-    eyebrow = 'La espera casi termina';
+    badge = isTomorrow ? 'Mañana' : 'Muy pronto';
+    eyebrow = isTomorrow ? 'Es mañana • Prepárate' : 'La espera casi termina';
     emotionNote = 'Falta muy poco para vivirlo. Planea tu llegada con anticipación.';
   } else if (days <= 14) {
     phase = 'building';

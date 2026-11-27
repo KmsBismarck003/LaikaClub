@@ -177,7 +177,14 @@ export default function RedeemCourtesyModal({ isOpen, onClose, onSuccess, onErro
               <div style={{ color: '#aaa' }}>
                 Fecha:{' '}
                 <strong style={{ color: '#fff' }}>
-                  {preview.event_date ? new Date(preview.event_date).toLocaleDateString('es-MX') : 'Por confirmar'}
+                  {preview.event_date
+                    ? (() => {
+                        const raw = String(preview.event_date).trim();
+                        const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                        const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12) : new Date(raw);
+                        return Number.isNaN(d.getTime()) ? raw : d.toLocaleDateString('es-MX');
+                      })()
+                    : 'Por confirmar'}
                 </strong>
                 {preview.event_time && ` • ${preview.event_time}`}
               </div>

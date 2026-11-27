@@ -1,5 +1,6 @@
 import React from 'react';
 import { getEventImageUrl } from '../constants';
+import { parseLocalDate } from '../../../../../utils/date';
 import { formatDate, formatTime, getSeatLabel } from '../../../../EventDetail/utils/helpers';
 
 export default function TicketV4({ ticket, onClose }) {
@@ -17,7 +18,7 @@ export default function TicketV4({ ticket, onClose }) {
   // Format date for this specific design (e.g. "21 JULY | 18:00")
   let fmtDateShort = 'TBA';
   if (dateRaw) {
-    const d = new Date(dateRaw);
+    const d = parseLocalDate(dateRaw);
     const day = d.getDate();
     const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
     fmtDateShort = `${day} ${month}`;
