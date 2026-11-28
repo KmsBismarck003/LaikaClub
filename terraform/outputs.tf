@@ -45,5 +45,5 @@ output "url_api_gateway" {
 
 output "estimado_costo_mensual" {
   description = "Costo estimado mensual en Azure con la configuración FinOps"
-  value       = "~$30.14 USD/mes (Duración calculada: 3.3 meses con $100 USD)"
+  value       = "~$36.50 USD/mes (VM B2ps_v2 + Disco 64GB SSD + IP Estática; ~2.7 meses 24/7 con $100 USD)"
 }

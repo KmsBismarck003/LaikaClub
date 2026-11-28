@@ -19,3 +19,6 @@ max_connections = 60
 # Configuración de caracteres
 character-set-server = utf8mb4
 collation-server = utf8mb4_unicode_ci
+
+# Zona horaria fija de Ciudad de México (UTC-6, sin horario de verano)
+default-time-zone = '-06:00'

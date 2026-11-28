@@ -14,7 +14,8 @@ echo "🐾 INICIANDO DESPLIEGUE EN PRODUCCIÓN: LAIKA CLUB 🐾"
 echo "========================================================================"
 
 APP_DIR="/app/laika"
-BRANCH="development"
+PILGRIM_BRANCH="development"
+FRONTEND_BRANCH="preproduccion"
 
 cd "$APP_DIR"
 
@@ -22,12 +23,12 @@ cd "$APP_DIR"
 echo ">>> [1/6] Sincronizando Pilgrim API Gateway..."
 if [ ! -d "$APP_DIR/pilgrim/.git" ]; then
     rm -rf "$APP_DIR/pilgrim"
-    git clone -b "$BRANCH" https://github.com/KmsBismarck003/PilgrimAPI.git "$APP_DIR/pilgrim"
+    git clone -b "$PILGRIM_BRANCH" https://github.com/KmsBismarck003/PilgrimAPI.git "$APP_DIR/pilgrim"
 else
     cd "$APP_DIR/pilgrim"
-    git fetch origin "$BRANCH"
-    git checkout "$BRANCH"
-    git pull origin "$BRANCH"
+    git fetch origin "$PILGRIM_BRANCH"
+    git checkout "$PILGRIM_BRANCH"
+    git pull origin "$PILGRIM_BRANCH"
     cd "$APP_DIR"
 fi
 
@@ -60,9 +61,9 @@ if [ "$1" == "--build-frontends" ]; then
     for role in laika-admin laika-gestor laika-operador; do
         if [ ! -d "$APP_DIR/$role/.git" ]; then
             rm -rf "$APP_DIR/$role"
-            git clone -b "$BRANCH" "https://github.com/KmsBismarck003/$role.git" "$APP_DIR/$role"
+            git clone -b "$FRONTEND_BRANCH" "https://github.com/KmsBismarck003/$role.git" "$APP_DIR/$role"
         else
-            cd "$APP_DIR/$role" && git checkout "$BRANCH" && git pull origin "$BRANCH" && cd "$APP_DIR"
+            cd "$APP_DIR/$role" && git fetch origin "$FRONTEND_BRANCH" && git checkout "$FRONTEND_BRANCH" && git pull origin "$FRONTEND_BRANCH" && cd "$APP_DIR"
         fi
         
         echo "  Compilando $role..."

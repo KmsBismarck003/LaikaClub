@@ -6,6 +6,7 @@ services:
     container_name: laika_db
     restart: always
     environment:
+      TZ: America/Mexico_City
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-laika_auth}
     volumes:
@@ -14,6 +15,10 @@ services:
       - ./my_custom.cnf:/etc/mysql/conf.d/my_custom.cnf
     ports:
       - "127.0.0.1:3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
     networks:
       - laika_network
 
@@ -26,6 +31,7 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     environment:
+      - TZ=America/Mexico_City
       - AUTH_SERVICE_URL=http://auth:8101
       - EVENTS_SERVICE_URL=http://events:8201
       - TICKETS_SERVICE_URL=http://tickets:8202
@@ -64,8 +70,11 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
       - MYSQL_DATABASE=laika_auth
-      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true
+    volumes:
+      - ./uploads:/app/uploads
     depends_on:
       - laika_db
     networks:
@@ -82,8 +91,11 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
       - MYSQL_DATABASE=laika_events
-      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true
+    volumes:
+      - ./uploads:/app/uploads
     depends_on:
       - laika_db
     networks:
@@ -103,8 +115,11 @@ services:
       - EVENTS_SERVICE_URL=http://events:8201
       - AUTH_SERVICE_URL=http://auth:8101
       - WEARABLES_SERVICE_URL=${WEARABLES_SERVICE_URL:-}
-      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true
+    volumes:
+      - ./uploads:/app/uploads
     depends_on:
       - laika_db
     networks:
@@ -121,7 +136,8 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
       - MYSQL_DATABASE=laika_stats
-      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true
     depends_on:
       - laika_db
@@ -139,7 +155,8 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
       - MYSQL_DATABASE=laika_admin
-      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true
     volumes:
       - ./uploads:/app/uploads
@@ -160,8 +177,11 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
       - MYSQL_DATABASE=laika_merchandise
-      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true
+    volumes:
+      - ./uploads:/app/uploads
     depends_on:
       - laika_db
     networks:
@@ -180,7 +200,8 @@ services:
       - MYSQL_DATABASE=laika_achievements
       - TICKETS_SERVICE_URL=http://tickets:8202
       - AUTH_SERVICE_URL=http://auth:8101
-      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true
     depends_on:
       - laika_db
@@ -198,7 +219,8 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
       - MYSQL_DATABASE=laika_analytics
-      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true
     depends_on:
       - laika_db
@@ -212,6 +234,7 @@ services:
     container_name: laika_analytics_bigdata
     restart: always
     environment:
+      - TZ=America/Mexico_City
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
       - MYSQL_DATABASE=laika_analytics

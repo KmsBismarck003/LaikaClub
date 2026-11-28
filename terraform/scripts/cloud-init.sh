@@ -5,6 +5,10 @@ set -e
 # SCRIPT DE APROVISIONAMIENTO AUTOMÁTICO (CLOUD-INIT) - LAIKA CLUB PRODUCCIÓN
 # ==============================================================================
 
+echo ">>> [0/5] Configurando zona horaria America/Mexico_City y sincronizacion NTP..."
+timedatectl set-timezone America/Mexico_City || ln -sf /usr/share/zoneinfo/America/Mexico_City /etc/localtime
+timedatectl set-ntp true || true
+
 echo ">>> [1/5] Configurando memoria SWAP de 8 GB en SSD..."
 if [ ! -f /swapfile ]; then
     fallocate -l 8G /swapfile
