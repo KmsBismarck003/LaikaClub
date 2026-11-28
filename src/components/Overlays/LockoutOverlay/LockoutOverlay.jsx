@@ -3,7 +3,8 @@ import { ShieldAlert, Clock, User, Bell, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 import './LockoutOverlay.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000'
+import { API_BASE_URL } from '../../../services/apiClient';
+const API_URL = API_BASE_URL.replace(/\/api\/?$/, '')
 
 const LockoutOverlay = ({ remainingSeconds, onComplete, onSwitchAccount, email }) => {
     const [timeLeft, setTimeLeft] = useState(remainingSeconds);

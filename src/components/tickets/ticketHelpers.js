@@ -27,7 +27,7 @@ export const getEventImageUrl = (url) => {
   const hostname = isBrowser ? window.location.hostname : 'localhost';
   const host = hostname === 'localhost' || hostname === '127.0.0.1'
     ? 'http://localhost:8000'
-    : `http://${hostname}:8000`;
+    : '';
   
   if (url.startsWith('/')) {
     return `${host}${url}`;

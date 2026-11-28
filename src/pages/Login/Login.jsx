@@ -121,7 +121,8 @@ const Login = () => {
   const checkEmailLockout = async (emailToCheck) => {
     if (!emailToCheck || !/\S+@\S+\.\S+/.test(emailToCheck)) return;
     try {
-      const API = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const API = process.env.REACT_APP_API_URL || (isLocal ? 'http://localhost:8000/api' : '/api');
       const baseUrl = API.endsWith('/api') ? API : `${API.replace(/\/+$/, '')}/api`;
       const res = await fetch(
         `${baseUrl}/auth/check-lockout?email=${encodeURIComponent(emailToCheck)}`

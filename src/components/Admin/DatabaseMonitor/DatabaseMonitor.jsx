@@ -1,6 +1,7 @@
 // components/DatabaseMonitor.jsx
 import React, { useState, useEffect, useRef } from 'react'
 import { Card, Badge, Alert } from '../../../components'
+import { WS_BASE_URL } from '../../../services/apiClient'
 import './DatabaseMonitor.css'
 
 const DatabaseMonitor = () => {
@@ -24,7 +25,7 @@ const DatabaseMonitor = () => {
 
   const connectWebSocket = () => {
     try {
-      const wsUrl = 'ws://localhost:8000/api/monitoring/ws'
+      const wsUrl = `${WS_BASE_URL}/monitoring/ws`
       wsRef.current = new WebSocket(wsUrl)
 
       wsRef.current.onopen = () => {

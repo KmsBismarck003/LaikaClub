@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+import { API_BASE_URL as API_BASE } from '../../../../services/apiClient';
 
 export function useRecommendations() {
   const [loading, setLoading] = useState(false);

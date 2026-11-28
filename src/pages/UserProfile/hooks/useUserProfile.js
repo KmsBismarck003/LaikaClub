@@ -3,7 +3,7 @@ import api from '../../../services/api';
 import { useNotification } from '../../../context/NotificationContext';
 import { useAuth } from '../../../context/AuthContext';
 
-const API_HOST = process.env.REACT_APP_API_HOST || 'http://localhost:8000';
+import { API_HOST } from '../../../services/apiClient';
 
 const EMPTY_PROFILE = {
   firstName: '',

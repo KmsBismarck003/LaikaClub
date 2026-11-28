@@ -51,7 +51,7 @@ const AdminNavbar = ({
                     <img 
                       src={(user.avatarUrl || user.avatar_url).startsWith('http') || (user.avatarUrl || user.avatar_url).startsWith('data:')
                         ? (user.avatarUrl || user.avatar_url) 
-                        : `${process.env.REACT_APP_API_HOST || 'http://localhost:8000'}${user.avatarUrl || user.avatar_url}`} 
+                        : `${process.env.REACT_APP_API_HOST || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8000' : '')}${user.avatarUrl || user.avatar_url}`} 
                       alt="Avatar" 
                       style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
                       onError={(e) => {

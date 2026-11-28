@@ -44,7 +44,8 @@ const PendingProducts = () => {
             return firstUrl;
         }
         if (firstUrl.startsWith('/')) {
-            return `http://localhost:8000${firstUrl}`;
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            return isLocal ? `http://localhost:8000${firstUrl}` : firstUrl;
         }
         // Fallback for dummy texts like "dfghm"
         return 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=400&fit=crop';

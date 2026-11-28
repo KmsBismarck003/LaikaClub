@@ -1,7 +1,7 @@
 /**
  * StatsService & Achievements - Manejo de datos y logros
  */
-import { apiClient } from './apiClient'
+import { apiClient, API_BASE_URL } from './apiClient'
 import axios from 'axios'
 
 export const statsAPI = {
@@ -34,8 +34,8 @@ export const achievementsAPI = {
     runIncentives: (testMode = false) => apiClient.post(`/achievements/run-incentives?test_mode=${testMode}`)
 }
 
-const ANALYTICS_URL = 'http://127.0.0.1:8007/api/analytics';
-const BIGDATA_URL = 'http://127.0.0.1:8303/api/analytics';
+const ANALYTICS_URL = `${API_BASE_URL}/analytics`;
+const BIGDATA_URL = `${API_BASE_URL}/analytics`;
 
 export const analyticsAPI = {
     getAnalyticsTables: async () => {

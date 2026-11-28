@@ -2,12 +2,20 @@
  * ApiClient - Base class for HTTP requests
  */
 
-export const API_BASE_URL =
+const isLocalHost = typeof window !== 'undefined' && window.location &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+const rawApiBase =
     process.env.REACT_APP_API_URL ||
-    (window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:8000/api'
-        : `http://${window.location.hostname}:8000/api`)
+    (isLocalHost ? 'http://localhost:8000/api' : '/api');
+
+export const API_BASE_URL = rawApiBase.replace(/\/+$/, '').endsWith('/api')
+    ? rawApiBase.replace(/\/+$/, '')
+    : `${rawApiBase.replace(/\/+$/, '')}/api`;
+
+export const API_HOST = API_BASE_URL.replace(/\/api\/?$/, '');
+export const WS_BASE_URL = (process.env.REACT_APP_WS_URL ||
+    (isLocalHost ? 'ws://localhost:8000/api' : 'wss://laikaclub-yxdb1q.northcentralus.cloudapp.azure.com/api')).replace(/\/+$/, '');
 
 class ApiClient {
     constructor(baseURL) {

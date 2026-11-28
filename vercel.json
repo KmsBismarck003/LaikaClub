@@ -5,6 +5,14 @@
   "outputDirectory": "build",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://laikaclub-yxdb1q.northcentralus.cloudapp.azure.com/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://laikaclub-yxdb1q.northcentralus.cloudapp.azure.com/uploads/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

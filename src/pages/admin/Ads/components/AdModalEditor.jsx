@@ -136,7 +136,7 @@ const AdModalEditor = ({
                         const response = await api.ads.upload(file);
                         const finalUrl = response.url.startsWith('http')
                           ? response.url
-                          : `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${response.url}`;
+                          : `${(process.env.REACT_APP_API_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8000' : '')).replace(/\/api$/, '')}${response.url}`;
                         setFormData(prev => ({ ...prev, image_url: finalUrl }));
                         success('Imagen subida correctamente');
                       } catch (error) {

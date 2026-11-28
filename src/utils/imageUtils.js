@@ -1,42 +1,36 @@
+import { API_HOST } from '../services/apiClient';
+
 /**
  * Utility to generate full image URLs
- * Handles local vs server paths
+ * Handles local vs Vercel/Azure production paths without hardcoded ports
  */
 export const getImageUrl = (path) => {
     if (!path) return 'https://placehold.co/400x200?text=No+Image';
 
-    // Self-healing: if the path has double /api/api/, fix it first
-    let cleanPath = path;
-    if (typeof cleanPath === 'string') {
-        cleanPath = cleanPath.replace('/api/api/', '/api/');
-        
-        // Extract relative upload paths to serve directly from the frontend
-        const uploadIndex = cleanPath.indexOf('uploads/');
-        if (uploadIndex !== -1) {
-            return '/' + cleanPath.substring(uploadIndex);
-        }
+    let cleanPath = String(path).trim();
+    cleanPath = cleanPath.replace('/api/api/', '/api/');
+
+    // Self-healing: normalizar rutas /uploads/ incluso si en BD traen localhost/127.0.0.1
+    const uploadIndex = cleanPath.indexOf('uploads/');
+    if (uploadIndex !== -1 && (
+        cleanPath.startsWith('/uploads/') ||
+        cleanPath.startsWith('uploads/') ||
+        cleanPath.includes('localhost') ||
+        cleanPath.includes('127.0.0.1')
+    )) {
+        return `${API_HOST}/${cleanPath.substring(uploadIndex)}`;
     }
 
-    // If it's already an absolute URL (http/https), blob, or inline data URI, return as is
+    // If it's already an absolute external URL (http/https), blob, or inline data URI, return as is
     if (
-        cleanPath.startsWith('http') ||
-        cleanPath.startsWith('https') ||
+        cleanPath.startsWith('http://') ||
+        cleanPath.startsWith('https://') ||
         cleanPath.startsWith('blob:') ||
         cleanPath.startsWith('data:')
     ) {
         return cleanPath;
     }
 
-    // Construct backend base URL based on current window location
-    // Use port 8000 for backend
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    // Default to port 8000 if not specified (assumption for this project)
-    const port = '8000';
-    const baseUrl = `${protocol}//${hostname}:${port}`;
-
-    // Ensure path starts with /
     const finalCleanPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-
-    return `${baseUrl}${finalCleanPath}`;
+    return `${API_HOST}${finalCleanPath}`;
 };

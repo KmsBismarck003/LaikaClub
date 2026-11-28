@@ -1,10 +1,17 @@
 async function fetchJson(endpoint) {
-  const bases = [
-    "http://localhost:8000/api/analytics/matis",
-    "http://localhost:8303/api/analytics/matis",
-    "http://localhost:8009/api/analytics/matis",
-    "http://localhost:8007/api/analytics/matis"
-  ];
+  const isLocalHost = typeof window !== 'undefined' && window.location &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  const envApi = typeof import.meta !== 'undefined' && import.meta.env
+    ? (import.meta.env.VITE_PILGRIM_API_URL || import.meta.env.VITE_API_URL)
+    : null;
+  const bases = envApi
+    ? [`${envApi.replace(/\/+$/, '')}/analytics/matis`]
+    : isLocalHost
+      ? [
+          "http://localhost:8000/api/analytics/matis",
+          "http://localhost:8303/api/analytics/matis"
+        ]
+      : ["/api/analytics/matis"];
   let lastError;
   for (const base of bases) {
     try {

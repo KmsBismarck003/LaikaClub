@@ -663,7 +663,8 @@ const LaikaAgent = ({ loading = false }) => {
         const currentPath = location.pathname;
 
         try {
-            const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const apiBase = (process.env.REACT_APP_API_URL || (isLocal ? 'http://localhost:8000' : '')).replace(/\/api\/?$/, '');
 
             // Timeout de 10 segundos para no quedar colgado
             const controller = new AbortController();

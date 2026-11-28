@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+import { API_BASE_URL as API_URL } from '../services/apiClient';
 
 export const useExternalBackup = () => {
     const [sources, setSources] = useState([]);

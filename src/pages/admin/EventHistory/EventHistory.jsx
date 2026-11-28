@@ -60,7 +60,7 @@ const EventHistory = () => {
         </button>
         
         <div className="event-history-header">
-          {selectedEvent.image_url && <img src={selectedEvent.image_url.startsWith('http') ? selectedEvent.image_url : `${process.env.REACT_APP_API_HOST || 'http://localhost:8000'}${selectedEvent.image_url}`} alt={selectedEvent.name} className="event-history-cover" />}
+          {selectedEvent.image_url && <img src={selectedEvent.image_url.startsWith('http') ? selectedEvent.image_url : `${process.env.REACT_APP_API_HOST || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8000' : '')}${selectedEvent.image_url}`} alt={selectedEvent.name} className="event-history-cover" />}
           <div className="event-history-info">
             <h2>{selectedEvent.name}</h2>
             <p className="event-date-loc"><Icon name="calendar" size={14}/> Finalizado el {selectedEvent.event_date}</p>
@@ -121,7 +121,7 @@ const EventHistory = () => {
             <div key={event.id} className="historical-event-card" onClick={() => handleSelectEvent(event)}>
               <div className="card-image-wrap">
                 {event.image_url ? (
-                  <img src={event.image_url.startsWith('http') ? event.image_url : `${process.env.REACT_APP_API_HOST || 'http://localhost:8000'}${event.image_url}`} alt={event.name} />
+                  <img src={event.image_url.startsWith('http') ? event.image_url : `${process.env.REACT_APP_API_HOST || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8000' : '')}${event.image_url}`} alt={event.name} />
                 ) : (
                   <div className="card-image-placeholder"><Icon name="image" /></div>
                 )}

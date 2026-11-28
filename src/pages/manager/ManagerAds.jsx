@@ -259,7 +259,7 @@ const ManagerAds = () => {
                                                 const objectUrl = URL.createObjectURL(file)
                                                 setFormData({ ...formData, image_url: objectUrl })
                                                 const response = await api.ads.upload(file)
-                                                const baseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8000').replace(/\/api$/, '')
+                                                const baseUrl = (process.env.REACT_APP_API_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8000' : '')).replace(/\/api$/, '')
                                                 const finalUrl = response.url.startsWith('http')
                                                     ? response.url
                                                     : `${baseUrl}${response.url}`

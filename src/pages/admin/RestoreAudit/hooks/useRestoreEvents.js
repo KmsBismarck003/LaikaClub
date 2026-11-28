@@ -41,7 +41,7 @@ export function useRestoreEvents(initialFilters = {}) {
       if (filters.environment) params.environment = filters.environment;
 
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:8000/api'}/restore-audit/export?${new URLSearchParams(params)}`,
+        `${process.env.REACT_APP_API_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8000/api' : '/api')}/restore-audit/export?${new URLSearchParams(params)}`,
         {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`

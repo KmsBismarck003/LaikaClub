@@ -22,9 +22,9 @@ export const APP_CONFIG = {
 export const API_CONFIG = {
   baseURL:
     process.env.REACT_APP_API_URL ||
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://localhost:8000/api'
-      : `http://${window.location.hostname}:8000/api`),
+      : '/api'),
   timeout: 15000, // ms
   retries: 3,
 }

@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { API_BASE_URL } from './apiClient';
 
-const ADMIN_URL = process.env.REACT_APP_ADMIN_API_URL || 'http://localhost:8005/api/admin';
+const ADMIN_URL = `${API_BASE_URL}/admin`;
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
