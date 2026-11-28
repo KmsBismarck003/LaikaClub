@@ -264,24 +264,6 @@ public class TicketController {
         return formatted;
     }
 
-    @PostMapping("/refund/request")
-    public Object requestRefund(@RequestBody Map<String, Object> body,
-                                @AuthenticationPrincipal UserPrincipal user) {
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
-        }
-        Long tId = parseLongField(body, "ticket_id", "ticketId", "id");
-        if (tId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ticket_id requerido");
-        }
-        String reason = (String) body.getOrDefault("reason", "Cancelación solicitada por el usuario");
-        Object detail = body.get("detail");
-        if (detail != null && !detail.toString().trim().isEmpty()) {
-            reason = reason + " - " + detail.toString().trim();
-        }
-        return cancellationService.requestCancellation(user.getId(), tId, reason);
-    }
-
     @PostMapping("/lucky-seat/assign")
     public Map<String, Object> assignLuckySeat(@RequestBody Map<String, Object> body,
                                                 @AuthenticationPrincipal UserPrincipal user) {

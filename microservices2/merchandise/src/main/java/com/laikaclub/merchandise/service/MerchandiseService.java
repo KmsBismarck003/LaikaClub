@@ -241,6 +241,13 @@ public class MerchandiseService {
 
     @Transactional
     public MerchandiseOrder createOrder(OrderCreate order) {
+        if (order == null || order.getItems() == null || order.getItems().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La orden debe contener al menos un artículo.");
+        }
+        if (order.getUserId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user_id es obligatorio para crear la orden.");
+        }
+
         // Idempotency check
         if (order.getIdempotencyKey() != null && !order.getIdempotencyKey().trim().isEmpty()) {
             Optional<MerchandiseOrder> existing = orderRepository.findByIdempotencyKey(order.getIdempotencyKey());
@@ -257,6 +264,13 @@ public class MerchandiseService {
         List<MerchandiseOrderItem> orderItems = new ArrayList<>();
 
         for (OrderItemCreate itemDto : order.getItems()) {
+            if (itemDto == null || itemDto.getVariantId() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cada artículo debe especificar un variant_id válido.");
+            }
+            if (itemDto.getQuantity() <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La cantidad debe ser mayor a cero.");
+            }
+
             // Pessimistic Write Lock
             MerchandiseVariant variant = variantRepository.findByIdForUpdate(itemDto.getVariantId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Variant " + itemDto.getVariantId() + " not found."));
@@ -269,8 +283,10 @@ public class MerchandiseService {
 
             // max_per_person validation
             Integer previousQty = orderItemRepository.sumQuantityByUserIdAndVariantId(order.getUserId(), itemDto.getVariantId());
-            if (previousQty + itemDto.getQuantity() > merchItem.getMaxPerPerson()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Limit exceeded. Max " + merchItem.getMaxPerPerson() + " items per person allowed.");
+            int prevCount = previousQty != null ? previousQty : 0;
+            Integer maxPerPerson = merchItem.getMaxPerPerson();
+            if (maxPerPerson != null && maxPerPerson > 0 && prevCount + itemDto.getQuantity() > maxPerPerson) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Limit exceeded. Max " + maxPerPerson + " items per person allowed.");
             }
 
             // Check if store / event allows sales
@@ -291,9 +307,10 @@ public class MerchandiseService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Store not enabled for merchandise " + merchItem.getId() + ".");
             }
 
-            BigDecimal unitPrice = variant.getPrice();
+            BigDecimal unitPrice = variant.getPrice() != null ? variant.getPrice() : BigDecimal.ZERO;
             BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(itemDto.getQuantity()));
-            BigDecimal commissionRate = settings.getCommissionPercentage().divide(new BigDecimal("100.00"), 4, RoundingMode.HALF_UP);
+            BigDecimal commissionPct = settings.getCommissionPercentage() != null ? settings.getCommissionPercentage() : BigDecimal.ZERO;
+            BigDecimal commissionRate = commissionPct.divide(new BigDecimal("100.00"), 4, RoundingMode.HALF_UP);
             BigDecimal itemCommission = itemTotal.multiply(commissionRate);
             BigDecimal itemNet = itemTotal.subtract(itemCommission);
 
@@ -318,7 +335,10 @@ public class MerchandiseService {
         dbOrder.setTotalCommission(totalCommission);
         dbOrder.setNetAmount(netAmount);
         dbOrder.setStatus("completed");
-        dbOrder.setPaymentMethod(order.getPaymentMethod());
+        String paymentMethod = (order.getPaymentMethod() != null && !order.getPaymentMethod().trim().isEmpty())
+                ? order.getPaymentMethod().trim()
+                : "card";
+        dbOrder.setPaymentMethod(paymentMethod);
         dbOrder.setIdempotencyKey(order.getIdempotencyKey());
 
         dbOrder = orderRepository.save(dbOrder);

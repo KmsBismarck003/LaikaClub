@@ -5,6 +5,7 @@ import com.laikaclub.stats.service.InfrastructureService;
 import com.laikaclub.stats.service.LogService;
 import com.laikaclub.stats.service.StatsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,6 +66,7 @@ public class StatsController {
     }
 
     @GetMapping("/staff/dashboard")
+    @PreAuthorize("hasAnyRole('operador', 'OPERADOR', 'staff', 'STAFF', 'admin', 'ADMIN')")
     public Map<String, Object> staffDashboard() {
         return statsService.getStaffDashboard();
     }

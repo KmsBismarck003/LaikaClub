@@ -177,6 +177,7 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
       - MYSQL_DATABASE=laika_merchandise
+      - EVENTS_SERVICE_URL=http://events:8201
       - TZ=America/Mexico_City
       - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xms48m -Xmx150m
       - SPRING_THREADS_VIRTUAL_ENABLED=true

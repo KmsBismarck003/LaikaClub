@@ -234,6 +234,7 @@ services:
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_merchandise
+      - EVENTS_SERVICE_URL=http://events:8201
     depends_on:
       laika_db:
         condition: service_healthy

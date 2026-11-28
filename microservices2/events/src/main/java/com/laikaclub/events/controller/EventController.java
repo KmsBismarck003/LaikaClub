@@ -9,6 +9,7 @@ import com.laikaclub.events.service.PresaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -178,6 +179,7 @@ public class EventController {
     }
 
     @GetMapping("/manager/transactions")
+    @PreAuthorize("hasAnyRole('gestor', 'GESTOR', 'manager', 'MANAGER', 'admin', 'ADMIN')")
     public List<Map<String, Object>> getManagerTransactions(
             @RequestParam(defaultValue = "100") int limit,
             @AuthenticationPrincipal UserPrincipal principal) {

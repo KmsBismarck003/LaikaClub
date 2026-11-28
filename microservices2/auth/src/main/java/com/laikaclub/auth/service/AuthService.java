@@ -63,7 +63,7 @@ public class AuthService {
         this.googleAuthClient = googleAuthClient;
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = {InvalidCredentialsException.class, AccountLockedException.class})
     public TokenResponse login(String email, String password, String ip, String userAgent) {
         Optional<User> userOpt = userRepository.findByEmailIgnoreCase(email.trim());
 

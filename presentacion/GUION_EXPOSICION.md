@@ -18,7 +18,7 @@ Guía práctica para presentar sin leer la pantalla. Cada diapositiva muestra so
 
 ### Lámina 02 — Gancho en 30 segundos
 - **Idea clave:** Plantear el dolor real del mercado y el impacto de LAIKA Club desde el arranque.
-- **Qué decir:** "Hoy existen dos problemas claros: para muchos negocios, llevar sus eventos a lo digital es caro y complejo; y para quien compra un boleto, muchas boleteras piden demasiado tiempo y demasiadas pantallas. Con LAIKA Club reducimos la compra a tres pasos directos, separamos la operación en seis aplicaciones enfocadas por rol y respaldamos todo con 98 por ciento de aprobación en pruebas y operación continua."
+- **Qué decir:** "Hoy existen dos problemas claros: para muchos negocios, llevar sus eventos a lo digital es caro y complejo; y para quien compra un boleto, muchas boleteras te hacen saltar por demasiadas vistas y formularios tediosos. Con LAIKA Club concentramos la compra directa en una sola vista integrada, separamos la operación en seis aplicaciones enfocadas por rol y respaldamos todo con 98 por ciento de aprobación en pruebas y operación continua."
 - **Transición:** "Vamos a recorrer esto en tres bloques claros: primero cómo organizamos la gestión, después el producto y su arquitectura, y al final la calidad y la nube."
 
 ---
@@ -63,9 +63,9 @@ Guía práctica para presentar sin leer la pantalla. Cada diapositiva muestra so
 ### Lámina 10 — Portadilla Bloque 02
 - **Qué decir:** "Ahora entramos al corazón de LAIKA Club: qué resuelve el producto, cómo está construido por dentro y cómo funciona en vivo."
 
-### Lámina 11 — Comparativa 7 pasos frente a 3 pasos
-- **Idea clave:** Contrastar la experiencia lenta tradicional frente a la compra directa de LAIKA Club.
-- **Qué decir:** "En la parte superior ven lo que suele vivir un comprador: registros largos, filas, demasiadas pantallas y cargos sorpresa que terminan en abandono. En LAIKA Club simplificamos el recorrido a tres momentos claros: eliges el evento, apartas tu asiento con bloqueo inmediato y recibes tu código QR. Así el comprador no pierde tiempo y el negocio vende más sin costos inaccesibles."
+### Lámina 11 — Comparativa: 7 pantallas tradicionales frente a 1 sola vista integrada
+- **Idea clave:** Mostrar que LAIKA Club evita el salto tedioso entre pantallas concentrando todo el proceso de compra en una sola vista.
+- **Qué decir:** "En la parte superior ven lo que suele vivir un comprador: registros largos, filas y siete pantallas distintas que vuelven tediosa la compra y provocan abandono. En LAIKA Club diseñamos la experiencia al revés: todo ocurre en una sola vista del evento. Ahí mismo eliges tu función, seleccionas tu asiento en el mapa en tiempo real con bloqueo anti-sobreventa, pagas directo en modal sin salir de la pantalla y recibes tu pase QR. Y si además llevas carrito con varios boletos o mercancía, la Caja Rápida adapta las fases automáticamente y omite formularios de envío cuando son solo boletos digitales."
 - **Transición:** "Veamos con total transparencia qué está operando hoy y cómo se expande la plataforma."
 
 ### Lámina 12 — Alcance actual y expansión modular
@@ -84,8 +84,9 @@ Guía práctica para presentar sin leer la pantalla. Cada diapositiva muestra so
 - **Qué decir:** "En lugar de meter todo en una sola página gigantesca, dimos a cada persona exactamente lo que necesita: el comprador usa la web pública o LaikaMobil con su bóveda QR offline y biometría; el organizador controla sus eventos desde `laika-gestor`; el personal en puerta valida códigos con `laika-operador`; el administrador gobierna recintos y auditoría en `laika-admin`; y la dirección consulta ingresos y reportes PDF en `matis-solid`."
 - **Transición:** "Aquí reservamos un espacio visual para mostrar pantallas y diagramas complementarios."
 
-### Lámina 15 — Galería visual Bloque 02
-- **Qué decir:** "En esta lámina integramos las vistas reales del sistema y el modelo de datos para apreciar el detalle visual de cada módulo."
+### Lámina 15 — Acceso directo en vivo a la plataforma
+- **Idea clave:** Invitar a ver los seis frentes operando realmente en producción.
+- **Qué decir:** "En lugar de mostrar simples capturas estáticas, aquí tienen el acceso directo en vivo a toda la plataforma: los cuatro portales web en **Vercel** para comprador, gestor, administrador y operador, el tablero ejecutivo **MATIS** alojado en Azure y el endpoint de salud en tiempo real de **Pilgrim Gateway**. Podemos abrir cualquiera con un clic."
 
 ### Lámina 16 — Tecnología con propósito
 - **Idea clave:** Justificar el POR QUÉ de cada tecnología, no solo nombrarla.
@@ -129,8 +130,9 @@ Guía práctica para presentar sin leer la pantalla. Cada diapositiva muestra so
 - **Qué decir:** "Toda esta infraestructura se aprovisiona como código con Terraform en el grupo `rg-laikaclub`, con red privada `10.0.0.0/16`, subred dedicada, IP estática y llaves RSA de 4096 bits. Para alojar 11 contenedores en un solo servidor eficiente de 2 vCPU y 8 GB de RAM sin saturar memoria, agregamos 8 GB de swap en el arranque con `cloud-init` y optimizamos cada microservicio Java a 150 MB con `SerialGC` e hilos virtuales. Todo se actualiza automáticamente con `deploy_remote.sh`, cuenta con reinicio automático, monitoreo en `/api/health` y alertas FinOps al 80 y 95 por ciento para mantener el gasto cerca de 30 dólares mensuales."
 - **Transición:** "Aquí reservamos espacio para las capturas directas del portal de Azure y el tablero de calidad."
 
-### Lámina 24 — Galería técnica Bloque 03
-- **Qué decir:** "En este espacio presentamos las evidencias visuales del despliegue en la nube, los pipelines en verde y nuestro tablero de pruebas."
+### Lámina 24 — Mapa de recursos Terraform en Microsoft Azure
+- **Idea clave:** Explicar cada recurso real declarado en `terraform/main.tf` y `terraform.tfvars` dentro de `northcentralus`.
+- **Qué decir:** "Aquí vemos el detalle exacto de nuestra Infraestructura como Código en **Terraform** sobre la región **northcentralus**. A la izquierda están los proveedores `azurerm`, `random_string` para generar el subdominio único, `tls_private_key` que crea la llave SSH RSA de 4096 bits y `cloud-init.sh` para preparar el servidor desde el primer arranque. Dentro del grupo `rg-laikaclub` conviven la red virtual `10.0.0.0/16`, la subred `snet-app-prod`, el firewall NSG restringido a puertos 80, 443 y 22, la IP estática pública con nuestro dominio en Azure, la VM ARM64 `Standard_B2ps_v2` con disco SSD de 64 GB y el presupuesto FinOps automatizado con alertas al 80 y 95 por ciento."
 
 ### Lámina 25 — Hoja de ruta y evolución
 - **Idea clave:** Mostrar madurez técnica y visión clara de crecimiento.

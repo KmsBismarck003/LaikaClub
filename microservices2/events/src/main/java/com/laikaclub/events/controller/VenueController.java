@@ -4,7 +4,9 @@ import com.laikaclub.events.dto.VenueDTOs;
 import com.laikaclub.events.service.EventQueryService;
 import com.laikaclub.events.service.VenueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,15 @@ public class VenueController {
     @PostMapping
     public Map<String, Object> createVenue(@RequestBody VenueDTOs.VenueCreate dto) {
         return venueService.createVenue(dto);
+    }
+
+    @GetMapping("/{venue_id}")
+    public Map<String, Object> getVenueById(@PathVariable("venue_id") Long venueId) {
+        Map<String, Object> venue = eventQueryService.getVenueById(venueId);
+        if (venue == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recinto no encontrado");
+        }
+        return venue;
     }
 
     @PutMapping("/{venue_id}")

@@ -64,6 +64,8 @@ public class RouteMapper {
             }
         } else if (path.startsWith("/api/venues")) {
             targetUrl = eventsUrl + "/venues" + path.substring("/api/venues".length());
+        } else if (path.startsWith("/api/presale")) {
+            targetUrl = eventsUrl + "/presale" + path.substring("/api/presale".length());
         } else if (path.startsWith("/api/manager")) {
             targetUrl = eventsUrl + "/manager" + path.substring("/api/manager".length());
         } else if (path.startsWith("/api/staff")) {

@@ -88,7 +88,7 @@ public class MerchandiseController {
         return items.stream().map(this::mapToItemResponse).toList();
     }
 
-    @GetMapping("/{merchId}")
+    @GetMapping("/{merchId:\\d+}")
     public MerchandiseItemResponse getMerchandise(@PathVariable("merchId") Long merchId) {
         MerchandiseItem item = service.getMerchandiseItem(merchId);
         if (item == null) {
@@ -97,7 +97,7 @@ public class MerchandiseController {
         return mapToItemResponse(item);
     }
 
-    @PutMapping("/{merchId}")
+    @PutMapping("/{merchId:\\d+}")
     public MerchandiseItemResponse updateMerchandise(
             @PathVariable("merchId") Long merchId,
             @RequestBody MerchandiseItemUpdate item,
@@ -109,7 +109,7 @@ public class MerchandiseController {
         return mapToItemResponse(updated);
     }
 
-    @DeleteMapping("/{merchId}")
+    @DeleteMapping("/{merchId:\\d+}")
     public Map<String, String> deleteMerchandise(
             @PathVariable("merchId") Long merchId,
             @AuthenticationPrincipal UserPrincipal principal,
@@ -165,7 +165,7 @@ public class MerchandiseController {
         return mapToSettingsResponse(updated);
     }
 
-    @PostMapping("/orders/")
+    @PostMapping({"/orders", "/orders/"})
     public OrderResponse createOrder(@RequestBody OrderCreate order) {
         MerchandiseOrder created = service.createOrder(order);
         return mapToOrderResponse(created);
@@ -192,7 +192,7 @@ public class MerchandiseController {
         return orders.stream().map(this::mapToOrderResponse).toList();
     }
 
-    @PostMapping("/reviews/")
+    @PostMapping({"/reviews", "/reviews/"})
     public MerchandiseReviewResponse createReview(
             @RequestBody MerchandiseReviewCreate review,
             @AuthenticationPrincipal UserPrincipal principal,

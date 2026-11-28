@@ -488,6 +488,44 @@ public class EventQueryService {
         }
     }
 
+    public Map<String, Object> getVenueById(Long venueId) {
+        String sql = "SELECT v.*, " +
+                "       m.name as municipality_name, " +
+                "       s.id as state_id, s.name as state_name, " +
+                "       c.id as country_id, c.name as country_name, " +
+                "       u.first_name as manager_first_name, u.last_name as manager_last_name " +
+                "FROM venues v " +
+                "LEFT JOIN municipalities m ON v.municipality_id = m.id " +
+                "LEFT JOIN states s ON m.state_id = s.id " +
+                "LEFT JOIN countries c ON s.country_id = c.id " +
+                "LEFT JOIN users u ON v.assigned_manager_id = u.id " +
+                "WHERE v.id = :venueId";
+
+        MapSqlParameterSource params = new MapSqlParameterSource("venueId", venueId);
+        try {
+            List<Map<String, Object>> rows = cleanResults(jdbcTemplate.queryForList(sql, params));
+            return rows.isEmpty() ? null : rows.get(0);
+        } catch (Exception e) {
+            logger.warn("Error in getVenueById({}): {}. Trying fallback without users join...", venueId, e.getMessage());
+            try {
+                String fallbackSql = "SELECT v.*, " +
+                        "       m.name as municipality_name, " +
+                        "       s.id as state_id, s.name as state_name, " +
+                        "       c.id as country_id, c.name as country_name " +
+                        "FROM venues v " +
+                        "LEFT JOIN municipalities m ON v.municipality_id = m.id " +
+                        "LEFT JOIN states s ON m.state_id = s.id " +
+                        "LEFT JOIN countries c ON s.country_id = c.id " +
+                        "WHERE v.id = :venueId";
+                List<Map<String, Object>> rows = cleanResults(jdbcTemplate.queryForList(fallbackSql, params));
+                return rows.isEmpty() ? null : rows.get(0);
+            } catch (Exception ex) {
+                logger.error("Error in getVenueById fallback: ", ex);
+                return null;
+            }
+        }
+    }
+
     public List<Map<String, Object>> getHistoricalEvents(Long userId, String role, int limit) {
         String sql = "SELECT e.*, " +
                 "       v.name as venue_name " +

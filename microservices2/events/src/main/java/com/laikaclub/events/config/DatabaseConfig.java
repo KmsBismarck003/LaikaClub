@@ -1,5 +1,7 @@
 package com.laikaclub.events.config;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,13 +45,19 @@ public class DatabaseConfig {
         logger.info("[EVENTS SERVICE] Verificando conexión a la base de datos MySQL...");
         
         if (testConnection(mysqlUrl, mysqlUsername, mysqlPassword)) {
-            logger.info("[EVENTS SERVICE] Conexión MySQL establecida exitosamente.");
-            DriverManagerDataSource dataSource = new DriverManagerDataSource();
-            dataSource.setDriverClassName(mysqlDriverClassName);
-            dataSource.setUrl(mysqlUrl);
-            dataSource.setUsername(mysqlUsername);
-            dataSource.setPassword(mysqlPassword);
-            return dataSource;
+            logger.info("[EVENTS SERVICE] Conexión MySQL establecida exitosamente (Pool HikariCP).");
+            HikariConfig hikariConfig = new HikariConfig();
+            hikariConfig.setDriverClassName(mysqlDriverClassName);
+            hikariConfig.setJdbcUrl(mysqlUrl);
+            hikariConfig.setUsername(mysqlUsername);
+            hikariConfig.setPassword(mysqlPassword);
+            hikariConfig.setMaximumPoolSize(25);
+            hikariConfig.setMinimumIdle(5);
+            hikariConfig.setConnectionTimeout(10000);
+            hikariConfig.setIdleTimeout(300000);
+            hikariConfig.setMaxLifetime(1200000);
+            hikariConfig.setPoolName("LaikaEventsHikariPool");
+            return new HikariDataSource(hikariConfig);
         } else {
             logger.warn("[EVENTS SERVICE] MySQL no está disponible. Conmutando a SQLite local (Fallback)...");
             DriverManagerDataSource dataSource = new DriverManagerDataSource();

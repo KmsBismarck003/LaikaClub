@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import time
+import shutil
 import argparse
 import importlib
 import importlib.util
@@ -121,12 +122,12 @@ def run_suite(target_role="gestor"):
             else:
                 case_raw = "Aprobada"
 
-            # Interpretar resultado devuelto
+            # Interpretar resultado devuelto (soporta claves 'result' y 'status')
             status_str = "Aprobada"
             defect_id = "N/A"
             if isinstance(case_raw, dict):
-                status_str = case_raw.get("result", "Aprobada")
-                detected_id = case_raw.get("test_id", detected_id)
+                status_str = case_raw.get("result") or case_raw.get("status") or "Aprobada"
+                detected_id = case_raw.get("test_id") or case_raw.get("id") or detected_id
                 detected_name = case_raw.get("name", detected_name)
                 detected_level = case_raw.get("level", detected_level)
                 defect_id = case_raw.get("defect_id", "N/A")
@@ -228,6 +229,46 @@ def generate_reports(summary, duration, role):
     # Si se ejecuta ALL, generamos además el informe consolidado maestro
     if role == "all":
         write_master_consolidated_report(summary, duration, REPORTES_DIR / "informe_general_qa.md")
+
+    # Separar automáticamente todos los reportes de casos fallidos en test/reportes/fallidas/
+    sync_failed_reports(summary)
+
+
+def sync_failed_reports(summary):
+    failed_dir = REPORTES_DIR / "fallidas"
+    failed_dir.mkdir(parents=True, exist_ok=True)
+    failed_cases = [
+        c for c in summary["cases"]
+        if c.get("status") in ["Fallida", "FAIL"]
+    ]
+    rows = []
+    for c in failed_cases:
+        cid = c.get("id", "N/A")
+        cname = c.get("name", "N/A")
+        clevel = c.get("level", "API")
+        cdef = c.get("defect_id", "N/A")
+        copied_name = "N/A"
+        for sub in ["avanzados", "operador", "gestor", "admin", "usuario", ""]:
+            search_dir = (CASOS_DIR / sub) if sub else CASOS_DIR
+            matches = sorted(search_dir.glob(f"{cid}_*.md"))
+            if matches:
+                src = matches[0]
+                shutil.copy2(src, failed_dir / src.name)
+                copied_name = src.name
+                break
+        rows.append(f"| {cid} | {cname} | {clevel} | {cdef} | {copied_name} |")
+
+    index_lines = [
+        "# REPORTES DE PRUEBAS FALLIDAS - LAIKACLUB",
+        f"**Última sincronización:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  ",
+        f"**Total de casos fallidos:** {len(failed_cases)}",
+        "",
+        "| ID | Nombre | Nivel | Defecto | Archivo |",
+        "|---|---|---|---|---|",
+    ]
+    index_lines.extend(rows if rows else ["| — | Sin fallas en esta corrida | — | — | — |"])
+    (failed_dir / "INDEX_FALLIDAS.md").write_text("\n".join(index_lines) + "\n", encoding="utf-8")
+    print(f"Reportes fallidos separados en: {failed_dir} ({len(failed_cases)} casos)")
 
 def write_role_report(role_name, cases, duration, output_path):
     total = len(cases)

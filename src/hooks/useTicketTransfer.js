@@ -152,7 +152,10 @@ export function useTicketTransfer({ success, error: showError, onComplete }) {
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Error al cancelar la transferencia';
       showError(msg);
-      throw err;
+      if (err?.status === 410 && onComplete) {
+        onComplete();
+      }
+      return null;
     } finally {
       setLoading(false);
     }

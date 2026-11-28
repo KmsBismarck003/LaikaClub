@@ -51,6 +51,7 @@ export const refundAPI = {
         const rReason = typeof ticketIdOrObj === 'object' ? (ticketIdOrObj.reason || reason) : reason;
         const rDetail = typeof ticketIdOrObj === 'object' ? ticketIdOrObj.detail : undefined;
         return apiClient.post('/refunds/request', {
+            ticketId: parsedId,
             ticket_id: parsedId,
             reason: rReason || 'Cancelación solicitada por el usuario',
             detail: rDetail

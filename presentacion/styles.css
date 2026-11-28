@@ -1131,6 +1131,84 @@ html[data-theme="dark"] .kpi-box {
   font-family: var(--font-mono);
 }
 
+/* Tarjetas clicables de acceso en vivo (Lamina 15) */
+.live-link-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.live-link-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  text-decoration: none;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-top: 3px solid var(--accent-primary);
+  padding: 18px 20px;
+  min-height: 152px;
+  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.2s ease;
+}
+
+html[data-theme="dark"] .live-link-card {
+  backdrop-filter: blur(8px);
+}
+
+.live-link-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--brand-orange);
+  background: var(--bg-surface-alt);
+}
+
+.live-link-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.live-link-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+  background: var(--accent-tint);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.live-link-arrow {
+  color: var(--accent-primary);
+  display: inline-flex;
+}
+
+.live-link-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink-primary);
+}
+
+.live-link-desc {
+  margin: 0;
+  font-size: 12.8px;
+  line-height: 1.4;
+  color: var(--ink-secondary);
+}
+
+.live-link-url {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-primary);
+  word-break: break-all;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-hairline);
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -9,8 +9,11 @@ from utils.auth_helper import get_auth_token, get_auth_headers
 from config.test_config import GATEWAY_URL
 
 def fetch_wallet(url, headers):
-    resp = requests.get(url, headers=headers, timeout=10)
-    return resp.status_code
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        return resp.status_code
+    except requests.RequestException:
+        return 0
 
 def run_test():
     doc = TestCaseDocumenter(

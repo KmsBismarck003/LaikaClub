@@ -97,7 +97,7 @@ export const merchService = {
   // --- Orders ---
   createOrder: async (orderData) => {
     try {
-      const response = await api.post(`${MERCH_URL}/orders/`, orderData);
+      const response = await api.post(`${MERCH_URL}/orders`, orderData);
       return response;
     } catch (error) {
       console.error('Error creating merch order:', error);
@@ -138,7 +138,7 @@ export const merchService = {
   // --- Reviews ---
   createReview: async (reviewData) => {
     try {
-      const response = await api.post(`${MERCH_URL}/reviews/`, reviewData);
+      const response = await api.post(`${MERCH_URL}/reviews`, reviewData);
       return response;
     } catch (error) {
       console.error('Error creating product review:', error);

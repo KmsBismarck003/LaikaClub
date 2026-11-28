@@ -68,7 +68,16 @@ public class CancellationController {
         if (body == null || body.getTicketId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ticketId es obligatorio");
         }
-        return cancellationService.requestCancellation(user.getId(), body.getTicketId(), body.getReason());
+        String reason = (body.getReason() != null && !body.getReason().trim().isEmpty())
+                ? body.getReason().trim()
+                : "Cancelación solicitada por el usuario";
+        if (body.getDetail() != null && !body.getDetail().trim().isEmpty()) {
+            reason = reason + " - " + body.getDetail().trim();
+        }
+        if (reason.length() > 250) {
+            reason = reason.substring(0, 250);
+        }
+        return cancellationService.requestCancellation(user.getId(), body.getTicketId(), reason);
     }
 
     /**
