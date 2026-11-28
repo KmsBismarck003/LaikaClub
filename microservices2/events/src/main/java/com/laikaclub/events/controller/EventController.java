@@ -70,9 +70,11 @@ public class EventController {
     }
 
     @GetMapping(value = {"/{event_id}", "/manager/events/{event_id}"})
-    public Map<String, Object> getEventDetail(@PathVariable("event_id") Long eventId,
-                                              @AuthenticationPrincipal UserPrincipal principal) {
-        boolean isPublic = (principal == null);
+    public Map<String, Object> getEventDetail(
+            @PathVariable("event_id") Long eventId,
+            @RequestParam(name = "includePastFunctions", defaultValue = "false") boolean includePastFunctions,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        boolean isPublic = (principal == null) && !includePastFunctions;
         Map<String, Object> event = eventQueryService.getEventById(eventId, isPublic);
         if (event == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento no encontrado");

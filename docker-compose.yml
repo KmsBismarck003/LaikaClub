@@ -83,6 +83,8 @@ services:
       - "8201:8201"
     environment:
       - SERVER_PORT=8201
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_events
@@ -103,6 +105,8 @@ services:
       - "8202:8202"
     environment:
       - SERVER_PORT=8202
+      - TZ=America/Mexico_City
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=America/Mexico_City
       - MYSQL_HOST=laika_db
       - MYSQL_PASSWORD=root
       - MYSQL_DATABASE=laika_tickets

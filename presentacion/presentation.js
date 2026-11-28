@@ -22,6 +22,33 @@
 
   const canvas = document.getElementById("starfield-canvas");
   const ctx = canvas ? canvas.getContext("2d") : null;
+  const lightboxEl = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+  const lightboxCaption = document.getElementById("lightbox-caption");
+
+  function openLightbox(src, caption) {
+    if (!lightboxEl || !lightboxImg) return;
+    lightboxImg.src = src;
+    if (lightboxCaption) lightboxCaption.textContent = caption || "";
+    lightboxEl.classList.add("is-open");
+  }
+
+  function closeLightbox() {
+    if (!lightboxEl) return;
+    lightboxEl.classList.remove("is-open");
+  }
+
+  if (lightboxEl) {
+    lightboxEl.addEventListener("click", closeLightbox);
+  }
+
+  document.querySelectorAll("[data-zoom-src]").forEach(function (el) {
+    el.addEventListener("click", function (ev) {
+      if (document.body.classList.contains("overview-mode")) return;
+      ev.stopPropagation();
+      openLightbox(el.getAttribute("data-zoom-src"), el.getAttribute("data-zoom-caption"));
+    });
+  });
 
   let currentIndex = 0;
   let stars = [];
@@ -341,8 +368,12 @@
       toggleOverview();
     } else if (event.key === "t" || event.key === "T") {
       applyTheme(getTheme() === "dark" ? "light" : "dark");
-    } else if (event.key === "Escape" && document.body.classList.contains("overview-mode")) {
-      toggleOverview(false);
+    } else if (event.key === "Escape") {
+      if (lightboxEl && lightboxEl.classList.contains("is-open")) {
+        closeLightbox();
+      } else if (document.body.classList.contains("overview-mode")) {
+        toggleOverview(false);
+      }
     } else if (event.key === "f" || event.key === "F") {
       toggleFullscreen();
     }

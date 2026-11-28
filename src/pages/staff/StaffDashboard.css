@@ -1752,6 +1752,15 @@
   box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
 }
 
+.terminal-redeem-btn--early {
+  background: var(--staff-status-warning);
+  color: var(--staff-bg-main);
+}
+
+.terminal-redeem-btn--early:hover {
+  box-shadow: 0 8px 24px var(--staff-status-warning-bg);
+}
+
 .terminal-result-actions {
   display: flex;
   gap: 0.85rem;
@@ -1962,7 +1971,8 @@
 }
 
 .staff-status-icon-box.used,
-.staff-status-icon-box.warning {
+.staff-status-icon-box.warning,
+.staff-status-icon-box.early {
   background: var(--staff-status-warning-bg, rgba(245, 158, 11, 0.12));
   color: var(--staff-status-warning, #f59e0b);
 }
@@ -1985,7 +1995,9 @@
 }
 
 .staff-status-title.valid { color: var(--staff-status-valid, #10b981); }
-.staff-status-title.used { color: var(--staff-status-warning, #f59e0b); }
+.staff-status-title.used,
+.staff-status-title.warning,
+.staff-status-title.early { color: var(--staff-status-warning, #f59e0b); }
 .staff-status-title.future { color: #3b82f6; }
 .staff-status-title.invalid { color: var(--staff-status-error, #ef4444); }
 
@@ -2010,6 +2022,12 @@
   color: #3b82f6;
   font-size: 0.8rem;
   font-weight: 700;
+}
+
+.staff-status-countdown.early {
+  background: var(--staff-status-warning-bg);
+  border-color: var(--staff-status-warning);
+  color: var(--staff-status-warning);
 }
 
 .staff-ticket-info {

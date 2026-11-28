@@ -25,15 +25,36 @@ Guía práctica para presentar sin leer la pantalla. Cada diapositiva muestra so
 
 ## Bloque 01 — Gestión y Planificación · Láminas 03 a 09
 
-> Este bloque permanece reservado para integrar los datos definitivos de planeación, sprints, tablero y retrospectiva.
+### Lámina 03 — Portadilla Bloque 01
+- **Qué decir:** "Iniciamos explicando cómo organizamos al equipo, cómo planificamos los ciclos de entrega y qué aprendizajes dejó la gestión del proyecto."
 
-- **Lámina 03 — Portadilla Bloque 01:** Introduce cómo se planeó y coordinó el trabajo del equipo.
-- **Lámina 04 — Planeación:** Explica el objetivo inicial, quiénes integraron el equipo y la metodología ágil aplicada.
-- **Lámina 05 — Cronograma:** Resume cuántos sprints hubo y qué entregó cada ciclo.
-- **Lámina 06 — Seguimiento:** Comenta qué herramienta usaron para el backlog, el nivel de cumplimiento y las desviaciones ajustadas.
-- **Lámina 07 — Riesgos:** Explica los retos de tiempos o coordinación y cómo se resolvieron.
-- **Lámina 08 — Lecciones:** Cierra con lo que mejor funcionó y lo que mejorarían en un siguiente proyecto.
-- **Lámina 09 — Galería visual:** Muestra el tablero de tareas y el cronograma como respaldo.
+### Lámina 04 — Marco ágil Scrum y estructura del equipo
+- **Idea clave:** Mostrar cómo se dividieron las responsabilidades y cómo partió la planeación.
+- **Qué decir:** "Trabajamos bajo la metodología **Scrum**, dividiendo al equipo en cinco roles definidos: Product Owner para la visión y prioridades, Liderazgo Técnico para la arquitectura, Gestión Scrum para asignar y dar seguimiento por sprint, QA para pruebas y documentación, y Desarrollo para implementar, rediseñar y corregir fallos. Aunque al inicio hubo ajustes para estabilizar el desempeño en algunos roles, logramos consolidar un plan sobre la base previa abarcando 12 módulos funcionales, la aplicación móvil y el despliegue productivo."
+- **Transición:** "Para cumplir con las fechas disponibles, distribuimos todo el trabajo en seis sprints."
+
+### Lámina 05 — Hoja de ruta en seis sprints
+- **Idea clave:** Recorrer en 30 segundos la evolución de Sprint 1 a Sprint 6 sin leer cada palabra.
+- **Qué decir:** "Definimos seis sprints de dos semanas cada uno. En el Sprint 1 levantamos microservicios, bloqueo de asientos anti-duplicado y el rediseño administrativo. En el Sprint 2 sumamos gestión B2B, respaldos, bitácoras y el lanzamiento de la app móvil con notificaciones y FAQ. En el Sprint 3 desplegamos en producción y agregamos cancelaciones, transferencias, cortesías y tienda. El Sprint 4 integró MATIS, visualización 3D y modelos de Machine Learning. El Sprint 5 certificó calidad, seguridad y concurrencia, y el Sprint 6 cerró con remediación de incidencias críticas y regresión para la liberación."
+- **Transición:** "Veamos cómo medimos y controlamos el avance en cada una de estas iteraciones."
+
+### Lámina 06 — Control del backlog, YouTrack y cumplimiento
+- **Idea clave:** Mostrar métricas reales de gestión y hablar con transparencia sobre las desviaciones.
+- **Qué decir:** "Tradujimos los 12 módulos en 45 historias de usuario y técnicas, cada una con identificador, rol, responsable, fechas y estimación en Story Points con escala Fibonacci, priorizadas en nivel Crítico, Alto y Medio. Gestionamos tareas e incidencias en **JetBrains YouTrack** junto con el código en **GitHub**. Si bien los primeros sprints siguieron lo planeado, en los ciclos intermedios hubo desviaciones importantes y brechas de compromiso por distintos factores; sin embargo, al reordenar prioridades y ajustar el alcance en las iteraciones finales logramos cerrar el 99 por ciento de los objetivos clave."
+- **Transición:** "Estos ajustes respondieron a obstáculos concretos que enfrentamos durante la ejecución."
+
+### Lámina 07 — Retos administrativos y control de riesgos
+- **Idea clave:** Explicar con objetividad los bloqueos reales y cómo se mitigaron los riesgos principales.
+- **Qué decir:** "Enfrentamos cuatro frentes complejos: historias con alta exigencia técnica difíciles de asignar según el perfil disponible, limitaciones de hardware en algunos equipos que no soportaban levantar todo el entorno local, dependencias entre sprints que bloqueaban historias siguientes junto con fallas de comunicación, y el alto consumo de recursos en la nube. Como mitigación protegimos la fase de pruebas, que resultó muy efectiva en validación, y planificamos la capacidad en nube para sostener la entrega."
+- **Transición:** "Todo este recorrido nos dejó una autocrítica clara para futuros proyectos."
+
+### Lámina 08 — Autocrítica y mejoras a futuro
+- **Idea clave:** Demostrar madurez profesional reconociendo áreas de mejora concretas.
+- **Qué decir:** "Siendo francos, aunque cumplimos el producto final, no logramos sostener buenas prácticas de gestión de manera constante durante todo el proceso. Hoy replantearíamos desde el arranque una distribución más justa de cargas, asignaciones mejor alineadas al perfil de cada integrante y tiempos de entrega más realistas. Para futuros proyectos nuestra prioridad será fortalecer la comunicación, la responsabilidad individual, el seguimiento diario en YouTrack y el cumplimiento estricto de tiempos."
+- **Transición:** "Aquí reservamos espacio para mostrar el tablero de YouTrack y el cronograma visual."
+
+### Lámina 09 — Evidencia real de gestión: YouTrack y Product Backlog
+- **Qué decir:** "Aquí vemos el respaldo real de nuestra gestión: a la izquierda el tablero activo en **JetBrains YouTrack** con los sprints y las historias críticas, y a la derecha la distribución exacta de los **228 Story Points** repartidos entre los seis sprints junto con las capturas del Product Backlog completo de `HU-01` a `HU-45`. Si desean revisar cualquier captura a detalle, basta con hacer clic sobre la imagen para ampliarla en pantalla."
 
 ---
 

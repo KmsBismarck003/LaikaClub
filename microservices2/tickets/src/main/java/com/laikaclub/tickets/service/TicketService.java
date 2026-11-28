@@ -33,6 +33,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final PaymentRepository paymentRepository;
     private final MongoSyncService mongoSyncService;
+    private final TicketLifecyclePolicy lifecyclePolicy;
     private final RestTemplate restTemplate;
     private final ConcurrentHashMap<String, ReentrantLock> seatLocks = new ConcurrentHashMap<>();
 
@@ -45,10 +46,12 @@ public class TicketService {
     @Autowired
     public TicketService(TicketRepository ticketRepository,
                          PaymentRepository paymentRepository,
-                         MongoSyncService mongoSyncService) {
+                         MongoSyncService mongoSyncService,
+                         TicketLifecyclePolicy lifecyclePolicy) {
         this.ticketRepository = ticketRepository;
         this.paymentRepository = paymentRepository;
         this.mongoSyncService = mongoSyncService;
+        this.lifecyclePolicy = lifecyclePolicy;
         this.restTemplate = new RestTemplate();
     }
 
@@ -60,13 +63,12 @@ public class TicketService {
             for (Ticket tkt : tickets) {
                 Map<String, Object> tktMap = serializeTicket(tkt);
                 populateEventDetails(tktMap, tkt.getEventId(), tkt.getEventFunctionId());
-                
-                if ("active".equalsIgnoreCase(tkt.getStatus()) || "confirmed".equalsIgnoreCase(tkt.getStatus())) {
-                    if (isEventConcluded(tktMap)) {
-                        tkt.setStatus("unutilized");
-                        ticketRepository.save(tkt);
-                        tktMap.put("status", "unutilized");
-                    }
+
+                EventAccessWindowEvaluator.WindowEvaluation window =
+                        EventAccessWindowEvaluator.evaluate(tktMap, EventAccessWindowEvaluator.nowMexico());
+                TicketLifecyclePolicy.ReconciliationResult reconciliation = lifecyclePolicy.reconcile(tkt, window);
+                if (reconciliation.wasRestoredToActive() || reconciliation.wasMarkedUnutilized()) {
+                    tktMap.put("status", tkt.getStatus());
                 }
 
                 result.add(tktMap);
@@ -477,7 +479,7 @@ public class TicketService {
 
         try {
             ticket.setStatus("used");
-            ticket.setRedeemedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+            ticket.setRedeemedAt(EventAccessWindowEvaluator.nowMexico().format(DateTimeFormatter.ISO_DATE_TIME));
             ticketRepository.save(ticket);
 
             notifyWearablesService(ticket.getUserId(), "ticket_used");
@@ -648,7 +650,8 @@ public class TicketService {
 
     private void populateEventDetails(Map<String, Object> tkt, Long eventId, Long functionId) {
         try {
-            Map<String, Object> evData = restTemplate.getForObject(eventServiceUrl + "/" + eventId, Map.class);
+            Map<String, Object> evData = restTemplate.getForObject(
+                    eventServiceUrl + "/" + eventId + "?includePastFunctions=true", Map.class);
             if (evData != null) {
                 String funcDate = null;
                 String funcTime = null;
@@ -674,6 +677,7 @@ public class TicketService {
                 eventMap.put("name", evData.get("name"));
                 eventMap.put("date", finalDate);
                 eventMap.put("time", finalTime);
+                eventMap.put("duration_minutes", evData.get("duration_minutes"));
                 eventMap.put("venue_name", venueName);
                 eventMap.put("image_url", evData.get("image_url"));
                 eventMap.put("room", evData.get("room"));
@@ -689,6 +693,7 @@ public class TicketService {
                 tkt.put("event_name", evData.get("name"));
                 tkt.put("event_date", finalDate);
                 tkt.put("event_time", finalTime);
+                tkt.put("duration_minutes", evData.get("duration_minutes"));
                 tkt.put("venue_name", venueName);
             } else {
                 setEmptyEventDetails(tkt, "Info no disponible");
@@ -710,26 +715,7 @@ public class TicketService {
     }
 
     private boolean isEventConcluded(Map<String, Object> tktMap) {
-        try {
-            String dateStr = (String) tktMap.get("event_date");
-            String timeStr = (String) tktMap.get("event_time");
-            if (dateStr == null || dateStr.trim().isEmpty() || "N/A".equals(dateStr)) return false;
-
-            java.time.LocalDate evDate = java.time.LocalDate.parse(dateStr.substring(0, 10));
-            java.time.LocalTime evTime = java.time.LocalTime.of(20, 0);
-            try {
-                if (timeStr != null && !timeStr.trim().isEmpty() && !timeStr.contains("N/A")) {
-                    String[] p = timeStr.split(":");
-                    evTime = java.time.LocalTime.of(Integer.parseInt(p[0]), Integer.parseInt(p[1]));
-                }
-            } catch (Exception ignored) {}
-
-            java.time.LocalDateTime evStart = java.time.LocalDateTime.of(evDate, evTime);
-            java.time.LocalDateTime now = java.time.LocalDateTime.now(java.time.ZoneId.of("America/Mexico_City"));
-            return now.isAfter(evStart.plusHours(4)) || (now.toLocalDate().isAfter(evDate) && now.isAfter(evStart.plusHours(2)));
-        } catch (Exception e) {
-            return false;
-        }
+        return EventAccessWindowEvaluator.isConcluded(tktMap);
     }
 
     public List<Map<String, Object>> getInternalPurchases() {

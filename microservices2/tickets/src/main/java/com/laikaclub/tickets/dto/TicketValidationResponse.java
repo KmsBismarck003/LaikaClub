@@ -11,6 +11,7 @@ public class TicketValidationResponse {
     private boolean actionable;
     private boolean isError;
     private boolean alreadyUsed;
+    private Boolean earlyAccess;
     private String statusCode;
     private String statusTitle;
     private String operatorMessage;
@@ -73,6 +74,14 @@ public class TicketValidationResponse {
 
     public void setAlreadyUsed(boolean alreadyUsed) {
         this.alreadyUsed = alreadyUsed;
+    }
+
+    public Boolean getEarlyAccess() {
+        return earlyAccess;
+    }
+
+    public void setEarlyAccess(Boolean earlyAccess) {
+        this.earlyAccess = earlyAccess;
     }
 
     public String getStatusCode() {

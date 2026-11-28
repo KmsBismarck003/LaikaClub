@@ -22,9 +22,9 @@ const ScannerResult = ({
             <StatusMessage status={result.status} message={result.message} />
             <TicketInfo ticket={result} />
             
-            {result.status === 'valid' && (
+            {(result.status === 'valid' || result.status === 'early' || (result.actionable && !result.alreadyUsed)) && (
                 <Button variant="success" size="large" fullWidth onClick={onRedeem} style={{ marginTop: '1rem' }}>
-                    Registrar Entrada
+                    {result.status === 'early' ? 'Autorizar Ingreso Anticipado' : 'Registrar Entrada'}
                 </Button>
             )}
             

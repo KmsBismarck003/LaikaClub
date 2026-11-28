@@ -34,13 +34,10 @@ export const useStaffTerminal = () => {
         try {
             const data = await api.event.getAll({ status_filter: 'published' });
             setEvents(data);
-            if (data.length > 0 && !selectedEventId) {
-                setSelectedEventId(data[0].id);
-            }
         } catch (err) {
             console.error('Error fetching events:', err);
         }
-    }, [selectedEventId]);
+    }, []);
 
     // 3. Scanner & Verification Logic
     const [ticketCode, setTicketCode] = useState('');
@@ -92,8 +89,10 @@ export const useStaffTerminal = () => {
             };
             const response = await api.ticket.verify(codeToVerify, context);
             
+            const isEarlyAccess = Boolean(response.earlyAccess || response.statusCode === 'EARLY_ACCESS');
             let mappedStatus = 'invalid';
-            if (response.actionable || (response.valid && !response.alreadyUsed)) mappedStatus = 'valid';
+            if (isEarlyAccess && !response.alreadyUsed) mappedStatus = 'early';
+            else if (response.actionable || (response.valid && !response.alreadyUsed)) mappedStatus = 'valid';
             else if (response.alreadyUsed || response.statusCode === 'ALREADY_REDEEMED') mappedStatus = 'used';
             else if (response.statusCode === 'FUTURE_EVENT') mappedStatus = 'future';
             else if (response.statusCode === 'CONCLUDED_EVENT') mappedStatus = 'concluded';
@@ -101,6 +100,7 @@ export const useStaffTerminal = () => {
 
             const result = {
                 valid: response.valid || false,
+                earlyAccess: isEarlyAccess,
                 actionable: response.actionable !== undefined ? response.actionable : (response.valid && !response.alreadyUsed),
                 isError: response.isError || false,
                 statusCode: response.statusCode || mappedStatus,

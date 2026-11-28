@@ -16,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -30,6 +27,7 @@ public class ContextualValidationService {
 
     private final TicketRepository ticketRepository;
     private final TicketValidationLogRepository validationLogRepository;
+    private final TicketLifecyclePolicy lifecyclePolicy;
     private final RestTemplate restTemplate;
 
     @Value("${services.events.url}")
@@ -37,9 +35,11 @@ public class ContextualValidationService {
 
     @Autowired
     public ContextualValidationService(TicketRepository ticketRepository,
-                                       TicketValidationLogRepository validationLogRepository) {
+                                       TicketValidationLogRepository validationLogRepository,
+                                       TicketLifecyclePolicy lifecyclePolicy) {
         this.ticketRepository = ticketRepository;
         this.validationLogRepository = validationLogRepository;
+        this.lifecyclePolicy = lifecyclePolicy;
         this.restTemplate = new RestTemplate();
     }
 
@@ -56,25 +56,35 @@ public class ContextualValidationService {
             return verification;
         }
 
+        boolean isEarlyAccess = Boolean.TRUE.equals(verification.getEarlyAccess())
+                || "EARLY_ACCESS".equals(verification.getStatusCode());
+
         Ticket ticket = ticketRepository.findByTicketCode(request.getTicketCode())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Boleto no encontrado"));
 
         ticket.setStatus("used");
-        String nowStr = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        String nowStr = EventAccessWindowEvaluator.nowMexico().format(DateTimeFormatter.ISO_DATE_TIME);
         ticket.setRedeemedAt(nowStr);
         ticketRepository.save(ticket);
 
         verification.setStatus("used");
         verification.setRedeemedAt(nowStr);
+        verification.setEarlyAccess(isEarlyAccess);
         verification.setStatusCode("REDEEMED_SUCCESS");
-        verification.setStatusTitle("INGRESO REGISTRADO");
-        verification.setOperatorMessage("Boleto canjeado exitosamente en puerta. Ingreso autorizado.");
-        verification.setMessage("Boleto canjeado exitosamente en puerta. Ingreso autorizado.");
+        verification.setStatusTitle(isEarlyAccess ? "INGRESO ANTICIPADO REGISTRADO" : "INGRESO REGISTRADO");
+        String successMsg = isEarlyAccess
+                ? "Ingreso anticipado autorizado y canjeado exitosamente en puerta."
+                : "Boleto canjeado exitosamente en puerta. Ingreso autorizado.";
+        verification.setOperatorMessage(successMsg);
+        verification.setMessage(successMsg);
         verification.setValid(true);
         verification.setActionable(false);
         verification.setAlreadyUsed(true);
 
-        logAttempt(request, ticket, "REDEEM", "VALID_ACCESS", "Ingreso físico registrado en " + request.getAccessPoint());
+        String auditStatus = isEarlyAccess ? "EARLY_ACCESS_REDEEM" : "VALID_ACCESS";
+        String auditNote = (isEarlyAccess ? "Ingreso anticipado autorizado en " : "Ingreso físico registrado en ")
+                + request.getAccessPoint();
+        logAttempt(request, ticket, "REDEEM", auditStatus, auditNote);
 
         // Refresh redemption history
         verification.setRedemptionHistory(fetchFormattedHistory(request.getTicketCode()));
@@ -182,54 +192,56 @@ public class ContextualValidationService {
             return resp;
         }
 
-        if ("unutilized".equals(currentStatus)) {
+        // Evaluate temporal context against event scheduled date/time in America/Mexico_City
+        // and auto-reconcile reversible "unutilized" status if the event is still valid / rescheduled
+        LocalDateTime now = EventAccessWindowEvaluator.nowMexico();
+        EventAccessWindowEvaluator.WindowEvaluation window = EventAccessWindowEvaluator.evaluate(eventData, now);
+        TicketLifecyclePolicy.ReconciliationResult reconciliation = lifecyclePolicy.reconcile(ticket, window);
+
+        if (reconciliation.wasRestoredToActive()) {
+            currentStatus = "active";
+            resp.setStatus("active");
+            if (resp.getTicketDetails() != null) {
+                resp.getTicketDetails().put("status", "active");
+            }
+            logAttempt(request, ticket, "SYSTEM", "AUTO_RESTORED_ACTIVE",
+                    "Boleto rehabilitado automáticamente: el evento sigue vigente o fue reprogramado");
+        } else if (reconciliation.wasMarkedUnutilized()) {
+            currentStatus = "unutilized";
+            resp.setStatus("unutilized");
+            if (resp.getTicketDetails() != null) {
+                resp.getTicketDetails().put("status", "unutilized");
+            }
+        }
+
+        if ("unutilized".equals(currentStatus) || window.getState() == EventAccessWindowEvaluator.WindowState.CONCLUDED) {
             resp.setValid(false);
             resp.setActionable(false);
             resp.setIsError(false);
             resp.setStatusCode("CONCLUDED_EVENT");
-            resp.setStatusTitle("FUNCIÓN FINALIZADA");
-            resp.setOperatorMessage("Esta función o evento ha concluido previamente. El boleto consta como no utilizado y su validez de ingreso expiró.");
-            logAttempt(request, ticket, "VERIFY", "CONCLUDED_EVENT", "Intento de ingreso a evento ya concluido");
+            resp.setStatusTitle("EVENTO CONCLUIDO");
+            resp.setOperatorMessage("La fecha y horario programado para esta función ya concluyeron. El boleto se conserva archivado como no utilizado.");
+            String note = reconciliation.wasMarkedUnutilized()
+                    ? "Promovido automáticamente a unutilized por expiración temporal"
+                    : "Intento de ingreso a evento ya concluido";
+            logAttempt(request, ticket, "VERIFY", "CONCLUDED_EVENT", note);
             return resp;
         }
 
-        // Evaluate temporal context against event scheduled date/time
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime eventStart = parseEventDateTime(eventData);
-
-        if (eventStart != null) {
-            // Check if concluded (tolerance: 4 hours after start time or previous day)
-            if (now.isAfter(eventStart.plusHours(4)) || (now.toLocalDate().isAfter(eventStart.toLocalDate()) && now.isAfter(eventStart.plusHours(2)))) {
-                // Lazy state promotion to unutilized
-                ticket.setStatus("unutilized");
-                ticketRepository.save(ticket);
-                resp.setStatus("unutilized");
-
-                resp.setValid(false);
-                resp.setActionable(false);
-                resp.setIsError(false);
-                resp.setStatusCode("CONCLUDED_EVENT");
-                resp.setStatusTitle("EVENTO CONCLUIDO");
-                resp.setOperatorMessage("La fecha y horario programado para esta función ya concluyeron. El boleto se conserva archivado como no utilizado.");
-                logAttempt(request, ticket, "VERIFY", "CONCLUDED_EVENT", "Promovido automáticamente a unutilized por expiración temporal");
-                return resp;
-            }
-
-            // Check future event tolerance (opens 2 hours before scheduled time)
-            LocalDateTime doorsOpen = eventStart.minusHours(2);
-            if (now.isBefore(doorsOpen)) {
-                long secRemaining = Duration.between(now, doorsOpen).getSeconds();
-                resp.setValid(false);
-                resp.setActionable(false);
-                resp.setIsError(false);
-                resp.setTimeRemainingSeconds(secRemaining);
-                resp.setStatusCode("FUTURE_EVENT");
-                resp.setStatusTitle("EVENTO PRÓXIMO / PUERTAS CERRADAS");
-                resp.setOperatorMessage(String.format("El evento aún no abre puertas de ingreso. Apertura programada para %s a las %s.",
-                        eventStart.toLocalDate(), eventStart.toLocalTime()));
-                logAttempt(request, ticket, "VERIFY", "FUTURE_EVENT", "Verificación previa a apertura de puertas");
-                return resp;
-            }
+        if (window.getState() == EventAccessWindowEvaluator.WindowState.FUTURE_DAY) {
+            resp.setValid(false);
+            resp.setActionable(false);
+            resp.setIsError(false);
+            resp.setTimeRemainingSeconds(window.getSecondsUntilDoorsOpen());
+            resp.setStatusCode("FUTURE_EVENT");
+            resp.setStatusTitle("EVENTO PRÓXIMO / PUERTAS CERRADAS");
+            resp.setOperatorMessage(String.format(
+                    "El evento está programado para el %s a las %s (apertura regular de puertas a las %s). El ingreso se habilita el día del evento.",
+                    window.getEventStart().toLocalDate(),
+                    window.getEventStart().toLocalTime(),
+                    window.getDoorsOpen().toLocalTime()));
+            logAttempt(request, ticket, "VERIFY", "FUTURE_EVENT", "Verificación en fecha previa al día del evento");
+            return resp;
         }
 
         // Check if operator terminal has a specific event/function configured that conflicts
@@ -245,14 +257,35 @@ public class ContextualValidationService {
             return resp;
         }
 
-        // All business checks approved -> Valid Access
+        // Same-day early arrival before standard doors-open window -> Actionable amber warning
+        if (window.getState() == EventAccessWindowEvaluator.WindowState.EARLY_ACCESS) {
+            resp.setValid(true);
+            resp.setActionable(true);
+            resp.setIsError(false);
+            resp.setEarlyAccess(true);
+            resp.setTimeRemainingSeconds(window.getSecondsUntilStart());
+            resp.setStatusCode("EARLY_ACCESS");
+            resp.setStatusTitle("LLEGADA ANTICIPADA • ACCESO HABILITADO");
+            resp.setOperatorMessage(String.format(
+                    "El evento inicia hoy a las %s (apertura regular a las %s). Puedes autorizar el ingreso anticipado si puertas ya reciben asistentes.",
+                    window.getEventStart().toLocalTime(),
+                    window.getDoorsOpen().toLocalTime()));
+            logAttempt(request, ticket, "VERIFY", "EARLY_ACCESS", "Verificación de llegada anticipada el día del evento");
+            return resp;
+        }
+
+        // All business checks approved -> Valid Access (pre-show open window or in-progress event)
+        boolean eventInProgress = window.getEventStart() != null && !now.isBefore(window.getEventStart());
         resp.setValid(true);
         resp.setActionable(true);
         resp.setIsError(false);
+        resp.setEarlyAccess(false);
         resp.setStatusCode("VALID_ACCESS");
-        resp.setStatusTitle("ACCESIBILIDAD AUTORIZADA");
-        resp.setOperatorMessage("Boleto legítimo y habilitado en ventana temporal. Puede efectuar el registro o canje de ingreso.");
-        logAttempt(request, ticket, "VERIFY", "VALID_ACCESS", "Verificación exitosa");
+        resp.setStatusTitle(eventInProgress ? "ACCESO AUTORIZADO • EVENTO EN CURSO" : "ACCESIBILIDAD AUTORIZADA");
+        resp.setOperatorMessage(eventInProgress
+                ? "Evento en curso. Boleto legítimo y habilitado para ingreso en puerta."
+                : "Boleto legítimo y habilitado en ventana temporal. Puede efectuar el registro o canje de ingreso.");
+        logAttempt(request, ticket, "VERIFY", "VALID_ACCESS", eventInProgress ? "Verificación exitosa durante evento en curso" : "Verificación exitosa");
 
         return resp;
     }
@@ -283,7 +316,7 @@ public class ContextualValidationService {
             logEntry.setResultStatus(resultStatus);
             logEntry.setNotes(notes);
 
-            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime now = EventAccessWindowEvaluator.nowMexico();
             logEntry.setValidationDate(now.format(DateTimeFormatter.ISO_LOCAL_DATE));
             logEntry.setValidationTime(now.format(DateTimeFormatter.ISO_LOCAL_TIME));
 
@@ -365,7 +398,8 @@ public class ContextualValidationService {
 
     private Map<String, Object> fetchEventInfo(Long eventId, Long functionId) {
         try {
-            Map<String, Object> evData = restTemplate.getForObject(eventServiceUrl + "/" + eventId, Map.class);
+            Map<String, Object> evData = restTemplate.getForObject(
+                    eventServiceUrl + "/" + eventId + "?includePastFunctions=true", Map.class);
             if (evData != null && functionId != null) {
                 List<Map<String, Object>> functions = (List<Map<String, Object>>) evData.get("functions");
                 if (functions != null) {
@@ -382,28 +416,6 @@ public class ContextualValidationService {
             return evData;
         } catch (Exception e) {
             logger.debug("Servicio de eventos inaccesible para ID {}", eventId);
-            return null;
-        }
-    }
-
-    private LocalDateTime parseEventDateTime(Map<String, Object> eventData) {
-        if (eventData == null) return null;
-        try {
-            String dateStr = (String) eventData.getOrDefault("event_date", eventData.get("date"));
-            String timeStr = (String) eventData.getOrDefault("event_time", eventData.getOrDefault("time", "20:00"));
-            if (dateStr == null || dateStr.trim().isEmpty() || "N/A".equals(dateStr)) return null;
-
-            LocalDate date = LocalDate.parse(dateStr.substring(0, 10));
-            LocalTime time = LocalTime.of(20, 0);
-            try {
-                if (timeStr != null && !timeStr.trim().isEmpty() && !timeStr.contains("N/A")) {
-                    String[] parts = timeStr.split(":");
-                    time = LocalTime.of(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
-                }
-            } catch (Exception ignored) {}
-
-            return LocalDateTime.of(date, time);
-        } catch (Exception e) {
             return null;
         }
     }

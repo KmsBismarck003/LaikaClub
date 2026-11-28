@@ -18,6 +18,12 @@ const StatusMessage = ({ status, message, statusCode, statusTitle, timeRemaining
       statusClass = 'valid';
       title = title || 'ACCESO AUTORIZADO';
       break;
+    case 'early':
+    case 'EARLY_ACCESS':
+      iconComponent = <Clock size={36} className="staff-status-icon-svg early" />;
+      statusClass = 'early';
+      title = title || 'LLEGADA ANTICIPADA • ACCESO HABILITADO';
+      break;
     case 'used':
     case 'ALREADY_REDEEMED':
     case 'REDEEMED_SUCCESS':
@@ -67,9 +73,12 @@ const StatusMessage = ({ status, message, statusCode, statusTitle, timeRemaining
       <h2 className={`staff-status-title ${statusClass}`}>{title}</h2>
       {message && <p className="staff-status-message">{message}</p>}
       {timeRemainingSeconds > 0 && (
-        <div className="staff-status-countdown">
+        <div className={`staff-status-countdown ${statusClass}`}>
           <Clock size={16} />
-          <span>Apertura en aprox: {Math.floor(timeRemainingSeconds / 3600)}h {Math.floor((timeRemainingSeconds % 3600) / 60)}m</span>
+          <span>
+            {statusClass === 'early' ? 'Inicia en aprox:' : 'Apertura en aprox:'}{' '}
+            {Math.floor(timeRemainingSeconds / 3600)}h {Math.floor((timeRemainingSeconds % 3600) / 60)}m
+          </span>
         </div>
       )}
     </div>

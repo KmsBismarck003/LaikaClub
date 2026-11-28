@@ -68,7 +68,7 @@ const StaffTerminal = () => {
   const sessionStats = {
     total: scanHistory.length,
     valids: scanHistory.filter(
-      (h) => h.status === 'valid' || h.status === 'used' || (h.valid && !h.alreadyUsed)
+      (h) => h.status === 'valid' || h.status === 'early' || h.status === 'used' || (h.valid && !h.alreadyUsed)
     ).length,
     invalids: scanHistory.filter(
       (h) => h.status === 'invalid' || (!h.valid && !h.alreadyUsed)
@@ -100,7 +100,6 @@ const StaffTerminal = () => {
     try {
       const data = await api.event.getAll({ status_filter: 'published' });
       setEvents(data);
-      if (data.length > 0) setSelectedEventId(String(data[0].id));
     } catch (err) {
       console.error('Error al cargar eventos:', err);
     }
@@ -126,8 +125,10 @@ const StaffTerminal = () => {
       };
       const response = await api.ticket.verify(codeToVerify, context);
 
+      const isEarlyAccess = Boolean(response.earlyAccess || response.statusCode === 'EARLY_ACCESS');
       let mappedStatus = 'invalid';
-      if (response.actionable || (response.valid && !response.alreadyUsed)) mappedStatus = 'valid';
+      if (isEarlyAccess && !response.alreadyUsed) mappedStatus = 'early';
+      else if (response.actionable || (response.valid && !response.alreadyUsed)) mappedStatus = 'valid';
       else if (response.alreadyUsed || response.statusCode === 'ALREADY_REDEEMED') mappedStatus = 'used';
       else if (response.statusCode === 'FUTURE_EVENT') mappedStatus = 'future';
       else if (response.statusCode === 'CONCLUDED_EVENT') mappedStatus = 'concluded';
@@ -135,6 +136,7 @@ const StaffTerminal = () => {
 
       const result = {
         valid: response.valid || false,
+        earlyAccess: isEarlyAccess,
         actionable:
           response.actionable !== undefined
             ? response.actionable
@@ -162,7 +164,9 @@ const StaffTerminal = () => {
       setTicketCode('');
       setScanHistory((prev) => [result, ...prev.slice(0, 29)]);
 
-      if (result.actionable || (result.valid && !result.alreadyUsed)) {
+      if (result.earlyAccess && result.actionable) {
+        success('Llegada anticipada • Puedes autorizar el ingreso en puerta');
+      } else if (result.actionable || (result.valid && !result.alreadyUsed)) {
         success('Acceso Autorizado • Boleto válido en ventana permitida');
       } else if (result.statusCode === 'REVOKED_TICKET') {
         showError('ACCESO DENEGADO • Boleto cancelado o reembolsado');
@@ -264,15 +268,12 @@ const StaffTerminal = () => {
                 onChange={(e) => setSelectedEventId(e.target.value)}
                 className="terminal-select-pill"
               >
-                {events.length === 0 ? (
-                  <option value="">Sin eventos publicados</option>
-                ) : (
-                  events.map((ev) => (
-                    <option key={ev.id} value={ev.id}>
-                      {ev.name}
-                    </option>
-                  ))
-                )}
+                <option value="">Todos los eventos (Auto-detectar)</option>
+                {events.map((ev) => (
+                  <option key={ev.id} value={ev.id}>
+                    {ev.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -442,15 +443,19 @@ const StaffTerminal = () => {
                   <TicketInfo ticket={verificationResult} />
 
                   {(verificationResult.actionable ||
-                    (verificationResult.status === 'valid' &&
+                    ((verificationResult.status === 'valid' || verificationResult.status === 'early') &&
                       !verificationResult.alreadyUsed)) && (
                     <button
                       type="button"
-                      className="terminal-redeem-btn"
+                      className={`terminal-redeem-btn ${verificationResult.status === 'early' ? 'terminal-redeem-btn--early' : ''}`}
                       onClick={handleRedeemTicket}
                     >
                       <CheckCircle2 size={22} />
-                      <span>Confirmar Acceso • Registrar Canje</span>
+                      <span>
+                        {verificationResult.status === 'early'
+                          ? 'Autorizar Ingreso Anticipado • Registrar Canje'
+                          : 'Confirmar Acceso • Registrar Canje'}
+                      </span>
                     </button>
                   )}
 
