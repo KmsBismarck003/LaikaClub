@@ -1,3 +1,5 @@
+import { getImageUrl } from '../../../../utils/imageUtils';
+
 export const ACCENTS = [
   { from: '#0d2a6b', to: '#0a1a4a', line: '#0070F3', badge: '#0070F3' },
   { from: '#2d1060', to: '#1a0a3a', line: '#7928CA', badge: '#7928CA' },
@@ -18,8 +20,6 @@ export const FALLBACK_IMGS = [
 export function qr(code) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(code)}&qzone=1&color=cccccc&bgcolor=111111`;
 }
-
-import { getImageUrl } from '../../../../utils/imageUtils';
 
 export function getEventImageUrl(url, idx = 0) {
   if (!url) return FALLBACK_IMGS[idx % FALLBACK_IMGS.length];
