@@ -7,11 +7,21 @@
  */
 import React from 'react'
 
+const getMatisUrl = () => {
+  if (process.env.REACT_APP_MATIS_URL) return process.env.REACT_APP_MATIS_URL
+  const isLocal =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  return isLocal
+    ? 'http://localhost:3040'
+    : 'https://laikaclub-yxdb1q.northcentralus.cloudapp.azure.com/matis/'
+}
+
 const MatisDashboard = () => {
   return (
     <div style={{ width: '100%', height: 'calc(100vh - 140px)', margin: 0, padding: 0 }}>
       <iframe
-        src="http://localhost:3040"
+        src={getMatisUrl()}
         title="MATIS Executive Dashboard"
         style={{
           width: '100%',

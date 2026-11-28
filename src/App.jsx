@@ -37,6 +37,7 @@ import {
 } from './pages'
 import { adminRoutes, publicRoutes, managerRoutes, staffRoutes, matisRoutes } from './routes'
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
+import AuthSync from './pages/AuthSync'
 import ProtectedRoute from './components/Guards/ProtectedRoute'
 import NotificationContainer from './components/Notifications/NotificationContainer/NotificationContainer'
 import DatabaseMonitor from './components/Admin/DatabaseMonitor/DatabaseMonitor'
@@ -84,6 +85,7 @@ function AppContent() {
             <Suspense fallback={<LoadingScreen />}>
               <Routes>
                 <Route path='/maintenance' element={<Maintenance />} />
+                <Route path='/auth-sync' element={<AuthSync />} />
                 {/* ... existing routes ... */}
                 {/* Rutas de Autenticación - SIN AuthLayout anidado */}
                 {/* Rutas Públicas y de Usuario */}

@@ -56,7 +56,7 @@ const handleRoleRedirection = async (userObj, navigate, from = null) => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         const b64User = btoa(encodeURIComponent(JSON.stringify(userObj)));
         const targetPath = roleRedirectMap[userRole] || '/';
-        window.location.href = `http://localhost:${targetPort}/auth-sync?token=${token}&user=${b64User}&redirect=${encodeURIComponent(targetPath)}`;
+        window.location.href = `http://localhost:${targetPort}/auth-sync?token=${encodeURIComponent(token || '')}&user=${encodeURIComponent(b64User)}&redirect=${encodeURIComponent(targetPath)}`;
         return true;
       }
     }
